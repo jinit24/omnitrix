@@ -62,16 +62,17 @@ class Supervisor:
             payload = json.loads(message['body'])
             command, text = payload.get('command','chat'),payload.get('text','')
             try:
+                self._check_control_revision(payload)
                 if command=='status':
                     result=self.status()
                 elif command=='chat':
-                    result=await self.chat(text)
+                    result=await self.chat(text, expected=payload)
                 elif command=='policy':
                     result={'proposal':self.control.propose(self.goal_id,'policy',{'instructions':text})}
                 elif command=='requirements':
                     result={'proposal':self.control.propose(self.goal_id,'requirements',json.loads(text))}
                 elif command=='accept':
-                    result=await self.accept(text)
+                    result=await self.accept(text, expected=payload)
                 elif command in ('pause','cancel'):
                     result=await self.stop(text,command=='pause')
                 elif command=='steer':
@@ -89,6 +90,13 @@ class Supervisor:
             except Exception as exc:
                 self.control.message(self.goal_id,'reply',{'error':str(exc)},direction='manager_to_user',message_id='reply:'+message['id'],state='acknowledged')
                 self.control.ack(message['id'])
+
+    def _check_control_revision(self, payload):
+        if 'goal_revision' not in payload:
+            return
+        current = self.control.current(self.goal_id)
+        if payload['goal_revision'] != current['goal']['revision'] or payload.get('policy_revision') != current['policy']['version']:
+            raise ValueError('Queued command is stale after an instruction change; refresh and send again')
 
     def status(self):
         return self.store.snapshot(self.goal_id)
@@ -379,8 +387,9 @@ class Supervisor:
         self.control.event(self.goal_id,'reconciliation',result,task_id)
         return result
 
-    async def chat(self, text):
+    async def chat(self, text, expected=None):
         async with self.actor:
+            self._check_control_revision(expected or {})
             message_id = self.control.message(self.goal_id, 'chat', {'text': text})
             session = self.control.session(self.goal_id)
             current = self.control.current(self.goal_id)
@@ -416,8 +425,9 @@ class Supervisor:
             finally:
                 session.close()
 
-    async def accept(self, proposal_id):
+    async def accept(self, proposal_id, expected=None):
         async with self.actor:
+            self._check_control_revision(expected or {})
             result = self.control.accept(self.goal_id,proposal_id)
             for message in self.control.pending(self.goal_id):
                 if message['kind'] == 'constraints_changed':

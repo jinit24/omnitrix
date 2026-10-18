@@ -153,7 +153,7 @@
               <tr>
                 <td><code>dashboard</code></td>
                 <td>
-                  Optional read-only HTTP server and bundled HTML app/docs
+                  HTTP dashboard with optional authenticated inbox controls
                 </td>
               </tr>
             </tbody>
@@ -322,7 +322,8 @@
             <a href="recovery.html">recovery</a>.
           </p>
           <p>
-            The dashboard opens read-only/query-only transactions and never
+            Dashboard snapshots use read-only/query-only transactions. Optional bearer-authenticated
+            commands append to the durable inbox and are processed by the existing supervisor. The web server never
             takes ownership. It refreshes committed state every five seconds,
             shows bounded recent records, and retains the last snapshot on
             errors. HTML guides are maintained directly. See
@@ -342,8 +343,7 @@
           >Recovery and observation</a
         >
         <div class="outline-note">
-          Need to steer the manager?<br />Use CLI chat. The web app is
-          read-only.
+          Need to steer the manager?<br />Use Manager chat with an authenticated backend.
         </div>
       </aside>
     </div>

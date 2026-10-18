@@ -93,7 +93,7 @@ omnitrix chat GOAL_ID
 # Another terminal; read-only app and HTML documentation:
 omnitrix --db .omnitrix/state.db dashboard
 </code></pre>
-<p>The dashboard binds loopback port 8765. It has no authentication; keep access trusted.
+<p>The dashboard defaults to read-only on loopback port 8765. Authenticated control is opt-in.
 Use <code>--require-implementation</code> for code goals: recommendations alone cannot complete them.</p>
 <table>
 <thead>
@@ -206,6 +206,15 @@ Register local exported logs/CSV with repeatable <code>--evidence workspace/rela
 record workload and measurement-window context alongside them. See the
 <a href="campaigns.html">campaign and tracking guide</a> for pricing, recovery, explicit
 continuation after a pause, and the limits of the current Kafka experiment.</p>
+<h2>UI control</h2>
+<p>Set <code>OMNITRIX_DASHBOARD_TOKEN</code> securely to 32+ random characters, then run:</p>
+<pre><code class="language-sh">omnitrix --db .omnitrix/state.db dashboard --allow-control \
+  --allowed-origin https://jinit24.github.io
+omnitrix --db .omnitrix/state.db run GOAL_ID --steps 0 --hours 4
+</code></pre>
+<p>Use <strong>Connect manager</strong> → <strong>Manager chat</strong>. Messages and controls queue to the existing
+owner; permanent changes require explicit acceptance. GitHub Pages requires your own
+HTTPS backend URL. Tokens stay in the browser tab, never in published files or storage.</p>
 <h2>Learn more</h2>
 <p>The app's <strong>Documentation</strong> section includes searchable HTML guides, flowcharts, tables,
 and raw experiment records. README is the only Markdown documentation page; edit other guides directly as HTML.</p>
