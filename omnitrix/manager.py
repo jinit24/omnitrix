@@ -1,7 +1,7 @@
 import fcntl
 import json
 import os
-from agents import Agent, Runner, RunConfig, function_tool
+from agents import Agent, Runner, RunConfig, ModelSettings, function_tool
 from .control import Control
 from .knowledge import Knowledge
 from .research import Research
@@ -43,25 +43,30 @@ class AgentBrain:
                 """Retrieve shared verified facts, system maps, assumptions and rejected hypotheses."""
                 return json.dumps(Knowledge(self.store).search(snapshot['goal']['workspace'], query, offset=offset))
             @function_tool
-            async def list_resources(directory: str = '.') -> str:
-                """List at most 40 direct children; no recursive scan. Select explicit bounded research scopes."""
-                from pathlib import Path
-                root = Path(snapshot['goal']['workspace']).resolve()
-                path = (root / directory).resolve()
-                if not path.is_relative_to(root) or not path.is_dir():
-                    return 'Not a directory inside the workspace'
-                import itertools
-                return json.dumps([{'name': p.name, 'directory': p.is_dir()} for p in itertools.islice(path.iterdir(),40)
-                                   if p.name not in ('.git','.omnitrix','.venv','node_modules')])
+            async def list_resources(directory: str = '.', offset: int = 0) -> str:
+                """List 40 sorted direct children with file kinds/sizes. Follow next_offset to inspect later pages. No recursive scan; choose explicit research sources."""
+                from .resources import list_resources as inventory
+                return json.dumps(inventory(snapshot['goal']['workspace'], directory, offset))
             tools += [search_knowledge, list_resources]
         agent = Agent(
             name='Engineering manager', model=self.model,
             instructions=(ROOT / 'instructions/MANAGER.md').read_text() + '\n' +
                          (ROOT / 'instructions/KNOWLEDGE.md').read_text() + policy,
-            tools=tools, output_type=Decision)
+            tools=tools, output_type=Decision,
+            model_settings=ModelSettings(tool_choice='list_resources' if self.store and not snapshot['research'] else 'auto'))
         # Stable objective + concise outcomes, never worker event streams.
         context = {**snapshot, 'tasks': snapshot['tasks'][-20:],
                    'decisions': snapshot['decisions'][-20:]}
+        if self.store:
+            from .resources import list_resources as inventory
+            context['resource_inventory'] = inventory(snapshot['goal']['workspace'])
+            if not snapshot.get('research_progress', {}).get('observed_sources'):
+                # Bootstrap only metadata, one level deep. This prevents a worker
+                # task merely to discover valid source paths and remains bounded.
+                directories = context['resource_inventory']['subdirectories']
+                context['initial_directory_pages'] = [inventory(snapshot['goal']['workspace'], directory)
+                                                       for directory in directories[:8]]
+                context['unlisted_initial_directories'] = directories[8:]
         try:
             result = await Runner.run(agent, json.dumps(context), max_turns=8, session=session,
                                       run_config=RunConfig(tracing_disabled=True))

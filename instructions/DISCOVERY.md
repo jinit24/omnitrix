@@ -15,3 +15,14 @@ spend a tool call repeating an empty lookup. Read tools accept at most 100 lines
 per call, starting at line 1 or later. Invalid arguments are not evidence of missing
 files or access permissions. Correct them while budget remains; cite only returned
 evidence IDs, never prose descriptions in evidence-ID lists.
+
+When the objective spans a system, compare independent candidate bottlenecks and
+map their dependencies before narrowing. Include code and runtime evidence where
+available; a loud error stream or suspicious loop alone is not measured impact.
+Use search_source to locate relevant events beyond the first excerpt, and
+summarize_csv to compare aggregate numeric costs by subsystem or operation. Read
+headers and measurement-window context. Every tool page is bounded: follow
+next_line/summary.next_row if needed, or explicitly mark the unseen remainder as a
+gap. Partial totals are not whole-workload totals. Keep promising low-confidence
+branches in the backlog with the measurement needed to test them. State both the
+next exploitation test and the next useful unexplored branch.
