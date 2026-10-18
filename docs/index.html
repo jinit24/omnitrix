@@ -151,6 +151,7 @@ omnitrix status GOAL_ID
 omnitrix messages GOAL_ID
 omnitrix knowledge GOAL_ID 'retry'
 omnitrix export GOAL_ID &gt; research.json
+omnitrix report GOAL_ID --output research.html
 </code></pre>
 <p>One manager owns each DB. <code>send</code> queues to that owner; it never starts another manager.
 <code>resume GOAL_ID --steps 5 --message TEXT</code> restarts bounded work when no owner is running.</p>
@@ -179,8 +180,10 @@ the clean candidate worktree. Commands are trusted local processes, not a hostil
 sandbox; provider credentials are removed. Authorization permits bounded worktree edits,
 never deployments, destructive operations, merges or pushes.</p>
 <h2>GitHub Pages</h2>
-<p>Enable <strong>Settings → Pages → GitHub Actions</strong>. The included workflow publishes a labeled
-static demo and HTML docs. Live manager state stays local.</p>
+<p>Enable <strong>Settings → Pages → GitHub Actions</strong>. The included workflow publishes three recorded real-model experiment runs and HTML docs.
+Live manager state stays local; archived results are labeled as snapshots.</p>
+<p>Research sources up to 32 MiB support bounded reads, search, and CSV aggregation.
+Partition larger exports; observed coverage is not exhaustive system coverage.</p>
 <h2>Learn more</h2>
 <p>The app's <strong>Documentation</strong> section includes searchable HTML guides, flowcharts, tables,
 and raw experiment records. README is the only Markdown documentation page; edit other guides directly as HTML.</p>
@@ -191,6 +194,31 @@ and raw experiment records. README is the only Markdown documentation page; edit
 <li><a href="experiments.html">Experiments and commands</a></li>
 <li><a href="status.html">Status and limitations</a></li>
 </ul>
+<h2>Research quality evaluation and self-audit</h2>
+<p>The <a href="research-quality.html">HTML findings and repair log</a> records baseline
+failures, changes, actual live outcomes, and unresolved limitations. Its source is
+<code>docs/research-quality.json</code>; per-goal HTML includes decisions, evidence, queries,
+evaluations and measured model usage. Source/model text is escaped, never executed.</p>
+<pre><code class="language-sh"># Scripted tool/harness checks: these do not measure model reasoning.
+python scripts/research_eval.py --harness-only --output .omnitrix/eval-harness-NEW
+# Paid autonomous discovery: competing clues and a negative control, scored outside the workspace.
+python scripts/research_eval.py --live --output .omnitrix/eval-live-NEW --log docs/research-quality.json
+# Real Omnitrix source, seeded failing probes, autonomous triage and authorized Codex repair.
+python scripts/self_audit.py --allow-code-modifications --output .omnitrix/self-audit-NEW --log docs/research-quality.json
+</code></pre>
+<p>Use new output directories. <code>--live</code> needs API credentials and API network access.
+The self-audit clones the selected committed revision locally, retains every
+candidate, and limits worker changes to <code>omnitrix/research.py</code>; independent oracles
+live outside the candidate. It performs no merge, push or PR publication. Running
+the script through an outer sandbox that masks Codex's daemon socket can block
+worker shells; keep Codex's own sandbox enabled when using a supported execution route.</p>
+<p>Synthetic scoring measures observable research behavior, with explicitly reported
+lexical target matching. It is not proof of causal correctness or generalization
+to large public repositories. The self-audit probes are human-authored known
+failures: successful triage/repair is separate from autonomous issue discovery.
+The research evaluator exits 0 only when every checkpoint passes, 1 for behavioral
+failures (or no trials), and 2 for blocked/error runs. A completed agent conversation
+does not by itself pass the evaluation.</p>
 </article>
         <div class="article-footer">Source: README.md</div>
       </main>

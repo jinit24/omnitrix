@@ -437,18 +437,24 @@ async function refresh() {
       selector.dataset.ready = "1";
       if (document.activeElement?.id !== "task-search") render();
     }
-    $("#connection").textContent = state.demo ? "Static demo" : "Connected";
+    $("#connection").textContent = state.snapshot ? "Experiment snapshot" : "Connected";
     $("#connection").classList.remove("error");
     $("#updated").textContent =
-      state.demo ? "Sample data · no live workers" : `Updated ${lastGood.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`;
-    $("#notice").hidden = Boolean(!state.demo && state.available && state.goals.length);
-    $("#notice").textContent = state.demo ? state.reason : !state.available
+      state.snapshot ? `Recorded ${new Date(state.recorded_at).toLocaleString()} · not live` : `Updated ${lastGood.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`;
+    $("#notice").hidden = Boolean(!state.snapshot && state.available && state.goals.length);
+    $("#notice").textContent = state.snapshot ? state.reason : !state.available
       ? state.reason
       : state.goals.length
         ? ""
         : "No goals recorded yet. Create a goal using the CLI; this dashboard will update automatically.";
+    if (state.snapshot) {
+      const link = document.createElement("a");
+      link.href = "./docs/experiments.html";
+      link.textContent = " View results and limitations ↗";
+      $("#notice").append(link);
+    }
     $("#source-note").textContent =
-      state.demo ? "Static sample · no live connection" : `SQLite · Latest ${state.limit || 200} records per category`;
+      state.snapshot ? "Recorded experiment · read-only" : `SQLite · Latest ${state.limit || 200} records per category`;
   } catch (err) {
     $("#connection").textContent = "Disconnected";
     $("#connection").classList.add("error");
