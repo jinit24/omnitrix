@@ -37,6 +37,9 @@ def main():
     search.add_argument('query',nargs='?',default='')
     export = commands.add_parser('export')
     export.add_argument('goal_id')
+    report = commands.add_parser('report', help='Write a standalone HTML evidence and decision log')
+    report.add_argument('goal_id')
+    report.add_argument('--output', type=Path, required=True)
     authorize = commands.add_parser('authorize')
     authorize.add_argument('goal_id')
     authorize.add_argument('spec',type=Path)
@@ -71,6 +74,10 @@ def main():
             print(json.dumps(Knowledge(store).search(store.snapshot(args.goal_id)['goal']['workspace'],args.query),indent=2))
         elif args.command == 'export':
             print(json.dumps(Knowledge(store).export(args.goal_id),indent=2))
+        elif args.command == 'report':
+            from .reporting import goal_report, write_report
+            write_report(goal_report(store, args.goal_id), args.output)
+            print(str(args.output.resolve()))
         elif args.command == 'authorize':
             service = Implementations(store)
             spec = ImplementationSpec.model_validate_json(args.spec.read_text())
