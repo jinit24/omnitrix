@@ -125,9 +125,15 @@ class Frontier:
         rows = self.store.db.execute('''SELECT locator,kind,bucket,size_bytes,origin FROM frontier_files
             WHERE goal_id=? AND locator>? AND locator LIKE ? ESCAPE '\\' AND (? IS NULL OR kind=?)
             AND locator LIKE ? ESCAPE '\\' ORDER BY locator LIMIT ?''', (self.goal_id, after, '%'+escaped+'%', kind, kind, escaped_prefix+'%',limit+1)).fetchall()
+        components=self.store.db.execute('''SELECT bucket,count(*) AS matches,min(locator) AS example_locator FROM frontier_files
+            WHERE goal_id=? AND locator LIKE ? ESCAPE '\\' AND (? IS NULL OR kind=?)
+            AND locator LIKE ? ESCAPE '\\' GROUP BY bucket ORDER BY bucket''',
+            (self.goal_id,'%'+escaped+'%',kind,kind,escaped_prefix+'%')).fetchall()
         return {'entries': [dict(r) for r in rows[:limit]], 'next_after': rows[limit-1]['locator'] if len(rows)>limit else None,
                 'query': query, 'kind': kind, 'directory':prefix,
-                'query_scope':'Pathnames only, never file contents. directory must name a directory. To inspect contents, return a research plan with real file paths; researchers have read_source/search_source.'}
+                'total_matches':sum(row['matches'] for row in components),
+                'matched_components':[dict(row) for row in components[:8]],'components_truncated':len(components)>8,
+                'query_scope':'Literal pathname substring only, never file contents. directory must name a directory. Follow next_after before claiming absence; component samples may reveal paths beyond this page. To inspect contents, return a research plan with real file paths; researchers have read_source/search_source.'}
 
     def suggestions(self, limit=12):
         rows = self.store.db.execute('''WITH seen AS (

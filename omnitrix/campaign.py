@@ -148,6 +148,15 @@ class Campaign:
 
     def checkpoint(self):
         from .reporting import goal_report, write_report
+        state=self.status()
+        frontier=Frontier(self.store,self.goal_id).summary()
+        summary={'state':state['state'],'reason':state['reason'],'decisions_spent':state['decisions_spent'],
+            'spending':state['spending'],'quality':self.quality(),
+            'observed_files':frontier['observed_files'] if frontier else 0,
+            'role_runs_spent':self.store.db.execute('SELECT spent FROM research_limits WHERE goal_id=?',(self.goal_id,)).fetchone()[0]}
+        previous=self.store.db.execute("SELECT detail FROM activity WHERE goal_id=? AND kind='campaign_checkpoint' ORDER BY id DESC LIMIT 1",(self.goal_id,)).fetchone()
+        if not previous or json.loads(previous[0])!=summary:
+            Control(self.store).event(self.goal_id,'campaign_checkpoint',summary)
         write_report(goal_report(self.store, self.goal_id), self.status()['report_path'])
 
     async def drive(self, supervisor=None, continue_paused=False, poll_seconds=.2):

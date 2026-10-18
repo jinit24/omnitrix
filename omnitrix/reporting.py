@@ -124,7 +124,7 @@ def goal_report(store, goal_id):
             'implementations': snapshot['implementations'],
             'verifications': [dict(r) for r in store.db.execute('SELECT * FROM verifications WHERE implementation_id IN (SELECT id FROM implementations WHERE goal_id=?)', (goal_id,))],
             'completion_audits': [dict(r) for r in store.db.execute('SELECT * FROM completion_audits WHERE goal_id=?', (goal_id,))],
-            'campaign_events': [dict(r) for r in store.db.execute("SELECT kind,detail,created FROM activity WHERE goal_id=? AND kind IN ('campaign_stopped','read_only_recovery','decision_rejected','manager_budget_exhausted','human_repair_feedback','evidence_registered','manager_inventory','manager_frontier_query') ORDER BY id",(goal_id,))],
+            'campaign_events': [dict(r) for r in store.db.execute("SELECT kind,detail,created FROM activity WHERE goal_id=? AND kind IN ('campaign_stopped','campaign_resumed','campaign_checkpoint','read_only_recovery','decision_rejected','manager_budget_exhausted','human_repair_feedback','research_challenged','evidence_registered','manager_inventory','manager_frontier_query') ORDER BY id",(goal_id,))],
             'spending_requests': [dict(r) for r in store.db.execute('SELECT * FROM spending_requests WHERE goal_id=? ORDER BY created',(goal_id,))],
             'runs': [{'name': 'Model usage', 'events': [json.loads(r[0]) for r in store.db.execute(
                 "SELECT detail FROM activity WHERE goal_id=? AND kind='usage' ORDER BY created", (goal_id,))]}]}

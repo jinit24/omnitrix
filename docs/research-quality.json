@@ -307,9 +307,18 @@
             "fix": "Latest experiment summary plus append-only timestamped experiment_events; issue history records observations, changes and regressions. Atomic file replacement prevents partial reports.",
             "validation": "Blocked-to-completed rerun and open-to-fixed-to-regressed issue tests preserve every earlier event."
           }
+        },
+        {
+          "at": "2026-10-18T19:17:56.666346+00:00",
+          "status": "append-only histories verified; ongoing campaign checkpoints added",
+          "event": "automatic tracking change",
+          "details": {
+            "fix": "Each periodic/final checkpoint now saves a timestamped activity record with source coverage, hypothesis/mechanism counts, consumed decisions/role runs, spent dollars and outstanding reservations. Identical states are coalesced; earlier checkpoints remain.",
+            "boundary": "Goal HTML and SQLite preserve continuing progress between manual reviews. The shared issue ledger retains human-reviewed diagnoses and fixes separately."
+          }
         }
       ],
-      "status": "implemented; focused regression passed"
+      "status": "append-only histories verified; ongoing campaign checkpoints added"
     },
     {
       "id": "R23",
@@ -339,9 +348,19 @@
             "fix": "Campaigns use fresh SDK turns with bounded durable snapshots and SQLite recall tools. Ordinary interactive sessions stay persistent.",
             "validation": "Campaign SDK invocation regression asserts no duplicate session replay."
           }
+        },
+        {
+          "at": "2026-10-18T19:17:56.650215+00:00",
+          "status": "partial fix; handoff compaction implemented",
+          "event": "live cost review",
+          "details": {
+            "observed": "Removing SDK snapshot replay helped one call but did not solve duplication: a later two-request manager decision still consumed 73298 input tokens. Manager spend dominated costs.",
+            "fix": "Campaign prompt now includes only six recent tasks and compact report handoffs, eight decisions/jobs/opportunities, and five recent repair messages. Original reports remain on disk and are recallable.",
+            "validation": "Focused manager/campaign/report tests pass; live before/after comparison pending."
+          }
         }
       ],
-      "status": "implemented; live cost comparison pending"
+      "status": "partial fix; handoff compaction implemented"
     },
     {
       "id": "R25",
@@ -461,6 +480,23 @@
         }
       ],
       "status": "fixed; generated guide and focused docs checks pass"
+    },
+    {
+      "id": "R30",
+      "title": "Manager treats a partial interface-heavy search page as absence of implementation",
+      "history": [
+        {
+          "at": "2026-10-18T19:17:56.658726+00:00",
+          "status": "catalog metadata improved; live recovery pending",
+          "event": "live regression",
+          "details": {
+            "observed": "Queries for Assignor under group-coordinator returned a 20-row first page with a next_after cursor. Manager repeatedly guessed a nonexistent group-coordinator-impl subtree and paused, overlooking real implementation classes on later pages under group-coordinator/src.",
+            "fix": "Catalog responses now include exact total match counts and representative paths/counts per matched component, including components beyond the current page. Path search is explicitly a literal substring.",
+            "limit": "This reduces interface-only first-page bias but does not prove the model will follow pagination or use counterevidence."
+          }
+        }
+      ],
+      "status": "catalog metadata improved; live recovery pending"
     }
   ],
   "runs": [

@@ -11,6 +11,29 @@ from .models import Decision
 from .workers import ROOT
 
 
+def brief_result(value):
+    """A recallable worker handoff, without replaying every report twice."""
+    if isinstance(value,str):
+        try:
+            value=json.loads(value)
+        except ValueError:
+            return value[:1500]
+    if not isinstance(value,dict):
+        return value
+    output={key:value[key] for key in ('job_id','run_id','status','feedback','error') if key in value}
+    if isinstance(value.get('evaluation'),dict):
+        output['evaluation']={key:val[:1200] if isinstance(val,str) else val for key,val in value['evaluation'].items()}
+    report=value.get('report')
+    if isinstance(report,dict):
+        output['report_summary']={key:report[key] for key in ('blocked','uncertainties','gaps') if key in report}
+        output['report_summary']['finding_count']=len(report.get('findings',[]))
+        output['report_summary']['findings']=[{key:val[:700] if isinstance(val,str) else val for key,val in finding.items()}
+            for finding in report.get('findings',[])[:6]]
+        output['report_summary']['system_map_names']=[entry['name'] for entry in report.get('system_map',[])[:12]]
+        output['report_summary']['opportunity_titles']=[entry['title'] for entry in report.get('opportunities',[])[:12]]
+    return output or value
+
+
 class AgentBrain:
     """A conversational Agents SDK agent with durable context and recall tools."""
     def __init__(self, model=None, store=None):
@@ -80,6 +103,17 @@ class AgentBrain:
         # Stable objective + concise outcomes, never worker event streams.
         context = {**snapshot, 'tasks': snapshot['tasks'][-20:],
                    'decisions': snapshot['decisions'][-20:]}
+        if snapshot.get('campaign'):
+            context['tasks']=[task | {'result':brief_result(task['result'])} for task in snapshot['tasks'][-6:]]
+            context['decisions']=snapshot['decisions'][-8:]
+            context['research']=snapshot['research'][:8]
+            context['opportunities']=snapshot['opportunities'][:8]
+            context['worker_messages']=[message | {'body':brief_result(message['body'])}
+                for message in snapshot['worker_messages'][:8]]
+            context['pending_messages']=[message | {'body':brief_result(message['body'])}
+                for message in snapshot['pending_messages'][-10:]]
+            context['manager_feedback']=snapshot['manager_feedback'][:5]
+            context['context_window']='Recent 6 tasks, 8 decisions/jobs/opportunities, compact worker handoffs. Full original reports and older decisions remain in recall_history and search_knowledge; these excerpts are not complete coverage.'
         if self.store:
             from .resources import list_resources as inventory
             context['resource_inventory'] = inventory(snapshot['goal']['workspace'])

@@ -63,6 +63,8 @@ def test_frontier_is_durable_paginated_and_classifies_metric_code_correctly(tmp_
     assert summary['files']==151 and summary['by_kind']['code']==150
     first=frontier.page('Metrics',limit=40)
     next_page=frontier.page('Metrics',after=first['next_after'],limit=40)
+    assert first['total_matches']==150 and next_page['total_matches']==150
+    assert len(first['matched_components'])==3
     assert first['entries'][-1]['locator']<next_page['entries'][0]['locator']
     assert len({f['bucket'] for f in frontier.suggestions(4)})==4
     fresh=Frontier(Store(store.path),goal)
@@ -133,7 +135,7 @@ async def test_bounded_context_can_recall_old_decisions_through_real_sdk_tool(tm
     store,goal,_,_=setup(tmp_path)
     for i in range(50):store.execute('INSERT INTO decisions(goal_id,body) VALUES(?,?)',(goal,json.dumps({'event':i})))
     async def run(agent,prompt,**kwargs):
-        assert len(json.loads(prompt)['decisions'])==20
+        assert len(json.loads(prompt)['decisions'])==8
         assert kwargs['session'] is None
         tool=agent.tools[0];payload=json.dumps({'section':'decisions','offset':0})
         context=ToolContext(context=None,tool_name=tool.name,tool_call_id='recall',tool_arguments=payload)
