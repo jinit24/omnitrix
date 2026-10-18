@@ -88,3 +88,24 @@ def test_docs_are_current():
     spec.loader.exec_module(module)
     for name, expected in module.build().items():
         assert (module.OUT / name).read_text() == expected, name
+
+
+def test_pages_build_is_static_and_project_path_safe(tmp_path):
+    import importlib.util
+    script = Path(__file__).resolve().parents[1] / 'scripts/build_pages.py'
+    spec = importlib.util.spec_from_file_location('build_pages', script)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    output = module.build(tmp_path / 'omnitrix')
+    html = (output / 'index.html').read_text()
+    assert 'data-static="true"' in html
+    assert 'href="./styles.css"' in html
+    assert 'src="./app.js"' in html
+    assert 'href="./docs/"' in html
+    state = json.loads((output / 'demo-state.json').read_text())
+    assert state['demo'] is True
+    assert 'sample data' in state['reason']
+    assert state['goals'][0]['id'] == 'sample-goal'
+    assert not list(output.rglob('*.db'))
+    assert 'href="../"' in (output / 'docs/architecture.html').read_text()
+    assert (output / 'docs/live-api-v2-gpt54.json').is_file()

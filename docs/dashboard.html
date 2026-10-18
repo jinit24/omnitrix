@@ -132,6 +132,11 @@ omnitrix --db /absolute/path/state.db dashboard --host 0.0.0.0 --port 8765
             guarantee freshness; revalidate before reuse. A passing check is not
             goal completion. Use CLI chat for steering and authorization.
           </p>
+          <h2 id="github-pages">GitHub Pages</h2>
+          <p>Pages serves a labeled sample dashboard and these guides, not live SQLite state.
+          Enable <strong>Settings → Pages → GitHub Actions</strong>; the Publish static demo
+          workflow deploys on changes to main. Build locally with
+          <code>python scripts/build_pages.py</code>. No credentials or databases are published.</p>
           <h2 id="data-boundaries">Data boundaries</h2>
           <ul>
             <li>

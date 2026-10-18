@@ -103,9 +103,13 @@ the clean candidate worktree. Commands are trusted local processes, not a hostil
 sandbox; provider credentials are removed. Authorization permits bounded worktree edits,
 never deployments, destructive operations, merges or pushes.
 
-Research source reads, searches, and CSV aggregation are bounded and paginated.
-Sources up to 32 MiB are supported; partition larger exports. Observed coverage
-does not imply the entire repository or workload has been examined.
+## GitHub Pages
+
+Enable **Settings → Pages → GitHub Actions**. The included workflow publishes a labeled
+static demo and HTML docs. Live manager state stays local.
+
+Research sources up to 32 MiB support bounded reads, search, and CSV aggregation.
+Partition larger exports; observed coverage is not exhaustive system coverage.
 
 ## Learn more
 

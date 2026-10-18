@@ -409,7 +409,7 @@ async function refresh() {
   if (fetching) return;
   fetching = true;
   try {
-    const response = await fetch("/api/state", {
+    const response = await fetch(document.body.dataset.state || "/api/state", {
       cache: "no-store",
       signal: AbortSignal.timeout(7000),
     });
@@ -437,18 +437,18 @@ async function refresh() {
       selector.dataset.ready = "1";
       if (document.activeElement?.id !== "task-search") render();
     }
-    $("#connection").textContent = "Connected";
+    $("#connection").textContent = state.demo ? "Static demo" : "Connected";
     $("#connection").classList.remove("error");
     $("#updated").textContent =
-      `Updated ${lastGood.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`;
-    $("#notice").hidden = Boolean(state.available && state.goals.length);
-    $("#notice").textContent = !state.available
+      state.demo ? "Sample data · no live workers" : `Updated ${lastGood.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`;
+    $("#notice").hidden = Boolean(!state.demo && state.available && state.goals.length);
+    $("#notice").textContent = state.demo ? state.reason : !state.available
       ? state.reason
       : state.goals.length
         ? ""
         : "No goals recorded yet. Create a goal using the CLI; this dashboard will update automatically.";
     $("#source-note").textContent =
-      `SQLite · Latest ${state.limit || 200} records per category`;
+      state.demo ? "Static sample · no live connection" : `SQLite · Latest ${state.limit || 200} records per category`;
   } catch (err) {
     $("#connection").textContent = "Disconnected";
     $("#connection").classList.add("error");
@@ -462,7 +462,8 @@ async function refresh() {
 $("#refresh").addEventListener("click", refresh);
 render();
 refresh();
-setInterval(() => {
+if (document.body.dataset.static) $(".auto-refresh").hidden = true;
+else setInterval(() => {
   if (!document.hidden) refresh();
 }, 5000);
 document.addEventListener("visibilitychange", () => {
