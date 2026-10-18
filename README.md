@@ -97,7 +97,9 @@ The manager uses `discover` for bounded reconnaissance and `research` for one ex
 hypothesis and falsification condition. Supply small registries, manifests, documents,
 and exported metrics/logs in the goal workspace. It does not blindly crawl every service
 or acquire live observability access. Sources must be explicit local UTF-8 files of at
-most 128 KiB; split/export large resources. Research and evaluation have separate tool
+most 32 MiB; split/export larger resources. Reads, literal searches and CSV aggregation
+are bounded and expose continuation cursors; partial samples are not whole-dataset
+measurements. Research and evaluation have separate tool
 and wall-time limits and share a persisted goal budget. Scope and attempts are bounded.
 
 ```sh

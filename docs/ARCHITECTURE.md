@@ -67,7 +67,8 @@ budget lasts; each page spends a call. Full-summary pages must share one revisio
 Every read/search query, accessed evidence ID, and spent tool call
 is durable. Search has bounded pagination and is workspace-scoped. JSON export includes
 maps, findings, rejected hypotheses, queries, job/attempt histories and source snapshots.
-`omnitrix report` renders a standalone escaped HTML evidence/decision log.
+An HTML evidence/decision log and research-quality evaluation harness are supplied
+in the following reporting PR.
 The manager receives a bounded observed inventory (root plus at most eight immediate
 directory pages before it has evidence), with sorted pagination and visible
 directory frontiers. Its research_progress describes planned sources examined,
