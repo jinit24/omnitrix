@@ -1,5 +1,6 @@
 """Two research levels, independent evidence review, and durable budgets."""
 import asyncio
+import csv
 import hashlib
 import json
 import os
@@ -8,7 +9,7 @@ import uuid
 from typing import Annotated
 from pydantic import Field
 from agents import Agent, Runner, RunConfig, ModelSettings, function_tool
-from .knowledge import Knowledge, ResearchTools, source_path, read_source_bytes
+from .knowledge import Knowledge, ResearchTools, source_path, source_revision
 from .research_models import DiscoveryReport, ResearchReport, Evaluation, ResearchPlan
 from .workers import ROOT
 
@@ -31,17 +32,49 @@ class ResearchAgents:
             """Read 1 to 100 lines from an explicit scoped file; start_line must be positive. Returns captured evidence IDs and source revisions."""
             return json.dumps(tools.read(locator, start_line, line_count))
 
-        @function_tool
+        @function_tool(failure_error_function=research_tool_error)
         async def search_knowledge(query: str = '', offset: int = 0) -> str:
             """Reuse earlier system maps, rejected hypotheses and evaluated findings."""
             return json.dumps(tools.search(query, offset))
 
+        @function_tool(failure_error_function=research_tool_error)
+        async def search_source(locator: str, query: str, start_line: Annotated[int, Field(ge=1)] = 1) -> str:
+            """Search one scoped file for a literal string. Scans at most 5000 lines/512 KiB; follow next_line for further pages. Results have citable evidence IDs."""
+            return json.dumps(tools.search_source(locator, query, start_line))
+
+        @function_tool(failure_error_function=research_tool_error)
+        async def summarize_csv(locator: str, value_column: str, group_by: str | None = None, start_row: Annotated[int, Field(ge=1)] = 1) -> str:
+            """Aggregate a numeric CSV column by an optional group. Automatically follows 5000-row/512-KiB pages while budget remains; each page spends a tool call. Follow summary.next_row if partial; partial totals are not whole-file totals."""
+            return json.dumps(tools.summarize_csv(locator, value_column, group_by, start_row, complete=True))
+
         output = {'discovery': DiscoveryReport, 'research': ResearchReport, 'evaluation': Evaluation}[role]
+        catalog = []
+        numeric_csv = False
+        for locator in sorted(tools.scope):
+            path = source_path(tools.workspace, locator)
+            item = {'locator': locator, 'size_bytes': path.stat().st_size}
+            if path.suffix.lower() == '.csv':
+                from .knowledge import source_lines
+                rows = csv.DictReader(source_lines(path), strict=True)
+                sample = next(rows, {})
+                item['columns'] = rows.fieldnames
+                item['numeric_sample_columns'] = []
+                for name, value in sample.items():
+                    try:
+                        float(value)
+                    except (ValueError, TypeError):
+                        continue
+                    item['numeric_sample_columns'].append(name)
+                numeric_csv |= bool(item['numeric_sample_columns'])
+            catalog.append(item)
+        context = context | {'source_catalog': catalog}
+        choice = 'auto' if role == 'evaluation' else 'summarize_csv' if numeric_csv else 'required'
         agent = Agent(name=f'Independent {role} agent', model=self.model,
             instructions=(ROOT / f'instructions/{role.upper()}.md').read_text(),
-            tools=[read_source, search_knowledge], output_type=output,
-            model_settings=ModelSettings(max_tokens=3500))
-        result = await Runner.run(agent, json.dumps(context), max_turns=8,
+            tools=[read_source, search_knowledge, search_source, summarize_csv], output_type=output,
+            model_settings=ModelSettings(max_tokens=3500,
+                tool_choice=choice))
+        result = await Runner.run(agent, json.dumps(context), max_turns=max(8, min(28, tools.remaining + 2)),
                                   run_config=RunConfig(tracing_disabled=True))
         from .telemetry import record_usage
         goal_id = tools.store.db.execute('SELECT goal_id FROM research_jobs WHERE id=(SELECT job_id FROM research_runs WHERE id=?)',(tools.run_id,)).fetchone()[0]
@@ -86,7 +119,7 @@ class Research:
         revisions = Control(self.store).current(goal_id)
         signature = hashlib.sha256(json.dumps([goal_id, workspace, stage, revisions['goal']['revision'], revisions['policy']['version'],
             ' '.join((spec.hypothesis or spec.question).casefold().split()), scope,
-            [hashlib.sha256(read_source_bytes(workspace,s)[1]).hexdigest() for s in scope]], sort_keys=True).encode()).hexdigest()
+            [source_revision(workspace,s)[1] for s in scope]], sort_keys=True).encode()).hexdigest()
         prior = self.db.execute('SELECT id,status FROM research_jobs WHERE goal_id=? AND signature=? ORDER BY created DESC LIMIT 1',
                                 (goal_id, signature)).fetchone()
         if prior:
@@ -146,12 +179,15 @@ class Research:
             # Mandatory retrieval happens before any new investigation, even if the model omits it.
             existing = tools.prefetch()
             context = {'plan': spec.model_dump(), 'prior_knowledge': existing, 'feedback': feedback,
-                       'goal': self.store.snapshot(job['goal_id'])['goal']}
+                       'goal': self.store.snapshot(job['goal_id'])['goal'],
+                       'research_progress': self.knowledge.progress(job['goal_id'])}
             report = await asyncio.wait_for(self.agents.run(job['stage'], context, tools), spec.budget.seconds)
             if Control(self.store).current(job['goal_id']) != revision or self.job(job_id)['status'] == 'invalidated':
                 return self.finish(job, run_id, 'stale', feedback='Goal or policy changed during research; retained report is not accepted evidence')
             if job['stage'] == 'discovery':
                 report = DiscoveryReport.model_validate(report)
+                if not any(not source['stale'] for source in tools.evidence()):
+                    raise ValueError('Discovery inspected no current evidence. Read scoped sources before returning a map; filename assumptions alone do not complete discovery.')
                 self.save_discovery(job, report, tools)
                 return self.finish(job, run_id, 'discovered', report)
             report = ResearchReport.model_validate(report)

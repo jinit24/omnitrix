@@ -14,3 +14,13 @@ spend a tool call repeating an empty lookup. Read tools accept at most 100 lines
 per call, starting at line 1 or later. Invalid arguments are not evidence of missing
 files or access permissions. Correct them while budget remains; cite only returned
 evidence IDs, never prose descriptions in evidence-ID lists.
+
+Connect code mechanism to observed workload and measured cost, not just warning
+counts. Search scoped logs/code with search_source and aggregate numeric CSV
+columns with summarize_csv, reading headers and timestamp context first. Follow
+continuation cursors when the answer needs the rest of the data; explicitly label
+partial aggregates and invalid/missing values. An exported observation's file
+mtime is not its measurement window. Check at least one plausible alternative
+or disconfirming observation, and distinguish a correctness defect, a measured
+fixture cost, and an unmeasured production performance claim. If the hypothesis
+fails, recommend reprioritization instead of repeatedly weakening the same claim.

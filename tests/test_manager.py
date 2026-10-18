@@ -142,7 +142,12 @@ async def test_manager_sqlite_tools_use_real_sdk_dispatch(tmp_path,monkeypatch):
             payload=json.dumps(args)
             ctx=ToolContext(context=None,tool_name=tool.name,tool_call_id=tool.name,tool_arguments=payload)
             output=await tool.on_invoke_tool(ctx,payload)
-            assert isinstance(json.loads(output),list)
+            parsed = json.loads(output)
+            if tool.name == 'list_resources':
+                assert isinstance(parsed['entries'], list)
+                assert 'next_offset' in parsed
+            else:
+                assert isinstance(parsed, list)
         class Result:
             final_output=decision('pause')
         return Result()

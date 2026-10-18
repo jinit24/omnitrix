@@ -70,6 +70,7 @@ class Store:
         from .knowledge import Knowledge
         return {'goal': goal, 'tasks': tasks, 'decisions': decisions,
                 'research': research, 'opportunities': Knowledge(self).backlog(goal_id),
+                'research_progress': Knowledge(self).progress(goal_id),
                 'research_budget': dict(r) if (r := self.db.execute('SELECT * FROM research_limits WHERE goal_id=?', (goal_id,)).fetchone()) else None,
                 'active': [dict(r) for r in self.db.execute('SELECT * FROM task_runtime WHERE task_id IN (SELECT id FROM tasks WHERE goal_id=?)', (goal_id,))],
                 'implementations': [dict(r) | {'spec':json.loads(r['spec'])} for r in self.db.execute('SELECT i.*,a.spec,a.revoked AS authorization_revoked FROM implementations i JOIN implementation_authorizations a ON i.authorization=a.id WHERE i.goal_id=?', (goal_id,))],

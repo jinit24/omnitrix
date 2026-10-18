@@ -59,11 +59,23 @@ one source read. Reads capture bounded
 UTF-8 excerpts, line numbers, content SHA-256 revisions, source modification times,
 and observation timestamps. The 1–100 line bound is explicit in the SDK tool schema; argument errors return
 actionable feedback instead of implying source permissions failed. Files are limited
-to 128 KiB; large resources need a
-bounded export. Every read/search query, accessed evidence ID, and spent tool call
+to 32 MiB with streaming revision hashes; larger resources need partitioned
+exports. Reads expose continuation/clipping; literal searches scan at most 5000
+lines/512 KiB per page. CSV aggregation records counts, sums, ranges, invalid values,
+and partial coverage, with at most 20 groups. The SDK tool follows pages while its
+budget lasts; each page spends a call. Full-summary pages must share one revision.
+Every read/search query, accessed evidence ID, and spent tool call
 is durable. Search has bounded pagination and is workspace-scoped. JSON export includes
 maps, findings, rejected hypotheses, queries, job/attempt histories and source snapshots.
-No HTML view adds value beyond these small CLI/JSON navigation paths.
+`omnitrix report` renders a standalone escaped HTML evidence/decision log.
+The manager receives a bounded observed inventory (root plus at most eight immediate
+directory pages before it has evidence), with sorted pagination and visible
+directory frontiers. Its research_progress describes planned sources examined,
+signal classes and unresolved candidates; it does not claim whole-system coverage.
+Discovery/research must make an initial tool observation; numeric CSV scopes start
+with aggregation using observed column metadata. Discovery cannot complete without
+current evidence. Live evaluations still expose gaps in log-tail coverage and in
+accepting a bounded alternative after falsification; see research-quality.html.
 
 Discovery produces a map, gaps and an opportunity backlog. Entries remain `observed`
 or `assumption`, never verified merely because discovery says so. Backlog scores use
