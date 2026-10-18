@@ -94,17 +94,17 @@
     {
       "id": "R12",
       "title": "Self-audit native worker blocked by masked daemon socket",
-      "status": "Socket startup resolved; bounded native run timed out before verification",
+      "status": "Socket startup resolved; bounded native turns still fail to hand off",
       "baseline": "Native shells failed because the outer sandbox masks the daemon socket directory. No edits occurred in that attempt; independent oracles failed.",
       "fix": "Run self-audit outside the outer command sandbox through the approved execution route; Codex retains its own workspace sandbox.",
-      "verification": "Self-audit live-03 performed real edits, spent 300 seconds on the native turn and stopped with an uncertain candidate. No passing verification or final audit is claimed; reconciliation is underway."
+      "verification": "Supported outer execution route permitted real code edits. Both bounded native attempts timed out; interruption was reconciled and the implementation is escalated. No autonomous completion audit passed."
     },
     {
       "id": "R13",
       "title": "Native implementation exceeds its bounded turn without verified completion",
-      "status": "Reproduced; candidate preserved for reconciliation",
+      "status": "Reproduced twice; attempt budget exhausted and candidate retained",
       "baseline": "Self-audit live-03 reached accepted research and real edits but timed out before candidate verification. Latest native usage snapshot: 603768 input tokens (566912 cached), 3869 output tokens. These are cumulative usage values, not unique prompt bytes or a dollar estimate.",
-      "remaining": "The app correctly retains uncertainty and prevents replay/completion. Automatic implementation quality and efficiency remain unresolved; a successful human-led PR must not be counted as an autonomous end-to-end success."
+      "remaining": "Both native turns reached their 300-second bounds. Final interruption was reconciled and status is escalated. Manual verification of the generated patch is recorded separately; it is not autonomous end-to-end success."
     },
     {
       "id": "R14",
@@ -1663,6 +1663,62 @@
           "rationale": "Scripted harness control"
         }
       ]
+    },
+    {
+      "name": ".omnitrix/self-audit/live-03/reconciled-repair",
+      "mode": "live-human-steered-reconciled-repair",
+      "status": "uncertain",
+      "verification": [],
+      "decisions": [
+        {
+          "action": "discover",
+          "rationale": "To advance the investigation of research-integrity failures in Omnitrix, it is critical to identify concrete evidence of such failures. The most promising explicit system-level runtime signals are found in the observability directory: 'regressions.log' (runtime records), 'checks.csv' (numeric integrity checks), and possibly summary or catalog descriptions in 'catalog.md'. To maximize initial insight and compare opportunities, a broad discovery investigation will map these artifacts for relevant integrity failure signals before prioritizing a specific hypothesis-driven research or root cause analysis. This directly supports the requirement to pass the regression oracle."
+        },
+        {
+          "action": "research",
+          "rationale": "The system mapping phase successfully identified a specific high-confidence opportunity: the independent oracle reports a research-integrity failure because Omnitrix's evaluator is accepting unrelated citations. To make progress toward the objective, the next highest-value uncertainty is which exact code paths in Omnitrix (particularly in research.py, knowledge.py, and research_models.py) are responsible for incorrectly permitting unrelated citation acceptance. Resolving this will define the minimum fix, support robust correction, and allow focused re-verification. A falsifiable hypothesis will immediately justify subsequent implementation and correction."
+        },
+        {
+          "action": "implement",
+          "rationale": "All the necessary research phases have been completed, with supporting evidence establishing that Omnitrix currently lacks adequate citation relevance checks in evaluator logic, causing the research-integrity failures measured by the independent oracle. An implementation ID with explicit authorization has been provided, limited to omnitrix/research.py, with verification contracted to require regression oracle and all existing deterministic tests to pass. The next step is to proceed with implementing the researched correction under this scope and re-verify as specified."
+        }
+      ],
+      "implementations": [
+        {
+          "status": "uncertain",
+          "candidate": null,
+          "attempts": 2
+        }
+      ],
+      "note": "Human-steered repair also timed out. Final interruption was reconciled; implementation status is escalated after both allowed attempts. No native verification or completion audit passed."
+    },
+    {
+      "name": "/workspace/omnitrix/.omnitrix/self-audit/live-03/manual-verification/setup-failure",
+      "mode": "manual-verification-of-native-generated-patch",
+      "status": "blocked",
+      "reason": "Manual runner resolved the virtualenv Python symlink to the global binary; dependencies were not available. This was a verification setup failure.",
+      "decisions": []
+    },
+    {
+      "name": "/workspace/omnitrix/.omnitrix/self-audit/live-03/manual-verification",
+      "mode": "manual-verification-of-native-generated-patch",
+      "status": "passed",
+      "reason": "Used the existing virtualenv interpreter without dereferencing its symlink.",
+      "decisions": [],
+      "checks": [
+        {
+          "name": "integrity-oracle",
+          "exit_code": 0,
+          "output": "unrelated_citation_verdict=insufficient\nindependent regressions passed\n"
+        },
+        {
+          "name": "existing-suite",
+          "exit_code": 0,
+          "output": ".......s................................................                 [100%]\n55 passed, 1 skipped in 8.81s\n"
+        }
+      ],
+      "source_digest": "8c55f3bcb8524a55f4874b4faf65ae265b499b9c77957856c76938936e919354",
+      "note": "Native turns timed out and have no final audit. This manual isolated verification is separate from autonomous end-to-end success."
     }
   ],
   "limitations": [
@@ -1688,13 +1744,24 @@
       "url": "https://github.com/jinit24/omnitrix/pull/3",
       "scope": "Research evaluation, self-audit and HTML tracking",
       "base": "PR #2",
-      "validation": "76 passed, 1 skipped in combined checkout; clean-archive validation in progress"
+      "validation": "76 passed, 1 skipped in a clean final-source archive"
     }
   ],
   "retained_evidence_reports": {
     "baseline": "experiments/research-quality/baseline.html",
     "buried-bottleneck": "experiments/research-quality/buried-bottleneck.html",
     "negative-control": "experiments/research-quality/negative-control.html",
-    "note": "These portable HTML reports preserve actual source excerpts, queries and evaluations in the repository for PR review."
+    "note": "These portable HTML reports preserve actual source excerpts, queries and evaluations in the repository for PR review.",
+    "self-audit": "experiments/research-quality/self-audit.html",
+    "native-candidate-manual-check": "experiments/research-quality/native-candidate-verification.html"
+  },
+  "native_recovery_outcome": {
+    "autonomous_completion": false,
+    "native_attempts": 2,
+    "native_timeout_seconds_per_attempt": 300,
+    "native_final_status": "escalated",
+    "manual_candidate_verification": "Independent integrity oracle passed; original suite 55 passed, 1 skipped",
+    "current_fix_branch_validation": "76 passed, 1 skipped in clean source archive",
+    "candidate_adoption": "The native patch is retained as evidence; PR #1 contains the separately reviewed minimal fix."
   }
 }

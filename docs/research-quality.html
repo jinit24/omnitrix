@@ -24,14 +24,25 @@
       &quot;url&quot;: &quot;https://github.com/jinit24/omnitrix/pull/3&quot;,
       &quot;scope&quot;: &quot;Research evaluation, self-audit and HTML tracking&quot;,
       &quot;base&quot;: &quot;PR #2&quot;,
-      &quot;validation&quot;: &quot;76 passed, 1 skipped in combined checkout; clean-archive validation in progress&quot;
+      &quot;validation&quot;: &quot;76 passed, 1 skipped in a clean final-source archive&quot;
     }
   ],
   &quot;retained_evidence_reports&quot;: {
     &quot;baseline&quot;: &quot;experiments/research-quality/baseline.html&quot;,
     &quot;buried-bottleneck&quot;: &quot;experiments/research-quality/buried-bottleneck.html&quot;,
     &quot;negative-control&quot;: &quot;experiments/research-quality/negative-control.html&quot;,
-    &quot;note&quot;: &quot;These portable HTML reports preserve actual source excerpts, queries and evaluations in the repository for PR review.&quot;
+    &quot;note&quot;: &quot;These portable HTML reports preserve actual source excerpts, queries and evaluations in the repository for PR review.&quot;,
+    &quot;self-audit&quot;: &quot;experiments/research-quality/self-audit.html&quot;,
+    &quot;native-candidate-manual-check&quot;: &quot;experiments/research-quality/native-candidate-verification.html&quot;
+  },
+  &quot;native_recovery_outcome&quot;: {
+    &quot;autonomous_completion&quot;: false,
+    &quot;native_attempts&quot;: 2,
+    &quot;native_timeout_seconds_per_attempt&quot;: 300,
+    &quot;native_final_status&quot;: &quot;escalated&quot;,
+    &quot;manual_candidate_verification&quot;: &quot;Independent integrity oracle passed; original suite 55 passed, 1 skipped&quot;,
+    &quot;current_fix_branch_validation&quot;: &quot;76 passed, 1 skipped in clean source archive&quot;,
+    &quot;candidate_adoption&quot;: &quot;The native patch is retained as evidence; PR #1 contains the separately reviewed minimal fix.&quot;
   }
 }</pre><article><h2>R1: Inventory hides resources after the first 40 directory entries</h2><p class="status">Implemented; deterministic regressions passed</p><pre>{
   &quot;baseline&quot;: &quot;Manager list_resources truncates before filtering runtime directories, has no cursor, and returns filesystem order.&quot;,
@@ -77,18 +88,18 @@
   &quot;baseline&quot;: &quot;Live researcher/evaluator treated cache-only CSV prefixes as evidence that other operation types were unmeasured.&quot;,
   &quot;fix&quot;: &quot;Observed CSV column metadata; initial numeric aggregation for numeric CSV scopes; SDK aggregation follows pages within tool budget, preserving incomplete status.&quot;,
   &quot;remaining&quot;: &quot;Some live runs still skip logs, fail to reach decisive log-tail events, or stop after falsification rather than independently verifying the alternative. Do not claim full exploration/exploitation balance.&quot;
-}</pre></article><article><h2>R12: Self-audit native worker blocked by masked daemon socket</h2><p class="status">Socket startup resolved; bounded native run timed out before verification</p><pre>{
+}</pre></article><article><h2>R12: Self-audit native worker blocked by masked daemon socket</h2><p class="status">Socket startup resolved; bounded native turns still fail to hand off</p><pre>{
   &quot;baseline&quot;: &quot;Native shells failed because the outer sandbox masks the daemon socket directory. No edits occurred in that attempt; independent oracles failed.&quot;,
   &quot;fix&quot;: &quot;Run self-audit outside the outer command sandbox through the approved execution route; Codex retains its own workspace sandbox.&quot;,
-  &quot;verification&quot;: &quot;Self-audit live-03 performed real edits, spent 300 seconds on the native turn and stopped with an uncertain candidate. No passing verification or final audit is claimed; reconciliation is underway.&quot;
-}</pre></article><article><h2>R13: Native implementation exceeds its bounded turn without verified completion</h2><p class="status">Reproduced; candidate preserved for reconciliation</p><pre>{
+  &quot;verification&quot;: &quot;Supported outer execution route permitted real code edits. Both bounded native attempts timed out; interruption was reconciled and the implementation is escalated. No autonomous completion audit passed.&quot;
+}</pre></article><article><h2>R13: Native implementation exceeds its bounded turn without verified completion</h2><p class="status">Reproduced twice; attempt budget exhausted and candidate retained</p><pre>{
   &quot;baseline&quot;: &quot;Self-audit live-03 reached accepted research and real edits but timed out before candidate verification. Latest native usage snapshot: 603768 input tokens (566912 cached), 3869 output tokens. These are cumulative usage values, not unique prompt bytes or a dollar estimate.&quot;,
-  &quot;remaining&quot;: &quot;The app correctly retains uncertainty and prevents replay/completion. Automatic implementation quality and efficiency remain unresolved; a successful human-led PR must not be counted as an autonomous end-to-end success.&quot;
+  &quot;remaining&quot;: &quot;Both native turns reached their 300-second bounds. Final interruption was reconciled and status is escalated. Manual verification of the generated patch is recorded separately; it is not autonomous end-to-end success.&quot;
 }</pre></article><article><h2>R14: Evaluation process could exit zero with failed research checkpoints</h2><p class="status">Fixed and regression-tested</p><pre>{
   &quot;baseline&quot;: &quot;The initial harness used exit status only to distinguish runtime exceptions; a completed conversation with 0/8 or 5/8 checks could still exit zero. Those recorded scores remain failures regardless of historical command exit codes.&quot;,
   &quot;fix&quot;: &quot;Exit 0 only for all checkpoints passed, 1 for behavioral failure/no trials, 2 for blocked/error.&quot;,
   &quot;verification&quot;: &quot;tests/test_research_eval.py&quot;
-}</pre></article><h2>Experiment history</h2><table><thead><tr><th>Experiment</th><th>Mode</th><th>Outcome</th><th>Checks</th><th>Seconds</th></tr></thead><tbody><tr><td>Existing suite baseline</td><td></td><td>55 passed, 1 opt-in live Codex test skipped</td><td>Unscored</td><td>8.83</td></tr><tr><td>New adversarial regression baseline</td><td></td><td>8 failed</td><td>Unscored</td><td></td></tr><tr><td>baseline-connected-01/buried-bottleneck</td><td>live-autonomous</td><td>paused</td><td>0/8</td><td>10.874</td></tr><tr><td>baseline-live-01/buried-bottleneck</td><td>live-autonomous</td><td>error</td><td>Unscored</td><td>1.521</td></tr><tr><td>harness-01/buried-bottleneck</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.622</td></tr><tr><td>harness-01/negative-control</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.623</td></tr><tr><td>live-01/buried-bottleneck</td><td>live-autonomous</td><td>error</td><td>Unscored</td><td>1.398</td></tr><tr><td>live-02/negative-control</td><td>live-autonomous</td><td>error</td><td>Unscored</td><td>1.387</td></tr><tr><td>live-connected-01/buried-bottleneck</td><td>live-autonomous</td><td>paused</td><td>0/8</td><td>12.558</td></tr><tr><td>live-connected-02/negative-control</td><td>live-autonomous</td><td>active</td><td>3/8</td><td>57.432</td></tr><tr><td>live-iteration-02/buried-bottleneck</td><td>live-autonomous</td><td>paused</td><td>0/8</td><td>26.6</td></tr><tr><td>live-iteration-03/buried-bottleneck</td><td>live-autonomous</td><td>paused</td><td>0/8</td><td>7.391</td></tr><tr><td>live-iteration-04/buried-bottleneck</td><td>live-autonomous</td><td>completed</td><td>6/8</td><td>39.711</td></tr><tr><td>live-iteration-05/buried-bottleneck</td><td>live-autonomous</td><td>completed</td><td>5/8</td><td>23.581</td></tr><tr><td>live-negative-04/negative-control</td><td>live-autonomous</td><td>completed</td><td>5/8</td><td>27.945</td></tr><tr><td>live-negative-05/negative-control</td><td>live-autonomous</td><td>paused</td><td>5/8</td><td>27.234</td></tr><tr><td>.omnitrix/research-eval/harness-final/buried-bottleneck</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.622</td></tr><tr><td>.omnitrix/research-eval/harness-final/negative-control</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.624</td></tr><tr><td>.omnitrix/self-audit/live-01</td><td>live-seeded-defect-triage-and-repair</td><td>paused</td><td>Unscored</td><td>17.382</td></tr><tr><td>.omnitrix/self-audit/live-02</td><td>live-seeded-defect-triage-and-repair</td><td>paused</td><td>Unscored</td><td>79.535</td></tr><tr><td>.omnitrix/self-audit/live-03</td><td>live-seeded-defect-triage-and-repair</td><td>active</td><td>Unscored</td><td>331.634</td></tr><tr><td>Final combined deterministic validation</td><td>deterministic</td><td>passed</td><td>Unscored</td><td>9.98</td></tr><tr><td>Final evaluation exit-status regression validation</td><td>deterministic</td><td>passed</td><td>Unscored</td><td>10.06</td></tr><tr><td>.omnitrix/research-eval/exit-status-final/buried-bottleneck</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.619</td></tr><tr><td>.omnitrix/research-eval/exit-status-final/negative-control</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.621</td></tr></tbody></table><details><summary>Existing suite baseline</summary><pre>{
+}</pre></article><h2>Experiment history</h2><table><thead><tr><th>Experiment</th><th>Mode</th><th>Outcome</th><th>Checks</th><th>Seconds</th></tr></thead><tbody><tr><td>Existing suite baseline</td><td></td><td>55 passed, 1 opt-in live Codex test skipped</td><td>Unscored</td><td>8.83</td></tr><tr><td>New adversarial regression baseline</td><td></td><td>8 failed</td><td>Unscored</td><td></td></tr><tr><td>baseline-connected-01/buried-bottleneck</td><td>live-autonomous</td><td>paused</td><td>0/8</td><td>10.874</td></tr><tr><td>baseline-live-01/buried-bottleneck</td><td>live-autonomous</td><td>error</td><td>Unscored</td><td>1.521</td></tr><tr><td>harness-01/buried-bottleneck</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.622</td></tr><tr><td>harness-01/negative-control</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.623</td></tr><tr><td>live-01/buried-bottleneck</td><td>live-autonomous</td><td>error</td><td>Unscored</td><td>1.398</td></tr><tr><td>live-02/negative-control</td><td>live-autonomous</td><td>error</td><td>Unscored</td><td>1.387</td></tr><tr><td>live-connected-01/buried-bottleneck</td><td>live-autonomous</td><td>paused</td><td>0/8</td><td>12.558</td></tr><tr><td>live-connected-02/negative-control</td><td>live-autonomous</td><td>active</td><td>3/8</td><td>57.432</td></tr><tr><td>live-iteration-02/buried-bottleneck</td><td>live-autonomous</td><td>paused</td><td>0/8</td><td>26.6</td></tr><tr><td>live-iteration-03/buried-bottleneck</td><td>live-autonomous</td><td>paused</td><td>0/8</td><td>7.391</td></tr><tr><td>live-iteration-04/buried-bottleneck</td><td>live-autonomous</td><td>completed</td><td>6/8</td><td>39.711</td></tr><tr><td>live-iteration-05/buried-bottleneck</td><td>live-autonomous</td><td>completed</td><td>5/8</td><td>23.581</td></tr><tr><td>live-negative-04/negative-control</td><td>live-autonomous</td><td>completed</td><td>5/8</td><td>27.945</td></tr><tr><td>live-negative-05/negative-control</td><td>live-autonomous</td><td>paused</td><td>5/8</td><td>27.234</td></tr><tr><td>.omnitrix/research-eval/harness-final/buried-bottleneck</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.622</td></tr><tr><td>.omnitrix/research-eval/harness-final/negative-control</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.624</td></tr><tr><td>.omnitrix/self-audit/live-01</td><td>live-seeded-defect-triage-and-repair</td><td>paused</td><td>Unscored</td><td>17.382</td></tr><tr><td>.omnitrix/self-audit/live-02</td><td>live-seeded-defect-triage-and-repair</td><td>paused</td><td>Unscored</td><td>79.535</td></tr><tr><td>.omnitrix/self-audit/live-03</td><td>live-seeded-defect-triage-and-repair</td><td>active</td><td>Unscored</td><td>331.634</td></tr><tr><td>Final combined deterministic validation</td><td>deterministic</td><td>passed</td><td>Unscored</td><td>9.98</td></tr><tr><td>Final evaluation exit-status regression validation</td><td>deterministic</td><td>passed</td><td>Unscored</td><td>10.06</td></tr><tr><td>.omnitrix/research-eval/exit-status-final/buried-bottleneck</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.619</td></tr><tr><td>.omnitrix/research-eval/exit-status-final/negative-control</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.621</td></tr><tr><td>.omnitrix/self-audit/live-03/reconciled-repair</td><td>live-human-steered-reconciled-repair</td><td>uncertain</td><td>Unscored</td><td></td></tr><tr><td>/workspace/omnitrix/.omnitrix/self-audit/live-03/manual-verification/setup-failure</td><td>manual-verification-of-native-generated-patch</td><td>blocked</td><td>Unscored</td><td></td></tr><tr><td>/workspace/omnitrix/.omnitrix/self-audit/live-03/manual-verification</td><td>manual-verification-of-native-generated-patch</td><td>passed</td><td>Unscored</td><td></td></tr></tbody></table><details><summary>Existing suite baseline</summary><pre>{
   &quot;name&quot;: &quot;Existing suite baseline&quot;,
   &quot;command&quot;: &quot;.venv/bin/python -m pytest -q&quot;,
   &quot;result&quot;: &quot;55 passed, 1 opt-in live Codex test skipped&quot;,
@@ -1611,4 +1622,57 @@
       &quot;rationale&quot;: &quot;Scripted harness control&quot;
     }
   ]
+}</pre></details><details><summary>.omnitrix/self-audit/live-03/reconciled-repair</summary><pre>{
+  &quot;name&quot;: &quot;.omnitrix/self-audit/live-03/reconciled-repair&quot;,
+  &quot;mode&quot;: &quot;live-human-steered-reconciled-repair&quot;,
+  &quot;status&quot;: &quot;uncertain&quot;,
+  &quot;verification&quot;: [],
+  &quot;decisions&quot;: [
+    {
+      &quot;action&quot;: &quot;discover&quot;,
+      &quot;rationale&quot;: &quot;To advance the investigation of research-integrity failures in Omnitrix, it is critical to identify concrete evidence of such failures. The most promising explicit system-level runtime signals are found in the observability directory: &#x27;regressions.log&#x27; (runtime records), &#x27;checks.csv&#x27; (numeric integrity checks), and possibly summary or catalog descriptions in &#x27;catalog.md&#x27;. To maximize initial insight and compare opportunities, a broad discovery investigation will map these artifacts for relevant integrity failure signals before prioritizing a specific hypothesis-driven research or root cause analysis. This directly supports the requirement to pass the regression oracle.&quot;
+    },
+    {
+      &quot;action&quot;: &quot;research&quot;,
+      &quot;rationale&quot;: &quot;The system mapping phase successfully identified a specific high-confidence opportunity: the independent oracle reports a research-integrity failure because Omnitrix&#x27;s evaluator is accepting unrelated citations. To make progress toward the objective, the next highest-value uncertainty is which exact code paths in Omnitrix (particularly in research.py, knowledge.py, and research_models.py) are responsible for incorrectly permitting unrelated citation acceptance. Resolving this will define the minimum fix, support robust correction, and allow focused re-verification. A falsifiable hypothesis will immediately justify subsequent implementation and correction.&quot;
+    },
+    {
+      &quot;action&quot;: &quot;implement&quot;,
+      &quot;rationale&quot;: &quot;All the necessary research phases have been completed, with supporting evidence establishing that Omnitrix currently lacks adequate citation relevance checks in evaluator logic, causing the research-integrity failures measured by the independent oracle. An implementation ID with explicit authorization has been provided, limited to omnitrix/research.py, with verification contracted to require regression oracle and all existing deterministic tests to pass. The next step is to proceed with implementing the researched correction under this scope and re-verify as specified.&quot;
+    }
+  ],
+  &quot;implementations&quot;: [
+    {
+      &quot;status&quot;: &quot;uncertain&quot;,
+      &quot;candidate&quot;: null,
+      &quot;attempts&quot;: 2
+    }
+  ],
+  &quot;note&quot;: &quot;Human-steered repair also timed out. Final interruption was reconciled; implementation status is escalated after both allowed attempts. No native verification or completion audit passed.&quot;
+}</pre></details><details><summary>/workspace/omnitrix/.omnitrix/self-audit/live-03/manual-verification/setup-failure</summary><pre>{
+  &quot;name&quot;: &quot;/workspace/omnitrix/.omnitrix/self-audit/live-03/manual-verification/setup-failure&quot;,
+  &quot;mode&quot;: &quot;manual-verification-of-native-generated-patch&quot;,
+  &quot;status&quot;: &quot;blocked&quot;,
+  &quot;reason&quot;: &quot;Manual runner resolved the virtualenv Python symlink to the global binary; dependencies were not available. This was a verification setup failure.&quot;,
+  &quot;decisions&quot;: []
+}</pre></details><details><summary>/workspace/omnitrix/.omnitrix/self-audit/live-03/manual-verification</summary><pre>{
+  &quot;name&quot;: &quot;/workspace/omnitrix/.omnitrix/self-audit/live-03/manual-verification&quot;,
+  &quot;mode&quot;: &quot;manual-verification-of-native-generated-patch&quot;,
+  &quot;status&quot;: &quot;passed&quot;,
+  &quot;reason&quot;: &quot;Used the existing virtualenv interpreter without dereferencing its symlink.&quot;,
+  &quot;decisions&quot;: [],
+  &quot;checks&quot;: [
+    {
+      &quot;name&quot;: &quot;integrity-oracle&quot;,
+      &quot;exit_code&quot;: 0,
+      &quot;output&quot;: &quot;unrelated_citation_verdict=insufficient\nindependent regressions passed\n&quot;
+    },
+    {
+      &quot;name&quot;: &quot;existing-suite&quot;,
+      &quot;exit_code&quot;: 0,
+      &quot;output&quot;: &quot;.......s................................................                 [100%]\n55 passed, 1 skipped in 8.81s\n&quot;
+    }
+  ],
+  &quot;source_digest&quot;: &quot;8c55f3bcb8524a55f4874b4faf65ae265b499b9c77957856c76938936e919354&quot;,
+  &quot;note&quot;: &quot;Native turns timed out and have no final audit. This manual isolated verification is separate from autonomous end-to-end success.&quot;
 }</pre></details></body></html>
