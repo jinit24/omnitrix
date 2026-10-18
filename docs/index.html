@@ -184,6 +184,28 @@ never deployments, destructive operations, merges or pushes.</p>
 Live manager state stays local; archived results are labeled as snapshots.</p>
 <p>Research sources up to 32 MiB support bounded reads, search, and CSV aggregation.
 Partition larger exports; observed coverage is not exhaustive system coverage.</p>
+<h2>Durable research campaigns</h2>
+<p>Create a fresh goal for a pinned local clone, then start a read-only investigation
+with persistent time, decision, role-run and dollar limits:</p>
+<pre><code class="language-sh">omnitrix create 'Find system inefficiencies and compare falsifiable explanations' \
+  --criterion 'Distinguish code mechanisms, measured impact and missing data' \
+  --workspace /absolute/path/to/pinned-repository
+omnitrix --db .omnitrix/state.db campaign GOAL_ID \
+  --days 3 --decisions 1000 --research-runs 2000 --dollars 25
+# After a process restart: reuse the same DB and goal, without new limits.
+omnitrix --db .omnitrix/state.db campaign GOAL_ID
+# Inspect or pause from another terminal.
+omnitrix --db .omnitrix/state.db status GOAL_ID
+omnitrix --db .omnitrix/state.db campaign GOAL_ID --pause
+</code></pre>
+<p>Each campaign is capped at $25. Standard-tier GPT-4.1 requests reserve maximum
+cost before inference; lost responses retain that reservation. Native workers,
+hosted tools, code changes and external PRs are disabled for these campaigns.
+The HTML checkpoint includes evidence, decisions, spending and remaining coverage.
+Register local exported logs/CSV with repeatable <code>--evidence workspace/relative/path</code>;
+record workload and measurement-window context alongside them. See the
+<a href="campaigns.html">campaign and tracking guide</a> for pricing, recovery, explicit
+continuation after a pause, and the limits of the current Kafka experiment.</p>
 <h2>UI control</h2>
 <p>Set <code>OMNITRIX_DASHBOARD_TOKEN</code> securely to 32+ random characters, then run:</p>
 <pre><code class="language-sh">omnitrix --db .omnitrix/state.db dashboard --allow-control \
@@ -207,7 +229,11 @@ and raw experiment records. README is the only Markdown documentation page; edit
 <p>The <a href="research-quality.html">HTML findings and repair log</a> records baseline
 failures, changes, actual live outcomes, and unresolved limitations. Its source is
 <code>docs/research-quality.json</code>; per-goal HTML includes decisions, evidence, queries,
-evaluations and measured model usage. Source/model text is escaped, never executed.</p>
+evaluations and measured model usage. Source/model text is escaped, never executed.
+Each issue retains dated observations, fixes, tests and regressions. Latest run
+summaries coexist with an append-only experiment history, including model costs
+and coverage where available. A fixed guard is distinguished from improved live
+research behavior; unresolved failures remain visible.</p>
 <pre><code class="language-sh"># Scripted tool/harness checks: these do not measure model reasoning.
 python scripts/research_eval.py --harness-only --output .omnitrix/eval-harness-NEW
 # Paid autonomous discovery: competing clues and a negative control, scored outside the workspace.

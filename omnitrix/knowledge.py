@@ -96,7 +96,7 @@ class Knowledge:
             result['stale'] = True
         # Captured observation age is explicit; not a claim about metric measurement age.
         result['age_seconds'] = max(0, time.time() - result['observed'])
-        result['stale'] = result['stale'] or result['age_seconds'] > 86400
+        result['stale'] = result['stale'] or (resource_kind(result['locator']) in ('metrics','logs') and result['age_seconds'] > 86400)
         return result
 
     def put(self, goal_id, job_id, kind, title, body, classification, citations):
@@ -125,38 +125,44 @@ class Knowledge:
             results.append(item)
         return results
 
-    def backlog(self, goal_id):
+    def backlog(self, goal_id, limit=None):
         return [dict(row) | {'spec': json.loads(row['spec'])} for row in self.db.execute(
-            'SELECT * FROM opportunities WHERE goal_id=? ORDER BY score DESC,created,id', (goal_id,))]
+            'SELECT * FROM opportunities WHERE goal_id=? ORDER BY score DESC,created,id LIMIT ?', (goal_id, -1 if limit is None else limit))]
 
-    def progress(self, goal_id):
+    def progress(self, goal_id, limit=None):
         """Coverage of planned resources, not a claim that the whole system was scanned."""
-        jobs = self.db.execute('SELECT stage,status,spec FROM research_jobs WHERE goal_id=? ORDER BY created', (goal_id,)).fetchall()
+        jobs = self.db.execute('SELECT stage,status,spec FROM research_jobs WHERE goal_id=? ORDER BY created DESC LIMIT ?', (goal_id, -1 if limit is None else limit)).fetchall()
         planned = {s for j in jobs for s in json.loads(j['spec'])['scope']}
-        rows = self.db.execute('''SELECT DISTINCT s.locator,s.id FROM research_sources s
+        rows = self.db.execute('''SELECT DISTINCT s.locator FROM research_sources s
             JOIN research_access a ON a.source_id=s.id JOIN research_runs r ON r.id=a.run_id
-            JOIN research_jobs j ON j.id=r.job_id WHERE j.goal_id=?''', (goal_id,)).fetchall()
+            JOIN research_jobs j ON j.id=r.job_id WHERE j.goal_id=? ORDER BY s.locator LIMIT ?''', (goal_id, -1 if limit is None else limit)).fetchall()
         observed = {r['locator'] for r in rows}
         by_kind = {kind: sorted(p for p in observed if resource_kind(p) == kind)
                    for kind in ('code', 'metrics', 'logs', 'document')}
-        backlog = self.backlog(goal_id)
+        backlog = self.backlog(goal_id, limit=limit)
+        self.db.create_function('source_kind', 1, resource_kind, deterministic=True)
+        kind_counts = {r['kind']: r['n'] for r in self.db.execute('''SELECT source_kind(locator) kind,count(*) n FROM (
+            SELECT DISTINCT s.locator FROM research_sources s JOIN research_access a ON a.source_id=s.id
+            JOIN research_runs r ON r.id=a.run_id JOIN research_jobs j ON j.id=r.job_id WHERE j.goal_id=?) GROUP BY kind''', (goal_id,))}
+        candidate_count = self.db.execute('SELECT count(*) FROM opportunities WHERE goal_id=?', (goal_id,)).fetchone()[0]
         advice = []
-        if not any(j['stage'] == 'discovery' and j['status'] == 'discovered' for j in jobs):
+        if not self.db.execute("SELECT 1 FROM research_jobs WHERE goal_id=? AND stage='discovery' AND status='discovered' LIMIT 1",(goal_id,)).fetchone():
             advice.append('Explore: no completed system discovery yet.')
         if planned - observed:
             advice.append('Explore: some explicitly planned resources remain unobserved.')
-        if not (by_kind['metrics'] or by_kind['logs']):
+        if not (kind_counts.get('metrics') or kind_counts.get('logs')):
             advice.append('Seek runtime measurements or record their absence; code alone does not establish production impact.')
-        if len(backlog) < 2:
+        if candidate_count < 2:
             advice.append('For a broad goal, compare another independent opportunity before committing to the first clue.')
         if any(o['status'] == 'open' for o in backlog):
             advice.append('Exploit: test a high-value open hypothesis against its falsification condition.')
         if any(j['stage'] == 'research' and j['status'] == 'falsified' for j in jobs):
             advice.append('Reprioritize after falsification; do not relaunch the same explanation under a new title.')
-        return {'coverage_basis': 'Explicitly planned sources only; excerpts are partial and freshness must be checked.',
+        return {'coverage_basis': 'Recent planned sources and a bounded observed-path sample; excerpts are partial and freshness must be checked.' if limit else 'Explicitly planned sources only; excerpts are partial and freshness must be checked.',
+                'sample_limit': limit,
                 'observed_sources': sorted(observed), 'unobserved_planned_sources': sorted(planned - observed),
-                'observed_by_kind': by_kind, 'candidate_count': len(backlog),
-                'unresolved_candidates': sum(o['status'] in ('open', 'insufficient', 'blocked') for o in backlog),
+                'observed_by_kind': by_kind, 'observed_kind_counts': kind_counts, 'candidate_count': candidate_count,
+                'unresolved_candidates': self.db.execute("SELECT count(*) FROM opportunities WHERE goal_id=? AND status IN ('open','insufficient','blocked')",(goal_id,)).fetchone()[0],
                 'advice': advice}
 
     def jobs(self, goal_id):

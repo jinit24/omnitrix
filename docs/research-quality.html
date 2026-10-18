@@ -44,62 +44,269 @@
     &quot;current_fix_branch_validation&quot;: &quot;76 passed, 1 skipped in clean source archive&quot;,
     &quot;candidate_adoption&quot;: &quot;The native patch is retained as evidence; PR #1 contains the separately reviewed minimal fix.&quot;
   }
-}</pre><article><h2>R1: Inventory hides resources after the first 40 directory entries</h2><p class="status">Implemented; deterministic regressions passed</p><pre>{
+}</pre><table><thead><tr><th>Issue</th><th>Problem</th><th>Latest status</th><th>Dated updates</th></tr></thead><tbody><tr><td><a href="#R1">R1</a></td><td>Inventory hides resources after the first 40 directory entries</td><td>Implemented; deterministic regressions passed</td><td>0</td></tr><tr><td><a href="#R2">R2</a></td><td>Large logs are inaccessible and source contents cannot be searched</td><td>Implemented; deterministic regressions passed</td><td>0</td></tr><tr><td><a href="#R3">R3</a></td><td>No numerical tool compares aggregate cost across metrics</td><td>Implemented; deterministic regressions passed</td><td>0</td></tr><tr><td><a href="#R4">R4</a></td><td>No visible coverage or unexplored frontier for reprioritization</td><td>Coverage view implemented; live search behavior remains incomplete</td><td>0</td></tr><tr><td><a href="#R5">R5</a></td><td>Independent review can approve with citations unrelated to the claims</td><td>Implemented; deterministic regressions passed</td><td>0</td></tr><tr><td><a href="#R6">R6</a></td><td>Duplicate detection can return a different goal&#x27;s job</td><td>Implemented; deterministic regressions passed</td><td>0</td></tr><tr><td><a href="#R7">R7</a></td><td>No HTML tracking report</td><td>Implemented; deterministic regressions passed</td><td>0</td></tr><tr><td><a href="#R8">R8</a></td><td>Live research access prerequisites</td><td>Resolved: credentials propagated and API network access now works</td><td>0</td></tr><tr><td><a href="#R9">R9</a></td><td>Live manager stops at the first inventory page and underfunds research</td><td>partially addressed; live campaign rerun pending</td><td>1</td></tr><tr><td><a href="#R10">R10</a></td><td>Discovery can complete without making a single source observation</td><td>Reproduced live; guard and tool activation implemented</td><td>0</td></tr><tr><td><a href="#R11">R11</a></td><td>Prefix-only metric reasoning and missed log-tail evidence</td><td>CSV continuation implemented; broader behavioral limitation remains</td><td>0</td></tr><tr><td><a href="#R12">R12</a></td><td>Self-audit native worker blocked by masked daemon socket</td><td>Socket startup resolved; bounded native turns still fail to hand off</td><td>0</td></tr><tr><td><a href="#R13">R13</a></td><td>Native implementation exceeds its bounded turn without verified completion</td><td>still open; read-only campaigns exclude native workers</td><td>1</td></tr><tr><td><a href="#R14">R14</a></td><td>Evaluation process could exit zero with failed research checkpoints</td><td>Fixed and regression-tested</td><td>0</td></tr><tr><td><a href="#R15">R15</a></td><td>Short-lived budgets cannot support multi-day investigations</td><td>persistent caps implemented; recovery/deadline regressions pass</td><td>2</td></tr><tr><td><a href="#R16">R16</a></td><td>A usage report alone cannot enforce the $25 ceiling</td><td>hard reservation ledger implemented; live requests reconciled</td><td>2</td></tr><tr><td><a href="#R17">R17</a></td><td>Metric-named source classes were mistaken for telemetry</td><td>classification and code freshness regressions pass</td><td>2</td></tr><tr><td><a href="#R18">R18</a></td><td>Deep Java package navigation exhausts manager turns</td><td>fixed navigation; live continuation observed</td><td>1</td></tr><tr><td><a href="#R19">R19</a></td><td>Large-repository job completed after one evidence-gap investigation</td><td>guard verified; autonomous breadth still failing</td><td>2</td></tr><tr><td><a href="#R20">R20</a></td><td>Kafka validation prerequisites are missing</td><td>local baseline passes; no performance claim</td><td>2</td></tr><tr><td><a href="#R21">R21</a></td><td>Git-only source catalog hides local logs and measurement exports</td><td>implemented; focused regression passed</td><td>1</td></tr><tr><td><a href="#R22">R22</a></td><td>Updating experiment summaries discards earlier outcomes</td><td>append-only histories verified; ongoing campaign checkpoints added</td><td>2</td></tr><tr><td><a href="#R23">R23</a></td><td>Research and evaluator infer missing metrics from a framework leaf method</td><td>open semantic reliability gap; prior finding downgraded</td><td>1</td></tr><tr><td><a href="#R24">R24</a></td><td>Campaign sessions replay large snapshots and multiply model input cost</td><td>compaction verified; cost trend remains under observation</td><td>3</td></tr><tr><td><a href="#R25">R25</a></td><td>Rejected directory plans repeat without useful repair and recent feedback can be hidden</td><td>open live filename grounding failure; new probe started</td><td>3</td></tr><tr><td><a href="#R26">R26</a></td><td>Alternate actor entry points bypass campaign decision and completion gates</td><td>common actor controls verified by alternate-entry regressions</td><td>2</td></tr><tr><td><a href="#R27">R27</a></td><td>Stagnation guard can cancel useful work before the first read</td><td>stagnation scheduling regression passes</td><td>2</td></tr><tr><td><a href="#R29">R29</a></td><td>Manager confuses path catalog search with source-content search</td><td>tool contract clarified; live recovery pending</td><td>1</td></tr><tr><td><a href="#R28">R28</a></td><td>Documentation index assumes every report has a plain first article tag</td><td>fixed; generated guide and focused docs checks pass</td><td>1</td></tr><tr><td><a href="#R30">R30</a></td><td>Manager treats a partial interface-heavy search page as absence of implementation</td><td>recovery observed; generalization unproven</td><td>2</td></tr><tr><td><a href="#R31">R31</a></td><td>Discovery breadth improves while independently resolved hypotheses remain scarce</td><td>open; observe exploration/exploitation allocation</td><td>1</td></tr></tbody></table><article id="R1"><h2>R1: Inventory hides resources after the first 40 directory entries</h2><p class="status">Implemented; deterministic regressions passed</p><pre>{
   &quot;baseline&quot;: &quot;Manager list_resources truncates before filtering runtime directories, has no cursor, and returns filesystem order.&quot;,
   &quot;fix&quot;: &quot;Sorted inventory, filtering before pagination, paths, resource kinds, byte sizes, explicit scan limits.&quot;,
   &quot;verification&quot;: &quot;test_inventory_pages_past_distractors_and_excludes_runtime&quot;
-}</pre></article><article><h2>R2: Large logs are inaccessible and source contents cannot be searched</h2><p class="status">Implemented; deterministic regressions passed</p><pre>{
+}</pre></article><article id="R2"><h2>R2: Large logs are inaccessible and source contents cannot be searched</h2><p class="status">Implemented; deterministic regressions passed</p><pre>{
   &quot;baseline&quot;: &quot;A 198 KiB log with the critical clue at its tail is rejected while planning because sources are capped at 128 KiB.&quot;,
   &quot;fix&quot;: &quot;Streaming revision hashes and bounded, paginated source search and reads, with explicit limits.&quot;,
   &quot;verification&quot;: &quot;test_large_log_tail_is_searchable_and_citable&quot;
-}</pre></article><article><h2>R3: No numerical tool compares aggregate cost across metrics</h2><p class="status">Implemented; deterministic regressions passed</p><pre>{
+}</pre></article><article id="R3"><h2>R3: No numerical tool compares aggregate cost across metrics</h2><p class="status">Implemented; deterministic regressions passed</p><pre>{
   &quot;baseline&quot;: &quot;Researchers can read short excerpts but cannot aggregate CSV measurements, making frequency and impact easy to confuse.&quot;,
   &quot;fix&quot;: &quot;Paginated CSV aggregation recording counts, sums, ranges, invalid values and incomplete coverage as citable evidence.&quot;,
   &quot;verification&quot;: &quot;test_csv_aggregation_compares_total_cost_instead_of_loudest_warning&quot;
-}</pre></article><article><h2>R4: No visible coverage or unexplored frontier for reprioritization</h2><p class="status">Coverage view implemented; live search behavior remains incomplete</p><pre>{
+}</pre></article><article id="R4"><h2>R4: No visible coverage or unexplored frontier for reprioritization</h2><p class="status">Coverage view implemented; live search behavior remains incomplete</p><pre>{
   &quot;baseline&quot;: &quot;Opportunity scores reward evidence confidence; the manager has no concise view of unexamined planned sources, signal classes, or concentration.&quot;,
   &quot;fix&quot;: &quot;Expose observed source coverage, untouched scoped resources, unresolved opportunities and exploration advice; instruct manager to compare alternatives and seek contradictions.&quot;,
   &quot;verification&quot;: &quot;Coverage and manager context tests plus autonomous evaluation harness&quot;
-}</pre></article><article><h2>R5: Independent review can approve with citations unrelated to the claims</h2><p class="status">Implemented; deterministic regressions passed</p><pre>{
+}</pre></article><article id="R5"><h2>R5: Independent review can approve with citations unrelated to the claims</h2><p class="status">Implemented; deterministic regressions passed</p><pre>{
   &quot;baseline&quot;: &quot;gate returns supported when claim cites db but evaluator cites cache. save_findings leaves it unverified, yet the job remains supported and can enable implementation authorization.&quot;,
   &quot;fix&quot;: &quot;Require evaluator evidence coverage for every factual claim before accepting the job.&quot;,
   &quot;verification&quot;: &quot;test_supported_verdict_must_cover_every_claim_not_an_unrelated_citation&quot;
-}</pre></article><article><h2>R6: Duplicate detection can return a different goal&#x27;s job</h2><p class="status">Implemented; deterministic regressions passed</p><pre>{
+}</pre></article><article id="R6"><h2>R6: Duplicate detection can return a different goal&#x27;s job</h2><p class="status">Implemented; deterministic regressions passed</p><pre>{
   &quot;baseline&quot;: &quot;Research signatures omit goal ID despite goal-specific jobs, budgets and acceptance criteria.&quot;,
   &quot;fix&quot;: &quot;Scope duplicate lookup to the current goal while preserving knowledge retrieval across goals.&quot;,
   &quot;verification&quot;: &quot;test_duplicate_investigation_does_not_return_another_goals_job&quot;
-}</pre></article><article><h2>R7: No HTML tracking report</h2><p class="status">Implemented; deterministic regressions passed</p><pre>{
+}</pre></article><article id="R7"><h2>R7: No HTML tracking report</h2><p class="status">Implemented; deterministic regressions passed</p><pre>{
   &quot;baseline&quot;: &quot;Only CLI/JSON export exists; no persistent human-readable findings and fix history.&quot;,
   &quot;fix&quot;: &quot;Escaped standalone HTML reports for evaluation history and per-goal evidence/decision logs.&quot;,
   &quot;verification&quot;: &quot;test_html_report_escapes_source_text and CLI export smoke test&quot;
-}</pre></article><article><h2>R8: Live research access prerequisites</h2><p class="status">Resolved: credentials propagated and API network access now works</p><pre>{
+}</pre></article><article id="R8"><h2>R8: Live research access prerequisites</h2><p class="status">Resolved: credentials propagated and API network access now works</p><pre>{
   &quot;baseline&quot;: &quot;Initially OPENAI_API_KEY was absent, then the egress proxy rejected api.openai.com with CONNECT HTTP 403. These attempts executed no model reasoning.&quot;,
   &quot;fix&quot;: &quot;Reused the secure environment credential after propagation; saved the api.openai.com network addition. Subsequent unauthenticated API probe reached HTTP 401 and actual model trials executed.&quot;,
   &quot;verification&quot;: &quot;live-connected-01 and live-connected-02 contain real manager decisions and specialist reports&quot;
-}</pre></article><article><h2>R9: Live manager stops at the first inventory page and underfunds research</h2><p class="status">Partially improved; log-tail coverage and replacement-hypothesis support remain open</p><pre>{
+}</pre></article><article id="R9"><h2>R9: Live manager stops at the first inventory page and underfunds research</h2><p class="status">partially addressed; live campaign rerun pending</p><pre>{
   &quot;baseline&quot;: &quot;Original code: 0/8 checks and premature pause. First tool-improved live case: 0/8 with pause after first 40 entries. Negative control: 3/8; repeated 1-2 call probes sampled cache-only prefixes and never reached decisive code, CSV rows or log tail.&quot;,
   &quot;fix&quot;: &quot;Provide observed root inventory in manager context, surface subdirectory names/counts beyond current page, resolve conflicting delegation guidance, and require budgets suited to whole-file comparisons.&quot;,
   &quot;verification&quot;: &quot;Live iteration 04: 6/8 buried-bottleneck checks, 5/8 negative-control checks. Iteration 05: 5/8 each. Trials are development cases used during tuning, not a held-out estimate.&quot;
-}</pre></article><article><h2>R10: Discovery can complete without making a single source observation</h2><p class="status">Reproduced live; guard and tool activation implemented</p><pre>{
+}</pre><details><summary>2026-10-18T18:59:14.462322+00:00 · diagnosis / change · </summary><pre>&quot;A durable index of 7,545 Kafka source/document files and component-diverse frontier is now available. Early-completion and data-gap-only completion were reproduced and gated; baseline failures remain in the history. No claim of multi-day reliability yet.&quot;</pre></details></article><article id="R10"><h2>R10: Discovery can complete without making a single source observation</h2><p class="status">Reproduced live; guard and tool activation implemented</p><pre>{
   &quot;baseline&quot;: &quot;Iteration 02 produced two discovered reports with zero discretionary tool calls and empty citations, followed by a pause.&quot;,
   &quot;fix&quot;: &quot;Require an initial discovery/research tool call and reject discovery without current observed evidence.&quot;,
   &quot;verification&quot;: &quot;test_discovery_cannot_complete_without_observing_any_evidence; subsequent live trials performed actual source/tool reads.&quot;
-}</pre></article><article><h2>R11: Prefix-only metric reasoning and missed log-tail evidence</h2><p class="status">CSV continuation implemented; broader behavioral limitation remains</p><pre>{
+}</pre></article><article id="R11"><h2>R11: Prefix-only metric reasoning and missed log-tail evidence</h2><p class="status">CSV continuation implemented; broader behavioral limitation remains</p><pre>{
   &quot;baseline&quot;: &quot;Live researcher/evaluator treated cache-only CSV prefixes as evidence that other operation types were unmeasured.&quot;,
   &quot;fix&quot;: &quot;Observed CSV column metadata; initial numeric aggregation for numeric CSV scopes; SDK aggregation follows pages within tool budget, preserving incomplete status.&quot;,
   &quot;remaining&quot;: &quot;Some live runs still skip logs, fail to reach decisive log-tail events, or stop after falsification rather than independently verifying the alternative. Do not claim full exploration/exploitation balance.&quot;
-}</pre></article><article><h2>R12: Self-audit native worker blocked by masked daemon socket</h2><p class="status">Socket startup resolved; bounded native turns still fail to hand off</p><pre>{
+}</pre></article><article id="R12"><h2>R12: Self-audit native worker blocked by masked daemon socket</h2><p class="status">Socket startup resolved; bounded native turns still fail to hand off</p><pre>{
   &quot;baseline&quot;: &quot;Native shells failed because the outer sandbox masks the daemon socket directory. No edits occurred in that attempt; independent oracles failed.&quot;,
   &quot;fix&quot;: &quot;Run self-audit outside the outer command sandbox through the approved execution route; Codex retains its own workspace sandbox.&quot;,
   &quot;verification&quot;: &quot;Supported outer execution route permitted real code edits. Both bounded native attempts timed out; interruption was reconciled and the implementation is escalated. No autonomous completion audit passed.&quot;
-}</pre></article><article><h2>R13: Native implementation exceeds its bounded turn without verified completion</h2><p class="status">Reproduced twice; attempt budget exhausted and candidate retained</p><pre>{
+}</pre></article><article id="R13"><h2>R13: Native implementation exceeds its bounded turn without verified completion</h2><p class="status">still open; read-only campaigns exclude native workers</p><pre>{
   &quot;baseline&quot;: &quot;Self-audit live-03 reached accepted research and real edits but timed out before candidate verification. Latest native usage snapshot: 603768 input tokens (566912 cached), 3869 output tokens. These are cumulative usage values, not unique prompt bytes or a dollar estimate.&quot;,
   &quot;remaining&quot;: &quot;Both native turns reached their 300-second bounds. Final interruption was reconciled and status is escalated. Manual verification of the generated patch is recorded separately; it is not autonomous end-to-end success.&quot;
-}</pre></article><article><h2>R14: Evaluation process could exit zero with failed research checkpoints</h2><p class="status">Fixed and regression-tested</p><pre>{
+}</pre><details><summary>2026-10-18T18:59:14.465785+00:00 · diagnosis / change · </summary><pre>&quot;Earlier native self-audit timeouts remain unresolved. New long-running Kafka research uses metered SDK roles and cannot launch native code workers, edit Kafka or create external PRs. Successful long-running research would not establish that native code handoffs are fixed.&quot;</pre></details></article><article id="R14"><h2>R14: Evaluation process could exit zero with failed research checkpoints</h2><p class="status">Fixed and regression-tested</p><pre>{
   &quot;baseline&quot;: &quot;The initial harness used exit status only to distinguish runtime exceptions; a completed conversation with 0/8 or 5/8 checks could still exit zero. Those recorded scores remain failures regardless of historical command exit codes.&quot;,
   &quot;fix&quot;: &quot;Exit 0 only for all checkpoints passed, 1 for behavioral failure/no trials, 2 for blocked/error.&quot;,
   &quot;verification&quot;: &quot;tests/test_research_eval.py&quot;
-}</pre></article><h2>Experiment history</h2><table><thead><tr><th>Experiment</th><th>Mode</th><th>Outcome</th><th>Checks</th><th>Seconds</th></tr></thead><tbody><tr><td>Existing suite baseline</td><td></td><td>55 passed, 1 opt-in live Codex test skipped</td><td>Unscored</td><td>8.83</td></tr><tr><td>New adversarial regression baseline</td><td></td><td>8 failed</td><td>Unscored</td><td></td></tr><tr><td>baseline-connected-01/buried-bottleneck</td><td>live-autonomous</td><td>paused</td><td>0/8</td><td>10.874</td></tr><tr><td>baseline-live-01/buried-bottleneck</td><td>live-autonomous</td><td>error</td><td>Unscored</td><td>1.521</td></tr><tr><td>harness-01/buried-bottleneck</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.622</td></tr><tr><td>harness-01/negative-control</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.623</td></tr><tr><td>live-01/buried-bottleneck</td><td>live-autonomous</td><td>error</td><td>Unscored</td><td>1.398</td></tr><tr><td>live-02/negative-control</td><td>live-autonomous</td><td>error</td><td>Unscored</td><td>1.387</td></tr><tr><td>live-connected-01/buried-bottleneck</td><td>live-autonomous</td><td>paused</td><td>0/8</td><td>12.558</td></tr><tr><td>live-connected-02/negative-control</td><td>live-autonomous</td><td>active</td><td>3/8</td><td>57.432</td></tr><tr><td>live-iteration-02/buried-bottleneck</td><td>live-autonomous</td><td>paused</td><td>0/8</td><td>26.6</td></tr><tr><td>live-iteration-03/buried-bottleneck</td><td>live-autonomous</td><td>paused</td><td>0/8</td><td>7.391</td></tr><tr><td>live-iteration-04/buried-bottleneck</td><td>live-autonomous</td><td>completed</td><td>6/8</td><td>39.711</td></tr><tr><td>live-iteration-05/buried-bottleneck</td><td>live-autonomous</td><td>completed</td><td>5/8</td><td>23.581</td></tr><tr><td>live-negative-04/negative-control</td><td>live-autonomous</td><td>completed</td><td>5/8</td><td>27.945</td></tr><tr><td>live-negative-05/negative-control</td><td>live-autonomous</td><td>paused</td><td>5/8</td><td>27.234</td></tr><tr><td>.omnitrix/research-eval/harness-final/buried-bottleneck</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.622</td></tr><tr><td>.omnitrix/research-eval/harness-final/negative-control</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.624</td></tr><tr><td>.omnitrix/self-audit/live-01</td><td>live-seeded-defect-triage-and-repair</td><td>paused</td><td>Unscored</td><td>17.382</td></tr><tr><td>.omnitrix/self-audit/live-02</td><td>live-seeded-defect-triage-and-repair</td><td>paused</td><td>Unscored</td><td>79.535</td></tr><tr><td>.omnitrix/self-audit/live-03</td><td>live-seeded-defect-triage-and-repair</td><td>active</td><td>Unscored</td><td>331.634</td></tr><tr><td>Final combined deterministic validation</td><td>deterministic</td><td>passed</td><td>Unscored</td><td>9.98</td></tr><tr><td>Final evaluation exit-status regression validation</td><td>deterministic</td><td>passed</td><td>Unscored</td><td>10.06</td></tr><tr><td>.omnitrix/research-eval/exit-status-final/buried-bottleneck</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.619</td></tr><tr><td>.omnitrix/research-eval/exit-status-final/negative-control</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.621</td></tr><tr><td>.omnitrix/self-audit/live-03/reconciled-repair</td><td>live-human-steered-reconciled-repair</td><td>uncertain</td><td>Unscored</td><td></td></tr><tr><td>/workspace/omnitrix/.omnitrix/self-audit/live-03/manual-verification/setup-failure</td><td>manual-verification-of-native-generated-patch</td><td>blocked</td><td>Unscored</td><td></td></tr><tr><td>/workspace/omnitrix/.omnitrix/self-audit/live-03/manual-verification</td><td>manual-verification-of-native-generated-patch</td><td>passed</td><td>Unscored</td><td></td></tr></tbody></table><details><summary>Existing suite baseline</summary><pre>{
+}</pre></article><article id="R15"><h2>R15: Short-lived budgets cannot support multi-day investigations</h2><p class="status">persistent caps implemented; recovery/deadline regressions pass</p><pre>{}</pre><details><summary>2026-10-18T18:59:14.440313+00:00 · diagnosis / change · </summary><pre>&quot;A default of 12 role runs and in-memory autonomy/time limits cannot represent a multi-day investigation. Added persisted absolute deadline, decision/role counters, restart-safe read-only recovery, and 72-hour campaign configuration. Tested crossing a 3-day deadline and restoring consumed budgets without sleeping for days.&quot;</pre></details><details><summary>2026-10-18T19:14:31.582540+00:00 · verification · persistent caps implemented; recovery/deadline regressions pass</summary><pre>{
+  &quot;checks&quot;: &quot;108 passed, 1 skipped after integration with current main. Live Codex test is opt-in; no multi-day soak result claimed.&quot;,
+  &quot;boundary&quot;: &quot;Guard/capability validation is separate from live reasoning quality.&quot;
+}</pre></details></article><article id="R16"><h2>R16: A usage report alone cannot enforce the $25 ceiling</h2><p class="status">hard reservation ledger implemented; live requests reconciled</p><pre>{}</pre><details><summary>2026-10-18T18:59:14.444235+00:00 · diagnosis / change · </summary><pre>&quot;Added provider token-count preflight, atomic maximum-cost reservation, fixed standard-tier GPT-4.1 pricing, output caps, actual cached-token settlement and retained reservations for unknown outcomes. HTTP retries, hosted tools, hidden mutable history and unmetered native actions are excluded. First Kafka live pass cost $0.120434 and respected the ledger.&quot;</pre></details><details><summary>2026-10-18T19:14:31.590095+00:00 · verification · hard reservation ledger implemented; live requests reconciled</summary><pre>{
+  &quot;checks&quot;: &quot;108 passed, 1 skipped after integration with current main. Live Codex test is opt-in; no multi-day soak result claimed.&quot;,
+  &quot;boundary&quot;: &quot;Guard/capability validation is separate from live reasoning quality.&quot;
+}</pre></details></article><article id="R17"><h2>R17: Metric-named source classes were mistaken for telemetry</h2><p class="status">classification and code freshness regressions pass</p><pre>{}</pre><details><summary>2026-10-18T18:59:14.447751+00:00 · diagnosis / change · </summary><pre>&quot;Metrics.java was classified as metrics by name before checking its code extension. Code extensions now take precedence; unchanged code no longer expires merely because 24 hours passed. Runtime log/metric freshness still expires.&quot;</pre></details><details><summary>2026-10-18T19:14:31.596684+00:00 · verification · classification and code freshness regressions pass</summary><pre>{
+  &quot;checks&quot;: &quot;108 passed, 1 skipped after integration with current main. Live Codex test is opt-in; no multi-day soak result claimed.&quot;,
+  &quot;boundary&quot;: &quot;Guard/capability validation is separate from live reasoning quality.&quot;
+}</pre></details></article><article id="R18"><h2>R18: Deep Java package navigation exhausts manager turns</h2><p class="status">fixed navigation; live continuation observed</p><pre>{}</pre><details><summary>2026-10-18T18:59:14.451179+00:00 · diagnosis / change · </summary><pre>&quot;The first Kafka owner paused after 2 decisions and 13 API requests at $0.120434, mostly walking core/src/main/java directories. Directory listings now include indexed descendant files; search_frontier has a directory filter. Campaign manager reasoning is bounded at 24 turns. Resuming the same goal preserved all previous spending and deadline.&quot;</pre></details></article><article id="R19"><h2>R19: Large-repository job completed after one evidence-gap investigation</h2><p class="status">guard verified; autonomous breadth still failing</p><pre>{}</pre><details><summary>2026-10-18T18:59:14.454729+00:00 · diagnosis / change · </summary><pre>&quot;The next Kafka pass completed after one supported investigation of missing end-to-end throughput measurement, at $0.382260, with most of 7,545 indexed files untouched. Added explicit minimum source/component breadth, completed hypothesis tests, and code-cited mechanism findings. Finding categories distinguish measurement gaps from workload-specific inefficiencies. These are minimum quality gates, not exhaustive-coverage claims.&quot;</pre></details><details><summary>2026-10-18T19:06:35.831218+00:00 · live regression · </summary><pre>{
+  &quot;run&quot;: &quot;kafka-resume-03&quot;,
+  &quot;result&quot;: &quot;Completion gate blocked the previous data-gap-only success, but the manager paused after four decisions with no new observations.&quot;,
+  &quot;actual&quot;: {
+    &quot;required&quot;: {
+      &quot;sources&quot;: 20,
+      &quot;branches&quot;: 4,
+      &quot;hypotheses&quot;: 6,
+      &quot;mechanisms&quot;: 2
+    },
+    &quot;actual&quot;: {
+      &quot;sources&quot;: 4,
+      &quot;branches&quot;: 4,
+      &quot;hypotheses&quot;: 0,
+      &quot;mechanisms&quot;: 0
+    },
+    &quot;met&quot;: false,
+    &quot;note&quot;: &quot;Minimum breadth and evidence gates, not proof of exhaustive coverage or production impact.&quot;
+  },
+  &quot;spending&quot;: {
+    &quot;goal_id&quot;: &quot;c849afa7ebea434ea01d292996c10a77&quot;,
+    &quot;limit_nanos&quot;: 25000000000,
+    &quot;spent_nanos&quot;: 766726000,
+    &quot;reserved_nanos&quot;: 0,
+    &quot;limit_usd&quot;: 25.0,
+    &quot;spent_usd&quot;: 0.766726,
+    &quot;reserved_usd&quot;: 0.0,
+    &quot;available_usd&quot;: 24.233274,
+    &quot;model&quot;: &quot;gpt-4.1-2025-04-14&quot;,
+    &quot;price_source&quot;: &quot;https://developers.openai.com/api/docs/models/gpt-4.1&quot;
+  }
+}</pre></details></article><article id="R20"><h2>R20: Kafka validation prerequisites are missing</h2><p class="status">local baseline passes; no performance claim</p><pre>{}</pre><details><summary>2026-10-18T18:59:14.458571+00:00 · diagnosis / change · </summary><pre>&quot;Initial wrapper download used direct Java networking and timed out. Downloaded pinned Gradle 9.7.1 through the supported proxy and verified its repository checksum. Gradle then found only a JRE without javac. Downloaded official Temurin 25 JDK and verified the release SHA-256; targeted client test is next.&quot;</pre></details><details><summary>2026-10-18T19:06:35.837624+00:00 · environment repair and validation · </summary><pre>{
+  &quot;problems&quot;: [
+    &quot;Java networking ignored HTTPS_PROXY&quot;,
+    &quot;Image has a JRE without javac&quot;,
+    &quot;Downloaded JDK lacks cloud proxy CA&quot;
+  ],
+  &quot;fixes&quot;: [
+    &quot;Explicit Gradle proxy settings&quot;,
+    &quot;Official checksum-verified Temurin25 JDK&quot;,
+    &quot;System Java trust store, TLS verification retained&quot;
+  ],
+  &quot;check&quot;: &quot;Kafka :clients:test --tests org.apache.kafka.common.cache.LRUCacheTest: 3 passed&quot;,
+  &quot;artifact&quot;: &quot;local build logs exported with workload/provenance context; not production telemetry&quot;
+}</pre></details></article><article id="R21"><h2>R21: Git-only source catalog hides local logs and measurement exports</h2><p class="status">implemented; focused regression passed</p><pre>{}</pre><details><summary>2026-10-18T19:06:35.842569+00:00 · diagnosis and change · </summary><pre>{
+  &quot;fix&quot;: &quot;Explicit exported UTF-8 files can be registered in the frontier. Git and local-export origin counts remain separate. --evidence can be repeated; paths stay inside workspace.&quot;,
+  &quot;validation&quot;: &quot;Export pagination/classification/path-boundary regression; 6 actual Kafka local validation artifacts registered.&quot;
+}</pre></details></article><article id="R22"><h2>R22: Updating experiment summaries discards earlier outcomes</h2><p class="status">append-only histories verified; ongoing campaign checkpoints added</p><pre>{}</pre><details><summary>2026-10-18T19:06:35.847570+00:00 · longitudinal tracking repair · </summary><pre>{
+  &quot;fix&quot;: &quot;Latest experiment summary plus append-only timestamped experiment_events; issue history records observations, changes and regressions. Atomic file replacement prevents partial reports.&quot;,
+  &quot;validation&quot;: &quot;Blocked-to-completed rerun and open-to-fixed-to-regressed issue tests preserve every earlier event.&quot;
+}</pre></details><details><summary>2026-10-18T19:17:56.666346+00:00 · automatic tracking change · append-only histories verified; ongoing campaign checkpoints added</summary><pre>{
+  &quot;fix&quot;: &quot;Each periodic/final checkpoint now saves a timestamped activity record with source coverage, hypothesis/mechanism counts, consumed decisions/role runs, spent dollars and outstanding reservations. Identical states are coalesced; earlier checkpoints remain.&quot;,
+  &quot;boundary&quot;: &quot;Goal HTML and SQLite preserve continuing progress between manual reviews. The shared issue ledger retains human-reviewed diagnoses and fixes separately.&quot;
+}</pre></details></article><article id="R23"><h2>R23: Research and evaluator infer missing metrics from a framework leaf method</h2><p class="status">open semantic reliability gap; prior finding downgraded</p><pre>{}</pre><details><summary>2026-10-18T19:06:35.854785+00:00 · live false-confidence finding · </summary><pre>{
+  &quot;observed&quot;: &quot;Both roles treated a JMH benchmark method returning data as evidence that it cannot output throughput/cost. JMH instrumentation is provided by its harness; Kafka benchmark README documents default throughput and result options.&quot;,
+  &quot;repair&quot;: &quot;Prior job invalidated; findings downgraded to assumptions without erasing source/report history. Research and evaluation instructions now require caller/framework execution-contract checks for absence claims.&quot;,
+  &quot;limit&quot;: &quot;This is a prompt change, not a proven semantic verifier. A fresh independent correction is pending.&quot;
+}</pre></details></article><article id="R24"><h2>R24: Campaign sessions replay large snapshots and multiply model input cost</h2><p class="status">compaction verified; cost trend remains under observation</p><pre>{}</pre><details><summary>2026-10-18T19:06:35.859792+00:00 · cost diagnosis and change · </summary><pre>{
+  &quot;observed&quot;: &quot;One manager decision consumed 94628 input tokens across 2 requests, while adding zero source observations. Prior full state prompts were replayed in the SDK session.&quot;,
+  &quot;fix&quot;: &quot;Campaigns use fresh SDK turns with bounded durable snapshots and SQLite recall tools. Ordinary interactive sessions stay persistent.&quot;,
+  &quot;validation&quot;: &quot;Campaign SDK invocation regression asserts no duplicate session replay.&quot;
+}</pre></details><details><summary>2026-10-18T19:17:56.650215+00:00 · live cost review · partial fix; handoff compaction implemented</summary><pre>{
+  &quot;observed&quot;: &quot;Removing SDK snapshot replay helped one call but did not solve duplication: a later two-request manager decision still consumed 73298 input tokens. Manager spend dominated costs.&quot;,
+  &quot;fix&quot;: &quot;Campaign prompt now includes only six recent tasks and compact report handoffs, eight decisions/jobs/opportunities, and five recent repair messages. Original reports remain on disk and are recallable.&quot;,
+  &quot;validation&quot;: &quot;Focused manager/campaign/report tests pass; live before/after comparison pending.&quot;
+}</pre></details><details><summary>2026-10-18T19:20:21.256377+00:00 · live checkpoint · compaction verified; cost trend remains under observation</summary><pre>{
+  &quot;latest_manager_usage&quot;: [
+    {
+      &quot;role&quot;: &quot;manager&quot;,
+      &quot;requests&quot;: 3,
+      &quot;input_tokens&quot;: 73694,
+      &quot;output_tokens&quot;: 605
+    },
+    {
+      &quot;role&quot;: &quot;manager&quot;,
+      &quot;requests&quot;: 2,
+      &quot;input_tokens&quot;: 45121,
+      &quot;output_tokens&quot;: 425
+    },
+    {
+      &quot;role&quot;: &quot;manager&quot;,
+      &quot;requests&quot;: 2,
+      &quot;input_tokens&quot;: 46630,
+      &quot;output_tokens&quot;: 422
+    }
+  ],
+  &quot;boundary&quot;: &quot;Snapshots are smaller and full history stays recallable. Multi-request catalog navigation can still dominate costs; per-request ledger remains authoritative.&quot;
+}</pre></details></article><article id="R25"><h2>R25: Rejected directory plans repeat without useful repair and recent feedback can be hidden</h2><p class="status">open live filename grounding failure; new probe started</p><pre>{}</pre><details><summary>2026-10-18T19:06:35.864563+00:00 · live diagnosis and change · </summary><pre>{
+  &quot;observed&quot;: &quot;Manager alternated directory-scoped discovery and unnecessary user clarification. Three identical scope rejections caused a safety pause.&quot;,
+  &quot;fix&quot;: &quot;Scope errors now include actual indexed descendant leaf paths; manager context includes recent parsed rejection feedback. Pending-message sampling keeps newest 20; full history remains recallable. Manager inventory/frontier tool queries are recorded for audit.&quot;,
+  &quot;validation&quot;: &quot;Invalid directory regression checks a real suggested Java leaf; old pending messages cannot hide the newest rejection.&quot;
+}</pre></details><details><summary>2026-10-18T19:09:10.080312+00:00 · live rerun · open live planning failure; concise controller instructions added</summary><pre>{
+  &quot;observed&quot;: &quot;After path-error repair feedback, the manager instead returned discover actions with research_plan=null three times. It gathered zero new evidence. Spent $0.884294 cumulative; no held reservations.&quot;,
+  &quot;change&quot;: &quot;Campaign now uses a short dedicated controller contract with an executable plan example and only its five permitted actions. This is a prompt change whose effect remains to be measured.&quot;
+}</pre></details><details><summary>2026-10-18T19:11:18.883633+00:00 · live rerun · open live filename grounding failure; new probe started</summary><pre>{
+  &quot;observed&quot;: &quot;Dedicated prompt produced a complete plan, but invented GroupCoordinatorPerformanceTest.java. Stagnation stop fired. Cumulative spend $0.925306, zero reservations.&quot;,
+  &quot;change&quot;: &quot;Campaign forces one real catalog query before each decision; a nonexistent path error now returns files from its nearest indexed parent. Explicit continuation records the old stall and resets only the stagnation window, never consumed budgets or deadline.&quot;
+}</pre></details></article><article id="R26"><h2>R26: Alternate actor entry points bypass campaign decision and completion gates</h2><p class="status">common actor controls verified by alternate-entry regressions</p><pre>{}</pre><details><summary>2026-10-18T19:09:10.072492+00:00 · code review · implemented; regression validation pending</summary><pre>{
+  &quot;diagnosis&quot;: &quot;CLI/inbox paths using the ordinary supervisor shared model metering but could bypass campaign-specific decision/completion controls. The legacy manager could bypass the read-only actor entirely.&quot;,
+  &quot;fix&quot;: &quot;Enforce decision claiming and campaign action validation in the common supervisor. Legacy manager refuses campaign goals. All inference paths keep the reservation ledger.&quot;
+}</pre></details><details><summary>2026-10-18T19:14:31.602436+00:00 · verification · common actor controls verified by alternate-entry regressions</summary><pre>{
+  &quot;checks&quot;: &quot;108 passed, 1 skipped after integration with current main. Live Codex test is opt-in; no multi-day soak result claimed.&quot;,
+  &quot;boundary&quot;: &quot;Guard/capability validation is separate from live reasoning quality.&quot;
+}</pre></details></article><article id="R27"><h2>R27: Stagnation guard can cancel useful work before the first read</h2><p class="status">stagnation scheduling regression passes</p><pre>{}</pre><details><summary>2026-10-18T19:10:23.669514+00:00 · code review · implemented; regression validation pending</summary><pre>{
+  &quot;diagnosis&quot;: &quot;The counter was checked immediately after dispatching an async worker. On the eighth decision it could cancel a useful newly launched read before that worker executed.&quot;,
+  &quot;fix&quot;: &quot;Check observed progress and stagnation when the actor is idle, after the previous worker finishes. Pending new research gets its bounded chance to read.&quot;,
+  &quot;check&quot;: &quot;Start the real read/evaluate/complete orchestration test with seven prior stagnant decisions.&quot;
+}</pre></details><details><summary>2026-10-18T19:14:31.608398+00:00 · verification · stagnation scheduling regression passes</summary><pre>{
+  &quot;checks&quot;: &quot;108 passed, 1 skipped after integration with current main. Live Codex test is opt-in; no multi-day soak result claimed.&quot;,
+  &quot;boundary&quot;: &quot;Guard/capability validation is separate from live reasoning quality.&quot;
+}</pre></details></article><article id="R29"><h2>R29: Manager confuses path catalog search with source-content search</h2><p class="status">tool contract clarified; live recovery pending</p><pre>{}</pre><details><summary>2026-10-18T19:13:49.612966+00:00 · live regression · tool contract clarified; live recovery pending</summary><pre>{
+  &quot;observed&quot;: &quot;After a five-file discovery, the manager issued 24 catalog turns searching words such as run/sample under README.md and jmh.sh as if directory filters selected file contents. MaxTurnsExceeded paused the campaign.&quot;,
+  &quot;result&quot;: &quot;9 files and 9 buckets observed; no independently resolved current hypothesis or mechanism; cumulative $1.555578, zero held reservations.&quot;,
+  &quot;fix&quot;: &quot;Tool documentation and returned catalog metadata now explicitly state pathname-only queries, directory-only subtree filters and the need for a research plan to read/search contents. Original failed queries remain in the goal report.&quot;
+}</pre></details></article><article id="R28"><h2>R28: Documentation index assumes every report has a plain first article tag</h2><p class="status">fixed; generated guide and focused docs checks pass</p><pre>{}</pre><details><summary>2026-10-18T19:13:49.619410+00:00 · integration test and repair · fixed; generated guide and focused docs checks pass</summary><pre>{
+  &quot;observed&quot;: &quot;Adding HTML article IDs for issue links exposed an IndexError in the old docs search generator.&quot;,
+  &quot;fix&quot;: &quot;Support attributed/multiple articles, include all dated issue histories and stop titles at &lt;/title&gt;. Preserve current main dashboard and recorded experiment view.&quot;,
+  &quot;validation&quot;: &quot;34 focused campaign/spending/report/dashboard checks pass; full checks repeated after merging current main.&quot;
+}</pre></details></article><article id="R30"><h2>R30: Manager treats a partial interface-heavy search page as absence of implementation</h2><p class="status">recovery observed; generalization unproven</p><pre>{}</pre><details><summary>2026-10-18T19:17:56.658726+00:00 · live regression · catalog metadata improved; live recovery pending</summary><pre>{
+  &quot;observed&quot;: &quot;Queries for Assignor under group-coordinator returned a 20-row first page with a next_after cursor. Manager repeatedly guessed a nonexistent group-coordinator-impl subtree and paused, overlooking real implementation classes on later pages under group-coordinator/src.&quot;,
+  &quot;fix&quot;: &quot;Catalog responses now include exact total match counts and representative paths/counts per matched component, including components beyond the current page. Path search is explicitly a literal substring.&quot;,
+  &quot;limit&quot;: &quot;This reduces interface-only first-page bias but does not prove the model will follow pagination or use counterevidence.&quot;
+}</pre></details><details><summary>2026-10-18T19:20:21.435294+00:00 · live checkpoint · recovery observed; generalization unproven</summary><pre>{
+  &quot;observed&quot;: &quot;Latest probe reached real assignment implementation files and their balancing steps after total-match/component examples were exposed. This is recovery on the development case, not a held-out guarantee.&quot;,
+  &quot;quality&quot;: {
+    &quot;required&quot;: {
+      &quot;sources&quot;: 20,
+      &quot;branches&quot;: 4,
+      &quot;hypotheses&quot;: 6,
+      &quot;mechanisms&quot;: 2
+    },
+    &quot;actual&quot;: {
+      &quot;sources&quot;: 23,
+      &quot;branches&quot;: 13,
+      &quot;hypotheses&quot;: 0,
+      &quot;mechanisms&quot;: 0
+    },
+    &quot;met&quot;: false,
+    &quot;note&quot;: &quot;Minimum breadth and evidence gates, not proof of exhaustive coverage or production impact.&quot;
+  },
+  &quot;spending&quot;: {
+    &quot;goal_id&quot;: &quot;c849afa7ebea434ea01d292996c10a77&quot;,
+    &quot;limit_nanos&quot;: 25000000000,
+    &quot;spent_nanos&quot;: 3459756000,
+    &quot;reserved_nanos&quot;: 76654000,
+    &quot;limit_usd&quot;: 25.0,
+    &quot;spent_usd&quot;: 3.459756,
+    &quot;reserved_usd&quot;: 0.076654,
+    &quot;available_usd&quot;: 21.46359,
+    &quot;model&quot;: &quot;gpt-4.1-2025-04-14&quot;,
+    &quot;price_source&quot;: &quot;https://developers.openai.com/api/docs/models/gpt-4.1&quot;
+  }
+}</pre></details></article><article id="R31"><h2>R31: Discovery breadth improves while independently resolved hypotheses remain scarce</h2><p class="status">open; observe exploration/exploitation allocation</p><pre>{}</pre><details><summary>2026-10-18T19:20:21.611152+00:00 · live checkpoint · open; observe exploration/exploitation allocation</summary><pre>{
+  &quot;observed&quot;: &quot;The probe now reads actual mechanism code and compares candidate assignors, but repeated discovery maps still dominate. Independently supported/falsified hypothesis and verified mechanism counts remain the acceptance signal.&quot;,
+  &quot;counts&quot;: [
+    {
+      &quot;stage&quot;: &quot;discovery&quot;,
+      &quot;status&quot;: &quot;discovered&quot;,
+      &quot;jobs&quot;: 11
+    },
+    {
+      &quot;stage&quot;: &quot;discovery&quot;,
+      &quot;status&quot;: &quot;running&quot;,
+      &quot;jobs&quot;: 1
+    },
+    {
+      &quot;stage&quot;: &quot;research&quot;,
+      &quot;status&quot;: &quot;escalated&quot;,
+      &quot;jobs&quot;: 1
+    },
+    {
+      &quot;stage&quot;: &quot;research&quot;,
+      &quot;status&quot;: &quot;insufficient&quot;,
+      &quot;jobs&quot;: 1
+    },
+    {
+      &quot;stage&quot;: &quot;research&quot;,
+      &quot;status&quot;: &quot;invalidated&quot;,
+      &quot;jobs&quot;: 1
+    }
+  ],
+  &quot;quality&quot;: {
+    &quot;required&quot;: {
+      &quot;sources&quot;: 20,
+      &quot;branches&quot;: 4,
+      &quot;hypotheses&quot;: 6,
+      &quot;mechanisms&quot;: 2
+    },
+    &quot;actual&quot;: {
+      &quot;sources&quot;: 23,
+      &quot;branches&quot;: 13,
+      &quot;hypotheses&quot;: 0,
+      &quot;mechanisms&quot;: 0
+    },
+    &quot;met&quot;: false,
+    &quot;note&quot;: &quot;Minimum breadth and evidence gates, not proof of exhaustive coverage or production impact.&quot;
+  },
+  &quot;limit&quot;: &quot;Do not equate source/branch counts or opportunity generation with a validated system inefficiency.&quot;
+}</pre></details></article><h2>Latest experiment results</h2><table><thead><tr><th>Experiment</th><th>Mode</th><th>Outcome</th><th>Checks</th><th>Seconds</th></tr></thead><tbody><tr><td>Existing suite baseline</td><td></td><td>55 passed, 1 opt-in live Codex test skipped</td><td>Unscored</td><td>8.83</td></tr><tr><td>New adversarial regression baseline</td><td></td><td>8 failed</td><td>Unscored</td><td></td></tr><tr><td>baseline-connected-01/buried-bottleneck</td><td>live-autonomous</td><td>paused</td><td>0/8</td><td>10.874</td></tr><tr><td>baseline-live-01/buried-bottleneck</td><td>live-autonomous</td><td>error</td><td>Unscored</td><td>1.521</td></tr><tr><td>harness-01/buried-bottleneck</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.622</td></tr><tr><td>harness-01/negative-control</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.623</td></tr><tr><td>live-01/buried-bottleneck</td><td>live-autonomous</td><td>error</td><td>Unscored</td><td>1.398</td></tr><tr><td>live-02/negative-control</td><td>live-autonomous</td><td>error</td><td>Unscored</td><td>1.387</td></tr><tr><td>live-connected-01/buried-bottleneck</td><td>live-autonomous</td><td>paused</td><td>0/8</td><td>12.558</td></tr><tr><td>live-connected-02/negative-control</td><td>live-autonomous</td><td>active</td><td>3/8</td><td>57.432</td></tr><tr><td>live-iteration-02/buried-bottleneck</td><td>live-autonomous</td><td>paused</td><td>0/8</td><td>26.6</td></tr><tr><td>live-iteration-03/buried-bottleneck</td><td>live-autonomous</td><td>paused</td><td>0/8</td><td>7.391</td></tr><tr><td>live-iteration-04/buried-bottleneck</td><td>live-autonomous</td><td>completed</td><td>6/8</td><td>39.711</td></tr><tr><td>live-iteration-05/buried-bottleneck</td><td>live-autonomous</td><td>completed</td><td>5/8</td><td>23.581</td></tr><tr><td>live-negative-04/negative-control</td><td>live-autonomous</td><td>completed</td><td>5/8</td><td>27.945</td></tr><tr><td>live-negative-05/negative-control</td><td>live-autonomous</td><td>paused</td><td>5/8</td><td>27.234</td></tr><tr><td>.omnitrix/research-eval/harness-final/buried-bottleneck</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.622</td></tr><tr><td>.omnitrix/research-eval/harness-final/negative-control</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.624</td></tr><tr><td>.omnitrix/self-audit/live-01</td><td>live-seeded-defect-triage-and-repair</td><td>paused</td><td>Unscored</td><td>17.382</td></tr><tr><td>.omnitrix/self-audit/live-02</td><td>live-seeded-defect-triage-and-repair</td><td>paused</td><td>Unscored</td><td>79.535</td></tr><tr><td>.omnitrix/self-audit/live-03</td><td>live-seeded-defect-triage-and-repair</td><td>active</td><td>Unscored</td><td>331.634</td></tr><tr><td>Final combined deterministic validation</td><td>deterministic</td><td>passed</td><td>Unscored</td><td>9.98</td></tr><tr><td>Final evaluation exit-status regression validation</td><td>deterministic</td><td>passed</td><td>Unscored</td><td>10.06</td></tr><tr><td>.omnitrix/research-eval/exit-status-final/buried-bottleneck</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.619</td></tr><tr><td>.omnitrix/research-eval/exit-status-final/negative-control</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.621</td></tr><tr><td>.omnitrix/self-audit/live-03/reconciled-repair</td><td>live-human-steered-reconciled-repair</td><td>uncertain</td><td>Unscored</td><td></td></tr><tr><td>/workspace/omnitrix/.omnitrix/self-audit/live-03/manual-verification/setup-failure</td><td>manual-verification-of-native-generated-patch</td><td>blocked</td><td>Unscored</td><td></td></tr><tr><td>/workspace/omnitrix/.omnitrix/self-audit/live-03/manual-verification</td><td>manual-verification-of-native-generated-patch</td><td>passed</td><td>Unscored</td><td></td></tr><tr><td>kafka-resume-03</td><td>live read-only; human-steered recovery</td><td>paused</td><td>Unscored</td><td></td></tr><tr><td>kafka-frontier-04</td><td>live read-only; human-steered corrections</td><td>paused</td><td>Unscored</td><td></td></tr><tr><td>kafka-progress-05</td><td>live read-only; human-steered recovery</td><td>running</td><td>Unscored</td><td></td></tr></tbody></table><details><summary>Existing suite baseline</summary><pre>{
   &quot;name&quot;: &quot;Existing suite baseline&quot;,
   &quot;command&quot;: &quot;.venv/bin/python -m pytest -q&quot;,
   &quot;result&quot;: &quot;55 passed, 1 opt-in live Codex test skipped&quot;,
@@ -1675,4 +1882,340 @@
   ],
   &quot;source_digest&quot;: &quot;8c55f3bcb8524a55f4874b4faf65ae265b499b9c77957856c76938936e919354&quot;,
   &quot;note&quot;: &quot;Native turns timed out and have no final audit. This manual isolated verification is separate from autonomous end-to-end success.&quot;
+}</pre></details><details><summary>kafka-resume-03</summary><pre>{
+  &quot;name&quot;: &quot;kafka-resume-03&quot;,
+  &quot;mode&quot;: &quot;live read-only; human-steered recovery&quot;,
+  &quot;status&quot;: &quot;paused&quot;,
+  &quot;reason&quot;: &quot;No new source evidence; invalid directory plans and unnecessary clarification. Prior JMH absence claim challenged manually.&quot;,
+  &quot;autonomous_discovery&quot;: false,
+  &quot;spending&quot;: {
+    &quot;goal_id&quot;: &quot;c849afa7ebea434ea01d292996c10a77&quot;,
+    &quot;limit_nanos&quot;: 25000000000,
+    &quot;spent_nanos&quot;: 766726000,
+    &quot;reserved_nanos&quot;: 0,
+    &quot;limit_usd&quot;: 25.0,
+    &quot;spent_usd&quot;: 0.766726,
+    &quot;reserved_usd&quot;: 0.0,
+    &quot;available_usd&quot;: 24.233274,
+    &quot;model&quot;: &quot;gpt-4.1-2025-04-14&quot;,
+    &quot;price_source&quot;: &quot;https://developers.openai.com/api/docs/models/gpt-4.1&quot;
+  },
+  &quot;frontier&quot;: {
+    &quot;goal_id&quot;: &quot;c849afa7ebea434ea01d292996c10a77&quot;,
+    &quot;head&quot;: &quot;cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282&quot;,
+    &quot;complete&quot;: 1,
+    &quot;skipped&quot;: 64,
+    &quot;files&quot;: 7551,
+    &quot;by_kind&quot;: {
+      &quot;code&quot;: 6760,
+      &quot;document&quot;: 785,
+      &quot;logs&quot;: 4,
+      &quot;metrics&quot;: 2
+    },
+    &quot;by_origin&quot;: {
+      &quot;export&quot;: 6,
+      &quot;git&quot;: 7545
+    },
+    &quot;observed_files&quot;: 4,
+    &quot;basis&quot;: &quot;Git-tracked UTF-8 files and explicitly registered local exports &lt;=32 MiB; binaries, unavailable files and oversized files counted as skipped. Excerpts do not establish full coverage.&quot;
+  },
+  &quot;quality&quot;: {
+    &quot;required&quot;: {
+      &quot;sources&quot;: 20,
+      &quot;branches&quot;: 4,
+      &quot;hypotheses&quot;: 6,
+      &quot;mechanisms&quot;: 2
+    },
+    &quot;actual&quot;: {
+      &quot;sources&quot;: 4,
+      &quot;branches&quot;: 4,
+      &quot;hypotheses&quot;: 0,
+      &quot;mechanisms&quot;: 0
+    },
+    &quot;met&quot;: false,
+    &quot;note&quot;: &quot;Minimum breadth and evidence gates, not proof of exhaustive coverage or production impact.&quot;
+  },
+  &quot;head&quot;: &quot;cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282&quot;,
+  &quot;decisions&quot;: []
+}</pre></details><details><summary>kafka-frontier-04</summary><pre>{
+  &quot;name&quot;: &quot;kafka-frontier-04&quot;,
+  &quot;mode&quot;: &quot;live read-only; human-steered corrections&quot;,
+  &quot;status&quot;: &quot;paused&quot;,
+  &quot;reason&quot;: &quot;{&#x27;error&#x27;: &#x27;MaxTurnsExceeded&#x27;, &#x27;reason&#x27;: &#x27;Manager reasoning budget exhausted; retained conversation/state require a changed approach, not automatic replay&#x27;}&quot;,
+  &quot;autonomous_discovery&quot;: false,
+  &quot;spending&quot;: {
+    &quot;goal_id&quot;: &quot;c849afa7ebea434ea01d292996c10a77&quot;,
+    &quot;limit_nanos&quot;: 25000000000,
+    &quot;spent_nanos&quot;: 1555578000,
+    &quot;reserved_nanos&quot;: 0,
+    &quot;limit_usd&quot;: 25.0,
+    &quot;spent_usd&quot;: 1.555578,
+    &quot;reserved_usd&quot;: 0.0,
+    &quot;available_usd&quot;: 23.444422,
+    &quot;model&quot;: &quot;gpt-4.1-2025-04-14&quot;,
+    &quot;price_source&quot;: &quot;https://developers.openai.com/api/docs/models/gpt-4.1&quot;
+  },
+  &quot;frontier&quot;: {
+    &quot;goal_id&quot;: &quot;c849afa7ebea434ea01d292996c10a77&quot;,
+    &quot;head&quot;: &quot;cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282&quot;,
+    &quot;complete&quot;: 1,
+    &quot;skipped&quot;: 64,
+    &quot;files&quot;: 7551,
+    &quot;by_kind&quot;: {
+      &quot;code&quot;: 6760,
+      &quot;document&quot;: 785,
+      &quot;logs&quot;: 4,
+      &quot;metrics&quot;: 2
+    },
+    &quot;by_origin&quot;: {
+      &quot;export&quot;: 6,
+      &quot;git&quot;: 7545
+    },
+    &quot;observed_files&quot;: 9,
+    &quot;basis&quot;: &quot;Git-tracked UTF-8 files and explicitly registered local exports &lt;=32 MiB; binaries, unavailable files and oversized files counted as skipped. Excerpts do not establish full coverage.&quot;
+  },
+  &quot;quality&quot;: {
+    &quot;required&quot;: {
+      &quot;sources&quot;: 20,
+      &quot;branches&quot;: 4,
+      &quot;hypotheses&quot;: 6,
+      &quot;mechanisms&quot;: 2
+    },
+    &quot;actual&quot;: {
+      &quot;sources&quot;: 9,
+      &quot;branches&quot;: 9,
+      &quot;hypotheses&quot;: 0,
+      &quot;mechanisms&quot;: 0
+    },
+    &quot;met&quot;: false,
+    &quot;note&quot;: &quot;Minimum breadth and evidence gates, not proof of exhaustive coverage or production impact.&quot;
+  },
+  &quot;head&quot;: &quot;cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282&quot;,
+  &quot;decisions&quot;: []
+}</pre></details><details><summary>kafka-progress-05</summary><pre>{
+  &quot;name&quot;: &quot;kafka-progress-05&quot;,
+  &quot;mode&quot;: &quot;live read-only; human-steered recovery&quot;,
+  &quot;status&quot;: &quot;running&quot;,
+  &quot;reason&quot;: &quot;Ongoing bounded probe. Improved file grounding; no claim of solved autonomous research quality.&quot;,
+  &quot;autonomous_discovery&quot;: false,
+  &quot;spending&quot;: {
+    &quot;goal_id&quot;: &quot;c849afa7ebea434ea01d292996c10a77&quot;,
+    &quot;limit_nanos&quot;: 25000000000,
+    &quot;spent_nanos&quot;: 3459756000,
+    &quot;reserved_nanos&quot;: 76654000,
+    &quot;limit_usd&quot;: 25.0,
+    &quot;spent_usd&quot;: 3.459756,
+    &quot;reserved_usd&quot;: 0.076654,
+    &quot;available_usd&quot;: 21.46359,
+    &quot;model&quot;: &quot;gpt-4.1-2025-04-14&quot;,
+    &quot;price_source&quot;: &quot;https://developers.openai.com/api/docs/models/gpt-4.1&quot;
+  },
+  &quot;frontier&quot;: {
+    &quot;goal_id&quot;: &quot;c849afa7ebea434ea01d292996c10a77&quot;,
+    &quot;head&quot;: &quot;cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282&quot;,
+    &quot;complete&quot;: 1,
+    &quot;skipped&quot;: 64,
+    &quot;files&quot;: 7551,
+    &quot;by_kind&quot;: {
+      &quot;code&quot;: 6760,
+      &quot;document&quot;: 785,
+      &quot;logs&quot;: 4,
+      &quot;metrics&quot;: 2
+    },
+    &quot;by_origin&quot;: {
+      &quot;export&quot;: 6,
+      &quot;git&quot;: 7545
+    },
+    &quot;observed_files&quot;: 23,
+    &quot;basis&quot;: &quot;Git-tracked UTF-8 files and explicitly registered local exports &lt;=32 MiB; binaries, unavailable files and oversized files counted as skipped. Excerpts do not establish full coverage.&quot;
+  },
+  &quot;quality&quot;: {
+    &quot;required&quot;: {
+      &quot;sources&quot;: 20,
+      &quot;branches&quot;: 4,
+      &quot;hypotheses&quot;: 6,
+      &quot;mechanisms&quot;: 2
+    },
+    &quot;actual&quot;: {
+      &quot;sources&quot;: 23,
+      &quot;branches&quot;: 13,
+      &quot;hypotheses&quot;: 0,
+      &quot;mechanisms&quot;: 0
+    },
+    &quot;met&quot;: false,
+    &quot;note&quot;: &quot;Minimum breadth and evidence gates, not proof of exhaustive coverage or production impact.&quot;
+  },
+  &quot;artifacts&quot;: [
+    &quot;experiments/research-quality/kafka-progress-05.html&quot;
+  ],
+  &quot;head&quot;: &quot;cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282&quot;,
+  &quot;decisions&quot;: []
+}</pre></details><h2>Dated experiment history</h2><details><summary>2026-10-18T19:06:35.892684+00:00 · kafka-resume-03 · paused</summary><pre>{
+  &quot;name&quot;: &quot;kafka-resume-03&quot;,
+  &quot;mode&quot;: &quot;live read-only; human-steered recovery&quot;,
+  &quot;status&quot;: &quot;paused&quot;,
+  &quot;reason&quot;: &quot;No new source evidence; invalid directory plans and unnecessary clarification. Prior JMH absence claim challenged manually.&quot;,
+  &quot;autonomous_discovery&quot;: false,
+  &quot;spending&quot;: {
+    &quot;goal_id&quot;: &quot;c849afa7ebea434ea01d292996c10a77&quot;,
+    &quot;limit_nanos&quot;: 25000000000,
+    &quot;spent_nanos&quot;: 766726000,
+    &quot;reserved_nanos&quot;: 0,
+    &quot;limit_usd&quot;: 25.0,
+    &quot;spent_usd&quot;: 0.766726,
+    &quot;reserved_usd&quot;: 0.0,
+    &quot;available_usd&quot;: 24.233274,
+    &quot;model&quot;: &quot;gpt-4.1-2025-04-14&quot;,
+    &quot;price_source&quot;: &quot;https://developers.openai.com/api/docs/models/gpt-4.1&quot;
+  },
+  &quot;frontier&quot;: {
+    &quot;goal_id&quot;: &quot;c849afa7ebea434ea01d292996c10a77&quot;,
+    &quot;head&quot;: &quot;cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282&quot;,
+    &quot;complete&quot;: 1,
+    &quot;skipped&quot;: 64,
+    &quot;files&quot;: 7551,
+    &quot;by_kind&quot;: {
+      &quot;code&quot;: 6760,
+      &quot;document&quot;: 785,
+      &quot;logs&quot;: 4,
+      &quot;metrics&quot;: 2
+    },
+    &quot;by_origin&quot;: {
+      &quot;export&quot;: 6,
+      &quot;git&quot;: 7545
+    },
+    &quot;observed_files&quot;: 4,
+    &quot;basis&quot;: &quot;Git-tracked UTF-8 files and explicitly registered local exports &lt;=32 MiB; binaries, unavailable files and oversized files counted as skipped. Excerpts do not establish full coverage.&quot;
+  },
+  &quot;quality&quot;: {
+    &quot;required&quot;: {
+      &quot;sources&quot;: 20,
+      &quot;branches&quot;: 4,
+      &quot;hypotheses&quot;: 6,
+      &quot;mechanisms&quot;: 2
+    },
+    &quot;actual&quot;: {
+      &quot;sources&quot;: 4,
+      &quot;branches&quot;: 4,
+      &quot;hypotheses&quot;: 0,
+      &quot;mechanisms&quot;: 0
+    },
+    &quot;met&quot;: false,
+    &quot;note&quot;: &quot;Minimum breadth and evidence gates, not proof of exhaustive coverage or production impact.&quot;
+  },
+  &quot;head&quot;: &quot;cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282&quot;,
+  &quot;decisions&quot;: []
+}</pre></details><details><summary>2026-10-18T19:13:49.660361+00:00 · kafka-frontier-04 · paused</summary><pre>{
+  &quot;name&quot;: &quot;kafka-frontier-04&quot;,
+  &quot;mode&quot;: &quot;live read-only; human-steered corrections&quot;,
+  &quot;status&quot;: &quot;paused&quot;,
+  &quot;reason&quot;: &quot;{&#x27;error&#x27;: &#x27;MaxTurnsExceeded&#x27;, &#x27;reason&#x27;: &#x27;Manager reasoning budget exhausted; retained conversation/state require a changed approach, not automatic replay&#x27;}&quot;,
+  &quot;autonomous_discovery&quot;: false,
+  &quot;spending&quot;: {
+    &quot;goal_id&quot;: &quot;c849afa7ebea434ea01d292996c10a77&quot;,
+    &quot;limit_nanos&quot;: 25000000000,
+    &quot;spent_nanos&quot;: 1555578000,
+    &quot;reserved_nanos&quot;: 0,
+    &quot;limit_usd&quot;: 25.0,
+    &quot;spent_usd&quot;: 1.555578,
+    &quot;reserved_usd&quot;: 0.0,
+    &quot;available_usd&quot;: 23.444422,
+    &quot;model&quot;: &quot;gpt-4.1-2025-04-14&quot;,
+    &quot;price_source&quot;: &quot;https://developers.openai.com/api/docs/models/gpt-4.1&quot;
+  },
+  &quot;frontier&quot;: {
+    &quot;goal_id&quot;: &quot;c849afa7ebea434ea01d292996c10a77&quot;,
+    &quot;head&quot;: &quot;cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282&quot;,
+    &quot;complete&quot;: 1,
+    &quot;skipped&quot;: 64,
+    &quot;files&quot;: 7551,
+    &quot;by_kind&quot;: {
+      &quot;code&quot;: 6760,
+      &quot;document&quot;: 785,
+      &quot;logs&quot;: 4,
+      &quot;metrics&quot;: 2
+    },
+    &quot;by_origin&quot;: {
+      &quot;export&quot;: 6,
+      &quot;git&quot;: 7545
+    },
+    &quot;observed_files&quot;: 9,
+    &quot;basis&quot;: &quot;Git-tracked UTF-8 files and explicitly registered local exports &lt;=32 MiB; binaries, unavailable files and oversized files counted as skipped. Excerpts do not establish full coverage.&quot;
+  },
+  &quot;quality&quot;: {
+    &quot;required&quot;: {
+      &quot;sources&quot;: 20,
+      &quot;branches&quot;: 4,
+      &quot;hypotheses&quot;: 6,
+      &quot;mechanisms&quot;: 2
+    },
+    &quot;actual&quot;: {
+      &quot;sources&quot;: 9,
+      &quot;branches&quot;: 9,
+      &quot;hypotheses&quot;: 0,
+      &quot;mechanisms&quot;: 0
+    },
+    &quot;met&quot;: false,
+    &quot;note&quot;: &quot;Minimum breadth and evidence gates, not proof of exhaustive coverage or production impact.&quot;
+  },
+  &quot;head&quot;: &quot;cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282&quot;,
+  &quot;decisions&quot;: []
+}</pre></details><details><summary>2026-10-18T19:20:21.789537+00:00 · kafka-progress-05 · running</summary><pre>{
+  &quot;name&quot;: &quot;kafka-progress-05&quot;,
+  &quot;mode&quot;: &quot;live read-only; human-steered recovery&quot;,
+  &quot;status&quot;: &quot;running&quot;,
+  &quot;reason&quot;: &quot;Ongoing bounded probe. Improved file grounding; no claim of solved autonomous research quality.&quot;,
+  &quot;autonomous_discovery&quot;: false,
+  &quot;spending&quot;: {
+    &quot;goal_id&quot;: &quot;c849afa7ebea434ea01d292996c10a77&quot;,
+    &quot;limit_nanos&quot;: 25000000000,
+    &quot;spent_nanos&quot;: 3459756000,
+    &quot;reserved_nanos&quot;: 76654000,
+    &quot;limit_usd&quot;: 25.0,
+    &quot;spent_usd&quot;: 3.459756,
+    &quot;reserved_usd&quot;: 0.076654,
+    &quot;available_usd&quot;: 21.46359,
+    &quot;model&quot;: &quot;gpt-4.1-2025-04-14&quot;,
+    &quot;price_source&quot;: &quot;https://developers.openai.com/api/docs/models/gpt-4.1&quot;
+  },
+  &quot;frontier&quot;: {
+    &quot;goal_id&quot;: &quot;c849afa7ebea434ea01d292996c10a77&quot;,
+    &quot;head&quot;: &quot;cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282&quot;,
+    &quot;complete&quot;: 1,
+    &quot;skipped&quot;: 64,
+    &quot;files&quot;: 7551,
+    &quot;by_kind&quot;: {
+      &quot;code&quot;: 6760,
+      &quot;document&quot;: 785,
+      &quot;logs&quot;: 4,
+      &quot;metrics&quot;: 2
+    },
+    &quot;by_origin&quot;: {
+      &quot;export&quot;: 6,
+      &quot;git&quot;: 7545
+    },
+    &quot;observed_files&quot;: 23,
+    &quot;basis&quot;: &quot;Git-tracked UTF-8 files and explicitly registered local exports &lt;=32 MiB; binaries, unavailable files and oversized files counted as skipped. Excerpts do not establish full coverage.&quot;
+  },
+  &quot;quality&quot;: {
+    &quot;required&quot;: {
+      &quot;sources&quot;: 20,
+      &quot;branches&quot;: 4,
+      &quot;hypotheses&quot;: 6,
+      &quot;mechanisms&quot;: 2
+    },
+    &quot;actual&quot;: {
+      &quot;sources&quot;: 23,
+      &quot;branches&quot;: 13,
+      &quot;hypotheses&quot;: 0,
+      &quot;mechanisms&quot;: 0
+    },
+    &quot;met&quot;: false,
+    &quot;note&quot;: &quot;Minimum breadth and evidence gates, not proof of exhaustive coverage or production impact.&quot;
+  },
+  &quot;artifacts&quot;: [
+    &quot;experiments/research-quality/kafka-progress-05.html&quot;
+  ],
+  &quot;head&quot;: &quot;cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282&quot;,
+  &quot;decisions&quot;: []
 }</pre></details></body></html>

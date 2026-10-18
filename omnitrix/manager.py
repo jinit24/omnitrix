@@ -11,6 +11,29 @@ from .models import Decision
 from .workers import ROOT
 
 
+def brief_result(value):
+    """A recallable worker handoff, without replaying every report twice."""
+    if isinstance(value,str):
+        try:
+            value=json.loads(value)
+        except ValueError:
+            return value[:1500]
+    if not isinstance(value,dict):
+        return value
+    output={key:value[key] for key in ('job_id','run_id','status','feedback','error') if key in value}
+    if isinstance(value.get('evaluation'),dict):
+        output['evaluation']={key:val[:1200] if isinstance(val,str) else val for key,val in value['evaluation'].items()}
+    report=value.get('report')
+    if isinstance(report,dict):
+        output['report_summary']={key:report[key] for key in ('blocked','uncertainties','gaps') if key in report}
+        output['report_summary']['finding_count']=len(report.get('findings',[]))
+        output['report_summary']['findings']=[{key:val[:700] if isinstance(val,str) else val for key,val in finding.items()}
+            for finding in report.get('findings',[])[:6]]
+        output['report_summary']['system_map_names']=[entry['name'] for entry in report.get('system_map',[])[:12]]
+        output['report_summary']['opportunity_titles']=[entry['title'] for entry in report.get('opportunities',[])[:12]]
+    return output or value
+
+
 class AgentBrain:
     """A conversational Agents SDK agent with durable context and recall tools."""
     def __init__(self, model=None, store=None):
@@ -27,6 +50,10 @@ class AgentBrain:
                 return json.dumps([dict(r) for r in self.store.db.execute('SELECT kind,body,direction,created FROM messages WHERE goal_id=? ORDER BY created LIMIT 10 OFFSET ?',(snapshot['goal']['id'],offset))])
             if section not in ('tasks', 'decisions'):
                 return 'Use tasks, decisions, or messages.'
+            if self.store:
+                if section == 'tasks':
+                    return json.dumps([dict(r) for r in self.store.db.execute('SELECT * FROM tasks WHERE goal_id=? ORDER BY rowid LIMIT 10 OFFSET ?', (snapshot['goal']['id'], offset))])
+                return json.dumps([json.loads(r[0]) for r in self.store.db.execute('SELECT body FROM decisions WHERE goal_id=? ORDER BY id LIMIT 10 OFFSET ?', (snapshot['goal']['id'],offset))])
             return json.dumps(snapshot[section][offset:offset + 10])
 
         tools = [recall_history]
@@ -37,7 +64,10 @@ class AgentBrain:
             goal_id = snapshot['goal']['id']
             current = control.current(goal_id)
             policy = '\nDurable manager policy:\n' + current['policy']['instructions']
-            session = control.session(goal_id)
+            # Campaign prompts already contain a durable bounded state snapshot.
+            # Replaying whole prior snapshots through an SDK session duplicates
+            # tens of thousands of input tokens without adding new evidence.
+            session = None if snapshot.get('campaign') else control.session(goal_id)
             @function_tool
             async def search_knowledge(query: str = '', offset: int = 0) -> str:
                 """Retrieve shared verified facts, system maps, assumptions and rejected hypotheses."""
@@ -46,17 +76,44 @@ class AgentBrain:
             async def list_resources(directory: str = '.', offset: int = 0) -> str:
                 """List 40 sorted direct children with file kinds/sizes. Follow next_offset to inspect later pages. No recursive scan; choose explicit research sources."""
                 from .resources import list_resources as inventory
-                return json.dumps(inventory(snapshot['goal']['workspace'], directory, offset))
+                result = inventory(snapshot['goal']['workspace'], directory, offset)
+                if snapshot.get('campaign'):
+                    from .frontier import Frontier
+                    result['indexed_files_in_subtree'] = Frontier(self.store,goal_id).page(prefix=directory,limit=20)
+                control.event(goal_id,'manager_inventory',{'directory':directory,'offset':offset,'result':result})
+                return json.dumps(result)
             tools += [search_knowledge, list_resources]
+            if snapshot.get('campaign'):
+                from .frontier import Frontier
+                @function_tool
+                async def search_frontier(query: str = '', kind: str | None = None, after: str = '', directory: str = '') -> str:
+                    """Search file PATH NAMES only, never contents. directory filters a directory subtree, not a filename. Query a full path with directory=''. Use next_after for pages. To read/search contents, return a research plan with real file paths."""
+                    result=Frontier(self.store, goal_id).page(query, kind, after,prefix=directory)
+                    control.event(goal_id,'manager_frontier_query',{'query':query,'kind':kind,'after':after,'directory':directory,'result':result})
+                    return json.dumps(result)
+                tools.append(search_frontier)
+        from .spending import metered_model
         agent = Agent(
-            name='Engineering manager', model=self.model,
-            instructions=(ROOT / 'instructions/MANAGER.md').read_text() + '\n' +
+            name='Engineering manager', model=metered_model(self.store, snapshot['goal']['id'], 'manager', self.model),
+            instructions=(ROOT / ('instructions/CAMPAIGN.md' if snapshot.get('campaign') else 'instructions/MANAGER.md')).read_text() + '\n' +
                          (ROOT / 'instructions/KNOWLEDGE.md').read_text() + policy,
             tools=tools, output_type=Decision,
-            model_settings=ModelSettings(tool_choice='list_resources' if self.store and not snapshot['research'] else 'auto'))
+            model_settings=ModelSettings(tool_choice='search_frontier' if self.store and snapshot.get('campaign')
+                else 'list_resources' if self.store and not snapshot['research'] else 'auto'))
         # Stable objective + concise outcomes, never worker event streams.
         context = {**snapshot, 'tasks': snapshot['tasks'][-20:],
                    'decisions': snapshot['decisions'][-20:]}
+        if snapshot.get('campaign'):
+            context['tasks']=[task | {'result':brief_result(task['result'])} for task in snapshot['tasks'][-6:]]
+            context['decisions']=snapshot['decisions'][-8:]
+            context['research']=snapshot['research'][:8]
+            context['opportunities']=snapshot['opportunities'][:8]
+            context['worker_messages']=[message | {'body':brief_result(message['body'])}
+                for message in snapshot['worker_messages'][:8]]
+            context['pending_messages']=[message | {'body':brief_result(message['body'])}
+                for message in snapshot['pending_messages'][-10:]]
+            context['manager_feedback']=snapshot['manager_feedback'][:5]
+            context['context_window']='Recent 6 tasks, 8 decisions/jobs/opportunities, compact worker handoffs. Full original reports and older decisions remain in recall_history and search_knowledge; these excerpts are not complete coverage.'
         if self.store:
             from .resources import list_resources as inventory
             context['resource_inventory'] = inventory(snapshot['goal']['workspace'])
@@ -67,8 +124,14 @@ class AgentBrain:
                 context['initial_directory_pages'] = [inventory(snapshot['goal']['workspace'], directory)
                                                        for directory in directories[:8]]
                 context['unlisted_initial_directories'] = directories[8:]
+            if snapshot.get('campaign'):
+                from .frontier import Frontier
+                context['frontier'] = Frontier(self.store, goal_id).summary()
+                context['unexamined_branches'] = Frontier(self.store, goal_id).suggestions()
+                from .campaign import Campaign
+                context['campaign_evidence_requirements'] = Campaign(self.store,goal_id).quality()
         try:
-            result = await Runner.run(agent, json.dumps(context), max_turns=8, session=session,
+            result = await Runner.run(agent, json.dumps(context), max_turns=24 if snapshot.get('campaign') else 8, session=session,
                                       run_config=RunConfig(tracing_disabled=True))
             if self.store:
                 from .telemetry import record_usage
@@ -95,6 +158,8 @@ class Manager:
             return await self._resume(goal_id, steps, message)
 
     async def _resume(self, goal_id, steps, message):
+        if self.store.db.execute('SELECT 1 FROM campaigns WHERE goal_id=?',(goal_id,)).fetchone():
+            raise ValueError('Use the campaign owner for this goal; legacy managers cannot bypass saved campaign controls')
         snapshot = self.store.snapshot(goal_id)
         if snapshot['goal']['status'] == 'completed':
             return snapshot
