@@ -176,7 +176,12 @@ class Implementations:
                 prompt = json.dumps({'objective': spec.objective, 'research': findings,
                     'constraints': self.control.current(row['goal_id']), 'allowed_paths': spec.allowed_paths,
                     'checks': [c.model_dump() for c in spec.checks], 'feedback': row['feedback'],
-                    'instructions': 'Implement only this objective in this worktree. Run tests. Do not commit, deploy, access production, or run destructive commands. Ask manager if a decision is needed. Return artifacts and unresolved concerns.'})
+                    'instructions': 'Implement only this objective in this worktree. Run tests with an OS-enforced timeout '
+                        f'of at most {min(60, max(1, spec.seconds // 2))} seconds per command (for example timeout or subprocess.run(timeout=...)). '
+                        'Do not keep polling an idle test indefinitely. If a test hangs or the sandbox prevents it, '
+                        'terminate that command and report the exact limitation in the handoff; the independent verifier '
+                        'will still run all authorized acceptance checks. Do not commit, deploy, access production, '
+                        'or run destructive commands. Ask manager if a decision is needed. Return artifacts and unresolved concerns.'})
                 thread_id, turn_id = await self.runtime.start(str(workspace), prompt, write=True,schema=ImplementationHandoff.model_json_schema(),
                     on_thread=(lambda sid: self.store.execute('UPDATE task_runtime SET session_id=? WHERE task_id=?',(sid,task_id))) if task_id else None)
                 if task_id:
@@ -322,10 +327,12 @@ class Implementations:
         passed = row['status'] == 'ready_for_audit' and all(any(r['requirement'] == c and r['passed'] for r in results) for c in required)
         # Verify immutable test artifacts still match their saved content digest.
         passed = passed and all(Path(r['artifact']).exists() and hashlib.sha256(Path(r['artifact']).read_bytes()).hexdigest() == r['digest'] for r in results)
-        self.store.execute('INSERT INTO completion_audits VALUES(?,?,?,?,?,?,?)',
-            (uuid.uuid4().hex, row['goal_id'], current['goal']['revision'], row['candidate'] or '',
-             json.dumps(required), int(passed), time.time()))
-        if passed:
-            self.store.execute("UPDATE implementations SET status='completed' WHERE id=?", (implementation_id,))
+        with self.db:
+            self.db.execute('INSERT INTO completion_audits VALUES(?,?,?,?,?,?,?)',
+                (uuid.uuid4().hex, row['goal_id'], current['goal']['revision'], row['candidate'] or '',
+                 json.dumps(required), int(passed), time.time()))
+            if passed:
+                self.db.execute("UPDATE implementations SET status='completed' WHERE id=?", (implementation_id,))
+                self.db.execute("UPDATE goals SET status='completed' WHERE id=?", (row['goal_id'],))
         self.control.event(row['goal_id'], 'goal_audit', {'implementation': implementation_id, 'passed': passed, 'candidate': row['candidate']})
         return {'passed': passed, 'candidate': row['candidate'], 'requirements': required}

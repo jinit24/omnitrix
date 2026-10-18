@@ -6,7 +6,7 @@ import json
 import time
 import uuid
 from agents import Agent, Runner, RunConfig
-from agents.exceptions import MaxTurnsExceeded
+from agents.exceptions import MaxTurnsExceeded, ModelBehaviorError
 from .control import Control
 from .execution import Execution
 from .implementation import Implementations
@@ -166,6 +166,20 @@ class Supervisor:
             self.autonomy -= 1
             try:
                 decision = await asyncio.wait_for(self.brain.decide(self.status()),120)
+            except ModelBehaviorError as exc:
+                # No decision was dispatched, so a bounded correction cannot replay work.
+                feedback = {'error': type(exc).__name__, 'reason': str(exc),
+                    'next': 'Return one valid structured Decision using the current state. No action was executed.'}
+                self.control.message(self.goal_id, 'manager_output_rejected', feedback, direction='worker_to_manager')
+                self.control.event(self.goal_id, 'manager_output_rejected', feedback)
+                failures = self.db.execute('''SELECT count(*) FROM activity WHERE goal_id=?
+                    AND kind='manager_output_rejected' AND id > COALESCE((SELECT max(id)
+                    FROM activity WHERE goal_id=? AND kind='decision'), 0)''',
+                    (self.goal_id, self.goal_id)).fetchone()[0]
+                if failures >= 2:
+                    self.autonomy = 0
+                    self.store.execute("UPDATE goals SET status='paused' WHERE id=?", (self.goal_id,))
+                return {'rejected': feedback, 'escalated': failures >= 2}
             except (MaxTurnsExceeded,asyncio.TimeoutError) as exc:
                 self.autonomy=0
                 self.store.execute("UPDATE goals SET status='paused' WHERE id=?",(self.goal_id,))
@@ -180,6 +194,19 @@ class Supervisor:
             except (ValueError,FileNotFoundError) as exc:
                 feedback={'action':decision.action,'error':str(exc),
                     'next':'Inspect available resources and correct the bounded plan; do not repeat the rejected arguments'}
+                if decision.research_plan is not None:
+                    from .knowledge import source_path
+                    workspace = self.status()['goal']['workspace']
+                    valid_scope = []
+                    for locator in decision.research_plan.scope:
+                        try:
+                            source_path(workspace, locator)
+                        except (ValueError, OSError):
+                            continue
+                        valid_scope.append(locator)
+                    feedback['observed_valid_scope'] = valid_scope
+                    if valid_scope:
+                        feedback['next'] = 'Correct the plan using these observed regular files. Use research for a non-null hypothesis; discovery maps uncertainty with hypothesis=null. Inventory only a specific missing directory if needed. A rejected plan is an internal argument error, not a missing user decision.'
                 self.control.message(self.goal_id,'decision_rejected',feedback,direction='worker_to_manager')
                 self.control.event(self.goal_id,'decision_rejected',feedback)
                 repetitions=self.db.execute("SELECT count(*) FROM activity WHERE goal_id=? AND kind='decision_rejected' AND detail=?",(self.goal_id,json.dumps(feedback))).fetchone()[0]
@@ -198,6 +225,25 @@ class Supervisor:
         if self.status()['goal']['requires_verified_implementation'] and action in ('delegate','follow_up'):
             raise ValueError('This code goal requires typed discover/research agents before authorized implementation; use list_resources directly for inventory, not legacy delegation')
         if action in ('pause','complete'):
+            if action == 'pause' and self.status()['goal']['requires_verified_implementation']:
+                if decision.pause_reason is None:
+                    raise ValueError('A code-goal pause needs a pause_reason and the actual unmet prerequisite in its explanation')
+                if decision.pause_reason == 'authorization' and not self.store.research_state(self.goal_id)['accepted_job_ids']:
+                    raise ValueError('Research acceptance is the unmet prerequisite. Read research_state.latest_job feedback; retry with targeted feedback if retryable, otherwise report the research gap or exhausted budget. No implementation authorization can be created yet.')
+                research_state = self.store.research_state(self.goal_id)
+                latest = research_state['latest_job']
+                if decision.pause_reason in ('research', 'reconciliation', 'external_input') and latest and latest['needs_scope_expansion'] and research_state['remaining_role_runs'] >= 2:
+                    raise ValueError('The required local files exist but were excluded from the immutable research scope. '
+                        'Choose research with a new explicit research_plan including the needed files; this is not an external blocker: '
+                        + ', '.join(latest['scope_gaps']))
+                if decision.pause_reason in ('external_input', 'research'):
+                    last_action = self.db.execute('''SELECT detail FROM activity WHERE goal_id=?
+                        AND (kind IN ('worker_started','worker_finished') OR
+                            (kind='decision_rejected' AND json_array_length(detail, '$.observed_valid_scope') > 0))
+                        ORDER BY id DESC LIMIT 1''', (self.goal_id,)).fetchone()
+                    prior = json.loads(last_action[0]) if last_action else {}
+                    if prior.get('observed_valid_scope') and self.store.research_state(self.goal_id)['remaining_role_runs'] > 0:
+                        raise ValueError('Correct the rejected plan using observed_valid_scope before pausing. Accessible sources remain available: ' + ', '.join(prior['observed_valid_scope']))
             if action == 'complete':
                 # Implementation goals cannot complete on an agent's assertion alone.
                 implementations = self.status()['implementations']
@@ -210,12 +256,20 @@ class Supervisor:
                     return {'blocked':reason}
             self.autonomy=0
             self.store.execute('UPDATE goals SET status=? WHERE id=?', ('completed' if action=='complete' else 'paused', self.goal_id))
-            return decision.model_dump()
+            result = decision.model_dump()
+            if action == 'pause':
+                result['research_state'] = self.store.research_state(self.goal_id)
+                self.control.message(self.goal_id, 'paused', result, direction='manager_to_user', state='acknowledged')
+            return result
         if action in ('discover','research','retry_research'):
             if action == 'retry_research':
                 job = self.research.job(decision.research_id)
                 if job['goal_id'] != self.goal_id:
                     raise ValueError('Research job belongs to another goal')
+                latest = self.store.research_state(self.goal_id)['latest_job']
+                if latest and latest['id'] == job['id'] and latest['needs_scope_expansion']:
+                    raise ValueError('Retry instructions do not change scope. Choose research with a new explicit research_plan '
+                        'including these existing files: ' + ', '.join(latest['scope_gaps']))
                 job_id = job['id']
             else:
                 if decision.research_plan is None:
@@ -394,7 +448,8 @@ class Supervisor:
             session = self.control.session(self.goal_id)
             current = self.control.current(self.goal_id)
             from .spending import metered_model
-            agent = Agent(name='Engineering manager', model=metered_model(self.store,self.goal_id,'manager_chat',self.brain.model if hasattr(self.brain,'model') else 'gpt-4.1'),
+            model = getattr(self.brain, 'model_override', getattr(self.brain, 'model', None))
+            agent = Agent(name='Engineering manager', model=metered_model(self.store,self.goal_id,'manager_chat',model),
                 instructions=(ROOT / 'instructions/CHAT.md').read_text()+'\n'+current['policy']['instructions'], output_type=ChatReply)
             try:
                 result = await asyncio.wait_for(Runner.run(agent, json.dumps({'user_message':text,

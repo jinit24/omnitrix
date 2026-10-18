@@ -141,6 +141,14 @@ async def test_bounded_context_can_recall_old_decisions_through_real_sdk_tool(tm
         context=ToolContext(context=None,tool_name=tool.name,tool_call_id='recall',tool_arguments=payload)
         recalled=json.loads(await tool.on_invoke_tool(context,payload))
         assert recalled[0]['event']==0
+        frontier = next(tool for tool in agent.tools if tool.name == 'search_frontier')
+        for index in range(3):
+            assert frontier.is_enabled(None, agent)
+            arguments = json.dumps({'query': 'system'})
+            context = ToolContext(context=None, tool_name=frontier.name,
+                tool_call_id=str(index), tool_arguments=arguments)
+            await frontier.on_invoke_tool(context, arguments)
+        assert all(not tool.is_enabled(None, agent) for tool in agent.tools)
         return type('Result',(),{'final_output':Decision(action='pause',rationale='Test recall',instructions='Inspect history',task_id=None,priority=1)})()
     monkeypatch.setattr('omnitrix.manager.Runner.run',run)
     await AgentBrain(store=store).decide(store.snapshot(goal))

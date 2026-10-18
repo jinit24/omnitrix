@@ -153,3 +153,45 @@ async def test_manager_sqlite_tools_use_real_sdk_dispatch(tmp_path,monkeypatch):
         return Result()
     monkeypatch.setattr('omnitrix.manager.Runner.run',fake_run)
     assert (await AgentBrain(store=store).decide(store.snapshot(goal))).action=='pause'
+
+
+async def test_inventory_cannot_consume_the_entire_decision_turn_budget(tmp_path, monkeypatch):
+    from agents.tool_context import ToolContext
+    store, goal = setup(tmp_path)
+    for index in range(180):
+        (tmp_path / f'source-{index:03}.py').write_text('pass\n')
+    async def fake_run(agent, prompt, **kwargs):
+        assert json.loads(prompt)['manager_tool_budget'] == 4
+        inventory = next(tool for tool in agent.tools if tool.name == 'list_resources')
+        for index in range(4):
+            assert inventory.is_enabled(None, agent)
+            payload = json.dumps({'directory': '.', 'offset': index * 40})
+            ctx = ToolContext(context=None, tool_name=inventory.name, tool_call_id=str(index), tool_arguments=payload)
+            page = json.loads(await inventory.on_invoke_tool(ctx, payload))
+            assert page['remaining_manager_tool_calls'] == 3 - index
+        assert page['next_offset'] is not None  # More files do not justify an infinite inventory loop.
+        assert all(not tool.is_enabled(None, agent) for tool in agent.tools)
+        class Result:
+            final_output = decision('pause')
+        return Result()
+    monkeypatch.setattr('omnitrix.manager.Runner.run', fake_run)
+    await AgentBrain(store=store).decide(store.snapshot(goal))
+
+
+async def test_usage_is_retained_when_manager_exhausts_turns(tmp_path, monkeypatch):
+    from agents.exceptions import MaxTurnsExceeded
+    from agents.items import ModelResponse
+    from agents.usage import Usage
+    store, goal = setup(tmp_path)
+    async def fake_run(agent, prompt, **kwargs):
+        for response_id in ('one', 'two'):
+            response = ModelResponse(output=[], usage=Usage(requests=1, input_tokens=100, output_tokens=20),
+                                     response_id=response_id)
+            await kwargs['hooks'].on_llm_end(None, agent, response)
+        raise MaxTurnsExceeded('Turn cap after successful provider responses')
+    monkeypatch.setattr('omnitrix.manager.Runner.run', fake_run)
+    with pytest.raises(MaxTurnsExceeded):
+        await AgentBrain(store=store).decide(store.snapshot(goal))
+    usage = [json.loads(row[0]) for row in store.db.execute("SELECT detail FROM activity WHERE kind='usage'")]
+    assert sum(row['input_tokens'] for row in usage) == 200
+    assert sum(row['output_tokens'] for row in usage) == 40

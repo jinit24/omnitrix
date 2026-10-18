@@ -20,6 +20,7 @@ packages = ["omnitrix"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+testpaths = ["tests"]
 
 [tool.setuptools.package-data]
 omnitrix = ["web/*.html", "web/*.css", "web/*.js", "web/docs/*", "web/docs/experiments/*.json"]

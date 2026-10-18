@@ -3,4 +3,5 @@ node_modules/
 __pycache__/
 .pytest_cache/
 .omnitrix/
+work/
 *.egg-info/

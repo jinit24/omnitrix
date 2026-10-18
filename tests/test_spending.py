@@ -19,6 +19,19 @@ def usage(inputs=1000, cached=500, outputs=100):
                            input_tokens_details=SimpleNamespace(cached_tokens=cached))
 
 
+def test_default_model_preserves_saved_pricing_and_explicit_override_rejection(tmp_path):
+    from omnitrix.spending import MODEL, metered_model
+    store, goal, budget = setup(tmp_path)
+    store._campaign_client = SimpleNamespace()
+    selected = metered_model(store, goal, 'manager')
+    assert isinstance(selected, MeteredModel) and selected.model == MODEL
+    with pytest.raises(ValueError, match='only standard-tier GPT-4.1'):
+        metered_model(store, goal, 'manager', 'gpt-5.4')
+    assert budget.status()['reserved_nanos'] == 0
+    unbudgeted = store.create_goal('Ordinary code goal', ['Restore behavior'], tmp_path)
+    assert metered_model(store, unbudgeted, 'manager') == 'gpt-5.4'
+
+
 def test_atomic_reservations_and_actual_cached_cost(tmp_path):
     store, goal, budget = setup(tmp_path)
     request = budget.reserve(1000,1000,'research')

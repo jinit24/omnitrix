@@ -21,6 +21,7 @@ class Decision(BaseModel):
     research_plan: ResearchPlan | None = None
     research_id: str | None = None
     implementation_id: str | None = None
+    pause_reason: Literal['research', 'authorization', 'external_input', 'budget', 'low_value', 'reconciliation'] | None = None
 
 
 class ChatReply(BaseModel):

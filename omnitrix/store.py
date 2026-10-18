@@ -64,6 +64,50 @@ class Store:
                      (goal_id, objective, json.dumps(requirements), str(Path(workspace).resolve())))
         return goal_id
 
+    def research_history(self, goal_id, offset=0, limit=10, include_report=True, stage=None):
+        rows = self.db.execute('''SELECT j.*, r.id AS run_id, r.status AS run_status,
+            r.report, r.evaluation, r.feedback FROM research_jobs j
+            LEFT JOIN research_runs r ON r.id=(SELECT id FROM research_runs
+                WHERE job_id=j.id ORDER BY created DESC, rowid DESC LIMIT 1)
+            WHERE j.goal_id=? AND (? IS NULL OR j.stage=?)
+            ORDER BY j.updated DESC, j.rowid DESC LIMIT ? OFFSET ?''',
+            (goal_id, stage, stage, min(max(limit, 1), 20), max(offset, 0))).fetchall()
+        history = []
+        for row in rows:
+            item = dict(row)
+            for key in ('report', 'evaluation'):
+                item[key] = json.loads(item[key]) if item[key] else None
+            if not include_report:
+                item.pop('report')
+            history.append(item)
+        return history
+
+    def research_state(self, goal_id):
+        """Reconstruct the current research prerequisite without relying on chat history.
+
+        Recorded acceptance is advisory: implementation authorization still checks
+        evidence freshness, revisions, explicit permission and executable coverage.
+        """
+        budget = self.db.execute('SELECT max_runs-spent FROM research_limits WHERE goal_id=?',
+                                 (goal_id,)).fetchone()
+        remaining = budget[0] if budget else 12
+        latest = self.research_history(goal_id, limit=1, include_report=False, stage='research')
+        job = latest[0] if latest else None
+        if job:
+            job['scope_gaps'] = [r[0] for r in self.db.execute('''SELECT DISTINCT query
+                FROM research_queries WHERE run_id=? AND operation='scope_gap' ORDER BY query''', (job['run_id'],))]
+            reported_gaps = [gap['reference'] for gap in (job['evaluation'] or {}).get('blocking_gaps', [])
+                if gap['basis'] == 'source' and gap['reference'] not in json.loads(job['spec'])['scope']]
+            job['scope_gaps'] = sorted(set(job['scope_gaps'] + reported_gaps))
+            job['retryable'] = (job['status'] in ('insufficient', 'blocked', 'interrupted')
+                and job['attempts'] < json.loads(job['spec'])['budget']['attempts']
+                and remaining >= 2 and not job['scope_gaps'])
+            job['needs_scope_expansion'] = bool(job['scope_gaps'] and job['status'] in ('insufficient', 'blocked', 'escalated', 'interrupted'))
+        accepted = [r[0] for r in self.db.execute('''SELECT id FROM research_jobs
+            WHERE goal_id=? AND stage='research' AND status='supported'
+            ORDER BY updated DESC LIMIT 20''', (goal_id,))]
+        return {'accepted_job_ids': accepted, 'latest_job': job, 'remaining_role_runs': remaining}
+
     def snapshot(self, goal_id, history_limit=20):
         row = self.db.execute('SELECT * FROM goals WHERE id=?', (goal_id,)).fetchone()
         if row is None:
@@ -83,7 +127,7 @@ class Store:
         goal['original_requirements'] = original_requirements
         gate=self.db.execute('SELECT require_implementation FROM goal_completion_gates WHERE goal_id=?',(goal_id,)).fetchone()
         goal['requires_verified_implementation']=bool(gate and gate[0])
-        research = [dict(r) for r in self.db.execute('SELECT * FROM research_jobs WHERE goal_id=? ORDER BY created DESC LIMIT 20', (goal_id,))]
+        research = [dict(r) for r in self.db.execute('SELECT * FROM research_jobs WHERE goal_id=? ORDER BY updated DESC, rowid DESC LIMIT 20', (goal_id,))]
         from .knowledge import Knowledge
         return {'goal': goal, 'tasks': tasks, 'decisions': decisions,
                 'research': research, 'opportunities': Knowledge(self).backlog(goal_id, limit=history_limit),
@@ -93,6 +137,15 @@ class Store:
                                    'returned_limit': history_limit},
                 'campaign': dict(r) if (r := self.db.execute('SELECT * FROM campaigns WHERE goal_id=?',(goal_id,)).fetchone()) else None,
                 'spending': Spending(self,goal_id).status(),
+                'research_state': self.research_state(goal_id),
+                'verification_results': [dict(r) for r in self.db.execute('''SELECT v.implementation_id,
+                    v.candidate, v.goal_revision, v.requirement, v.passed, v.exit_code, v.artifact
+                    FROM verifications v JOIN implementations i ON i.id=v.implementation_id
+                    WHERE i.goal_id=? AND v.candidate=i.candidate AND v.goal_revision=?''',
+                    (goal_id, goal.get('revision', 1)))],
+                'latest_audit': dict(a) if (a := self.db.execute('''SELECT * FROM completion_audits
+                    WHERE goal_id=? AND revision=? ORDER BY created DESC, rowid DESC LIMIT 1''',
+                    (goal_id, goal.get('revision', 1))).fetchone()) else None,
                 'research_budget': dict(r) if (r := self.db.execute('SELECT * FROM research_limits WHERE goal_id=?', (goal_id,)).fetchone()) else None,
                 'active': [dict(r) for r in self.db.execute("SELECT * FROM task_runtime WHERE state IN ('running','waiting','uncertain','paused') AND task_id IN (SELECT id FROM tasks WHERE goal_id=?) ORDER BY rowid DESC LIMIT 50", (goal_id,))],
                 'implementations': [dict(r) | {'spec':json.loads(r['spec'])} for r in self.db.execute('SELECT i.*,a.spec,a.revoked AS authorization_revoked FROM implementations i JOIN implementation_authorizations a ON i.authorization=a.id WHERE i.goal_id=?', (goal_id,))],

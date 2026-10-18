@@ -1,0 +1,22 @@
+diff --git a/django/utils/datastructures.py b/django/utils/datastructures.py
+index 5276448..ded606d 100644
+--- a/django/utils/datastructures.py
++++ b/django/utils/datastructures.py
+@@ -26,7 +26,7 @@ class OrderedSet:
+         return iter(self.dict)
+ 
+     def __reversed__(self):
+-        return iter(self.dict)
++        return reversed(self.dict)
+ 
+     def __contains__(self, item):
+         return item in self.dict
+@@ -149,7 +149,7 @@ class MultiValueDict(dict):
+         Return the list of values for the key. If key doesn't exist, return a
+         default value.
+         """
+-        return self._getlist(key, default, force_list=False)
++        return self._getlist(key, default, force_list=True)
+ 
+     def setlist(self, key, list_):
+         super().__setitem__(key, list_)

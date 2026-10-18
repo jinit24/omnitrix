@@ -80,6 +80,11 @@ async def test_independent_test_failure_repairs_then_exact_revision_audit(projec
     assert len({r['candidate'] for r in results})==2
     assert service.audit(implementation)['passed']
     assert service.get(implementation)['status']=='completed'
+    snapshot = project[0].snapshot(project[1])
+    assert snapshot['goal']['status'] == 'completed'
+    assert snapshot['latest_audit']['passed']
+    assert {r['requirement'] for r in snapshot['verification_results'] if r['passed']} == {
+        'Double positive numbers', 'Handle zero'}
 
 
 async def test_incorrect_assumption_returns_for_additional_research(project):
@@ -108,6 +113,7 @@ async def test_passing_tests_cannot_omit_explicit_requirement(project):
     assert result['status']=='ready_for_audit'
     project[0].execute("DELETE FROM verifications WHERE requirement='Handle zero'")
     assert not service.audit(implementation)['passed']
+    assert project[0].snapshot(project[1])['goal']['status'] != 'completed'
 
 
 async def test_requirement_change_revokes_candidate_approval(project):

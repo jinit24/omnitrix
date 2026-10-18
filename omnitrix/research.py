@@ -25,7 +25,8 @@ def research_tool_error(context, error):
 
 class ResearchAgents:
     def __init__(self, model=None):
-        self.model = model or os.getenv('OMNITRIX_MODEL', 'gpt-4.1')
+        self.model_override = model or os.getenv('OMNITRIX_MODEL')
+        self.model = self.model_override or 'gpt-5.4'
 
     async def run(self, role, context, tools):
         @function_tool(failure_error_function=research_tool_error)
@@ -72,16 +73,15 @@ class ResearchAgents:
         choice = 'auto' if role == 'evaluation' else 'summarize_csv' if numeric_csv else 'required'
         from .spending import metered_model
         goal_id = tools.store.db.execute('SELECT goal_id FROM research_jobs WHERE id=(SELECT job_id FROM research_runs WHERE id=?)',(tools.run_id,)).fetchone()[0]
-        agent = Agent(name=f'Independent {role} agent', model=metered_model(tools.store, goal_id, role, self.model),
+        agent = Agent(name=f'Independent {role} agent', model=metered_model(tools.store, goal_id, role, self.model_override),
             instructions=(ROOT / f'instructions/{role.upper()}.md').read_text(),
             tools=[read_source, search_knowledge, search_source, summarize_csv], output_type=output,
             model_settings=ModelSettings(max_tokens=3500,
                 tool_choice=choice))
+        from .telemetry import UsageRecorder
         result = await Runner.run(agent, json.dumps(context), max_turns=max(8, min(28, tools.remaining + 2)),
-                                  run_config=RunConfig(tracing_disabled=True))
-        from .telemetry import record_usage
-        goal_id = tools.store.db.execute('SELECT goal_id FROM research_jobs WHERE id=(SELECT job_id FROM research_runs WHERE id=?)',(tools.run_id,)).fetchone()[0]
-        record_usage(tools.store,goal_id,result,role)
+                                  run_config=RunConfig(tracing_disabled=True),
+                                  hooks=UsageRecorder(tools.store, goal_id, role))
         return result.final_output
 
 
@@ -166,7 +166,9 @@ class Research:
                                  (status, time.time(), spec['opportunity_id']))
         return {'job_id': job['id'], 'run_id': run_id, 'status': status, 'feedback': feedback,
                 'evaluation': evaluation.model_dump() if evaluation else None,
-                'report': report.model_dump() if report else None}
+                'report': report.model_dump() if report else None,
+                'scope_gaps': [r[0] for r in self.db.execute('''SELECT DISTINCT query FROM research_queries
+                    WHERE run_id=? AND operation='scope_gap' ORDER BY query''', (run_id,))]}
 
     async def attempt(self, job_id, feedback=''):
         job = self.job(job_id)
@@ -196,7 +198,7 @@ class Research:
             # Mandatory retrieval happens before any new investigation, even if the model omits it.
             existing = tools.prefetch()
             context = {'plan': spec.model_dump(), 'prior_knowledge': existing, 'feedback': feedback,
-                       'goal': self.store.snapshot(job['goal_id'])['goal'],
+                       'goal': self.store.snapshot(job['goal_id'])['goal'], 'policy': revision['policy'],
                        'research_progress': self.knowledge.progress(job['goal_id'], limit=40)}
             report = await asyncio.wait_for(self.agents.run(job['stage'], context, tools), spec.budget.seconds)
             if Control(self.store).current(job['goal_id']) != revision or self.job(job_id)['status'] == 'invalidated':
@@ -213,12 +215,14 @@ class Research:
             review_tools = ResearchTools(self.store, run_id, workspace, spec.scope, spec.budget.tool_calls)
             evidence = tools.evidence()
             evaluation = await asyncio.wait_for(self.agents.run('evaluation',
-                {'plan': spec.model_dump(), 'report': report.model_dump(), 'evidence': evidence}, review_tools),
+                {'plan': spec.model_dump(), 'report': report.model_dump(), 'evidence': evidence,
+                 'goal': context['goal'], 'policy': context['policy']}, review_tools),
                 spec.budget.seconds)
             evaluation = Evaluation.model_validate(evaluation)
             if Control(self.store).current(job['goal_id']) != revision or self.job(job_id)['status'] == 'invalidated':
                 return self.finish(job, run_id, 'stale', report, feedback='Revision changed during evaluation')
-            evaluation = self.gate(report, evaluation, review_tools.evidence())
+            evaluation = self.gate(report, evaluation, review_tools.evidence(),
+                                   context['goal'], spec, context['policy'])
             status = evaluation.verdict
             if status in ('insufficient', 'blocked') and job['attempts'] + 1 >= spec.budget.attempts:
                 status = 'escalated'
@@ -234,7 +238,7 @@ class Research:
             return self.finish(job, run_id, status, feedback=f'{type(exc).__name__}: {exc}')
 
     @staticmethod
-    def gate(report, evaluation, evidence):
+    def gate(report, evaluation, evidence, goal=None, plan=None, policy=None):
         available = {e['id']: e for e in evidence}
         cited = set(report.supporting_evidence + report.contradictory_evidence + evaluation.evidence_ids)
         claims = [f for f in report.findings if f.classification == 'claim']
@@ -250,9 +254,32 @@ class Research:
             errors.append('Evaluator evidence must cover every factual claim, not unrelated observations')
         if report.blocked and evaluation.verdict == 'supported':
             errors.append('Blocked research cannot establish support')
+        references = {
+            'requirement': (goal or {}).get('requirements', []),
+            'constraint': (goal or {}).get('constraints', []),
+            'policy': [policy['instructions']] if policy and policy['instructions'] else [],
+            'hypothesis': [plan.hypothesis] if plan else [],
+            'claim': [f.statement for f in claims],
+            'source': plan.scope if plan else [],
+        }
+        for gap in evaluation.blocking_gaps:
+            if gap.basis == 'source' and goal:
+                try:
+                    source_path(goal['workspace'], gap.reference)
+                    continue  # A needed local source can be missing from the current plan's scope.
+                except (ValueError, OSError):
+                    pass
+            if gap.reference not in references[gap.basis]:
+                errors.append('Blocking gap must reference an exact current requirement, constraint, policy, hypothesis, asserted claim or existing local source')
+        if evaluation.verdict in ('insufficient', 'blocked') and not evaluation.blocking_gaps:
+            errors.append('A blocking verdict needs a specific evidence gap and bounded next action; optional edge cases belong in non_blocking_uncertainties')
+        if evaluation.verdict == 'supported' and evaluation.blocking_gaps:
+            errors.append('Supported research cannot contain unresolved blocking gaps')
         if errors:
+            errors = list(dict.fromkeys(errors))
             return Evaluation(verdict='insufficient', evidence_ids=[], reason='; '.join(errors),
-                              feedback='; '.join(errors))
+                              feedback=('; '.join(errors) + '. Review feedback: ' + evaluation.feedback)[:3000],
+                              non_blocking_uncertainties=evaluation.non_blocking_uncertainties)
         return evaluation
 
     def save_discovery(self, job, report, tools):

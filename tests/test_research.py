@@ -131,6 +131,132 @@ async def test_independent_evaluator_receives_captured_content(system):
     assert 'interval=30' in agents.evaluated_content
 
 
+async def test_evaluation_receives_current_contract_and_keeps_optional_gaps_nonblocking(system):
+    from omnitrix.control import Control
+    store, goal, _ = system
+    control = Control(store)
+    proposal = control.propose(goal, 'requirements', {
+        'constraint': 'Only change polling behavior', 'add_requirements': ['Preserve database access']})
+    control.accept(goal, proposal)
+    proposal = control.propose(goal, 'policy', {'instructions': 'Use the supplied acceptance contract.'})
+    control.accept(goal, proposal)
+    class ScopedAgents(FixtureAgents):
+        async def run(self, role, context, tools):
+            result = await super().run(role, context, tools)
+            if role == 'evaluation':
+                assert context['goal']['requirements'] == ['Prioritize supported opportunity', 'Preserve database access']
+                assert context['goal']['constraints'] == ['Only change polling behavior']
+                assert context['policy']['instructions'] == 'Use the supplied acceptance contract.'
+                result.non_blocking_uncertainties = ['Production throughput has not been measured']
+            return result
+    service = Research(store, ScopedAgents())
+    job = service.plan(goal, 'research', plan('Queue polling interval is 30 seconds'))['job_id']
+    outcome = await service.attempt(job)
+    assert outcome['status'] == 'supported'
+    assert outcome['evaluation']['non_blocking_uncertainties']
+    assert Knowledge(store).search(str(system[2]), 'interval')[0]['classification'] == 'verified'
+
+
+@pytest.mark.parametrize('reference,valid', [
+    ('Prioritize supported opportunity', True), ('Prove every possible edge case', False)])
+async def test_blocking_gap_must_reference_the_current_contract(system, reference, valid):
+    from omnitrix.research_models import EvaluationGap
+    store, goal, _ = system
+    class GapAgents(FixtureAgents):
+        async def run(self, role, context, tools):
+            result = await super().run(role, context, tools)
+            if role == 'evaluation':
+                result.verdict = 'insufficient'
+                result.blocking_gaps = [EvaluationGap(basis='requirement', reference=reference,
+                    missing_evidence='No measurement supports the performance claim',
+                    next_action='Read the scoped measurements before making a performance claim')]
+            return result
+    service = Research(store, GapAgents())
+    job = service.plan(goal, 'research', plan('Queue polling interval is 30 seconds'))['job_id']
+    outcome = await service.attempt(job)
+    assert outcome['status'] == 'insufficient'
+    assert not store.db.execute("SELECT 1 FROM knowledge WHERE classification='verified'").fetchone()
+    if valid:
+        assert outcome['evaluation']['blocking_gaps'][0]['reference'] == reference
+    else:
+        assert 'exact current requirement' in outcome['feedback']
+
+
+async def test_research_feedback_survives_restart_and_recent_history_eviction(system):
+    from omnitrix.research_models import EvaluationGap
+    store, goal, path = system
+    class GapAgents(FixtureAgents):
+        async def run(self, role, context, tools):
+            result = await super().run(role, context, tools)
+            if role == 'evaluation':
+                result.verdict = 'insufficient'
+                result.feedback = 'Read the interval source before claiming a latency improvement'
+                result.blocking_gaps = [EvaluationGap(basis='claim', reference=context['report']['findings'][0]['statement'],
+                    missing_evidence='The claimed value needs independent confirmation',
+                    next_action='Read system.md')]
+            return result
+    service = Research(store, GapAgents())
+    job = service.plan(goal, 'research', plan('Queue polling interval is 30 seconds'))['job_id']
+    await service.attempt(job)
+    for index in range(25):
+        discovery = plan().model_copy(update={'question': f'Inspect discovery scope number {index}'})
+        service.plan(goal, 'discovery', discovery)
+    store.db.close()
+    fresh = Store(path/'state.db')
+    state = fresh.snapshot(goal)
+    assert job not in {row['id'] for row in state['research']}
+    assert state['research_state']['latest_job']['id'] == job
+    assert state['research_state']['latest_job']['retryable']
+    assert 'interval source' in state['research_state']['latest_job']['feedback']
+    assert state['research_state']['remaining_role_runs'] == 10
+    older = fresh.research_history(goal, offset=20)
+    assert any(row['id'] == job and row['report']['findings'] for row in older)
+    fresh.execute('UPDATE research_limits SET spent=max_runs WHERE goal_id=?', (goal,))
+    assert not fresh.research_state(goal)['latest_job']['retryable']
+
+
+async def test_missing_scope_is_replanned_without_replaying_or_resetting_goal_budget(system):
+    from omnitrix.control import Control
+    from omnitrix.supervisor import Supervisor
+    class Runtime:
+        async def close(self):
+            pass
+    store, goal, path = system
+    (path/'contract.py').write_text('assert polling_interval == 30\n')
+    Control(store).require_implementation(goal)
+    class NeedsContract(FixtureAgents):
+        async def run(self, role, context, tools):
+            if role == 'research':
+                tools.read('contract.py')
+            return await super().run(role, context, tools)
+    service = Research(store, NeedsContract())
+    spec = plan('Queue polling interval is 30 seconds')
+    job = service.plan(goal, 'research', spec)['job_id']
+    outcome = await service.attempt(job)
+    assert outcome['status'] == 'blocked'
+    assert outcome['scope_gaps'] == ['contract.py']
+    state = store.research_state(goal)['latest_job']
+    assert state['needs_scope_expansion'] and not state['retryable']
+    supervisor = await Supervisor(store, goal, runtime=Runtime(), research=service).open()
+    try:
+        retry = Decision(action='retry_research', rationale='Add contract.py', instructions='Read contract.py too',
+            task_id=None, priority=1, research_id=job)
+        with pytest.raises(ValueError, match='do not change scope'):
+            await supervisor.dispatch(retry)
+        pause = Decision(action='pause', rationale='Tool repair required', instructions='Fix access',
+            task_id=None, priority=1, pause_reason='reconciliation')
+        with pytest.raises(ValueError, match='local files exist'):
+            await supervisor.dispatch(pause)
+        expanded = spec.model_copy(update={'scope': ['system.md', 'contract.py']})
+        new_job = service.plan(goal, 'research', expanded)['job_id']
+        assert new_job != job
+        assert (await service.attempt(new_job))['status'] == 'supported'
+        assert service.job(job)['attempts'] == 1
+        assert store.research_state(goal)['remaining_role_runs'] == 9
+    finally:
+        await supervisor.close()
+
+
 async def test_timeout_preserves_attempt_and_escalates(system):
     import asyncio
     store,goal,_=system

@@ -38,18 +38,35 @@ class AgentBrain:
     """A conversational Agents SDK agent with durable context and recall tools."""
     def __init__(self, model=None, store=None):
         self.store = store
-        self.model = model or os.getenv('OMNITRIX_MODEL', 'gpt-4.1')
+        self.model_override = model or os.getenv('OMNITRIX_MODEL')
+        self.model = self.model_override or 'gpt-5.4'
 
     async def decide(self, snapshot):
-        @function_tool
+        remaining_calls = 4
+
+        def tools_available(context, agent):
+            return remaining_calls > 0
+
+        def spend_call():
+            nonlocal remaining_calls
+            if remaining_calls < 1:
+                return False
+            remaining_calls -= 1
+            return True
+
+        @function_tool(is_enabled=tools_available)
         async def recall_history(section: str, offset: int = 0) -> str:
-            """Read earlier tasks or decisions from durable history, 10 entries at a time."""
+            """Read tasks, decisions, messages or full research reports from durable history, 10 entries at a time."""
+            if not spend_call():
+                return 'Manager tool budget exhausted. Choose the next bounded action using observed evidence.'
             if offset<0:
                 return 'Use a nonnegative offset.'
             if section=='messages' and self.store:
                 return json.dumps([dict(r) for r in self.store.db.execute('SELECT kind,body,direction,created FROM messages WHERE goal_id=? ORDER BY created LIMIT 10 OFFSET ?',(snapshot['goal']['id'],offset))])
+            if section=='research' and self.store:
+                return json.dumps(self.store.research_history(snapshot['goal']['id'], offset=offset))
             if section not in ('tasks', 'decisions'):
-                return 'Use tasks, decisions, or messages.'
+                return 'Use tasks, decisions, messages, or research.'
             if self.store:
                 if section == 'tasks':
                     return json.dumps([dict(r) for r in self.store.db.execute('SELECT * FROM tasks WHERE goal_id=? ORDER BY rowid LIMIT 10 OFFSET ?', (snapshot['goal']['id'], offset))])
@@ -68,33 +85,39 @@ class AgentBrain:
             # Replaying whole prior snapshots through an SDK session duplicates
             # tens of thousands of input tokens without adding new evidence.
             session = None if snapshot.get('campaign') else control.session(goal_id)
-            @function_tool
+            @function_tool(is_enabled=tools_available)
             async def search_knowledge(query: str = '', offset: int = 0) -> str:
                 """Retrieve shared verified facts, system maps, assumptions and rejected hypotheses."""
+                if not spend_call():
+                    return 'Manager tool budget exhausted. Choose the next bounded action using observed evidence.'
                 return json.dumps(Knowledge(self.store).search(snapshot['goal']['workspace'], query, offset=offset))
-            @function_tool
+            @function_tool(is_enabled=tools_available)
             async def list_resources(directory: str = '.', offset: int = 0) -> str:
                 """List 40 sorted direct children with file kinds/sizes. Follow next_offset to inspect later pages. No recursive scan; choose explicit research sources."""
+                if not spend_call():
+                    return 'Manager tool budget exhausted. Choose the next bounded action using observed evidence.'
                 from .resources import list_resources as inventory
                 result = inventory(snapshot['goal']['workspace'], directory, offset)
                 if snapshot.get('campaign'):
                     from .frontier import Frontier
                     result['indexed_files_in_subtree'] = Frontier(self.store,goal_id).page(prefix=directory,limit=20)
                 control.event(goal_id,'manager_inventory',{'directory':directory,'offset':offset,'result':result})
-                return json.dumps(result)
+                return json.dumps(result | {'remaining_manager_tool_calls': remaining_calls})
             tools += [search_knowledge, list_resources]
             if snapshot.get('campaign'):
                 from .frontier import Frontier
-                @function_tool
+                @function_tool(is_enabled=tools_available)
                 async def search_frontier(query: str = '', kind: str | None = None, after: str = '', directory: str = '') -> str:
                     """Search file PATH NAMES only, never contents. directory filters a directory subtree, not a filename. Query a full path with directory=''. Use next_after for pages. To read/search contents, return a research plan with real file paths."""
+                    if not spend_call():
+                        return 'Manager tool budget exhausted. Choose the next bounded action using observed evidence.'
                     result=Frontier(self.store, goal_id).page(query, kind, after,prefix=directory)
                     control.event(goal_id,'manager_frontier_query',{'query':query,'kind':kind,'after':after,'directory':directory,'result':result})
                     return json.dumps(result)
                 tools.append(search_frontier)
         from .spending import metered_model
         agent = Agent(
-            name='Engineering manager', model=metered_model(self.store, snapshot['goal']['id'], 'manager', self.model),
+            name='Engineering manager', model=metered_model(self.store, snapshot['goal']['id'], 'manager', self.model_override),
             instructions=(ROOT / ('instructions/CAMPAIGN.md' if snapshot.get('campaign') else 'instructions/MANAGER.md')).read_text() + '\n' +
                          (ROOT / 'instructions/KNOWLEDGE.md').read_text() + policy,
             tools=tools, output_type=Decision,
@@ -102,7 +125,7 @@ class AgentBrain:
                 else 'list_resources' if self.store and not snapshot['research'] else 'auto'))
         # Stable objective + concise outcomes, never worker event streams.
         context = {**snapshot, 'tasks': snapshot['tasks'][-20:],
-                   'decisions': snapshot['decisions'][-20:]}
+                   'decisions': snapshot['decisions'][-20:], 'manager_tool_budget': remaining_calls}
         if snapshot.get('campaign'):
             context['tasks']=[task | {'result':brief_result(task['result'])} for task in snapshot['tasks'][-6:]]
             context['decisions']=snapshot['decisions'][-8:]
@@ -131,11 +154,10 @@ class AgentBrain:
                 from .campaign import Campaign
                 context['campaign_evidence_requirements'] = Campaign(self.store,goal_id).quality()
         try:
+            from .telemetry import UsageRecorder
             result = await Runner.run(agent, json.dumps(context), max_turns=24 if snapshot.get('campaign') else 8, session=session,
-                                      run_config=RunConfig(tracing_disabled=True))
-            if self.store:
-                from .telemetry import record_usage
-                record_usage(self.store,snapshot['goal']['id'],result,'manager')
+                                      run_config=RunConfig(tracing_disabled=True),
+                                      hooks=UsageRecorder(self.store, snapshot['goal']['id'], 'manager'))
             return result.final_output
         finally:
             if session:
@@ -195,7 +217,8 @@ class Manager:
                 if decision.action == 'implement':
                     await service.run(row['id'])
                 else:
-                    service.audit(row['id'])
+                    if service.audit(row['id'])['passed']:
+                        break
                 continue
             # Validate references before recording any executable assignment.
             task = None

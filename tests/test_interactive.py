@@ -215,3 +215,85 @@ async def test_manager_sdk_turn_exhaustion_pauses_without_crashing_or_retrying(s
     assert supervisor.autonomy==0
     assert not supervisor.work
     await supervisor.close()
+
+
+async def test_rejected_research_cannot_be_reported_as_missing_permission(state):
+    from omnitrix.models import Decision
+    from omnitrix.research import Research
+    from omnitrix.research_models import ResearchPlan, ResearchBudget
+    from tests_helpers import FixtureAgents
+    store, goal = state
+    workspace = store.snapshot(goal)['goal']['workspace']
+    from pathlib import Path
+    Path(workspace, 'system.md').write_text('Service queue uses polling interval=30 seconds\n')
+    Control(store).require_implementation(goal)
+    research = Research(store, FixtureAgents(misleading=True))
+    spec = ResearchPlan(scope=['system.md'], question='What is the polling interval?',
+        hypothesis='Queue polling interval is 30 seconds', falsification='The source states a different interval',
+        budget=ResearchBudget(attempts=1))
+    job = research.plan(goal, 'research', spec)['job_id']
+    assert (await research.attempt(job))['status'] == 'escalated'
+    class Brain:
+        async def decide(self, snapshot):
+            return Decision(action='pause', rationale='Missing permission', instructions='Authorize implementation',
+                task_id=None, priority=1, pause_reason='authorization')
+    supervisor = await Supervisor(store, goal, brain=Brain(), runtime=Runtime()).open()
+    try:
+        result = await supervisor.advance(steps=3)
+        assert 'Research acceptance' in result['rejected']['error']
+        assert supervisor.status()['goal']['status'] == 'active'
+        pause = Decision(action='pause', rationale='Research rejected unsupported evidence',
+            instructions='Inspect captured sources and replan within the remaining goal budget',
+            task_id=None, priority=1, pause_reason='research')
+        result = await supervisor.dispatch(pause)
+        assert result['research_state']['latest_job']['id'] == job
+        assert 'Unknown' in result['research_state']['latest_job']['feedback']
+        assert not store.db.execute('SELECT 1 FROM implementation_authorizations').fetchone()
+    finally:
+        await supervisor.close()
+
+
+@pytest.mark.parametrize('reason', ['external_input', 'research'])
+async def test_recoverable_scope_error_does_not_become_user_scope_question(state, reason):
+    from pathlib import Path
+    from omnitrix.models import Decision
+    from omnitrix.research_models import ResearchPlan
+    store, goal = state
+    Path(store.snapshot(goal)['goal']['workspace'], 'contract.md').write_text('A local contract is available')
+    Control(store).require_implementation(goal)
+    class Brain:
+        async def decide(self, snapshot):
+            return Decision(action='discover', rationale='Read contract and directory', instructions='Inspect sources',
+                task_id=None, priority=1, research_plan=ResearchPlan(scope=['contract.md', '.'],
+                    question='Which contract can establish the defect?'))
+    supervisor = await Supervisor(store, goal, brain=Brain(), runtime=Runtime()).open()
+    try:
+        result = await supervisor.advance(steps=3)
+        assert result['rejected']['observed_valid_scope'] == ['contract.md']
+        pause = Decision(action='pause', rationale='Choose scope', instructions='Which files should I inspect?',
+            task_id=None, priority=1, pause_reason=reason)
+        with pytest.raises(ValueError, match='Correct the rejected plan'):
+            await supervisor.dispatch(pause)
+        assert supervisor.status()['goal']['status'] == 'active'
+    finally:
+        await supervisor.close()
+
+
+async def test_malformed_decisions_get_a_bounded_correction_without_dispatch(state):
+    from agents.exceptions import ModelBehaviorError
+    store, goal = state
+    class Brain:
+        async def decide(self, snapshot):
+            raise ModelBehaviorError('Invalid JSON')
+    supervisor = await Supervisor(store, goal, brain=Brain(), runtime=Runtime()).open()
+    try:
+        first = await supervisor.advance(steps=10)
+        assert first['rejected'] and not first['escalated']
+        second = await supervisor.advance()
+        assert second['escalated']
+        assert supervisor.status()['goal']['status'] == 'paused'
+        assert supervisor.autonomy == 0
+        assert not store.db.execute('SELECT 1 FROM tasks').fetchone()
+        assert not store.db.execute('SELECT 1 FROM decisions').fetchone()
+    finally:
+        await supervisor.close()

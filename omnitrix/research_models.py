@@ -83,8 +83,17 @@ class ResearchReport(Contract):
     blocked: bool
 
 
+class EvaluationGap(Contract):
+    basis: Literal['requirement', 'constraint', 'policy', 'hypothesis', 'claim', 'source']
+    reference: str = Field(min_length=1, max_length=6000)
+    missing_evidence: str = Field(min_length=1, max_length=3000)
+    next_action: str = Field(min_length=1, max_length=2000)
+
+
 class Evaluation(Contract):
     verdict: Literal['supported', 'insufficient', 'falsified', 'blocked']
     evidence_ids: list[str] = Field(max_length=20)
     reason: str = Field(min_length=1, max_length=3000)
     feedback: str = Field(min_length=1, max_length=3000)
+    blocking_gaps: list[EvaluationGap] = Field(default_factory=list, max_length=15)
+    non_blocking_uncertainties: list[str] = Field(default_factory=list, max_length=15)

@@ -201,7 +201,7 @@ async def run_arm(task,arm,directory,live,allow,steps,runtime_override=None,arm_
     runtime_usage=getattr(runtime,'usage',{})
     if usage or runtime_usage:
         tokens={'input':sum(u.get('input_tokens',0) for u in usage)+sum(u.get('inputTokens',0) for u in runtime_usage.values()),'output':sum(u.get('output_tokens',0) for u in usage)+sum(u.get('outputTokens',0) for u in runtime_usage.values())}
-    report={'task':task['name'],'fixture_version':2,'arm':arm,'goal_id':goal,'database':str(store.path),'initial_tree':initial_tree,'arm_seconds':arm_seconds,'manager_model':os.getenv('OMNITRIX_MODEL','gpt-4.1'),'codex_model':os.getenv('OMNITRIX_CODEX_MODEL','runtime default'),'mode':'live' if live else 'mock-harness-only','candidate':candidate,
+    report={'task':task['name'],'fixture_version':2,'arm':arm,'goal_id':goal,'database':str(store.path),'initial_tree':initial_tree,'arm_seconds':arm_seconds,'manager_model':os.getenv('OMNITRIX_MODEL','gpt-5.4'),'codex_model':os.getenv('OMNITRIX_CODEX_MODEL','runtime default'),'mode':'live' if live else 'mock-harness-only','candidate':candidate,
         'requirements_satisfied':sum(r['passed'] for r in scored),'requirements_total':len(scored),'checks':scored,
         'wall_seconds':elapsed,'tokens':tokens,'token_measurement_complete':bool(live and not errors and getattr(runtime,'session_ids',set()) and set(runtime.usage)==runtime.session_ids),
         'repeated_research_queries':repeated if arm=='manager' else None,'corrections':corrections if arm=='manager' else None,

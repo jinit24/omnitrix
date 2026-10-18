@@ -35,3 +35,9 @@ Frameworks, callers and harnesses may supply instrumentation or behavior outside
 a leaf file. Before claiming that measurements or behavior are absent, inspect
 the relevant execution contract. If the plan excludes it, state the scope gap;
 do not generalize a local absence into a system-wide conclusion.
+
+Anchor the investigation to the supplied mandatory requirements and approved policy.
+For implementation goals, establish a concrete current defect and the relevant
+contract. Separate proposed remedies from observed facts: executable verification
+will establish the candidate's behavior. Avoid claims that no other requirements
+exist or that an unimplemented remedy already satisfies every possible edge case.

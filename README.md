@@ -14,7 +14,7 @@ python -m venv .venv
 . .venv/bin/activate
 pip install -e '.[test]'
 npm ci
-pytest -q
+python -m pytest -q
 ```
 
 Set `OPENAI_API_KEY` securely; all agents and Codex adapters use it. Never put keys in
@@ -23,12 +23,20 @@ existing login configuration. `OMNITRIX_CODEX_PATH` can select the installed CLI
 
 | Setting | Default |
 | --- | --- |
-| `OMNITRIX_MODEL` | `gpt-4.1` |
+| `OMNITRIX_MODEL` | `gpt-5.4` |
 | `OMNITRIX_CODEX_MODEL` | `gpt-5.3-codex` |
 | `OMNITRIX_CODEX_HOME` | `.omnitrix/codex-api` |
 | Database (`--db PATH` before command) | `.omnitrix/state.db` |
 
+Dollar-capped research campaigns retain their pinned GPT-4.1 pricing contract.
+An explicit incompatible model override is rejected before inference.
+
 Use a source/editable install: instructions and Node bridge are repository resources.
+
+The default coordinator is now GPT-5.4. Planning has a per-decision tool budget,
+recoverable scope errors trigger replanning, and a successful independent goal audit
+completes the goal directly. See the [Django validation and diagnostic findings](docs/long-running.html)
+for the bounded repair experiment, all failed profiles, costs and remaining limits.
 
 ## Run and observe
 

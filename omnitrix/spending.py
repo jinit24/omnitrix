@@ -126,10 +126,12 @@ class MeteredModel(OpenAIResponsesModel):
         return response
 
 
-def metered_model(store, goal_id, role, fallback):
+def metered_model(store, goal_id, role, fallback=None):
     if not store or not Spending(store, goal_id).status():
-        return fallback
-    if fallback not in ('gpt-4.1', MODEL):
+        return fallback or 'gpt-5.4'
+    # An unspecified model follows the saved campaign's pinned pricing contract.
+    # An explicit incompatible override must still fail before any paid call.
+    if fallback not in (None, 'gpt-4.1', MODEL):
         raise ValueError('Campaign pricing currently supports only standard-tier GPT-4.1')
     if not hasattr(store, '_campaign_client'):
         store._campaign_client = AsyncOpenAI(base_url='https://api.openai.com/v1', max_retries=0, timeout=90)

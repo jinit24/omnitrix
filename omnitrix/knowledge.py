@@ -238,7 +238,11 @@ class ResearchTools:
     def _source(self, locator):
         canonical = str(source_path(self.workspace, locator).relative_to(Path(self.workspace).resolve()))
         if canonical not in self.scope:
-            raise ValueError('Source is outside the explicit research scope')
+            self.store.execute('INSERT INTO research_queries(run_id,operation,query,created) VALUES(?,?,?,?)',
+                (self.run_id, 'scope_gap', canonical, time.time()))
+            raise ValueError(f'{canonical} exists but is outside the explicit research scope. '
+                'Retry instructions cannot expand scope. Report this path so the manager can create a new '
+                'research plan with the additional file; no user permission or tool repair is needed.')
         path, revision = source_revision(self.workspace, canonical)
         return canonical, path, revision
 
