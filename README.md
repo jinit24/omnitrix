@@ -109,6 +109,9 @@ never deployments, destructive operations, merges or pushes.
 Enable **Settings → Pages → GitHub Actions**. The included workflow publishes a labeled
 static demo and HTML docs. Live manager state stays local.
 
+Research sources up to 32 MiB support bounded reads, search, and CSV aggregation.
+Partition larger exports; observed coverage is not exhaustive system coverage.
+
 ## Learn more
 
 The app's **Documentation** section includes searchable HTML guides, flowcharts, tables,
