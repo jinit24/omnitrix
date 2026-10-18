@@ -1,0 +1,37 @@
+diff --git a/omnitrix/research.py b/omnitrix/research.py
+index 620dd1b..e478523 100644
+--- a/omnitrix/research.py
++++ b/omnitrix/research.py
+@@ -84,7 +84,7 @@ class Research:
+                 raise ValueError('Opportunity must belong to this goal')
+         from .control import Control
+         revisions = Control(self.store).current(goal_id)
+-        signature = hashlib.sha256(json.dumps([workspace, stage, revisions['goal']['revision'], revisions['policy']['version'],
++        signature = hashlib.sha256(json.dumps([goal_id, workspace, stage, revisions['goal']['revision'], revisions['policy']['version'],
+             ' '.join((spec.hypothesis or spec.question).casefold().split()), scope,
+             [hashlib.sha256(read_source_bytes(workspace,s)[1]).hexdigest() for s in scope]], sort_keys=True).encode()).hexdigest()
+         prior = self.db.execute('SELECT id,status FROM research_jobs WHERE signature=? ORDER BY created DESC LIMIT 1',
+@@ -183,9 +183,10 @@ class Research:
+     @staticmethod
+     def gate(report, evaluation, evidence):
+         available = {e['id']: e for e in evidence}
+-        cited = set(report.supporting_evidence + report.contradictory_evidence + evaluation.evidence_ids)
++        finding_citations = {s for finding in report.findings for s in finding.evidence_ids}
++        report_citations = finding_citations.union(report.supporting_evidence, report.contradictory_evidence)
++        cited = set(report_citations).union(evaluation.evidence_ids)
+         claims = [f for f in report.findings if f.classification == 'claim']
+-        cited.update(s for finding in report.findings for s in finding.evidence_ids)
+         errors = []
+         if any(s not in available or available[s]['stale'] for s in cited):
+             errors.append('Unknown or stale evidence IDs; read current scoped sources')
+@@ -193,6 +194,10 @@ class Research:
+             errors.append('Evaluator must cite independently available evidence')
+         if evaluation.verdict == 'supported' and (not claims or any(not f.evidence_ids for f in claims)):
+             errors.append('Every asserted claim needs observed evidence; assumptions are not verified facts')
++        if evaluation.verdict == 'supported':
++            missing = [s for claim in claims for s in claim.evidence_ids if s not in evaluation.evidence_ids]
++            if missing:
++                errors.append('Supported verdict must cite each claim evidence ID')
+         if report.blocked and evaluation.verdict == 'supported':
+             errors.append('Blocked research cannot establish support')
+         if errors:

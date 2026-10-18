@@ -67,6 +67,7 @@ omnitrix status GOAL_ID
 omnitrix messages GOAL_ID
 omnitrix knowledge GOAL_ID 'retry'
 omnitrix export GOAL_ID > research.json
+omnitrix report GOAL_ID --output research.html
 ```
 
 One manager owns each DB. `send` queues to that owner; it never starts another manager.
@@ -121,3 +122,34 @@ and raw experiment records. README is the only Markdown documentation page; edit
 - [Recovery](docs/recovery.html)
 - [Experiments and commands](docs/experiments.html)
 - [Status and limitations](docs/status.html)
+
+## Research quality evaluation and self-audit
+
+The [HTML findings and repair log](docs/research-quality.html) records baseline
+failures, changes, actual live outcomes, and unresolved limitations. Its source is
+`docs/research-quality.json`; per-goal HTML includes decisions, evidence, queries,
+evaluations and measured model usage. Source/model text is escaped, never executed.
+
+```sh
+# Scripted tool/harness checks: these do not measure model reasoning.
+python scripts/research_eval.py --harness-only --output .omnitrix/eval-harness-NEW
+# Paid autonomous discovery: competing clues and a negative control, scored outside the workspace.
+python scripts/research_eval.py --live --output .omnitrix/eval-live-NEW --log docs/research-quality.json
+# Real Omnitrix source, seeded failing probes, autonomous triage and authorized Codex repair.
+python scripts/self_audit.py --allow-code-modifications --output .omnitrix/self-audit-NEW --log docs/research-quality.json
+```
+
+Use new output directories. `--live` needs API credentials and API network access.
+The self-audit clones the selected committed revision locally, retains every
+candidate, and limits worker changes to `omnitrix/research.py`; independent oracles
+live outside the candidate. It performs no merge, push or PR publication. Running
+the script through an outer sandbox that masks Codex's daemon socket can block
+worker shells; keep Codex's own sandbox enabled when using a supported execution route.
+
+Synthetic scoring measures observable research behavior, with explicitly reported
+lexical target matching. It is not proof of causal correctness or generalization
+to large public repositories. The self-audit probes are human-authored known
+failures: successful triage/repair is separate from autonomous issue discovery.
+The research evaluator exits 0 only when every checkpoint passes, 1 for behavioral
+failures (or no trials), and 2 for blocked/error runs. A completed agent conversation
+does not by itself pass the evaluation.

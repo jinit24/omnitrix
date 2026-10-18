@@ -1,0 +1,646 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Omnitrix research evidence log</title><style>body{font:16px/1.6 system-ui,sans-serif;max-width:1100px;margin:40px auto;padding:0 24px;color:#1b2938;background:#f5f7fa}article,details{background:white;border:1px solid #d6dee8;border-radius:8px;padding:18px;margin:16px 0}h1,h2{line-height:1.25}h2{font-size:20px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px}table{border-collapse:collapse;width:100%;font-size:14px}td,th{text-align:left;border-bottom:1px solid #ccd6e3;padding:8px;overflow-wrap:anywhere}.status{font-weight:700;color:#245aa0}summary{cursor:pointer;font-weight:700}</style><body><h1>Omnitrix research evidence log</h1><pre>{
+  &quot;generated_at&quot;: &quot;2026-10-18T18:33:29.555473+00:00&quot;,
+  &quot;goal&quot;: {
+    &quot;id&quot;: &quot;83d1771735454799a355e1184990b716&quot;,
+    &quot;objective&quot;: &quot;Investigate measured research-integrity failures in Omnitrix itself and implement a bounded, independently verified correction.&quot;,
+    &quot;requirements&quot;: [
+      &quot;The independent research-integrity regression oracle passes&quot;,
+      &quot;All existing deterministic tests still pass&quot;
+    ],
+    &quot;workspace&quot;: &quot;/workspace/omnitrix/.omnitrix/self-audit/live-03/repo&quot;,
+    &quot;status&quot;: &quot;active&quot;,
+    &quot;revision&quot;: 1,
+    &quot;constraints&quot;: [],
+    &quot;original_requirements&quot;: [
+      &quot;The independent research-integrity regression oracle passes&quot;,
+      &quot;All existing deterministic tests still pass&quot;
+    ],
+    &quot;requires_verified_implementation&quot;: true
+  },
+  &quot;research_progress&quot;: {
+    &quot;coverage_basis&quot;: &quot;Explicitly planned sources only; excerpts are partial and freshness must be checked.&quot;,
+    &quot;observed_sources&quot;: [
+      &quot;observability/catalog.md&quot;,
+      &quot;observability/checks.csv&quot;,
+      &quot;observability/regressions.log&quot;,
+      &quot;omnitrix/knowledge.py&quot;,
+      &quot;omnitrix/research.py&quot;,
+      &quot;omnitrix/research_models.py&quot;
+    ],
+    &quot;unobserved_planned_sources&quot;: [],
+    &quot;observed_by_kind&quot;: {
+      &quot;code&quot;: [
+        &quot;omnitrix/knowledge.py&quot;,
+        &quot;omnitrix/research.py&quot;,
+        &quot;omnitrix/research_models.py&quot;
+      ],
+      &quot;metrics&quot;: [
+        &quot;observability/checks.csv&quot;
+      ],
+      &quot;logs&quot;: [
+        &quot;observability/regressions.log&quot;
+      ],
+      &quot;document&quot;: [
+        &quot;observability/catalog.md&quot;
+      ]
+    },
+    &quot;candidate_count&quot;: 1,
+    &quot;unresolved_candidates&quot;: 0,
+    &quot;advice&quot;: [
+      &quot;For a broad goal, compare another independent opportunity before committing to the first clue.&quot;
+    ]
+  },
+  &quot;decisions&quot;: [
+    {
+      &quot;action&quot;: &quot;discover&quot;,
+      &quot;rationale&quot;: &quot;To advance the investigation of research-integrity failures in Omnitrix, it is critical to identify concrete evidence of such failures. The most promising explicit system-level runtime signals are found in the observability directory: &#x27;regressions.log&#x27; (runtime records), &#x27;checks.csv&#x27; (numeric integrity checks), and possibly summary or catalog descriptions in &#x27;catalog.md&#x27;. To maximize initial insight and compare opportunities, a broad discovery investigation will map these artifacts for relevant integrity failure signals before prioritizing a specific hypothesis-driven research or root cause analysis. This directly supports the requirement to pass the regression oracle.&quot;,
+      &quot;instructions&quot;: &quot;Survey the following files for relevant content on research-integrity failures or regression detection mechanisms: &#x27;observability/regressions.log&#x27;, &#x27;observability/checks.csv&#x27;, and &#x27;observability/catalog.md&#x27;. Assess the structure, content, freshness, and any explicit integrity failure reports or measurement signals, especially those tied to Omnitrix itself rather than tests of dependencies. Briefly describe formats, notable entries, and timeline coverage for each. Use a budget of 8 tool calls, 60 seconds, and 2 attempts.&quot;,
+      &quot;task_id&quot;: null,
+      &quot;priority&quot;: 1,
+      &quot;research_plan&quot;: {
+        &quot;scope&quot;: [
+          &quot;observability/regressions.log&quot;,
+          &quot;observability/checks.csv&quot;,
+          &quot;observability/catalog.md&quot;
+        ],
+        &quot;question&quot;: &quot;What research-integrity failure records or regression measurements relevant to Omnitrix are captured in available runtime and catalog artifacts?&quot;,
+        &quot;hypothesis&quot;: null,
+        &quot;falsification&quot;: null,
+        &quot;opportunity_id&quot;: null,
+        &quot;budget&quot;: {
+          &quot;tool_calls&quot;: 8,
+          &quot;seconds&quot;: 60,
+          &quot;attempts&quot;: 2
+        }
+      },
+      &quot;research_id&quot;: null,
+      &quot;implementation_id&quot;: null
+    },
+    {
+      &quot;action&quot;: &quot;research&quot;,
+      &quot;rationale&quot;: &quot;The system mapping phase successfully identified a specific high-confidence opportunity: the independent oracle reports a research-integrity failure because Omnitrix&#x27;s evaluator is accepting unrelated citations. To make progress toward the objective, the next highest-value uncertainty is which exact code paths in Omnitrix (particularly in research.py, knowledge.py, and research_models.py) are responsible for incorrectly permitting unrelated citation acceptance. Resolving this will define the minimum fix, support robust correction, and allow focused re-verification. A falsifiable hypothesis will immediately justify subsequent implementation and correction.&quot;,
+      &quot;instructions&quot;: &quot;Test the following hypothesis: \&quot;In the current revision, Omnitrix accepts unrelated citations in evaluation, resulting in research-integrity test failures as measured by the independent oracle.\&quot; Falsification: If Omnitrix strictly rejects unrelated citations in all evaluator surfaces and the independent oracle passes (--probe-gate and --all), then the hypothesis is falsified. Scope: omnitrix/research.py, omnitrix/knowledge.py, omnitrix/research_models.py. Budget: 8 tool calls, 60 seconds, 2 attempts. Identify the precise evaluator logic that allows unrelated citations to pass and summarize traceability to the observed failure. Highlight code fragments or tests directly supporting or contradicting the diagnosis.&quot;,
+      &quot;task_id&quot;: null,
+      &quot;priority&quot;: 1,
+      &quot;research_plan&quot;: {
+        &quot;scope&quot;: [
+          &quot;omnitrix/research.py&quot;,
+          &quot;omnitrix/knowledge.py&quot;,
+          &quot;omnitrix/research_models.py&quot;
+        ],
+        &quot;question&quot;: &quot;Does Omnitrix&#x27;s evaluator implementation incorrectly accept unrelated citations, and which code path or condition is responsible for the failure reported by the independent oracle?&quot;,
+        &quot;hypothesis&quot;: &quot;Omnitrix accepts unrelated citations in evaluation, resulting in research-integrity failures as measured by the independent oracle.&quot;,
+        &quot;falsification&quot;: &quot;If Omnitrix strictly rejects unrelated citations in all evaluator paths and the oracle passes (--probe-gate and --all), the hypothesis is falsified.&quot;,
+        &quot;opportunity_id&quot;: &quot;f0f6601c38d240008ce87befd3d171d1&quot;,
+        &quot;budget&quot;: {
+          &quot;tool_calls&quot;: 8,
+          &quot;seconds&quot;: 60,
+          &quot;attempts&quot;: 2
+        }
+      },
+      &quot;research_id&quot;: null,
+      &quot;implementation_id&quot;: null
+    },
+    {
+      &quot;action&quot;: &quot;implement&quot;,
+      &quot;rationale&quot;: &quot;All the necessary research phases have been completed, with supporting evidence establishing that Omnitrix currently lacks adequate citation relevance checks in evaluator logic, causing the research-integrity failures measured by the independent oracle. An implementation ID with explicit authorization has been provided, limited to omnitrix/research.py, with verification contracted to require regression oracle and all existing deterministic tests to pass. The next step is to proceed with implementing the researched correction under this scope and re-verify as specified.&quot;,
+      &quot;instructions&quot;: &quot;Implement a stricter citation relevance check in omnitrix/research.py so that only citations that demonstrably support the specific factual claim are accepted. This change should address the documented research-integrity failure (acceptance of unrelated citations). Ensure no bypass of source contracts or external checks, and do not break existing deterministic tests. After implementing, automatically run the independent oracle and all deterministic tests to verify the correction. If any check fails, provide detailed diagnostic output.&quot;,
+      &quot;task_id&quot;: null,
+      &quot;priority&quot;: 1,
+      &quot;research_plan&quot;: null,
+      &quot;research_id&quot;: null,
+      &quot;implementation_id&quot;: &quot;ee4f54a08cb84b5780e9984aa82933c6&quot;
+    }
+  ],
+  &quot;evidence&quot;: {
+    &quot;workspace&quot;: &quot;/workspace/omnitrix/.omnitrix/self-audit/live-03/repo&quot;,
+    &quot;records&quot;: [
+      {
+        &quot;id&quot;: &quot;e7885e59c8ab4717838b3ad5575cda94&quot;,
+        &quot;workspace&quot;: &quot;/workspace/omnitrix/.omnitrix/self-audit/live-03/repo&quot;,
+        &quot;goal_id&quot;: &quot;83d1771735454799a355e1184990b716&quot;,
+        &quot;job_id&quot;: &quot;d621692f90dd47c48bc00a0d621a0879&quot;,
+        &quot;kind&quot;: &quot;system_map&quot;,
+        &quot;title&quot;: &quot;observability/catalog.md&quot;,
+        &quot;body&quot;: {
+          &quot;name&quot;: &quot;observability/catalog.md&quot;,
+          &quot;kind&quot;: &quot;document&quot;,
+          &quot;description&quot;: &quot;Catalog of Omnitrix integrity regression probes and measurement files. Indicates which probes are available and where measured outcomes are stored.&quot;,
+          &quot;depends_on&quot;: [
+            &quot;observability/checks.csv&quot;,
+            &quot;observability/regressions.log&quot;
+          ],
+          &quot;evidence_ids&quot;: [
+            &quot;cd95bdcde7004a5fa1c28f91e9dfdeec&quot;
+          ],
+          &quot;assumption&quot;: false
+        },
+        &quot;classification&quot;: &quot;observed&quot;,
+        &quot;citations&quot;: [
+          &quot;cd95bdcde7004a5fa1c28f91e9dfdeec&quot;
+        ],
+        &quot;created&quot;: 1792347598.145951,
+        &quot;sources&quot;: [
+          {
+            &quot;id&quot;: &quot;cd95bdcde7004a5fa1c28f91e9dfdeec&quot;,
+            &quot;workspace&quot;: &quot;/workspace/omnitrix/.omnitrix/self-audit/live-03/repo&quot;,
+            &quot;locator&quot;: &quot;observability/catalog.md&quot;,
+            &quot;revision&quot;: &quot;fcb8b93bd7a24ab12e8304d1bb11ef343284f5b66eff4e86c495ebc767f5d3b9&quot;,
+            &quot;excerpt&quot;: &quot;1: Observed against real Omnitrix revision a8e25f7663904eb2029583c4448078e2897c9d31. These are human-authored regression probes, not autonomous discovery.\n2: checks.csv has probe pass/fail counts and wall time; regressions.log has actual process outputs.\n3: The gate-only probe checks whether an evaluator can support claims using unrelated citations.\n4: The combined probe additionally checks whether identical plans in separate goals return independent jobs.\n5: Investigate implementation in omnitrix/research.py, omnitrix/knowledge.py, and contracts in omnitrix/research_models.py.\n6: The independent oracle is outside the checkout. Existing tests are in tests/.&quot;,
+            &quot;observed&quot;: 1792347592.7690837,
+            &quot;source_modified&quot;: 1792347584.4406803,
+            &quot;stale&quot;: false,
+            &quot;age_seconds&quot;: 816.787002325058
+          }
+        ],
+        &quot;stale&quot;: false
+      },
+      {
+        &quot;id&quot;: &quot;0d3643ab29084216a93cc21f711d19ad&quot;,
+        &quot;workspace&quot;: &quot;/workspace/omnitrix/.omnitrix/self-audit/live-03/repo&quot;,
+        &quot;goal_id&quot;: &quot;83d1771735454799a355e1184990b716&quot;,
+        &quot;job_id&quot;: &quot;d621692f90dd47c48bc00a0d621a0879&quot;,
+        &quot;kind&quot;: &quot;system_map&quot;,
+        &quot;title&quot;: &quot;observability/checks.csv&quot;,
+        &quot;body&quot;: {
+          &quot;name&quot;: &quot;observability/checks.csv&quot;,
+          &quot;kind&quot;: &quot;observability&quot;,
+          &quot;description&quot;: &quot;Pass/fail counts for two regression probes (--probe-gate and --all), both showing 0 passes, possible gate or integrity failure.&quot;,
+          &quot;depends_on&quot;: [],
+          &quot;evidence_ids&quot;: [
+            &quot;9f997c18468545e09ebd7cd6866cca03&quot;
+          ],
+          &quot;assumption&quot;: false
+        },
+        &quot;classification&quot;: &quot;observed&quot;,
+        &quot;citations&quot;: [
+          &quot;9f997c18468545e09ebd7cd6866cca03&quot;
+        ],
+        &quot;created&quot;: 1792347598.1466136,
+        &quot;sources&quot;: [
+          {
+            &quot;id&quot;: &quot;9f997c18468545e09ebd7cd6866cca03&quot;,
+            &quot;workspace&quot;: &quot;/workspace/omnitrix/.omnitrix/self-audit/live-03/repo&quot;,
+            &quot;locator&quot;: &quot;observability/checks.csv&quot;,
+            &quot;revision&quot;: &quot;85bc0dac7e178f730bd5a4a03e8076e1d4566b1314bf6dc3d76b57ead60689dc&quot;,
+            &quot;excerpt&quot;: &quot;{\&quot;operation\&quot;: \&quot;csv_summary\&quot;, \&quot;value_column\&quot;: \&quot;passed\&quot;, \&quot;group_by\&quot;: \&quot;probe\&quot;, \&quot;start_row\&quot;: 1, \&quot;scanned_rows\&quot;: 2, \&quot;invalid_values\&quot;: 0, \&quot;groups\&quot;: {\&quot;--probe-gate\&quot;: {\&quot;count\&quot;: 1, \&quot;sum\&quot;: 0.0, \&quot;min\&quot;: 0.0, \&quot;max\&quot;: 0.0, \&quot;mean\&quot;: 0.0}, \&quot;--all\&quot;: {\&quot;count\&quot;: 1, \&quot;sum\&quot;: 0.0, \&quot;min\&quot;: 0.0, \&quot;max\&quot;: 0.0, \&quot;mean\&quot;: 0.0}}, \&quot;next_row\&quot;: null, \&quot;partial\&quot;: false, \&quot;measurement_window\&quot;: \&quot;Not inferred; inspect timestamp columns and source context\&quot;, \&quot;pages_aggregated\&quot;: 1}&quot;,
+            &quot;observed&quot;: 1792347591.244446,
+            &quot;source_modified&quot;: 1792347584.4406013,
+            &quot;stale&quot;: false,
+            &quot;age_seconds&quot;: 818.3118259906769
+          }
+        ],
+        &quot;stale&quot;: false
+      },
+      {
+        &quot;id&quot;: &quot;f98280e59b6e464cade6fa576ecd8ec7&quot;,
+        &quot;workspace&quot;: &quot;/workspace/omnitrix/.omnitrix/self-audit/live-03/repo&quot;,
+        &quot;goal_id&quot;: &quot;83d1771735454799a355e1184990b716&quot;,
+        &quot;job_id&quot;: &quot;d621692f90dd47c48bc00a0d621a0879&quot;,
+        &quot;kind&quot;: &quot;system_map&quot;,
+        &quot;title&quot;: &quot;observability/regressions.log&quot;,
+        &quot;body&quot;: {
+          &quot;name&quot;: &quot;observability/regressions.log&quot;,
+          &quot;kind&quot;: &quot;observability&quot;,
+          &quot;description&quot;: &quot;Detailed process output for recent regression probe failures. Shows that both probes failed because unrelated evaluator citations were incorrectly accepted; the independent oracle asserts this as a research-integrity failure.&quot;,
+          &quot;depends_on&quot;: [],
+          &quot;evidence_ids&quot;: [
+            &quot;b4cfc0b6c5f146df9952ecd78fd9d1f3&quot;
+          ],
+          &quot;assumption&quot;: false
+        },
+        &quot;classification&quot;: &quot;observed&quot;,
+        &quot;citations&quot;: [
+          &quot;b4cfc0b6c5f146df9952ecd78fd9d1f3&quot;
+        ],
+        &quot;created&quot;: 1792347598.147215,
+        &quot;sources&quot;: [
+          {
+            &quot;id&quot;: &quot;b4cfc0b6c5f146df9952ecd78fd9d1f3&quot;,
+            &quot;workspace&quot;: &quot;/workspace/omnitrix/.omnitrix/self-audit/live-03/repo&quot;,
+            &quot;locator&quot;: &quot;observability/regressions.log&quot;,
+            &quot;revision&quot;: &quot;43834edf9be13755778aed3bbd65f919a2dfde62b641f12e094e7c0951059cd1&quot;,
+            &quot;excerpt&quot;: &quot;1: probe=--probe-gate exit=1\n2: unrelated_citation_verdict=supported\n3: \n4: \n5: probe=--all exit=1\n6: unrelated_citation_verdict=supported\n7: \n8: Traceback (most recent call last):\n9:   File \&quot;/workspace/omnitrix/.omnitrix/self-audit/live-03/independent_oracle.py\&quot;, line 12, in &lt;module&gt;\n10:     assert result.verdict==&#x27;insufficient&#x27;,&#x27;Unrelated evaluator citations accepted&#x27;\n11:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n12: AssertionError: Unrelated evaluator citations accepted&quot;,
+            &quot;observed&quot;: 1792347592.7715826,
+            &quot;source_modified&quot;: 1792347584.4406497,
+            &quot;stale&quot;: false,
+            &quot;age_seconds&quot;: 816.7848176956177
+          }
+        ],
+        &quot;stale&quot;: false
+      },
+      {
+        &quot;id&quot;: &quot;95a0c08cbd334b51be24cc98a81fe6e2&quot;,
+        &quot;workspace&quot;: &quot;/workspace/omnitrix/.omnitrix/self-audit/live-03/repo&quot;,
+        &quot;goal_id&quot;: &quot;83d1771735454799a355e1184990b716&quot;,
+        &quot;job_id&quot;: &quot;d621692f90dd47c48bc00a0d621a0879&quot;,
+        &quot;kind&quot;: &quot;discovery_gaps&quot;,
+        &quot;title&quot;: &quot;Discovery gaps&quot;,
+        &quot;body&quot;: [
+          &quot;No evidence yet about which code path actually implements/permits mistaken acceptance of unrelated citations—trace omnitrix/research.py, omnitrix/knowledge.py, and omnitrix/research_models.py as next step.&quot;,
+          &quot;No runtime evidence of recovery or passing state in current measurements.&quot;,
+          &quot;Incomplete view of independent oracle scope or isolation guarantees.&quot;
+        ],
+        &quot;classification&quot;: &quot;assumption&quot;,
+        &quot;citations&quot;: [],
+        &quot;created&quot;: 1792347598.148227,
+        &quot;sources&quot;: [],
+        &quot;stale&quot;: false
+      },
+      {
+        &quot;id&quot;: &quot;9a42661da8044cda9e7bd787e9b169b5&quot;,
+        &quot;workspace&quot;: &quot;/workspace/omnitrix/.omnitrix/self-audit/live-03/repo&quot;,
+        &quot;goal_id&quot;: &quot;83d1771735454799a355e1184990b716&quot;,
+        &quot;job_id&quot;: &quot;2d23da543eca4ac485fd0be34d444202&quot;,
+        &quot;kind&quot;: &quot;finding&quot;,
+        &quot;title&quot;: &quot;The independent oracle reports that Omnitrix&#x27;s evaluator accepted unrelated citations in both probe modes (&#x27;--probe-gate&#x27; and &#x27;--all&#x27;), leading to a research-integrity failure.&quot;,
+        &quot;body&quot;: {
+          &quot;finding&quot;: {
+            &quot;statement&quot;: &quot;The independent oracle reports that Omnitrix&#x27;s evaluator accepted unrelated citations in both probe modes (&#x27;--probe-gate&#x27; and &#x27;--all&#x27;), leading to a research-integrity failure.&quot;,
+            &quot;classification&quot;: &quot;claim&quot;,
+            &quot;evidence_ids&quot;: [
+              &quot;b4cfc0b6c5f146df9952ecd78fd9d1f3&quot;
+            ]
+          },
+          &quot;evaluation&quot;: {
+            &quot;verdict&quot;: &quot;supported&quot;,
+            &quot;evidence_ids&quot;: [
+              &quot;b4cfc0b6c5f146df9952ecd78fd9d1f3&quot;,
+              &quot;c8f976d05cd54789ae532a827213f713&quot;,
+              &quot;85280c9011e24714bafee4536b6c2a5b&quot;,
+              &quot;6d5ebe1998b74b58ace85b99d39cd880&quot;
+            ],
+            &quot;reason&quot;: &quot;The hypothesis is supported by both external measurement and primary code review. The independent oracle (evidence: b4cfc0b6c5f146df9952ecd78fd9d1f3) reports research-integrity failures for unrelated citations in each probe mode, showing that unrelated citations are being accepted by Omnitrix&#x27;s evaluator in practice. Inspection of the core implementation files (omnitrix/knowledge.py, omnitrix/research.py, omnitrix/research_models.py; evidence: c8f976d05cd54789ae532a827213f713, 85280c9011e24714bafee4536b6c2a5b, 6d5ebe1998b74b58ace85b99d39cd880) confirms that the relevant model contracts and handling logic only perform minimal syntactic checks (such as list lengths, non-emptiness, or types), but do not check for relevance or reject unrelated citations. \n\nNo evidence of a semantic check for citation relevance is present along any main evaluator code path, at the save, search, or output model contract layers. Therefore, the measured failures are consistent with the current code, and the core failing path is that citations are only checked for presence and allowable length, not their substantive relationship to the actual research claim or evidence statement. This directly causes the integrity failure reported by the oracle.&quot;,
+            &quot;feedback&quot;: &quot;The codebase should implement or call a stricter citation relevance validation in the evaluator, e.g., by tracing whether each citation demonstrably supports the specific factual claim. Relevant checks may be introduced in the knowledge evaluation stage or research model layer before accepting findings. After improvement, repeat the independent oracle probe to confirm effectiveness.&quot;
+          },
+          &quot;uncertainties&quot;: [
+            &quot;No direct evidence from omnitrix/research_models.py contract layer on citation semantic validation, but field shapes and validation appear limited to syntactic checks (length, non-empty lists) and not to source relevance.&quot;
+          ]
+        },
+        &quot;classification&quot;: &quot;verified&quot;,
+        &quot;citations&quot;: [
+          &quot;b4cfc0b6c5f146df9952ecd78fd9d1f3&quot;
+        ],
+        &quot;created&quot;: 1792347611.3982432,
+        &quot;sources&quot;: [
+          {
+            &quot;id&quot;: &quot;b4cfc0b6c5f146df9952ecd78fd9d1f3&quot;,
+            &quot;workspace&quot;: &quot;/workspace/omnitrix/.omnitrix/self-audit/live-03/repo&quot;,
+            &quot;locator&quot;: &quot;observability/regressions.log&quot;,
+            &quot;revision&quot;: &quot;43834edf9be13755778aed3bbd65f919a2dfde62b641f12e094e7c0951059cd1&quot;,
+            &quot;excerpt&quot;: &quot;1: probe=--probe-gate exit=1\n2: unrelated_citation_verdict=supported\n3: \n4: \n5: probe=--all exit=1\n6: unrelated_citation_verdict=supported\n7: \n8: Traceback (most recent call last):\n9:   File \&quot;/workspace/omnitrix/.omnitrix/self-audit/live-03/independent_oracle.py\&quot;, line 12, in &lt;module&gt;\n10:     assert result.verdict==&#x27;insufficient&#x27;,&#x27;Unrelated evaluator citations accepted&#x27;\n11:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n12: AssertionError: Unrelated evaluator citations accepted&quot;,
+            &quot;observed&quot;: 1792347592.7715826,
+            &quot;source_modified&quot;: 1792347584.4406497,
+            &quot;stale&quot;: false,
+            &quot;age_seconds&quot;: 816.7849442958832
+          }
+        ],
+        &quot;stale&quot;: false
+      },
+      {
+        &quot;id&quot;: &quot;1d2afe4f68ae4103b900c0f8bf08a5e2&quot;,
+        &quot;workspace&quot;: &quot;/workspace/omnitrix/.omnitrix/self-audit/live-03/repo&quot;,
+        &quot;goal_id&quot;: &quot;83d1771735454799a355e1184990b716&quot;,
+        &quot;job_id&quot;: &quot;2d23da543eca4ac485fd0be34d444202&quot;,
+        &quot;kind&quot;: &quot;finding&quot;,
+        &quot;title&quot;: &quot;No strict citation validation is present in the implemented evaluator code paths in omnitrix/knowledge.py, omnitrix/research.py, or omnitrix/research_models.py; there is no observable logic that would distinguish or reject unrelated citations at the save, search, or model-checking stages.&quot;,
+        &quot;body&quot;: {
+          &quot;finding&quot;: {
+            &quot;statement&quot;: &quot;No strict citation validation is present in the implemented evaluator code paths in omnitrix/knowledge.py, omnitrix/research.py, or omnitrix/research_models.py; there is no observable logic that would distinguish or reject unrelated citations at the save, search, or model-checking stages.&quot;,
+            &quot;classification&quot;: &quot;claim&quot;,
+            &quot;evidence_ids&quot;: [
+              &quot;c8f976d05cd54789ae532a827213f713&quot;,
+              &quot;85280c9011e24714bafee4536b6c2a5b&quot;,
+              &quot;6d5ebe1998b74b58ace85b99d39cd880&quot;
+            ]
+          },
+          &quot;evaluation&quot;: {
+            &quot;verdict&quot;: &quot;supported&quot;,
+            &quot;evidence_ids&quot;: [
+              &quot;b4cfc0b6c5f146df9952ecd78fd9d1f3&quot;,
+              &quot;c8f976d05cd54789ae532a827213f713&quot;,
+              &quot;85280c9011e24714bafee4536b6c2a5b&quot;,
+              &quot;6d5ebe1998b74b58ace85b99d39cd880&quot;
+            ],
+            &quot;reason&quot;: &quot;The hypothesis is supported by both external measurement and primary code review. The independent oracle (evidence: b4cfc0b6c5f146df9952ecd78fd9d1f3) reports research-integrity failures for unrelated citations in each probe mode, showing that unrelated citations are being accepted by Omnitrix&#x27;s evaluator in practice. Inspection of the core implementation files (omnitrix/knowledge.py, omnitrix/research.py, omnitrix/research_models.py; evidence: c8f976d05cd54789ae532a827213f713, 85280c9011e24714bafee4536b6c2a5b, 6d5ebe1998b74b58ace85b99d39cd880) confirms that the relevant model contracts and handling logic only perform minimal syntactic checks (such as list lengths, non-emptiness, or types), but do not check for relevance or reject unrelated citations. \n\nNo evidence of a semantic check for citation relevance is present along any main evaluator code path, at the save, search, or output model contract layers. Therefore, the measured failures are consistent with the current code, and the core failing path is that citations are only checked for presence and allowable length, not their substantive relationship to the actual research claim or evidence statement. This directly causes the integrity failure reported by the oracle.&quot;,
+            &quot;feedback&quot;: &quot;The codebase should implement or call a stricter citation relevance validation in the evaluator, e.g., by tracing whether each citation demonstrably supports the specific factual claim. Relevant checks may be introduced in the knowledge evaluation stage or research model layer before accepting findings. After improvement, repeat the independent oracle probe to confirm effectiveness.&quot;
+          },
+          &quot;uncertainties&quot;: [
+            &quot;No direct evidence from omnitrix/research_models.py contract layer on citation semantic validation, but field shapes and validation appear limited to syntactic checks (length, non-empty lists) and not to source relevance.&quot;
+          ]
+        },
+        &quot;classification&quot;: &quot;verified&quot;,
+        &quot;citations&quot;: [
+          &quot;c8f976d05cd54789ae532a827213f713&quot;,
+          &quot;85280c9011e24714bafee4536b6c2a5b&quot;,
+          &quot;6d5ebe1998b74b58ace85b99d39cd880&quot;
+        ],
+        &quot;created&quot;: 1792347611.3992789,
+        &quot;sources&quot;: [
+          {
+            &quot;id&quot;: &quot;c8f976d05cd54789ae532a827213f713&quot;,
+            &quot;workspace&quot;: &quot;/workspace/omnitrix/.omnitrix/self-audit/live-03/repo&quot;,
+            &quot;locator&quot;: &quot;omnitrix/knowledge.py&quot;,
+            &quot;revision&quot;: &quot;c29ffb49968afb83952c092e9ca4342afaa3d8a9b7aea71b1acefaff13d616e1&quot;,
+            &quot;excerpt&quot;: &quot;1: \&quot;\&quot;\&quot;Shared, revision-aware knowledge and the bounded source evidence ledger.\&quot;\&quot;\&quot;\n2: import hashlib\n3: import json\n4: import time\n5: import uuid\n6: from pathlib import Path\n7: \n8: SCHEMA = &#x27;&#x27;&#x27;\n9: CREATE TABLE IF NOT EXISTS research_limits (\n10:  goal_id TEXT PRIMARY KEY REFERENCES goals(id), max_runs INTEGER NOT NULL,\n11:  spent INTEGER NOT NULL DEFAULT 0);\n12: CREATE TABLE IF NOT EXISTS research_jobs (\n13:  id TEXT PRIMARY KEY, goal_id TEXT NOT NULL REFERENCES goals(id), stage TEXT NOT NULL,\n14:  signature TEXT NOT NULL, spec TEXT NOT NULL, status TEXT NOT NULL DEFAULT &#x27;pending&#x27;,\n15:  attempts INTEGER NOT NULL DEFAULT 0, created REAL NOT NULL, updated REAL NOT NULL);\n16: CREATE INDEX IF NOT EXISTS research_signature ON research_jobs(signature);\n17: CREATE TABLE IF NOT EXISTS research_runs (\n18:  id TEXT PRIMARY KEY, job_id TEXT NOT NULL REFERENCES research_jobs(id),\n19:  status TEXT NOT NULL, report TEXT, evaluation TEXT, feedback TEXT,\n20:  tool_calls INTEGER NOT NULL DEFAULT 0, created REAL NOT NULL, finished REAL);\n21: CREATE TABLE IF NOT EXISTS research_sources (\n22:  id TEXT PRIMARY KEY, workspace TEXT NOT NULL, locator TEXT NOT NULL,\n23:  revision TEXT NOT NULL, excerpt TEXT NOT NULL, observed REAL NOT NULL,\n24:  source_modified REAL NOT NULL);\n25: CREATE TABLE IF NOT EXISTS research_access (\n26:  run_id TEXT NOT NULL REFERENCES research_runs(id), source_id TEXT NOT NULL REFERENCES research_sources(id),\n27:  PRIMARY KEY(run_id,source_id));\n28: CREATE TABLE IF NOT EXISTS research_queries (\n29:  id INTEGER PRIMARY KEY, run_id TEXT NOT NULL REFERENCES research_runs(id),\n30:  operation TEXT NOT NULL, query TEXT NOT NULL, created REAL NOT NULL);\n31: CREATE TABLE IF NOT EXISTS knowledge (\n32:  id TEXT PRIMARY KEY, workspace TEXT NOT NULL, goal_id TEXT NOT NULL REFERENCES goals(id),\n33:  job_id TEXT NOT NULL REFERENCES research_jobs(id), kind TEXT NOT NULL,\n34:  title TEXT NOT NULL, body TEXT NOT NULL, classification TEXT NOT NULL,\n35:  citations TEXT NOT NULL, created REAL NOT NULL);\n36: CREATE TABLE IF NOT EXISTS opportunities (\n37:  id TEXT PRIMARY KEY, goal_id TEXT NOT NULL REFERENCES goals(id),\n38:  job_id TEXT NOT NULL REFERENCES research_jobs(id), title TEXT NOT NULL,\n39:  spec TEXT NOT NULL, score REAL NOT NULL, status TEXT NOT NULL DEFAULT &#x27;open&#x27;,\n40:  created REAL NOT NULL, updated REAL NOT NULL);\n41: &#x27;&#x27;&#x27;\n42: \n43: \n44: def source_path(workspace, locator):\n45:     root = Path(workspace).resolve()\n46:     path = (root / locator).resolve()\n47:     if not path.is_relative_to(root) or not path.is_file():\n48:         raise ValueError(&#x27;Source must be an existing file inside the workspace&#x27;)\n49:     if any(part in {&#x27;.git&#x27;, &#x27;.omnitrix&#x27;, &#x27;.venv&#x27;, &#x27;node_modules&#x27;} for part in path.relative_to(root).parts):\n50:         raise ValueError(&#x27;Runtime state and dependency directories are outside research scope&#x27;)\n51:     return path\n52: \n53: \n54: def read_source_bytes(workspace, locator):\n55:     path = source_path(workspace, locator)\n56:     with path.open(&#x27;rb&#x27;) as stream:\n57:         data = stream.read(131073)\n58:     if len(data) &gt; 131072:\n59:         raise ValueError(&#x27;Source exceeds 128 KiB; provide a bounded export instead&#x27;)\n60:     return path, data\n61: \n62: \n63: class Knowledge:\n64:     def __init__(self, store):\n65:         self.store, self.db = store, store.db\n66: \n67:     def source(self, source_id):\n68:         row = self.db.execute(&#x27;SELECT * FROM research_sources WHERE id=?&#x27;, (source_id,)).fetchone()\n69:         if row is None:\n70:             raise ValueError(&#x27;Unknown evidence ID&#x27;)\n71:         result = dict(row)\n72:         try:\n73:             _, data = read_source_bytes(result[&#x27;workspace&#x27;], result[&#x27;locator&#x27;])\n74:             result[&#x27;stale&#x27;] = hashlib.sha256(data).hexdigest() != result[&#x27;revision&#x27;]\n75:         except (OSError, ValueError):\n76:             result[&#x27;stale&#x27;] = True\n77:         # Captured observation age is explicit; not a claim about metric measurement age.\n78:         result[&#x27;age_seconds&#x27;] = max(0, time.time() - result[&#x27;observed&#x27;])\n79:         result[&#x27;stale&#x27;] = result[&#x27;stale&#x27;] or result[&#x27;age_seconds&#x27;] &gt; 86400\n80:         return result\n81: \n82:     def put(self, goal_id, job_id, kind, title, body, classification, citations):\n83:         workspace = self.store.snapshot(goal_id)[&#x27;goal&#x27;][&#x27;workspace&#x27;]\n84:         record_id = uuid.uuid4().hex\n85:         self.store.execute(&#x27;INSERT INTO knowledge VALUES(?,?,?,?,?,?,?,?,?,?)&#x27;,\n86:             (record_id, workspace, goal_id, job_id, kind, title, json.dumps(body),\n87:              classification, json.dumps(citations), time.time()))\n88:         return record_id\n89: \n90:     def search(self, workspace, query=&#x27;&#x27;, limit=10, offset=0):\n91:         \&quot;\&quot;\&quot;Literal substring search, scoped to a workspace, with bounded pagination.\&quot;\&quot;\&quot;\n92:         escaped = query.replace(&#x27;\\\\&#x27;, &#x27;\\\\\\\\&#x27;).replace(&#x27;%&#x27;, &#x27;\\\\%&#x27;).replace(&#x27;_&#x27;, &#x27;\\\\_&#x27;)\n93:         rows = self.db.execute(&#x27;&#x27;&#x27;SELECT * FROM knowledge WHERE workspace=? AND\n94:             (title LIKE ? ESCAPE &#x27;\\\\&#x27; OR body LIKE ? ESCAPE &#x27;\\\\&#x27;)\n95:             ORDER BY created DESC LIMIT ? OFFSET ?&#x27;&#x27;&#x27;,\n96:             (str(Path(workspace).resolve()), f&#x27;%{escaped}%&#x27;, f&#x27;%{escaped}%&#x27;,\n97:              min(max(limit, 1), 20), max(offset, 0))).fetchall()\n98:         results = []\n99:         for row in rows:\n100:             item = dict(row)&quot;,
+            &quot;observed&quot;: 1792347604.6641703,
+            &quot;source_modified&quot;: 1792347581.7970562,
+            &quot;stale&quot;: false,
+            &quot;age_seconds&quot;: 804.8924887180328
+          },
+          {
+            &quot;id&quot;: &quot;85280c9011e24714bafee4536b6c2a5b&quot;,
+            &quot;workspace&quot;: &quot;/workspace/omnitrix/.omnitrix/self-audit/live-03/repo&quot;,
+            &quot;locator&quot;: &quot;omnitrix/research.py&quot;,
+            &quot;revision&quot;: &quot;29d002e36574fad7322cc9be8238e7cceae324c264bcb28355cd8332712cad6d&quot;,
+            &quot;excerpt&quot;: &quot;1: \&quot;\&quot;\&quot;Two research levels, independent evidence review, and durable budgets.\&quot;\&quot;\&quot;\n2: import asyncio\n3: import hashlib\n4: import json\n5: import os\n6: import time\n7: import uuid\n8: from typing import Annotated\n9: from pydantic import Field\n10: from agents import Agent, Runner, RunConfig, ModelSettings, function_tool\n11: from .knowledge import Knowledge, ResearchTools, source_path, read_source_bytes\n12: from .research_models import DiscoveryReport, ResearchReport, Evaluation, ResearchPlan\n13: from .workers import ROOT\n14: \n15: \n16: def research_tool_error(context, error):\n17:     if isinstance(error, RuntimeError) and &#x27;budget exhausted&#x27; in str(error):\n18:         return &#x27;Research tool budget exhausted. Stop gathering data and report the gap.&#x27;\n19:     if isinstance(error, ValueError):\n20:         return &#x27;Invalid research tool arguments: &#x27;+str(error)\n21:     return &#x27;Research tool call failed. Read only explicit scoped files, with start_line &gt;= 1 and line_count between 1 and 100. Check the supplied arguments before declaring source access blocked.&#x27;\n22: \n23: \n24: class ResearchAgents:\n25:     def __init__(self, model=None):\n26:         self.model = model or os.getenv(&#x27;OMNITRIX_MODEL&#x27;, &#x27;gpt-4.1&#x27;)\n27: \n28:     async def run(self, role, context, tools):\n29:         @function_tool(failure_error_function=research_tool_error)\n30:         async def read_source(locator: str, start_line: Annotated[int, Field(ge=1)] = 1, line_count: Annotated[int, Field(ge=1,le=100)] = 80) -&gt; str:\n31:             \&quot;\&quot;\&quot;Read 1 to 100 lines from an explicit scoped file; start_line must be positive. Returns captured evidence IDs and source revisions.\&quot;\&quot;\&quot;\n32:             return json.dumps(tools.read(locator, start_line, line_count))\n33: \n34:         @function_tool\n35:         async def search_knowledge(query: str = &#x27;&#x27;, offset: int = 0) -&gt; str:\n36:             \&quot;\&quot;\&quot;Reuse earlier system maps, rejected hypotheses and evaluated findings.\&quot;\&quot;\&quot;\n37:             return json.dumps(tools.search(query, offset))\n38: \n39:         output = {&#x27;discovery&#x27;: DiscoveryReport, &#x27;research&#x27;: ResearchReport, &#x27;evaluation&#x27;: Evaluation}[role]\n40:         agent = Agent(name=f&#x27;Independent {role} agent&#x27;, model=self.model,\n41:             instructions=(ROOT / f&#x27;instructions/{role.upper()}.md&#x27;).read_text(),\n42:             tools=[read_source, search_knowledge], output_type=output,\n43:             model_settings=ModelSettings(max_tokens=3500))\n44:         result = await Runner.run(agent, json.dumps(context), max_turns=8,\n45:                                   run_config=RunConfig(tracing_disabled=True))\n46:         from .telemetry import record_usage\n47:         goal_id = tools.store.db.execute(&#x27;SELECT goal_id FROM research_jobs WHERE id=(SELECT job_id FROM research_runs WHERE id=?)&#x27;,(tools.run_id,)).fetchone()[0]\n48:         record_usage(tools.store,goal_id,result,role)\n49:         return result.final_output\n50: \n51: \n52: class Research:\n53:     def __init__(self, store, agents=None):\n54:         self.store, self.db = store, store.db\n55:         self.agents = agents or ResearchAgents()\n56:         self.knowledge = Knowledge(store)\n57: \n58:     def configure(self, goal_id, max_runs=12):\n59:         if not 1 &lt;= max_runs &lt;= 1000:\n60:             raise ValueError(&#x27;Research run budget must be 1..1000&#x27;)\n61:         self.store.execute(&#x27;INSERT OR IGNORE INTO research_limits(goal_id,max_runs) VALUES(?,?)&#x27;,\n62:                            (goal_id, max_runs))\n63: \n64:     def charge(self, goal_id):\n65:         self.configure(goal_id)\n66:         result = self.store.execute(&#x27;UPDATE research_limits SET spent=spent+1 WHERE goal_id=? AND spent&lt;max_runs&#x27;,\n67:                                     (goal_id,))\n68:         if result.rowcount != 1:\n69:             raise RuntimeError(&#x27;Goal research budget exhausted; escalate instead of retrying&#x27;)\n70: \n71:     def plan(self, goal_id, stage, spec):\n72:         if stage not in (&#x27;discovery&#x27;, &#x27;research&#x27;):\n73:             raise ValueError(&#x27;Unknown research level&#x27;)\n74:         if stage == &#x27;research&#x27; and not spec.hypothesis:\n75:             raise ValueError(&#x27;Focused research requires an explicit falsifiable hypothesis&#x27;)\n76:         if stage == &#x27;discovery&#x27; and spec.hypothesis:\n77:             raise ValueError(&#x27;Discovery maps uncertainty; use research for a hypothesis&#x27;)\n78:         workspace = self.store.snapshot(goal_id)[&#x27;goal&#x27;][&#x27;workspace&#x27;]\n79:         scope = sorted({str(source_path(workspace, s).relative_to(__import__(&#x27;pathlib&#x27;).Path(workspace))) for s in spec.scope})\n80:         spec = spec.model_copy(update={&#x27;scope&#x27;: scope})\n81:         if spec.opportunity_id:\n82:             row = self.db.execute(&#x27;SELECT goal_id FROM opportunities WHERE id=?&#x27;, (spec.opportunity_id,)).fetchone()\n83:             if row is None or row[0] != goal_id:\n84:                 raise ValueError(&#x27;Opportunity must belong to this goal&#x27;)\n85:         from .control import Control\n86:         revisions = Control(self.store).current(goal_id)\n87:         signature = hashlib.sha256(json.dumps([workspace, stage, revisions[&#x27;goal&#x27;][&#x27;revision&#x27;], revisions[&#x27;policy&#x27;][&#x27;version&#x27;],\n88:             &#x27; &#x27;.join((spec.hypothesis or spec.question).casefold().split()), scope,\n89:             [hashlib.sha256(read_source_bytes(workspace,s)[1]).hexdigest() for s in scope]], sort_keys=True).encode()).hexdigest()\n90:         prior = self.db.execute(&#x27;SELECT id,status FROM research_jobs WHERE signature=? ORDER BY created DESC LIMIT 1&#x27;,\n91:                                 (signature,)).fetchone()\n92:         if prior:\n93:             return {&#x27;duplicate&#x27;: True, &#x27;job_id&#x27;: prior[&#x27;id&#x27;], &#x27;status&#x27;: prior[&#x27;status&#x27;],\n94:                     &#x27;feedback&#x27;: &#x27;Retrieve earlier findings; retry the existing job only with targeted feedback.&#x27;}\n95:         job_id = uuid.uuid4().hex\n96:         now = time.time()\n97:         self.store.execute(&#x27;INSERT INTO research_jobs VALUES(?,?,?,?,?,?,?,?,?)&#x27;,\n98:             (job_id, goal_id, stage, signature, spec.model_dump_json(), &#x27;pending&#x27;, 0, now, now))\n99:         return {&#x27;duplicate&#x27;: False, &#x27;job_id&#x27;: job_id, &#x27;status&#x27;: &#x27;pending&#x27;}\n100: &quot;,
+            &quot;observed&quot;: 1792347604.6669512,
+            &quot;source_modified&quot;: 1792347581.7970562,
+            &quot;stale&quot;: false,
+            &quot;age_seconds&quot;: 804.889821767807
+          },
+          {
+            &quot;id&quot;: &quot;6d5ebe1998b74b58ace85b99d39cd880&quot;,
+            &quot;workspace&quot;: &quot;/workspace/omnitrix/.omnitrix/self-audit/live-03/repo&quot;,
+            &quot;locator&quot;: &quot;omnitrix/research_models.py&quot;,
+            &quot;revision&quot;: &quot;0ed16278e4667bc04b012d09832e29320205c9260c5a518f6c898d972bc5473f&quot;,
+            &quot;excerpt&quot;: &quot;1: \&quot;\&quot;\&quot;Typed contracts for bounded research, rather than an autonomous task graph.\&quot;\&quot;\&quot;\n2: from typing import Literal\n3: from pydantic import BaseModel, ConfigDict, Field, model_validator\n4: \n5: \n6: class Contract(BaseModel):\n7:     model_config = ConfigDict(extra=&#x27;forbid&#x27;)\n8: \n9: \n10: class ResearchBudget(Contract):\n11:     tool_calls: int = Field(default=8, ge=1, le=24)\n12:     seconds: int = Field(default=60, ge=1, le=180)\n13:     attempts: int = Field(default=2, ge=1, le=3)\n14: \n15: \n16: class ResearchPlan(Contract):\n17:     scope: list[str] = Field(min_length=1, max_length=20)\n18:     question: str = Field(min_length=10, max_length=2000)\n19:     hypothesis: str | None = Field(default=None, max_length=2000)\n20:     falsification: str | None = Field(default=None, max_length=2000)\n21:     opportunity_id: str | None = None\n22:     budget: ResearchBudget = Field(default_factory=ResearchBudget)\n23: \n24:     @model_validator(mode=&#x27;after&#x27;)\n25:     def narrow_hypothesis(self):\n26:         if self.hypothesis is not None:\n27:             if not self.hypothesis.strip() or not (self.falsification or &#x27;&#x27;).strip():\n28:                 raise ValueError(&#x27;Research requires a hypothesis and an explicit falsification test&#x27;)\n29:             if len(self.scope) &gt; 8:\n30:                 raise ValueError(&#x27;Focused research is limited to eight explicit sources&#x27;)\n31:         return self\n32: \n33: \n34: class MapEntry(Contract):\n35:     name: str = Field(min_length=1, max_length=200)\n36:     kind: Literal[&#x27;service&#x27;, &#x27;dependency&#x27;, &#x27;job&#x27;, &#x27;repository&#x27;, &#x27;observability&#x27;, &#x27;document&#x27;]\n37:     description: str = Field(max_length=1500)\n38:     depends_on: list[str] = Field(max_length=20)\n39:     evidence_ids: list[str] = Field(max_length=10)\n40:     assumption: bool\n41: \n42: \n43: class Opportunity(Contract):\n44:     title: str = Field(min_length=1, max_length=300)\n45:     hypothesis: str = Field(min_length=10, max_length=2000)\n46:     falsification: str = Field(min_length=10, max_length=2000)\n47:     scope: list[str] = Field(min_length=1, max_length=8)\n48:     impact: int = Field(ge=1, le=5)\n49:     confidence: int = Field(ge=0, le=5)\n50:     risk: int = Field(ge=1, le=5)\n51:     effort: int = Field(ge=1, le=5)\n52:     evidence_ids: list[str] = Field(max_length=10)\n53:     rationale: str = Field(max_length=2000)\n54: \n55: \n56: class DiscoveryReport(Contract):\n57:     system_map: list[MapEntry] = Field(max_length=40)\n58:     opportunities: list[Opportunity] = Field(max_length=12)\n59:     gaps: list[str] = Field(max_length=20)\n60: \n61: \n62: class Finding(Contract):\n63:     statement: str = Field(min_length=1, max_length=3000)\n64:     classification: Literal[&#x27;claim&#x27;, &#x27;assumption&#x27;]\n65:     evidence_ids: list[str] = Field(max_length=10)\n66: \n67: \n68: class ResearchReport(Contract):\n69:     findings: list[Finding] = Field(max_length=15)\n70:     supporting_evidence: list[str] = Field(max_length=20)\n71:     contradictory_evidence: list[str] = Field(max_length=20)\n72:     uncertainties: list[str] = Field(max_length=15)\n73:     recommendation: str = Field(min_length=1, max_length=2000)\n74:     blocked: bool\n75: \n76: \n77: class Evaluation(Contract):\n78:     verdict: Literal[&#x27;supported&#x27;, &#x27;insufficient&#x27;, &#x27;falsified&#x27;, &#x27;blocked&#x27;]\n79:     evidence_ids: list[str] = Field(max_length=20)\n80:     reason: str = Field(min_length=1, max_length=3000)\n81:     feedback: str = Field(min_length=1, max_length=3000)&quot;,
+            &quot;observed&quot;: 1792347604.6697776,
+            &quot;source_modified&quot;: 1792347581.7970562,
+            &quot;stale&quot;: false,
+            &quot;age_seconds&quot;: 804.8871219158173
+          }
+        ],
+        &quot;stale&quot;: false
+      }
+    ],
+    &quot;opportunities&quot;: [
+      {
+        &quot;id&quot;: &quot;f0f6601c38d240008ce87befd3d171d1&quot;,
+        &quot;goal_id&quot;: &quot;83d1771735454799a355e1184990b716&quot;,
+        &quot;job_id&quot;: &quot;d621692f90dd47c48bc00a0d621a0879&quot;,
+        &quot;title&quot;: &quot;Omnitrix evaluator accepts unrelated citations (research-integrity failure)&quot;,
+        &quot;spec&quot;: {
+          &quot;title&quot;: &quot;Omnitrix evaluator accepts unrelated citations (research-integrity failure)&quot;,
+          &quot;hypothesis&quot;: &quot;In the current revision, Omnitrix accepts unrelated citations in evaluation, resulting in research-integrity test failures as measured by the independent oracle.&quot;,
+          &quot;falsification&quot;: &quot;If Omnitrix rejects unrelated citations in all evaluator tests and the independent oracle passes (--probe-gate and --all), then the hypothesis is falsified.&quot;,
+          &quot;scope&quot;: [
+            &quot;observability/catalog.md&quot;,
+            &quot;observability/checks.csv&quot;,
+            &quot;observability/regressions.log&quot;,
+            &quot;omnitrix/research.py&quot;,
+            &quot;omnitrix/knowledge.py&quot;,
+            &quot;omnitrix/research_models.py&quot;
+          ],
+          &quot;impact&quot;: 5,
+          &quot;confidence&quot;: 5,
+          &quot;risk&quot;: 5,
+          &quot;effort&quot;: 3,
+          &quot;evidence_ids&quot;: [
+            &quot;9f997c18468545e09ebd7cd6866cca03&quot;,
+            &quot;cd95bdcde7004a5fa1c28f91e9dfdeec&quot;,
+            &quot;b4cfc0b6c5f146df9952ecd78fd9d1f3&quot;
+          ],
+          &quot;rationale&quot;: &quot;Catalog, regression log, and test summary all report consistent failure with supporting assertion errors linked back to the independent oracle, pinpointing an integrity issue within evaluator handling of citations. Correction and re-verification would address a critical integrity weakness.&quot;
+        },
+        &quot;score&quot;: 1.6666666666666667,
+        &quot;status&quot;: &quot;supported&quot;,
+        &quot;created&quot;: 1792347598.1475768,
+        &quot;updated&quot;: 1792347611.399954
+      }
+    ],
+    &quot;jobs&quot;: [
+      {
+        &quot;id&quot;: &quot;d621692f90dd47c48bc00a0d621a0879&quot;,
+        &quot;goal_id&quot;: &quot;83d1771735454799a355e1184990b716&quot;,
+        &quot;stage&quot;: &quot;discovery&quot;,
+        &quot;signature&quot;: &quot;86307f7cca88b275a2a7343095dcd2bef0cccf30740acf6d189993a17e98e4ca&quot;,
+        &quot;spec&quot;: {
+          &quot;scope&quot;: [
+            &quot;observability/catalog.md&quot;,
+            &quot;observability/checks.csv&quot;,
+            &quot;observability/regressions.log&quot;
+          ],
+          &quot;question&quot;: &quot;What research-integrity failure records or regression measurements relevant to Omnitrix are captured in available runtime and catalog artifacts?&quot;,
+          &quot;hypothesis&quot;: null,
+          &quot;falsification&quot;: null,
+          &quot;opportunity_id&quot;: null,
+          &quot;budget&quot;: {
+            &quot;tool_calls&quot;: 8,
+            &quot;seconds&quot;: 60,
+            &quot;attempts&quot;: 2
+          }
+        },
+        &quot;status&quot;: &quot;discovered&quot;,
+        &quot;attempts&quot;: 1,
+        &quot;created&quot;: 1792347590.1490366,
+        &quot;updated&quot;: 1792347598.1486201,
+        &quot;runs&quot;: [
+          {
+            &quot;id&quot;: &quot;1032e0d9ef6c4615bf7e3fc00097ff9e&quot;,
+            &quot;job_id&quot;: &quot;d621692f90dd47c48bc00a0d621a0879&quot;,
+            &quot;status&quot;: &quot;discovered&quot;,
+            &quot;report&quot;: &quot;{\&quot;system_map\&quot;:[{\&quot;name\&quot;:\&quot;observability/catalog.md\&quot;,\&quot;kind\&quot;:\&quot;document\&quot;,\&quot;description\&quot;:\&quot;Catalog of Omnitrix integrity regression probes and measurement files. Indicates which probes are available and where measured outcomes are stored.\&quot;,\&quot;depends_on\&quot;:[\&quot;observability/checks.csv\&quot;,\&quot;observability/regressions.log\&quot;],\&quot;evidence_ids\&quot;:[\&quot;cd95bdcde7004a5fa1c28f91e9dfdeec\&quot;],\&quot;assumption\&quot;:false},{\&quot;name\&quot;:\&quot;observability/checks.csv\&quot;,\&quot;kind\&quot;:\&quot;observability\&quot;,\&quot;description\&quot;:\&quot;Pass/fail counts for two regression probes (--probe-gate and --all), both showing 0 passes, possible gate or integrity failure.\&quot;,\&quot;depends_on\&quot;:[],\&quot;evidence_ids\&quot;:[\&quot;9f997c18468545e09ebd7cd6866cca03\&quot;],\&quot;assumption\&quot;:false},{\&quot;name\&quot;:\&quot;observability/regressions.log\&quot;,\&quot;kind\&quot;:\&quot;observability\&quot;,\&quot;description\&quot;:\&quot;Detailed process output for recent regression probe failures. Shows that both probes failed because unrelated evaluator citations were incorrectly accepted; the independent oracle asserts this as a research-integrity failure.\&quot;,\&quot;depends_on\&quot;:[],\&quot;evidence_ids\&quot;:[\&quot;b4cfc0b6c5f146df9952ecd78fd9d1f3\&quot;],\&quot;assumption\&quot;:false}],\&quot;opportunities\&quot;:[{\&quot;title\&quot;:\&quot;Omnitrix evaluator accepts unrelated citations (research-integrity failure)\&quot;,\&quot;hypothesis\&quot;:\&quot;In the current revision, Omnitrix accepts unrelated citations in evaluation, resulting in research-integrity test failures as measured by the independent oracle.\&quot;,\&quot;falsification\&quot;:\&quot;If Omnitrix rejects unrelated citations in all evaluator tests and the independent oracle passes (--probe-gate and --all), then the hypothesis is falsified.\&quot;,\&quot;scope\&quot;:[\&quot;observability/catalog.md\&quot;,\&quot;observability/checks.csv\&quot;,\&quot;observability/regressions.log\&quot;,\&quot;omnitrix/research.py\&quot;,\&quot;omnitrix/knowledge.py\&quot;,\&quot;omnitrix/research_models.py\&quot;],\&quot;impact\&quot;:5,\&quot;confidence\&quot;:5,\&quot;risk\&quot;:5,\&quot;effort\&quot;:3,\&quot;evidence_ids\&quot;:[\&quot;9f997c18468545e09ebd7cd6866cca03\&quot;,\&quot;cd95bdcde7004a5fa1c28f91e9dfdeec\&quot;,\&quot;b4cfc0b6c5f146df9952ecd78fd9d1f3\&quot;],\&quot;rationale\&quot;:\&quot;Catalog, regression log, and test summary all report consistent failure with supporting assertion errors linked back to the independent oracle, pinpointing an integrity issue within evaluator handling of citations. Correction and re-verification would address a critical integrity weakness.\&quot;}],\&quot;gaps\&quot;:[\&quot;No evidence yet about which code path actually implements/permits mistaken acceptance of unrelated citations—trace omnitrix/research.py, omnitrix/knowledge.py, and omnitrix/research_models.py as next step.\&quot;,\&quot;No runtime evidence of recovery or passing state in current measurements.\&quot;,\&quot;Incomplete view of independent oracle scope or isolation guarantees.\&quot;]}&quot;,
+            &quot;evaluation&quot;: null,
+            &quot;feedback&quot;: &quot;&quot;,
+            &quot;tool_calls&quot;: 3,
+            &quot;created&quot;: 1792347590.1543515,
+            &quot;finished&quot;: 1792347598.1485934
+          }
+        ]
+      },
+      {
+        &quot;id&quot;: &quot;2d23da543eca4ac485fd0be34d444202&quot;,
+        &quot;goal_id&quot;: &quot;83d1771735454799a355e1184990b716&quot;,
+        &quot;stage&quot;: &quot;research&quot;,
+        &quot;signature&quot;: &quot;1ec749d467bd5e63da0cc1e51f47ac155a840bd924318726511302d3247c8095&quot;,
+        &quot;spec&quot;: {
+          &quot;scope&quot;: [
+            &quot;omnitrix/knowledge.py&quot;,
+            &quot;omnitrix/research.py&quot;,
+            &quot;omnitrix/research_models.py&quot;
+          ],
+          &quot;question&quot;: &quot;Does Omnitrix&#x27;s evaluator implementation incorrectly accept unrelated citations, and which code path or condition is responsible for the failure reported by the independent oracle?&quot;,
+          &quot;hypothesis&quot;: &quot;Omnitrix accepts unrelated citations in evaluation, resulting in research-integrity failures as measured by the independent oracle.&quot;,
+          &quot;falsification&quot;: &quot;If Omnitrix strictly rejects unrelated citations in all evaluator paths and the oracle passes (--probe-gate and --all), the hypothesis is falsified.&quot;,
+          &quot;opportunity_id&quot;: &quot;f0f6601c38d240008ce87befd3d171d1&quot;,
+          &quot;budget&quot;: {
+            &quot;tool_calls&quot;: 8,
+            &quot;seconds&quot;: 60,
+            &quot;attempts&quot;: 2
+          }
+        },
+        &quot;status&quot;: &quot;supported&quot;,
+        &quot;attempts&quot;: 1,
+        &quot;created&quot;: 1792347602.9950392,
+        &quot;updated&quot;: 1792347611.3999403,
+        &quot;runs&quot;: [
+          {
+            &quot;id&quot;: &quot;13339983324b4a59a11800e888e92d2a&quot;,
+            &quot;job_id&quot;: &quot;2d23da543eca4ac485fd0be34d444202&quot;,
+            &quot;status&quot;: &quot;supported&quot;,
+            &quot;report&quot;: &quot;{\&quot;findings\&quot;:[{\&quot;statement\&quot;:\&quot;The independent oracle reports that Omnitrix&#x27;s evaluator accepted unrelated citations in both probe modes (&#x27;--probe-gate&#x27; and &#x27;--all&#x27;), leading to a research-integrity failure.\&quot;,\&quot;classification\&quot;:\&quot;claim\&quot;,\&quot;evidence_ids\&quot;:[\&quot;b4cfc0b6c5f146df9952ecd78fd9d1f3\&quot;]},{\&quot;statement\&quot;:\&quot;No strict citation validation is present in the implemented evaluator code paths in omnitrix/knowledge.py, omnitrix/research.py, or omnitrix/research_models.py; there is no observable logic that would distinguish or reject unrelated citations at the save, search, or model-checking stages.\&quot;,\&quot;classification\&quot;:\&quot;claim\&quot;,\&quot;evidence_ids\&quot;:[\&quot;c8f976d05cd54789ae532a827213f713\&quot;,\&quot;85280c9011e24714bafee4536b6c2a5b\&quot;,\&quot;6d5ebe1998b74b58ace85b99d39cd880\&quot;]}],\&quot;supporting_evidence\&quot;:[\&quot;b4cfc0b6c5f146df9952ecd78fd9d1f3\&quot;,\&quot;c8f976d05cd54789ae532a827213f713\&quot;,\&quot;85280c9011e24714bafee4536b6c2a5b\&quot;,\&quot;6d5ebe1998b74b58ace85b99d39cd880\&quot;],\&quot;contradictory_evidence\&quot;:[],\&quot;uncertainties\&quot;:[\&quot;No direct evidence from omnitrix/research_models.py contract layer on citation semantic validation, but field shapes and validation appear limited to syntactic checks (length, non-empty lists) and not to source relevance.\&quot;],\&quot;recommendation\&quot;:\&quot;The hypothesis is supported: Omnitrix currently accepts unrelated citations, resulting in measured research-integrity failures. Implement or trace a stricter relevance check in the evaluator code paths, particularly before findings are accepted or persisted. Recommend prioritizing a relevance-checking mechanism in the knowledge or evaluation stage, and then retest with the independent oracle.\&quot;,\&quot;blocked\&quot;:false}&quot;,
+            &quot;evaluation&quot;: &quot;{\&quot;verdict\&quot;:\&quot;supported\&quot;,\&quot;evidence_ids\&quot;:[\&quot;b4cfc0b6c5f146df9952ecd78fd9d1f3\&quot;,\&quot;c8f976d05cd54789ae532a827213f713\&quot;,\&quot;85280c9011e24714bafee4536b6c2a5b\&quot;,\&quot;6d5ebe1998b74b58ace85b99d39cd880\&quot;],\&quot;reason\&quot;:\&quot;The hypothesis is supported by both external measurement and primary code review. The independent oracle (evidence: b4cfc0b6c5f146df9952ecd78fd9d1f3) reports research-integrity failures for unrelated citations in each probe mode, showing that unrelated citations are being accepted by Omnitrix&#x27;s evaluator in practice. Inspection of the core implementation files (omnitrix/knowledge.py, omnitrix/research.py, omnitrix/research_models.py; evidence: c8f976d05cd54789ae532a827213f713, 85280c9011e24714bafee4536b6c2a5b, 6d5ebe1998b74b58ace85b99d39cd880) confirms that the relevant model contracts and handling logic only perform minimal syntactic checks (such as list lengths, non-emptiness, or types), but do not check for relevance or reject unrelated citations. \\n\\nNo evidence of a semantic check for citation relevance is present along any main evaluator code path, at the save, search, or output model contract layers. Therefore, the measured failures are consistent with the current code, and the core failing path is that citations are only checked for presence and allowable length, not their substantive relationship to the actual research claim or evidence statement. This directly causes the integrity failure reported by the oracle.\&quot;,\&quot;feedback\&quot;:\&quot;The codebase should implement or call a stricter citation relevance validation in the evaluator, e.g., by tracing whether each citation demonstrably supports the specific factual claim. Relevant checks may be introduced in the knowledge evaluation stage or research model layer before accepting findings. After improvement, repeat the independent oracle probe to confirm effectiveness.\&quot;}&quot;,
+            &quot;feedback&quot;: &quot;The codebase should implement or call a stricter citation relevance validation in the evaluator, e.g., by tracing whether each citation demonstrably supports the specific factual claim. Relevant checks may be introduced in the knowledge evaluation stage or research model layer before accepting findings. After improvement, repeat the independent oracle probe to confirm effectiveness.&quot;,
+            &quot;tool_calls&quot;: 3,
+            &quot;created&quot;: 1792347602.998985,
+            &quot;finished&quot;: 1792347611.399924
+          }
+        ]
+      }
+    ],
+    &quot;queries&quot;: [
+      {
+        &quot;id&quot;: 1,
+        &quot;run_id&quot;: &quot;1032e0d9ef6c4615bf7e3fc00097ff9e&quot;,
+        &quot;operation&quot;: &quot;prefetch_knowledge&quot;,
+        &quot;query&quot;: &quot;&quot;,
+        &quot;created&quot;: 1792347590.1558533
+      },
+      {
+        &quot;id&quot;: 2,
+        &quot;run_id&quot;: &quot;1032e0d9ef6c4615bf7e3fc00097ff9e&quot;,
+        &quot;operation&quot;: &quot;summarize_csv&quot;,
+        &quot;query&quot;: &quot;[\&quot;observability/checks.csv\&quot;, \&quot;passed\&quot;, \&quot;probe\&quot;, 1]&quot;,
+        &quot;created&quot;: 1792347591.240073
+      },
+      {
+        &quot;id&quot;: 3,
+        &quot;run_id&quot;: &quot;1032e0d9ef6c4615bf7e3fc00097ff9e&quot;,
+        &quot;operation&quot;: &quot;read_source&quot;,
+        &quot;query&quot;: &quot;[\&quot;observability/catalog.md\&quot;, 1, 80]&quot;,
+        &quot;created&quot;: 1792347592.767117
+      },
+      {
+        &quot;id&quot;: 4,
+        &quot;run_id&quot;: &quot;1032e0d9ef6c4615bf7e3fc00097ff9e&quot;,
+        &quot;operation&quot;: &quot;read_source&quot;,
+        &quot;query&quot;: &quot;[\&quot;observability/regressions.log\&quot;, 1, 80]&quot;,
+        &quot;created&quot;: 1792347592.770055
+      },
+      {
+        &quot;id&quot;: 5,
+        &quot;run_id&quot;: &quot;13339983324b4a59a11800e888e92d2a&quot;,
+        &quot;operation&quot;: &quot;prefetch_knowledge&quot;,
+        &quot;query&quot;: &quot;&quot;,
+        &quot;created&quot;: 1792347603.0008235
+      },
+      {
+        &quot;id&quot;: 6,
+        &quot;run_id&quot;: &quot;13339983324b4a59a11800e888e92d2a&quot;,
+        &quot;operation&quot;: &quot;read_source&quot;,
+        &quot;query&quot;: &quot;[\&quot;omnitrix/knowledge.py\&quot;, 1, 100]&quot;,
+        &quot;created&quot;: 1792347604.6612165
+      },
+      {
+        &quot;id&quot;: 7,
+        &quot;run_id&quot;: &quot;13339983324b4a59a11800e888e92d2a&quot;,
+        &quot;operation&quot;: &quot;read_source&quot;,
+        &quot;query&quot;: &quot;[\&quot;omnitrix/research.py\&quot;, 1, 100]&quot;,
+        &quot;created&quot;: 1792347604.665233
+      },
+      {
+        &quot;id&quot;: 8,
+        &quot;run_id&quot;: &quot;13339983324b4a59a11800e888e92d2a&quot;,
+        &quot;operation&quot;: &quot;read_source&quot;,
+        &quot;query&quot;: &quot;[\&quot;omnitrix/research_models.py\&quot;, 1, 100]&quot;,
+        &quot;created&quot;: 1792347604.6679134
+      }
+    ]
+  },
+  &quot;implementations&quot;: [
+    {
+      &quot;id&quot;: &quot;ee4f54a08cb84b5780e9984aa82933c6&quot;,
+      &quot;goal_id&quot;: &quot;83d1771735454799a355e1184990b716&quot;,
+      &quot;authorization&quot;: &quot;a74165195f5b48d3abf7ec9b8f092a6a&quot;,
+      &quot;base_revision&quot;: &quot;5d96263a44e12daa59c1c8055366f22f7e4c2468&quot;,
+      &quot;candidate&quot;: null,
+      &quot;worktree&quot;: &quot;/workspace/omnitrix/.omnitrix/self-audit/live-03/worktrees/ee4f54a08cb84b5780e9984aa82933c6&quot;,
+      &quot;status&quot;: &quot;escalated&quot;,
+      &quot;attempts&quot;: 2,
+      &quot;feedback&quot;: &quot;External turn termination reconciled; inspect retained worktree before a bounded repair&quot;,
+      &quot;created&quot;: 1792347611.457216,
+      &quot;spec&quot;: {
+        &quot;objective&quot;: &quot;Fix the reproduced research-integrity failures without changing source contracts or bypassing independent checks.&quot;,
+        &quot;research_job&quot;: &quot;2d23da543eca4ac485fd0be34d444202&quot;,
+        &quot;allowed_paths&quot;: [
+          &quot;omnitrix/research.py&quot;
+        ],
+        &quot;checks&quot;: [
+          {
+            &quot;requirement&quot;: &quot;The independent research-integrity regression oracle passes&quot;,
+            &quot;argv&quot;: [
+              &quot;/workspace/omnitrix/.venv/bin/python&quot;,
+              &quot;/workspace/omnitrix/.omnitrix/self-audit/live-03/independent_oracle.py&quot;
+            ],
+            &quot;timeout&quot;: 60,
+            &quot;failure_kind&quot;: &quot;local&quot;,
+            &quot;stdout_contains&quot;: &quot;independent regressions passed&quot;,
+            &quot;oracle_revisions&quot;: {
+              &quot;/workspace/omnitrix/.omnitrix/self-audit/live-03/independent_oracle.py&quot;: &quot;04e5f03eb87675e9a245b5730e5d8d4e9a06a1fb831b438527d39291f3082aa0&quot;
+            }
+          },
+          {
+            &quot;requirement&quot;: &quot;All existing deterministic tests still pass&quot;,
+            &quot;argv&quot;: [
+              &quot;/workspace/omnitrix/.venv/bin/python&quot;,
+              &quot;-m&quot;,
+              &quot;pytest&quot;,
+              &quot;-q&quot;,
+              &quot;tests&quot;
+            ],
+            &quot;timeout&quot;: 120,
+            &quot;failure_kind&quot;: &quot;local&quot;,
+            &quot;stdout_contains&quot;: null,
+            &quot;oracle_revisions&quot;: {}
+          }
+        ],
+        &quot;max_attempts&quot;: 2,
+        &quot;seconds&quot;: 300
+      },
+      &quot;authorization_revoked&quot;: 0
+    }
+  ],
+  &quot;verifications&quot;: [],
+  &quot;completion_audits&quot;: []
+}</pre><h2>Experiment history</h2><table><thead><tr><th>Experiment</th><th>Mode</th><th>Outcome</th><th>Checks</th><th>Seconds</th></tr></thead><tbody><tr><td>Model usage</td><td></td><td></td><td>Unscored</td><td></td></tr></tbody></table><details><summary>Model usage</summary><pre>{
+  &quot;name&quot;: &quot;Model usage&quot;,
+  &quot;events&quot;: [
+    {
+      &quot;role&quot;: &quot;manager&quot;,
+      &quot;requests&quot;: 2,
+      &quot;input_tokens&quot;: 10928,
+      &quot;output_tokens&quot;: 349
+    },
+    {
+      &quot;role&quot;: &quot;discovery&quot;,
+      &quot;requests&quot;: 3,
+      &quot;input_tokens&quot;: 6556,
+      &quot;output_tokens&quot;: 692
+    },
+    {
+      &quot;role&quot;: &quot;manager&quot;,
+      &quot;requests&quot;: 1,
+      &quot;input_tokens&quot;: 10474,
+      &quot;output_tokens&quot;: 445
+    },
+    {
+      &quot;role&quot;: &quot;research&quot;,
+      &quot;requests&quot;: 2,
+      &quot;input_tokens&quot;: 11508,
+      &quot;output_tokens&quot;: 529
+    },
+    {
+      &quot;role&quot;: &quot;evaluation&quot;,
+      &quot;requests&quot;: 1,
+      &quot;input_tokens&quot;: 6821,
+      &quot;output_tokens&quot;: 453
+    },
+    {
+      &quot;role&quot;: &quot;manager&quot;,
+      &quot;requests&quot;: 1,
+      &quot;input_tokens&quot;: 20299,
+      &quot;output_tokens&quot;: 243
+    }
+  ]
+}</pre></details></body></html>
