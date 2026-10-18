@@ -54,10 +54,19 @@ def main():
     dashboard = commands.add_parser('dashboard', help='Read-only manager dashboard')
     dashboard.add_argument('--host', default='127.0.0.1')
     dashboard.add_argument('--port', type=int, default=8765)
+    dashboard.add_argument('--allow-control', action='store_true')
+    dashboard.add_argument('--allowed-origin', action='append', default=[])
     args = parser.parse_args()
     if args.command == 'dashboard':
         from .dashboard import serve
-        serve(args.db, args.host, args.port)
+        import os
+        token = os.getenv('OMNITRIX_DASHBOARD_TOKEN') if args.allow_control else None
+        if args.allow_control and not token:
+            parser.exit(1, 'Set OMNITRIX_DASHBOARD_TOKEN securely before enabling control\n')
+        try:
+            serve(args.db, args.host, args.port, control_token=token, allowed_origins=args.allowed_origin)
+        except ValueError as exc:
+            parser.exit(1, f'{exc}\n')
         return
     store = Store(args.db)
     try:

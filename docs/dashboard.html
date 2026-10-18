@@ -73,7 +73,7 @@
 omnitrix --db /absolute/path/state.db dashboard --host 0.0.0.0 --port 8765
 </code></pre>
           <p>
-            Default: loopback, port 8765. No authentication; use trusted access
+            Default: loopback, port 8765, read-only. Use trusted access
             or an authenticated proxy. Goals, paths, findings and messages may
             be sensitive. No API key is required. The manager runs separately.
           </p>
@@ -132,8 +132,25 @@ omnitrix --db /absolute/path/state.db dashboard --host 0.0.0.0 --port 8765
             guarantee freshness; revalidate before reuse. A passing check is not
             goal completion. Use CLI chat for steering and authorization.
           </p>
+          <h2 id="authenticated-control">Authenticated control</h2>
+          <p>Set <code>OMNITRIX_DASHBOARD_TOKEN</code> securely to 32+ random characters, then start:</p>
+          <pre><code>omnitrix --db .omnitrix/state.db dashboard --allow-control \
+  --allowed-origin https://jinit24.github.io
+# Separate owner process; wait for UI commands without initial autonomous decisions:
+omnitrix --db .omnitrix/state.db run GOAL_ID --steps 0 --hours 4</code></pre>
+          <p>Choose <strong>Connect manager</strong>, enter the backend URL and token, then use
+          <strong>Manager chat</strong>. Supports messages, steering, pause/cancel, bounded decisions,
+          reconciliation and policy/requirement proposals. Review and explicitly accept permanent changes.
+          Code authorization remains in the CLI; no deployment or arbitrary database writes are exposed.</p>
+          <p>Commands enter the existing durable inbox. A queued receipt is not success: the manager replies
+          and acknowledges separately. Stable request IDs prevent duplicate sends; stale revisions and
+          cross-goal task references are rejected. If no owner is running, commands remain pending.</p>
+          <p>Enabled control protects state and commands with a bearer token. Browser tokens stay in memory;
+          disconnect or close the tab to clear them. Cross-origin requests require an explicit allowed origin.
+          GitHub Pages needs a reachable HTTPS backend (a trusted TLS proxy in front of this HTTP server).
+          No public backend is provisioned by the static site. Localhost HTTP is supported for local use.</p>
           <h2 id="github-pages">GitHub Pages</h2>
-          <p>Pages shows the recorded deduplication, batching and retry experiments, not live SQLite state.
+          <p>Pages shows recorded experiments until you connect an authenticated backend.
           Enable <strong>Settings → Pages → GitHub Actions</strong>; the Publish experiment snapshot
           workflow deploys on changes to main. Build locally with
           <code>python scripts/build_pages.py</code>. The export omits sessions, local paths and message bodies. No credentials or databases are published.</p>
@@ -155,7 +172,7 @@ omnitrix --db /absolute/path/state.db dashboard --host 0.0.0.0 --port 8765
               export for full history.
             </li>
             <li>
-              GET-only routes, allowlisted assets, escaped content and
+              Read-only by default; opt-in authenticated commands, allowlisted assets, escaped content and
               local-only Content Security Policy.
             </li>
           </ul>
@@ -178,8 +195,7 @@ python scripts/build_docs.py --check
         <a class="" href="#data-boundaries">Data boundaries</a
         ><a class="" href="#rebuild-html-docs">Rebuild HTML docs</a>
         <div class="outline-note">
-          Need to steer the manager?<br />Use CLI chat. The web app is
-          read-only.
+          Need to steer the manager?<br />Use Manager chat with an authenticated backend.
         </div>
       </aside>
     </div>

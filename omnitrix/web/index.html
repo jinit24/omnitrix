@@ -23,6 +23,7 @@
       </div>
       <div class="nav-label">WORKSPACE</div>
       <nav aria-label="Main navigation">
+        <button class="nav" data-view="chat"><span>◌</span>Manager chat</button>
         <button class="nav active" data-view="overview">
           <span>◫</span>Overview</button
         ><button class="nav" data-view="tasks">
@@ -40,7 +41,10 @@
       <div class="sidebar-bottom">
         <div class="readonly">
           <span>◈</span>
-          <div>Observe mode<small>This workspace is read-only</small></div>
+          <div>
+            <span id="mode-title">Observe mode</span
+            ><small id="mode-description">This workspace is read-only</small>
+          </div>
         </div>
         <div class="profile">
           <span class="avatar">E</span>
@@ -55,6 +59,9 @@
           Workspace <span>/</span> <strong id="breadcrumb">Overview</strong>
         </div>
         <div class="header-right">
+          <button class="connect-button" id="connect-open">
+            Connect manager
+          </button>
           <span class="connection" id="connection">Connecting</span
           ><button
             class="icon-button"
@@ -101,10 +108,9 @@
         </div>
         <div id="content" aria-live="polite"></div>
         <footer>
-          <span class="footer-mark">◈</span> Read-only workspace<span
-            id="source-note"
-            >SQLite · Local state</span
-          >
+          <span class="footer-mark">◈</span>
+          <span id="workspace-mode">Read-only workspace</span
+          ><span id="source-note">SQLite · Local state</span>
         </footer>
       </main>
     </div>
@@ -125,5 +131,31 @@
       <p class="muted">Persisted state · read-only</p>
       <div id="drawer-body"></div>
     </aside>
+    <dialog id="connect-dialog">
+      <form id="connect-form" class="connect-form">
+        <h2>Connect to your manager</h2>
+        <p>Use your running dashboard backend. Credentials stay in this tab.</p>
+        <label
+          >Backend URL<input
+            id="backend-url"
+            type="url"
+            placeholder="https://manager.example.com/"
+            required
+        /></label>
+        <label
+          >Dashboard token<input
+            id="backend-token"
+            type="password"
+            autocomplete="off"
+            required
+        /></label>
+        <p id="connect-error" role="status"></p>
+        <div class="connect-actions">
+          <button type="button" id="connect-close">Cancel</button
+          ><button type="button" id="disconnect">Disconnect</button
+          ><button type="submit">Connect</button>
+        </div>
+      </form>
+    </dialog>
   </body>
 </html>

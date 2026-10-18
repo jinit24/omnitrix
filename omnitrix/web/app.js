@@ -80,7 +80,20 @@ let state = { goals: [] },
   fetching = false,
   drawerTrigger = null;
 let lastGood = null;
+let backend = null;
+const compose = {
+  command: "chat",
+  text: "",
+  task: "",
+  note: "",
+  pending: null,
+};
+const endpoint = (path) =>
+  backend ? new URL(path, backend.url).href : "/" + path;
+const auth = () =>
+  backend ? { Authorization: "Bearer " + backend.token } : {};
 const titles = {
+  chat: ["Manager chat", "Talk to the manager and steer bounded work."],
   overview: [
     "Mission control",
     "A clear view of what your manager is doing, and why.",
@@ -131,10 +144,18 @@ function tasks(g) {
         research?.spec?.hypothesis ||
         research?.spec?.question ||
         (implementation ? "Implement authorized changes" : t.instructions),
-      status: ["uncertain", "paused", "cancelled", "waiting", "failed"].includes(runtime?.state)
+      status: [
+        "uncertain",
+        "paused",
+        "cancelled",
+        "waiting",
+        "failed",
+      ].includes(runtime?.state)
         ? runtime.state
         : implementation?.status || research?.status || t.status,
-      research_runs: research ? d.research_runs.filter(r => r.job_id === research.id) : undefined,
+      research_runs: research
+        ? d.research_runs.filter((r) => r.job_id === research.id)
+        : undefined,
       runtime,
       research,
       implementation,
@@ -253,6 +274,13 @@ function overview(g, list) {
   }</section><section class="panel">${heading("Ongoing tasks", `<button class="text-button" data-view="tasks">View all tasks ↗</button>`, String(pending.length))}${taskRows(pending.slice(0, 5))}</section><section class="panel">${heading("Research budget")}<div class="progress-panel"><div class="progress-line"><span>Bounded role executions</span><span>${budget ? `${budget.spent} / ${budget.max_runs} used` : "Not configured"}</span></div><div class="segments">${Array.from({ length: Math.min(budget?.max_runs || 12, 36) }, (_, i) => `<span class="${budget && i < budget.spent ? "spent" : ""}"></span>`).join("")}</div><div class="budget-note">${budget ? "Includes discovery, research, and evaluation. Exhaustion pauses work for escalation." : "Budgets are recorded when research is initialized. No estimated usage is shown."}</div></div></section></div><div class="stack">${tree(g, list)}<section class="panel">${heading("Recent activity", `<button class="text-button" data-view="activity">View all ↗</button>`)}${eventRows(events(g).slice(0, 5))}</section><section class="panel">${heading("Verification")}<div class="progress-panel"><div class="progress-line"><span>Executable checks passed</span><span>${d?.verifications.filter((v) => v.passed).length || 0} / ${d?.verifications.length || 0}</span></div><div class="progress-track"><span id="verification-progress"></span></div><div class="budget-note">Checks are bound to candidate revisions. A passing check alone does not establish goal completion.</div></div></section></div></div>`;
 }
 function render() {
+  const focused = document.activeElement?.id === "manager-text";
+  const selection = focused
+    ? [
+        document.activeElement.selectionStart,
+        document.activeElement.selectionEnd,
+      ]
+    : null;
   const g = goal(),
     list = tasks(g);
   records = [];
@@ -321,6 +349,27 @@ function render() {
       ? `<div class="knowledge-grid">${items.map((k) => `<button class="knowledge-card" ${recordButton(k, k.title)}>${badge(k.classification)}<h3>${esc(k.title)}</h3><p>${esc(short(k.body, 240))}</p><div class="card-bottom">${esc(age(k.created))} · ${k.citations?.length || 0} citations${k.score != null ? ` · Score ${esc(k.score)}` : ""}</div></button>`).join("")}</div>`
       : `<section class="panel">${empty("Knowledge grows with each investigation", "Findings and opportunities appear here with their recorded classifications. Source freshness must be checked before reuse.")}</section>`;
   }
+  if (view === "chat") renderChat(g);
+  const editable = state.control_enabled && !state.snapshot;
+  $(".read-badge").textContent = editable
+    ? "Authenticated control"
+    : "Read-only";
+  $("#mode-title").textContent = editable
+    ? "Control connected"
+    : "Observe mode";
+  $("#mode-description").textContent = editable
+    ? "Authenticated manager inbox"
+    : "This workspace is read-only";
+  $("#workspace-mode").textContent = editable
+    ? "Authenticated control"
+    : "Read-only workspace";
+  $("#connect-open").textContent = backend
+    ? "Connection settings"
+    : "Connect manager";
+  if (focused && $("#manager-text")) {
+    $("#manager-text").focus();
+    $("#manager-text").setSelectionRange(...selection);
+  }
   const progress = $("#verification-progress");
   if (progress) {
     const checks = g?.data.verifications || [];
@@ -330,6 +379,195 @@ function render() {
     progress.style.width = `${pct * 100}%`;
   }
 }
+function renderChat(g) {
+  const enabled = Boolean(g && state.control_enabled && !state.snapshot);
+  const messages = (g?.data.messages || [])
+    .filter((m) => m.kind === "control" || m.direction === "manager_to_user")
+    .slice()
+    .reverse();
+  const proposals = (g?.data.proposals || []).filter(
+    (p) => p.state === "pending",
+  );
+  const commands = {
+    chat: "Message",
+    steer: "Steer task",
+    pause: "Pause task",
+    cancel: "Cancel task",
+    continue: "Run decisions",
+    policy: "Propose policy",
+    requirements: "Propose requirements",
+    reconcile: "Reconcile task",
+  };
+  $("#content").innerHTML =
+    `<section class="panel chat-panel">${heading("Conversation", enabled ? '<span class="badge green">Control enabled</span>' : '<span class="badge">Read-only</span>')}
+  <div class="conversation">${messages.length ? messages.map((m) => `<article class="chat-message"><div class="chat-author">${m.kind === "control" ? "You · " + human(m.body.command) : "Manager"}<span>${esc(human(m.state))} · ${esc(age(m.created))}</span></div><p>${esc(m.kind === "control" ? m.body.text : m.body.response || summary(m.body))}</p><button class="text-button" ${recordButton(m, "Message details")}>Inspect record ↗</button></article>`).join("") : empty("Start a conversation", enabled ? "Your messages are queued durably for the running manager." : "Connect to an authenticated backend to send messages.")}</div>
+  ${proposals.map((p) => `<article class="proposal"><strong>Proposed ${esc(p.kind)} change</strong><pre>${esc(text(p.body))}</pre><button class="connect-button" data-accept="${esc(p.id)}" ${enabled ? "" : "disabled"}>Review and accept</button></article>`).join("")}
+  <form id="manager-form" class="composer"><div class="composer-options"><label>Action<select id="manager-command" ${enabled ? "" : "disabled"}>${Object.entries(
+    commands,
+  )
+    .map(
+      ([value, label]) =>
+        `<option value="${value}" ${compose.command === value ? "selected" : ""}>${label}</option>`,
+    )
+    .join(
+      "",
+    )}</select></label><label>Task<select id="manager-task" ${enabled ? "" : "disabled"}><option value="">Select for task actions</option>${(g?.data.tasks || []).map((t) => `<option value="${esc(t.id)}" ${compose.task === t.id ? "selected" : ""}>${esc(t.id.slice(0, 8))} · ${esc(short(t.instructions, 70))}</option>`).join("")}</select></label></div>
+  <label class="composer-label" for="manager-text">Message or instruction</label><textarea id="manager-text" rows="4" maxlength="12000" placeholder="Ask for progress, steer work, or propose a change…" ${enabled ? "" : "disabled"}>${esc(compose.text)}</textarea>
+  <div class="composer-bottom"><span>Policy replaces the full text. Requirements use JSON. Permanent changes need acceptance.</span><button class="connect-button" type="submit" ${enabled ? "" : "disabled"}>Send</button></div><p id="send-note" role="status">${esc(compose.note)}</p></form></section>`;
+}
+async function sendCommand(command, text) {
+  const g = goal();
+  if (!g || !state.control_enabled || state.snapshot) return;
+  const body = {
+    goal_id: g.id,
+    command,
+    text,
+    goal_revision: g.revision || 1,
+    policy_revision: g.data.policy_versions[0]?.version || 1,
+  };
+  const signature = JSON.stringify({ goal_id: g.id, command, text });
+  if (compose.pending && compose.pending.signature !== signature) {
+    compose.note =
+      "Previous delivery is unconfirmed. Retry the unchanged request first and inspect its receipt before sending a different command.";
+    render();
+    return;
+  }
+  if (!compose.pending)
+    compose.pending = {
+      signature,
+      payload: { ...body, request_id: crypto.randomUUID() },
+    };
+  try {
+    const response = await fetch(endpoint("api/commands"), {
+      method: "POST",
+      headers: { ...auth(), "Content-Type": "application/json" },
+      body: JSON.stringify(compose.pending.payload),
+      signal: AbortSignal.timeout(10000),
+      redirect: "error",
+    });
+    const result = await response.json();
+    if (!response.ok) {
+      compose.pending = null;
+      throw Error(result.error || "Command rejected");
+    }
+    compose.note =
+      "Queued. The running manager will acknowledge and reply here.";
+    compose.pending = null;
+    compose.text = "";
+    await refresh();
+  } catch (error) {
+    compose.note = compose.pending
+      ? "Delivery unconfirmed. Retry unchanged to reuse the request ID; inspect messages before changing the request."
+      : error.message;
+  }
+  render();
+}
+document.addEventListener("submit", async (event) => {
+  if (event.target.id !== "manager-form") return;
+  event.preventDefault();
+  let text = compose.text.trim();
+  if (["pause", "cancel", "reconcile", "steer"].includes(compose.command)) {
+    if (!compose.task) {
+      compose.note = "Select a task first.";
+      render();
+      return;
+    }
+    text = compose.task + (compose.command === "steer" ? " " + text : "");
+  }
+  if (
+    compose.command === "cancel" &&
+    !confirm("Cancel the selected task? Retained work will be preserved.")
+  )
+    return;
+  await sendCommand(
+    compose.command,
+    text || (compose.command === "continue" ? "5" : ""),
+  );
+});
+document.addEventListener("input", (e) => {
+  if (e.target.id === "manager-text") compose.text = e.target.value;
+});
+document.addEventListener("change", (e) => {
+  if (e.target.id === "manager-command") compose.command = e.target.value;
+  if (e.target.id === "manager-task") compose.task = e.target.value;
+});
+document.addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-accept]");
+  if (
+    button &&
+    confirm(
+      "Apply this proposal to permanent instructions? Review the complete change above first.",
+    )
+  )
+    await sendCommand("accept", button.dataset.accept);
+});
+$("#connect-open").addEventListener("click", () => {
+  $("#backend-url").value =
+    backend?.url || (document.body.dataset.static ? "" : location.origin + "/");
+  $("#backend-token").value = "";
+  $("#connect-error").textContent = "";
+  $("#connect-dialog").showModal();
+});
+$("#connect-close").addEventListener("click", () =>
+  $("#connect-dialog").close(),
+);
+$("#disconnect").addEventListener("click", () => {
+  backend = null;
+  state = { goals: [] };
+  compose.pending = null;
+  $("#backend-token").value = "";
+  $("#connect-dialog").close();
+  render();
+  refresh();
+});
+$("#connect-form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  try {
+    const url = new URL($("#backend-url").value);
+    if (
+      url.username ||
+      url.password ||
+      url.search ||
+      url.hash ||
+      (url.protocol !== "https:" &&
+        !(
+          url.protocol === "http:" &&
+          ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname)
+        ))
+    )
+      throw Error(
+        "Use HTTPS, or HTTP on localhost. Do not put credentials in the URL.",
+      );
+    url.pathname = url.pathname.replace(/\/?$/, "/");
+    const token = $("#backend-token").value;
+    const response = await fetch(new URL("api/state", url), {
+      headers: { Authorization: "Bearer " + token },
+      signal: AbortSignal.timeout(10000),
+      redirect: "error",
+    });
+    if (!response.ok)
+      throw Error(
+        "Connection rejected. Check the URL, token and allowed origin.",
+      );
+    const result = await response.json();
+    if (!result.control_enabled)
+      throw Error(
+        "This backend has control disabled. Start it with --allow-control.",
+      );
+    backend = { url: url.href, token };
+    $("#backend-token").value = "";
+    $("#connect-dialog").close();
+    compose.pending = null;
+    compose.note = "";
+    goalId = null;
+    view = "chat";
+    await refresh();
+    render();
+  } catch (error) {
+    $("#connect-error").textContent = error.message;
+  }
+});
+
 function renderTaskList() {
   const list = tasks(goal()).filter(
     (t) =>
@@ -409,10 +647,17 @@ async function refresh() {
   if (fetching) return;
   fetching = true;
   try {
-    const response = await fetch(document.body.dataset.state || "/api/state", {
-      cache: "no-store",
-      signal: AbortSignal.timeout(7000),
-    });
+    const response = await fetch(
+      backend
+        ? endpoint("api/state")
+        : document.body.dataset.state || "/api/state",
+      {
+        headers: auth(),
+        redirect: "error",
+        cache: "no-store",
+        signal: AbortSignal.timeout(7000),
+      },
+    );
     if (!response.ok)
       throw Error(
         "State could not be read. Keeping the last successful snapshot.",
@@ -437,24 +682,32 @@ async function refresh() {
       selector.dataset.ready = "1";
       if (document.activeElement?.id !== "task-search") render();
     }
-    $("#connection").textContent = state.snapshot ? "Experiment snapshot" : "Connected";
+    $("#connection").textContent = state.snapshot
+      ? "Experiment snapshot"
+      : "Connected";
     $("#connection").classList.remove("error");
-    $("#updated").textContent =
-      state.snapshot ? `Recorded ${new Date(state.recorded_at).toLocaleString()} · not live` : `Updated ${lastGood.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`;
-    $("#notice").hidden = Boolean(!state.snapshot && state.available && state.goals.length);
-    $("#notice").textContent = state.snapshot ? state.reason : !state.available
+    $("#updated").textContent = state.snapshot
+      ? `Recorded ${new Date(state.recorded_at).toLocaleString()} · not live`
+      : `Updated ${lastGood.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`;
+    $("#notice").hidden = Boolean(
+      !state.snapshot && state.available && state.goals.length,
+    );
+    $("#notice").textContent = state.snapshot
       ? state.reason
-      : state.goals.length
-        ? ""
-        : "No goals recorded yet. Create a goal using the CLI; this dashboard will update automatically.";
+      : !state.available
+        ? state.reason
+        : state.goals.length
+          ? ""
+          : "No goals recorded yet. Create a goal using the CLI; this dashboard will update automatically.";
     if (state.snapshot) {
       const link = document.createElement("a");
       link.href = "./docs/experiments.html";
       link.textContent = " View results and limitations ↗";
       $("#notice").append(link);
     }
-    $("#source-note").textContent =
-      state.snapshot ? "Recorded experiment · read-only" : `SQLite · Latest ${state.limit || 200} records per category`;
+    $("#source-note").textContent = state.snapshot
+      ? "Recorded experiment · read-only"
+      : `SQLite · Latest ${state.limit || 200} records per category`;
   } catch (err) {
     $("#connection").textContent = "Disconnected";
     $("#connection").classList.add("error");
@@ -469,8 +722,8 @@ $("#refresh").addEventListener("click", refresh);
 render();
 refresh();
 if (document.body.dataset.static) $(".auto-refresh").hidden = true;
-else setInterval(() => {
-  if (!document.hidden) refresh();
+setInterval(() => {
+  if (!document.hidden && (!document.body.dataset.static || backend)) refresh();
 }, 5000);
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden) refresh();

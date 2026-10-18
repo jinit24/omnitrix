@@ -101,7 +101,7 @@
               <tr>
                 <td>UI</td>
                 <td>
-                  Read-only status/tasks/hierarchy/knowledge/activity;
+                  Status/tasks/hierarchy/knowledge/activity with optional authenticated inbox controls;
                   searchable local HTML docs
                 </td>
               </tr>
@@ -111,6 +111,8 @@
             No deployment, automatic merge, broker or distributed scheduler.
           </p>
           <h2 id="evidence">Evidence</h2>
+          <p>Authenticated-control update: <strong>89 tests passed, 1 live test skipped</strong>.
+          Browser checks cover connection, message submission, explicit proposal acceptance and disconnection.</p>
           <p>UI update: <strong>60 tests passed, 1 live test skipped</strong>.
           Chromium checks passed for desktop/mobile layout, navigation, task filtering,
           details, docs search and disconnected-state retention. No browser errors.</p>
@@ -181,7 +183,7 @@
               usage.
             </li>
             <li>
-              Dashboard is unauthenticated, read-only and bounded to recent
+              Dashboard is read-only by default, with opt-in bearer-authenticated inbox control, and bounded to recent
               state. Status is not liveness; recorded classifications are not
               live source revalidation.
             </li>
@@ -212,8 +214,7 @@
         ><a class="" href="#next-work">Next work</a
         ><a class="" href="#api-versions">API versions</a>
         <div class="outline-note">
-          Need to steer the manager?<br />Use CLI chat. The web app is
-          read-only.
+          Need to steer the manager?<br />Use Manager chat with an authenticated backend.
         </div>
       </aside>
     </div>

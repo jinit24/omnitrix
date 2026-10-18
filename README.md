@@ -40,7 +40,7 @@ omnitrix chat GOAL_ID
 omnitrix --db .omnitrix/state.db dashboard
 ```
 
-The dashboard binds loopback port 8765. It has no authentication; keep access trusted.
+The dashboard defaults to read-only on loopback port 8765. Authenticated control is opt-in.
 Use `--require-implementation` for code goals: recommendations alone cannot complete them.
 
 | Chat command | Purpose |
@@ -111,6 +111,20 @@ Live manager state stays local; archived results are labeled as snapshots.
 
 Research sources up to 32 MiB support bounded reads, search, and CSV aggregation.
 Partition larger exports; observed coverage is not exhaustive system coverage.
+
+## UI control
+
+Set `OMNITRIX_DASHBOARD_TOKEN` securely to 32+ random characters, then run:
+
+```sh
+omnitrix --db .omnitrix/state.db dashboard --allow-control \
+  --allowed-origin https://jinit24.github.io
+omnitrix --db .omnitrix/state.db run GOAL_ID --steps 0 --hours 4
+```
+
+Use **Connect manager** → **Manager chat**. Messages and controls queue to the existing
+owner; permanent changes require explicit acceptance. GitHub Pages requires your own
+HTTPS backend URL. Tokens stay in the browser tab, never in published files or storage.
 
 ## Learn more
 
