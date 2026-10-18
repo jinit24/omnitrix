@@ -106,8 +106,8 @@ never deployments, destructive operations, merges or pushes.
 
 ## GitHub Pages
 
-Enable **Settings → Pages → GitHub Actions**. The included workflow publishes a labeled
-static demo and HTML docs. Live manager state stays local.
+Enable **Settings → Pages → GitHub Actions**. The included workflow publishes three recorded real-model experiment runs and HTML docs.
+Live manager state stays local; archived results are labeled as snapshots.
 
 Research sources up to 32 MiB support bounded reads, search, and CSV aggregation.
 Partition larger exports; observed coverage is not exhaustive system coverage.

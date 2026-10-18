@@ -90,7 +90,7 @@ def test_docs_are_current():
         assert (module.OUT / name).read_text() == expected, name
 
 
-def test_pages_build_is_static_and_project_path_safe(tmp_path):
+def test_pages_build_uses_real_recorded_state_and_project_paths(tmp_path):
     import importlib.util
     script = Path(__file__).resolve().parents[1] / 'scripts/build_pages.py'
     spec = importlib.util.spec_from_file_location('build_pages', script)
@@ -102,10 +102,35 @@ def test_pages_build_is_static_and_project_path_safe(tmp_path):
     assert 'href="./styles.css"' in html
     assert 'src="./app.js"' in html
     assert 'href="./docs/"' in html
-    state = json.loads((output / 'demo-state.json').read_text())
-    assert state['demo'] is True
-    assert 'sample data' in state['reason']
-    assert state['goals'][0]['id'] == 'sample-goal'
+    state = json.loads((output / 'experiment-state.json').read_text())
+    assert state['snapshot'] is True
+    assert not state.get('demo')
+    assert 'Recorded real experiment' in state['reason']
+    assert len(state['goals']) == 3
+    assert all(not g['id'].startswith('sample-') for g in state['goals'])
+    assert {g['status'] for g in state['goals']} == {'completed', 'paused'}
+    assert (output / 'docs/experiments/research-quality/buried-bottleneck.html').is_file()
     assert not list(output.rglob('*.db'))
     assert 'href="../"' in (output / 'docs/architecture.html').read_text()
     assert (output / 'docs/live-api-v2-gpt54.json').is_file()
+
+
+def test_public_snapshot_matches_recorded_checks_and_omits_private_fields():
+    root = Path(__file__).resolve().parents[1]
+    state = json.loads((root / 'docs/experiments/manager-state.json').read_text())
+    report = json.loads((root / 'docs/experiments/live-api-v2-gpt54.json').read_text())
+    import hashlib
+    assert state['provenance']['report_sha256'] == hashlib.sha256(
+        (root / 'docs/experiments/live-api-v2-gpt54.json').read_bytes()).hexdigest()
+    results = {t['goal_id']: t for t in report['tasks'] if t['arm'] == 'manager'}
+    for goal in state['goals']:
+        result = results[goal['id']]
+        assert (goal['status'] == 'completed') == result['verified_outcome']
+        for check in goal['data']['verifications']:
+            expected = next(c for c in result['checks'] if c['requirement'] == check['requirement'])
+            assert check['candidate'] == expected['candidate']
+            assert bool(check['passed']) == expected['passed']
+        assert goal['data']['messages'] == []
+        assert all('owner' not in r and 'session_id' not in r for r in goal['data']['runtime'])
+    payload = json.dumps(state)
+    assert '/workspace/' not in payload and '/tmp/' not in payload
