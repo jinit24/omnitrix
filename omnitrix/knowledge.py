@@ -180,8 +180,17 @@ class ResearchTools:
             self.store.db.execute('INSERT INTO research_access VALUES(?,?)', (self.run_id, source_id))
         return self.knowledge.source(source_id)
 
+    def prefetch(self):
+        # Required context preparation is not one of the agent's discretionary tool calls.
+        self.store.execute('INSERT INTO research_queries(run_id,operation,query,created) VALUES(?,?,?,?)',
+            (self.run_id,'prefetch_knowledge','',time.time()))
+        return self._search('',0)
+
     def search(self, query='', offset=0):
         self.charge('search_knowledge', query)
+        return self._search(query,offset)
+
+    def _search(self,query,offset):
         records = self.knowledge.search(self.workspace, query, limit=5, offset=offset)
         for record in records:
             for source in record['sources']:

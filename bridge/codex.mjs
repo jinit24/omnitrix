@@ -2,8 +2,10 @@ import { Codex } from '@openai/codex-sdk';
 let input = '';
 for await (const chunk of process.stdin) input += chunk;
 const request = JSON.parse(input);
-const codex = new Codex(process.env.OMNITRIX_CODEX_PATH
-  ? { codexPathOverride: process.env.OMNITRIX_CODEX_PATH } : {});
+const codex = new Codex({
+  ...(process.env.OMNITRIX_CODEX_PATH ? { codexPathOverride: process.env.OMNITRIX_CODEX_PATH } : {}),
+  config: request.config ?? {},
+});
 const options = {
   workingDirectory: request.workspace,
   sandboxMode: 'read-only', approvalPolicy: 'never',

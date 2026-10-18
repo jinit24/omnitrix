@@ -153,3 +153,68 @@ async def test_already_exhausted_goal_cannot_launch_another_agent(system):
     outcome=await service.attempt(job)
     assert outcome['status']=='escalated'
     assert store.db.execute('SELECT count(*) FROM research_runs').fetchone()[0]==0
+
+
+async def test_mandatory_knowledge_lookup_does_not_starve_one_read_budget(system):
+    store,goal,_=system
+    service=Research(store,FixtureAgents())
+    spec=plan('Queue polling interval is 30 seconds')
+    spec.budget.tool_calls=1
+    job=service.plan(goal,'research',spec)['job_id']
+    result=await service.attempt(job)
+    assert result['status']=='supported'
+    assert store.db.execute("SELECT count(*) FROM research_queries WHERE operation='prefetch_knowledge'").fetchone()[0]==1
+    assert store.db.execute('SELECT tool_calls FROM research_runs').fetchone()[0]==1
+
+
+async def test_actual_sdk_tool_dispatch_keeps_sqlite_on_its_owner_thread(system,monkeypatch):
+    from agents.tool_context import ToolContext
+    from omnitrix.research import ResearchAgents
+    store,goal,path=system
+    service=Research(store,FixtureAgents())
+    job=service.plan(goal,'discovery',plan())['job_id']
+    await service.attempt(job)
+    run=store.db.execute('SELECT id FROM research_runs').fetchone()[0]
+    tools=ResearchTools(store,run,str(path),['system.md'],4)
+    async def fake_run(agent,prompt,**kwargs):
+        arguments=json.dumps({'locator':'system.md','start_line':1,'line_count':80})
+        ctx=ToolContext(context=None,tool_name='read_source',tool_call_id='actual-sdk-dispatch',tool_arguments=arguments)
+        result=await agent.tools[0].on_invoke_tool(ctx,arguments)
+        assert 'interval=30' in json.loads(result)['excerpt']
+        class Result:
+            final_output=DiscoveryReport(system_map=[],opportunities=[],gaps=[])
+        return Result()
+    monkeypatch.setattr('omnitrix.research.Runner.run',fake_run)
+    await ResearchAgents().run('discovery',{},tools)
+
+
+async def test_completed_discovery_report_is_delivered_to_manager(system):
+    store,goal,_=system
+    service=Research(store,FixtureAgents())
+    job=service.plan(goal,'discovery',plan())['job_id']
+    outcome=await service.attempt(job)
+    assert outcome['report']['system_map'][0]['name']=='queue'
+    assert outcome['report']['opportunities']
+
+
+async def test_sdk_read_bounds_are_advertised_and_errors_are_actionable(system,monkeypatch):
+    from agents.tool_context import ToolContext
+    from omnitrix.research import ResearchAgents
+    store,goal,path=system
+    service=Research(store,FixtureAgents())
+    job=service.plan(goal,'discovery',plan())['job_id']
+    await service.attempt(job)
+    run=store.db.execute('SELECT id FROM research_runs').fetchone()[0]
+    tools=ResearchTools(store,run,str(path),['system.md'],2)
+    async def fake_run(agent,prompt,**kwargs):
+        tool=agent.tools[0]
+        assert tool.params_json_schema['properties']['line_count']['maximum']==100
+        args=json.dumps({'locator':'system.md','start_line':1,'line_count':220})
+        ctx=ToolContext(context=None,tool_name='read_source',tool_call_id='invalid-range',tool_arguments=args)
+        result=await tool.on_invoke_tool(ctx,args)
+        assert '100' in result and 'source access blocked' in result
+        class Result:
+            final_output=DiscoveryReport(system_map=[],opportunities=[],gaps=[])
+        return Result()
+    monkeypatch.setattr('omnitrix.research.Runner.run',fake_run)
+    await ResearchAgents().run('discovery',{},tools)

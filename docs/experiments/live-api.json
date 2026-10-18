@@ -1,0 +1,542 @@
+{
+  "mode": "live",
+  "primary_trial": "live-api-trial-6",
+  "models": {
+    "manager_and_research": "gpt-4.1",
+    "codex": "gpt-5.3-codex",
+    "codex_reasoning": "medium"
+  },
+  "authentication": "OPENAI_API_KEY environment variable; value never recorded",
+  "arm_seconds": 420,
+  "design": "One paired trial of three identical fixtures; exploratory diagnostic trials excluded from primary comparison",
+  "architecture_superiority": "not established",
+  "arms": [
+    {
+      "arm": "single",
+      "tasks": 3,
+      "completed_tasks": 3,
+      "criteria_satisfied": 6,
+      "criteria_total": 6,
+      "wall_seconds": 62.57300830399981,
+      "observed_tokens": {
+        "input": 266871,
+        "output": 4364
+      },
+      "incorrect_completion_claims": 0,
+      "interventions": 0,
+      "corrections": null,
+      "repeated_research_queries": null
+    },
+    {
+      "arm": "manager",
+      "tasks": 3,
+      "completed_tasks": 1,
+      "criteria_satisfied": 3,
+      "criteria_total": 6,
+      "wall_seconds": 112.44096068400086,
+      "observed_tokens": {
+        "input": 287409,
+        "output": 9309
+      },
+      "incorrect_completion_claims": 0,
+      "interventions": 0,
+      "corrections": 0,
+      "repeated_research_queries": 4
+    }
+  ],
+  "tasks": [
+    {
+      "task": "deduplication",
+      "arm": "single",
+      "goal_id": "b83b1746e2d14bff8eb61397c4ca0d7c",
+      "initial_tree": "5fc1afc727e830441c9e269dc0b750dd00d43e90",
+      "arm_seconds": 420,
+      "manager_model": "gpt-4.1",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "36e5ec437ecbf9f1df5f67d9ff6784a56846e2bd",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "wall_seconds": 24.024392188000093,
+      "tokens": {
+        "input": 81463,
+        "output": 1812
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": null,
+      "corrections": null,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 1,
+      "verified_outcome_gain": 1,
+      "selected_opportunities": [],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "checks": [
+        {
+          "requirement": "Preserve first occurrence order without mutating input",
+          "passed": true,
+          "candidate": "36e5ec437ecbf9f1df5f67d9ff6784a56846e2bd"
+        },
+        {
+          "requirement": "Deduplication uses a linear number of equality checks",
+          "passed": true,
+          "candidate": "36e5ec437ecbf9f1df5f67d9ff6784a56846e2bd"
+        }
+      ],
+      "candidate_source": "def process(items):\n    result = []\n    seen_hashable = set()\n\n    for item in items:\n        try:\n            if item in seen_hashable:\n                continue\n            seen_hashable.add(item)\n            result.append(item)\n        except TypeError:\n            if item not in result:\n                result.append(item)\n\n    return result\n"
+    },
+    {
+      "task": "deduplication",
+      "arm": "manager",
+      "goal_id": "915b1bb935b94001a31206b03fed8ffd",
+      "initial_tree": "5fc1afc727e830441c9e269dc0b750dd00d43e90",
+      "arm_seconds": 420,
+      "manager_model": "gpt-4.1",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "1fc54ef99d185e487f677c04f10e0c6671fb3683",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "wall_seconds": 60.77143234899995,
+      "tokens": {
+        "input": 196474,
+        "output": 4867
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": 1,
+      "corrections": 0,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 1,
+      "verified_outcome_gain": 1,
+      "selected_opportunities": [
+        "Validate deduplication linearity and behavior of 'process' in service.py"
+      ],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "checks": [
+        {
+          "requirement": "Preserve first occurrence order without mutating input",
+          "passed": true,
+          "candidate": "1fc54ef99d185e487f677c04f10e0c6671fb3683"
+        },
+        {
+          "requirement": "Deduplication uses a linear number of equality checks",
+          "passed": true,
+          "candidate": "1fc54ef99d185e487f677c04f10e0c6671fb3683"
+        }
+      ],
+      "candidate_source": "def process(items):\n    result = []\n    seen_hashable = set()\n    seen_unhashable = []\n\n    for item in items:\n        try:\n            if item in seen_hashable:\n                continue\n        except TypeError:\n            if item in seen_unhashable:\n                continue\n            if item in result:\n                continue\n            seen_unhashable.append(item)\n            result.append(item)\n            continue\n\n        if seen_unhashable and item in seen_unhashable:\n            continue\n        seen_hashable.add(item)\n        result.append(item)\n\n    return result\n",
+      "manager_actions": [
+        "delegate",
+        "discover",
+        "discover",
+        "research",
+        "implement",
+        "audit",
+        "complete"
+      ],
+      "final_goal_status": "completed",
+      "research": [
+        {
+          "stage": "discovery",
+          "status": "discovered",
+          "attempts": 1
+        },
+        {
+          "stage": "research",
+          "status": "supported",
+          "attempts": 1
+        }
+      ],
+      "goal_audits": [
+        {
+          "candidate": "1fc54ef99d185e487f677c04f10e0c6671fb3683",
+          "revision": 1,
+          "passed": 1
+        }
+      ]
+    },
+    {
+      "task": "bounded-retries",
+      "arm": "single",
+      "goal_id": "4eda7d1a4d204b94b59f562d7dd3893b",
+      "initial_tree": "c758af1e13e9413c15971448dea88084725dcb29",
+      "arm_seconds": 420,
+      "manager_model": "gpt-4.1",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "23b609f8a6f092eb552666ded1d49662e8daa6d2",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "wall_seconds": 16.484316295999633,
+      "tokens": {
+        "input": 80219,
+        "output": 1147
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": null,
+      "corrections": null,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 0,
+      "verified_outcome_gain": 2,
+      "selected_opportunities": [],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "checks": [
+        {
+          "requirement": "Retry transient timeouts and return the eventual result",
+          "passed": true,
+          "candidate": "23b609f8a6f092eb552666ded1d49662e8daa6d2"
+        },
+        {
+          "requirement": "Bound retry attempts and do not retry permanent errors",
+          "passed": true,
+          "candidate": "23b609f8a6f092eb552666ded1d49662e8daa6d2"
+        }
+      ],
+      "candidate_source": "def process(call, attempts=3):\n    for attempt in range(attempts):\n        try:\n            return call()\n        except TimeoutError:\n            if attempt == attempts - 1:\n                raise\n"
+    },
+    {
+      "task": "bounded-retries",
+      "arm": "manager",
+      "goal_id": "9f1659163f144b97b7e8a1cdbf854efa",
+      "initial_tree": "c758af1e13e9413c15971448dea88084725dcb29",
+      "arm_seconds": 420,
+      "manager_model": "gpt-4.1",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "ac3f82ccf3a309cf64419e30a913d28845bbc8aa",
+      "requirements_satisfied": 0,
+      "requirements_total": 2,
+      "wall_seconds": 28.505296605000694,
+      "tokens": {
+        "input": 62075,
+        "output": 2608
+      },
+      "token_measurement_complete": false,
+      "repeated_research_queries": 2,
+      "corrections": 0,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 0.0,
+      "baseline_requirements_satisfied": 0,
+      "verified_outcome_gain": 0,
+      "selected_opportunities": [
+        "Determine how retries, timeouts, and error classification are implemented for network jobs in 'process'",
+        "Locate system-level specification of retry, timeout, and error handling mechanisms in 'system.md'."
+      ],
+      "verified_outcome": false,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "checks": [
+        {
+          "requirement": "Retry transient timeouts and return the eventual result",
+          "passed": false,
+          "candidate": "ac3f82ccf3a309cf64419e30a913d28845bbc8aa"
+        },
+        {
+          "requirement": "Bound retry attempts and do not retry permanent errors",
+          "passed": false,
+          "candidate": "ac3f82ccf3a309cf64419e30a913d28845bbc8aa"
+        }
+      ],
+      "candidate_source": "def process(call, attempts=3):\n    return call()\n",
+      "manager_actions": [
+        "delegate",
+        "discover",
+        "discover",
+        "research",
+        "discover",
+        "pause"
+      ],
+      "final_goal_status": "paused",
+      "research": [
+        {
+          "stage": "discovery",
+          "status": "discovered",
+          "attempts": 1
+        },
+        {
+          "stage": "research",
+          "status": "supported",
+          "attempts": 1
+        },
+        {
+          "stage": "discovery",
+          "status": "discovered",
+          "attempts": 1
+        }
+      ],
+      "goal_audits": []
+    },
+    {
+      "task": "batch-cost",
+      "arm": "single",
+      "goal_id": "cc0dfd2b7a2e439c8d1bd717fbf35e1f",
+      "initial_tree": "1dd329d4134f9a7d2abf4a409759048da64cd715",
+      "arm_seconds": 420,
+      "manager_model": "gpt-4.1",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "27eb5ba1aa38ae132ab16629022e97bcfdd87a7b",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "wall_seconds": 22.064299820000087,
+      "tokens": {
+        "input": 105189,
+        "output": 1405
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": null,
+      "corrections": null,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 1,
+      "verified_outcome_gain": 1,
+      "selected_opportunities": [],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "checks": [
+        {
+          "requirement": "Preserve duplicate keys, order, and missing values",
+          "passed": true,
+          "candidate": "27eb5ba1aa38ae132ab16629022e97bcfdd87a7b"
+        },
+        {
+          "requirement": "Use one database request per nonempty batch and none for empty input",
+          "passed": true,
+          "candidate": "27eb5ba1aa38ae132ab16629022e97bcfdd87a7b"
+        }
+      ],
+      "candidate_source": "def process(keys, fetch_many):\n    if not keys:\n        return []\n\n    unique_keys = list(dict.fromkeys(keys))\n    values_by_key = fetch_many(unique_keys)\n    return [values_by_key.get(key) for key in keys]\n"
+    },
+    {
+      "task": "batch-cost",
+      "arm": "manager",
+      "goal_id": "d22d88c6a12f4f8ba9668ef2b86a73bd",
+      "initial_tree": "1dd329d4134f9a7d2abf4a409759048da64cd715",
+      "arm_seconds": 420,
+      "manager_model": "gpt-4.1",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "36a8eda900074671c1db44855fde4b2362b10d22",
+      "requirements_satisfied": 1,
+      "requirements_total": 2,
+      "wall_seconds": 23.16423173000021,
+      "tokens": {
+        "input": 28860,
+        "output": 1834
+      },
+      "token_measurement_complete": false,
+      "repeated_research_queries": 1,
+      "corrections": 0,
+      "interventions": 0,
+      "incorrect_completion_claim": null,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 0.5,
+      "baseline_requirements_satisfied": 1,
+      "verified_outcome_gain": 0,
+      "selected_opportunities": [
+        "Optimize Fetch-Many Usage in Batch Processor"
+      ],
+      "verified_outcome": false,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "checks": [
+        {
+          "requirement": "Preserve duplicate keys, order, and missing values",
+          "passed": true,
+          "candidate": "36a8eda900074671c1db44855fde4b2362b10d22"
+        },
+        {
+          "requirement": "Use one database request per nonempty batch and none for empty input",
+          "passed": false,
+          "candidate": "36a8eda900074671c1db44855fde4b2362b10d22"
+        }
+      ],
+      "candidate_source": "def process(keys, fetch_many):\n    return [fetch_many([key]).get(key) for key in keys]\n",
+      "manager_actions": [
+        "delegate",
+        "discover",
+        "research",
+        "pause"
+      ],
+      "final_goal_status": "paused",
+      "research": [
+        {
+          "stage": "discovery",
+          "status": "discovered",
+          "attempts": 1
+        },
+        {
+          "stage": "research",
+          "status": "blocked",
+          "attempts": 1
+        }
+      ],
+      "goal_audits": []
+    }
+  ],
+  "diagnostics": [
+    {
+      "trial": 1,
+      "completed_arm_reports": 6,
+      "completed_run": true,
+      "errors": [
+        {
+          "task": "batch-cost",
+          "arm": "manager",
+          "errors": [
+            "ValueError: Source must be an existing file inside the workspace"
+          ]
+        },
+        {
+          "task": "bounded-retries",
+          "arm": "manager",
+          "errors": [
+            "ValueError: Source must be an existing file inside the workspace"
+          ]
+        }
+      ],
+      "criteria_by_arm": {
+        "single": 6,
+        "manager": 2
+      },
+      "interventions": 1,
+      "reported_wall_seconds": 155.31599971000014,
+      "observed_tokens_from_completed_reports": {
+        "input": 423545,
+        "output": 8871
+      }
+    },
+    {
+      "trial": 2,
+      "completed_arm_reports": 6,
+      "completed_run": true,
+      "errors": [],
+      "criteria_by_arm": {
+        "single": 6,
+        "manager": 2
+      },
+      "interventions": 0,
+      "reported_wall_seconds": 172.82529878700007,
+      "observed_tokens_from_completed_reports": {
+        "input": 603513,
+        "output": 12039
+      }
+    },
+    {
+      "trial": 3,
+      "completed_arm_reports": 6,
+      "completed_run": true,
+      "errors": [],
+      "criteria_by_arm": {
+        "single": 6,
+        "manager": 2
+      },
+      "interventions": 0,
+      "reported_wall_seconds": 89.20188758100085,
+      "observed_tokens_from_completed_reports": {
+        "input": 283633,
+        "output": 6149
+      }
+    },
+    {
+      "trial": 4,
+      "completed_arm_reports": 3,
+      "completed_run": false,
+      "errors": [],
+      "criteria_by_arm": {
+        "single": 4,
+        "manager": 1
+      },
+      "interventions": 0,
+      "reported_wall_seconds": 45.32734561600046,
+      "observed_tokens_from_completed_reports": {
+        "input": 152932,
+        "output": 2858
+      },
+      "aborted_reason": "Scoring used the uncreated worktree of an authorized-but-unstarted implementation; fixed and regression-tested."
+    },
+    {
+      "trial": 5,
+      "completed_arm_reports": 6,
+      "completed_run": true,
+      "errors": [],
+      "criteria_by_arm": {
+        "single": 6,
+        "manager": 2
+      },
+      "interventions": 0,
+      "reported_wall_seconds": 113.00571601300089,
+      "observed_tokens_from_completed_reports": {
+        "input": 376222,
+        "output": 8082
+      }
+    }
+  ],
+  "interaction": {
+    "goal_id": "b99bdc68866a49a3bea122405a3b44bf",
+    "task_id": "48ca79dd10134445baa2d013aacf1ce6",
+    "chat_seconds": 2.5227236629998515,
+    "worker_state_during_reply": "running",
+    "manager_reply": {
+      "response": "Currently, there is one active task: an intentional delayed read-only worker is running for live steering validation. The objective of this task is to ensure that the manager's ability to steer a task while it is actively running can be validated in real time, without altering or interrupting its progress. No changes or results have occurred yet; the task is in progress and is monitored for responsiveness."
+    },
+    "policy_version": 2,
+    "native_constraint_delivery": "acknowledged",
+    "pending_message": "2c7235eae063493385af8569fe27b77d",
+    "conversation_restored": true,
+    "pending_message_restored": true,
+    "restored_native_turns": [
+      "interrupted"
+    ]
+  },
+  "limitations": [
+    "One clean paired trial; no statistical superiority claim.",
+    "Two manager tasks paused on unavailable callback-contract hypotheses; those unfinished tasks are retained in the primary result.",
+    "Observed tokens are counts across different models and can include cached input; they are not dollar prices.",
+    "Diagnostic trials used evolving code/policies and are not pooled with the clean primary comparison.",
+    "No multi-hour production experiment or live comparative fault-rate study was performed."
+  ]
+}

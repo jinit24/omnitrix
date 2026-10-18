@@ -5,6 +5,8 @@ import uuid
 from agents import SQLiteSession
 
 SCHEMA = '''
+CREATE TABLE IF NOT EXISTS goal_completion_gates (
+ goal_id TEXT PRIMARY KEY REFERENCES goals(id), require_implementation INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS goal_versions (
  goal_id TEXT NOT NULL REFERENCES goals(id), revision INTEGER NOT NULL,
  objective TEXT NOT NULL, requirements TEXT NOT NULL, constraints TEXT NOT NULL,
@@ -56,6 +58,10 @@ class Control:
         policy = dict(self.db.execute('SELECT * FROM policy_versions WHERE goal_id=? ORDER BY version DESC LIMIT 1',
                                      (goal_id,)).fetchone())
         return {'goal': goal, 'policy': policy, 'session_id': f'manager:{goal_id}'}
+
+    def require_implementation(self, goal_id):
+        self.initialize(goal_id)
+        self.store.execute('INSERT OR REPLACE INTO goal_completion_gates VALUES(?,1)',(goal_id,))
 
     def session(self, goal_id):
         # SDK sessions keep manager-only conversation separate from worker transcripts.

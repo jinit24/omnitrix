@@ -1,0 +1,531 @@
+{
+  "mode": "live",
+  "fixture_version": 2,
+  "trial": "live-api-trial-9-gpt54-bounds",
+  "models": {
+    "manager_and_research": "gpt-5.4",
+    "coordinator_reasoning": "provider default",
+    "codex": "gpt-5.3-codex",
+    "codex_reasoning": "medium"
+  },
+  "contract_change": "Existing executable acceptance callback definitions are also documented for both arms; oracle assertions are unchanged.",
+  "architecture_superiority": "not established",
+  "arm_seconds": 420,
+  "arms": [
+    {
+      "arm": "single",
+      "tasks": 3,
+      "completed_tasks": 3,
+      "criteria_satisfied": 6,
+      "criteria_total": 6,
+      "wall_seconds": 58.98499089699999,
+      "observed_tokens": {
+        "input": 232753,
+        "output": 4404
+      },
+      "incorrect_completion_claims": 0,
+      "interventions": 0,
+      "corrections": null,
+      "repeated_research_queries": null
+    },
+    {
+      "arm": "manager",
+      "tasks": 3,
+      "completed_tasks": 2,
+      "criteria_satisfied": 4,
+      "criteria_total": 6,
+      "wall_seconds": 176.24679002700123,
+      "observed_tokens": {
+        "input": 461690,
+        "output": 12328
+      },
+      "incorrect_completion_claims": 0,
+      "interventions": 0,
+      "corrections": 0,
+      "repeated_research_queries": 3
+    }
+  ],
+  "tasks": [
+    {
+      "task": "deduplication",
+      "fixture_version": 2,
+      "arm": "single",
+      "goal_id": "fc316d0d4e924f60ac53e53f9922a52c",
+      "initial_tree": "1ac60a6b8bf5913bab613db1cf122783ec9f71ca",
+      "arm_seconds": 420,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "b54c9a3dbf6bedc2cbfca62a1ec6669c98397d14",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "wall_seconds": 29.833938686000693,
+      "tokens": {
+        "input": 94976,
+        "output": 2208
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": null,
+      "corrections": null,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 1,
+      "verified_outcome_gain": 1,
+      "selected_opportunities": [],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "checks": [
+        {
+          "requirement": "Preserve first occurrence order without mutating input",
+          "passed": true,
+          "candidate": "b54c9a3dbf6bedc2cbfca62a1ec6669c98397d14"
+        },
+        {
+          "requirement": "Deduplication uses a linear number of equality checks",
+          "passed": true,
+          "candidate": "b54c9a3dbf6bedc2cbfca62a1ec6669c98397d14"
+        }
+      ],
+      "candidate_source": "def process(items):\n    result = []\n    seen_hashable = set()\n    seen_unhashable = []\n\n    for item in items:\n        try:\n            if item in seen_hashable:\n                continue\n        except TypeError:\n            if item in result:\n                continue\n            seen_unhashable.append(item)\n            result.append(item)\n            continue\n\n        if seen_unhashable and item in seen_unhashable:\n            continue\n\n        seen_hashable.add(item)\n        result.append(item)\n\n    return result\n"
+    },
+    {
+      "task": "deduplication",
+      "fixture_version": 2,
+      "arm": "manager",
+      "goal_id": "7d79095e24d245a0a24a83939ba21edc",
+      "initial_tree": "1ac60a6b8bf5913bab613db1cf122783ec9f71ca",
+      "arm_seconds": 420,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "de851019161484839e5a18c37dae642df2b82648",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "wall_seconds": 78.6795737020002,
+      "tokens": {
+        "input": 231483,
+        "output": 5607
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": 1,
+      "corrections": 0,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 1,
+      "verified_outcome_gain": 1,
+      "selected_opportunities": [
+        "Replace list-membership deduplication with hash-tracked membership to meet linear equality-check contract",
+        "Verify hashability assumptions for event objects before adopting set-based deduplication"
+      ],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "checks": [
+        {
+          "requirement": "Preserve first occurrence order without mutating input",
+          "passed": true,
+          "candidate": "de851019161484839e5a18c37dae642df2b82648"
+        },
+        {
+          "requirement": "Deduplication uses a linear number of equality checks",
+          "passed": true,
+          "candidate": "de851019161484839e5a18c37dae642df2b82648"
+        }
+      ],
+      "candidate_source": "def process(items):\n    result = []\n    seen_hashable = {}\n    seen_unhashable = []\n\n    for item in items:\n        try:\n            item_hash = hash(item)\n        except Exception:\n            is_duplicate = False\n\n            for existing in seen_unhashable:\n                if existing == item:\n                    is_duplicate = True\n                    break\n\n            if not is_duplicate:\n                for bucket in seen_hashable.values():\n                    for existing in bucket:\n                        if existing == item:\n                            is_duplicate = True\n                            break\n                    if is_duplicate:\n                        break\n\n            if not is_duplicate:\n                result.append(item)\n                seen_unhashable.append(item)\n\n            continue\n\n        bucket = seen_hashable.get(item_hash)\n        is_duplicate = False\n\n        if bucket is not None:\n            for existing in bucket:\n                if existing == item:\n                    is_duplicate = True\n                    break\n\n        if not is_duplicate:\n            for existing in seen_unhashable:\n                if existing == item:\n                    is_duplicate = True\n                    break\n\n        if not is_duplicate:\n            result.append(item)\n            if bucket is None:\n                seen_hashable[item_hash] = [item]\n            else:\n                bucket.append(item)\n\n    return result\n",
+      "manager_actions": [
+        "discover",
+        "research",
+        "implement",
+        "audit",
+        "complete"
+      ],
+      "final_decision": {
+        "action": "complete",
+        "rationale": "The candidate implementation de851019161484839e5a18c37dae642df2b82648 has been independently verified through the authorized audit path and the implementation record is now completed. Both mandatory checks passed at the candidate revision, and the change stayed within the allowed path (service.py). Residual uncertainty about undocumented unhashable inputs was mitigated by the implemented fallback behavior and does not violate any explicit contract or check.",
+        "instructions": "Completed: event deduplication performance and reliability were improved without changing verified public behavior. Verified candidate revision: de851019161484839e5a18c37dae642df2b82648. Mandatory criteria satisfied: preserve first occurrence order without mutating input, and use a linear number of equality checks under the acceptance harness.",
+        "task_id": null,
+        "priority": 1,
+        "research_plan": null,
+        "research_id": null,
+        "implementation_id": "a5549dc250414c38b21ec61bffb46ee1"
+      },
+      "research": [
+        {
+          "stage": "discovery",
+          "status": "discovered",
+          "attempts": 1
+        },
+        {
+          "stage": "research",
+          "status": "supported",
+          "attempts": 1
+        }
+      ],
+      "goal_audits": [
+        {
+          "candidate": "de851019161484839e5a18c37dae642df2b82648",
+          "revision": 1,
+          "passed": 1
+        }
+      ],
+      "evaluations": [
+        {
+          "verdict": "supported",
+          "evidence_ids": [
+            "5429ff785cce49239c38b0964b4eac3a",
+            "8ed58687e5154d83878e192463436538"
+          ],
+          "reason": "Within the scoped sources, the hypothesis holds. `service.py` implements deduplication via `if item not in result`, which does not require hashability and contains no stated contract about unhashable support (5429ff785cce49239c38b0964b4eac3a). `system.md` provides the acceptance contract, and its only explicit behavioral/performance examples use hashable values: integers and a `Key` class with `__hash__` defined, plus a comparison-count requirement over 300 distinct items (8ed58687e5154d83878e192463436538). I found no explicit requirement, example, or strong implication in these files that deduplication must support arbitrary equality-only or unhashable objects, so the falsification criterion is not met.",
+          "feedback": "Caveat: current implementation incidentally supports unhashable equality-only inputs, so a pure set-backed rewrite could narrow behavior relative to today\u2019s code even if that behavior is undocumented in scope. If behavioral safety matters beyond the scoped contract, the next bounded check is to inspect event type definitions or tests/call sites for unhashable objects."
+        }
+      ]
+    },
+    {
+      "task": "bounded-retries",
+      "fixture_version": 2,
+      "arm": "single",
+      "goal_id": "121bad29226b406eac89599361606121",
+      "initial_tree": "afff2f36cfbf9fc4bac3b16432e87328fa8d5188",
+      "arm_seconds": 420,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "83ebb8b3d309d66931d922ecbffe6d9488fa196a",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "wall_seconds": 14.909993042999304,
+      "tokens": {
+        "input": 68425,
+        "output": 1154
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": null,
+      "corrections": null,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 0,
+      "verified_outcome_gain": 2,
+      "selected_opportunities": [],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "checks": [
+        {
+          "requirement": "Retry transient timeouts and return the eventual result",
+          "passed": true,
+          "candidate": "83ebb8b3d309d66931d922ecbffe6d9488fa196a"
+        },
+        {
+          "requirement": "Bound retry attempts and do not retry permanent errors",
+          "passed": true,
+          "candidate": "83ebb8b3d309d66931d922ecbffe6d9488fa196a"
+        }
+      ],
+      "candidate_source": "def process(call, attempts=3):\n    if attempts <= 0:\n        raise ValueError(\"attempts must be positive\")\n\n    last_timeout = None\n    for _ in range(attempts):\n        try:\n            return call()\n        except TimeoutError as exc:\n            last_timeout = exc\n\n    raise last_timeout\n"
+    },
+    {
+      "task": "bounded-retries",
+      "fixture_version": 2,
+      "arm": "manager",
+      "goal_id": "c5e38c254392405e8c0d19a9d0dc0454",
+      "initial_tree": "afff2f36cfbf9fc4bac3b16432e87328fa8d5188",
+      "arm_seconds": 420,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "8b09a72a5de4970a51edb047fca6f9a8d724c1b9",
+      "requirements_satisfied": 0,
+      "requirements_total": 2,
+      "wall_seconds": 36.80042460700042,
+      "tokens": {
+        "input": 48957,
+        "output": 2416
+      },
+      "token_measurement_complete": false,
+      "repeated_research_queries": 1,
+      "corrections": 0,
+      "interventions": 0,
+      "incorrect_completion_claim": null,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 0.0,
+      "baseline_requirements_satisfied": 0,
+      "verified_outcome_gain": 0,
+      "selected_opportunities": [
+        "Add bounded retry loop for TimeoutError in process"
+      ],
+      "verified_outcome": false,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "checks": [
+        {
+          "requirement": "Retry transient timeouts and return the eventual result",
+          "passed": false,
+          "candidate": "8b09a72a5de4970a51edb047fca6f9a8d724c1b9"
+        },
+        {
+          "requirement": "Bound retry attempts and do not retry permanent errors",
+          "passed": false,
+          "candidate": "8b09a72a5de4970a51edb047fca6f9a8d724c1b9"
+        }
+      ],
+      "candidate_source": "def process(call, attempts=3):\n    return call()\n",
+      "manager_actions": [
+        "discover",
+        "research",
+        "pause"
+      ],
+      "final_decision": {
+        "action": "pause",
+        "rationale": "Research is sufficient to identify the required change: process in service.py needs a bounded TimeoutError-only retry loop, while permanent errors must propagate immediately. However, this goal requires verified implementation, and there is no existing user-authorized implementation_id to execute the change. I also found no shared knowledge indicating a pre-created implementation authorization for this workspace.",
+        "instructions": "I\u2019m blocked on implementation authorization. The next step is to create or provide an implementation authorization/implementation_id for this repository change, after which I can direct implementation and later audit it against the retry requirements.",
+        "task_id": null,
+        "priority": 1,
+        "research_plan": null,
+        "research_id": null,
+        "implementation_id": null
+      },
+      "research": [
+        {
+          "stage": "discovery",
+          "status": "discovered",
+          "attempts": 1
+        },
+        {
+          "stage": "research",
+          "status": "escalated",
+          "attempts": 1
+        }
+      ],
+      "goal_audits": [],
+      "evaluations": [
+        {
+          "verdict": "insufficient",
+          "evidence_ids": [
+            "0efe9f24e2c5459fb9ad8831da944979",
+            "5a33c3da32394cdaa563e8e32df0a3dc"
+          ],
+          "reason": "The scoped contract in system.md explicitly requires exactly the three behaviors in the hypothesis: retry on TimeoutError until success within the attempt bound, raise TimeoutError after the final allowed timeout, and propagate ValueError without retrying. However, the current implementation in service.py does not implement any retry loop at all; it simply calls once and returns or raises. So the hypothesis may describe a sufficient design for the stated contract, but the repository evidence only proves the contract and disproves current implementation, not that no additional required semantics exist beyond the shown acceptance cases.",
+          "feedback": "Bounded follow-up: verify whether any additional contract exists for edge cases not covered in system.md, especially attempts<=0 or exception subclasses/other side effects. If no further contract exists, then implement a loop in process that retries only TimeoutError up to attempts, returns on first success, re-raises the last TimeoutError when exhausted, and immediately propagates non-timeout exceptions."
+        }
+      ]
+    },
+    {
+      "task": "batch-cost",
+      "fixture_version": 2,
+      "arm": "single",
+      "goal_id": "e837d39022514ee48952dbdcde822575",
+      "initial_tree": "7b8e2e8b0e6cf72a51fdc9bbae9c353545f3a7c8",
+      "arm_seconds": 420,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "e95bbfba987429542621a339353740ee8dce2d1b",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "wall_seconds": 14.241059167999992,
+      "tokens": {
+        "input": 69352,
+        "output": 1042
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": null,
+      "corrections": null,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 1,
+      "verified_outcome_gain": 1,
+      "selected_opportunities": [],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "checks": [
+        {
+          "requirement": "Preserve duplicate keys, order, and missing values",
+          "passed": true,
+          "candidate": "e95bbfba987429542621a339353740ee8dce2d1b"
+        },
+        {
+          "requirement": "Use one database request per nonempty batch and none for empty input",
+          "passed": true,
+          "candidate": "e95bbfba987429542621a339353740ee8dce2d1b"
+        }
+      ],
+      "candidate_source": "def process(keys, fetch_many):\n    if not keys:\n        return []\n\n    unique_keys = list(dict.fromkeys(keys))\n    values = fetch_many(unique_keys)\n    return [values.get(key) for key in keys]\n"
+    },
+    {
+      "task": "batch-cost",
+      "fixture_version": 2,
+      "arm": "manager",
+      "goal_id": "fdaf9ae7cb674529b3844d99c8db8e5f",
+      "initial_tree": "7b8e2e8b0e6cf72a51fdc9bbae9c353545f3a7c8",
+      "arm_seconds": 420,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "d53d42020c444673157714db10551d1ef84a86f9",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "wall_seconds": 60.766791718000604,
+      "tokens": {
+        "input": 181250,
+        "output": 4305
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": 1,
+      "corrections": 0,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 1,
+      "verified_outcome_gain": 1,
+      "selected_opportunities": [
+        "Replace per-key fetches with a single deduplicated batch fetch plus ordered projection"
+      ],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "checks": [
+        {
+          "requirement": "Preserve duplicate keys, order, and missing values",
+          "passed": true,
+          "candidate": "d53d42020c444673157714db10551d1ef84a86f9"
+        },
+        {
+          "requirement": "Use one database request per nonempty batch and none for empty input",
+          "passed": true,
+          "candidate": "d53d42020c444673157714db10551d1ef84a86f9"
+        }
+      ],
+      "candidate_source": "def process(keys, fetch_many):\n    if not keys:\n        return []\n\n    unique_keys = list(dict.fromkeys(keys))\n    values_by_key = fetch_many(unique_keys)\n    return [values_by_key.get(key) for key in keys]\n",
+      "manager_actions": [
+        "discover",
+        "research",
+        "implement",
+        "audit",
+        "complete"
+      ],
+      "final_decision": {
+        "action": "complete",
+        "rationale": "The candidate revision d53d42020c444673157714db10551d1ef84a86f9 is reported ready and the authorized checks passed for both mandatory requirements. Research established the defect and contract, implementation was limited to service.py, and executable verification covered preservation of duplicate keys, order, missing values, plus exactly one database request per nonempty batch and none for empty input.",
+        "instructions": "Completed at candidate revision d53d42020c444673157714db10551d1ef84a86f9. Verified outcomes reported: check_0 passed for preserving duplicate keys, order, and missing values; check_1 passed for using one database request per nonempty batch and none for empty input.",
+        "task_id": null,
+        "priority": 1,
+        "research_plan": null,
+        "research_id": null,
+        "implementation_id": "85bf4199a0a7436ea84c1a79ca30e0bc"
+      },
+      "research": [
+        {
+          "stage": "discovery",
+          "status": "discovered",
+          "attempts": 1
+        },
+        {
+          "stage": "research",
+          "status": "supported",
+          "attempts": 1
+        }
+      ],
+      "goal_audits": [
+        {
+          "candidate": "d53d42020c444673157714db10551d1ef84a86f9",
+          "revision": 1,
+          "passed": 1
+        }
+      ],
+      "evaluations": [
+        {
+          "verdict": "supported",
+          "evidence_ids": [
+            "ff2642dba42a4f0bac510c875ede6c0b",
+            "d53b692fe17a4c588ecd5dbac01afef7"
+          ],
+          "reason": "The hypothesis is supported by the cited repository evidence. Current code calls fetch_many([key]) inside a list comprehension, so it performs one fetch_many call per input element rather than one per nonempty batch (ff2642dba42a4f0bac510c875ede6c0b). The stated contract requires preserving duplicate keys, order, and missing values, and separately requires exactly one database request for nonempty input and none for empty input; the acceptance example for input [1,2,1] requires calls == [[1,2]] and [] for empty input (d53b692fe17a4c588ecd5dbac01afef7). That contract is compatible with first-seen deduplicated batching plus projection back over the original key sequence, and there is no contradictory in-scope evidence requiring repeated duplicate fetches or a different callback argument pattern.",
+          "feedback": "This is supported at the contract level, not as an already-verified implementation. A bounded follow-up is to implement process so it returns [] for empty input, computes first-seen unique keys for nonempty input, calls fetch_many exactly once, and projects the mapping back over the original keys. Then verify specifically against the documented examples, especially calls == [[1,2]] for [1,2,1] and None for missing keys."
+        }
+      ]
+    }
+  ],
+  "related_profiles": [
+    {
+      "trial": "7-contracts",
+      "fixture_version": 2,
+      "manager_model": "gpt-4.1",
+      "read_bounds_advertised": false,
+      "errors": [
+        {
+          "task": "batch-cost",
+          "arm": "manager",
+          "errors": [
+            "MaxTurnsExceeded: Max turns (8) exceeded"
+          ]
+        }
+      ],
+      "criteria_by_arm": {
+        "single": 6,
+        "manager": 2
+      },
+      "wall_seconds_by_arm": {
+        "single": 55.479164479001156,
+        "manager": 92.91422495700044
+      }
+    },
+    {
+      "trial": "8-gpt54",
+      "fixture_version": 2,
+      "manager_model": "gpt-5.4",
+      "read_bounds_advertised": false,
+      "errors": [],
+      "criteria_by_arm": {
+        "single": 6,
+        "manager": 2
+      },
+      "wall_seconds_by_arm": {
+        "single": 56.39427543000056,
+        "manager": 85.237056072001
+      }
+    }
+  ],
+  "limitations": [
+    "One paired trial, not a multi-hour or statistically powered study.",
+    "The retry task was not implemented: independent review demanded additional edge-case contract evidence, so no authorization was granted.",
+    "Profiles differ in fixture context, coordinator model and tool-contract fixes; do not infer a causal model ranking.",
+    "Input token counts can include cache hits and output counts can include reasoning. These are not dollar costs.",
+    "Baseline internal research/corrections and comparative recovery rates remain unmeasured."
+  ]
+}

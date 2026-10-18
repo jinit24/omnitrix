@@ -61,3 +61,12 @@ Inspect `activity`, `messages`, `research_queries`, `research_runs`, `verificati
 `external_actions`, and `completion_audits`, or use CLI status/knowledge/export commands.
 No monitoring service is required. See the status document for remaining live-validation
 limits and the experiment document for interruption/fault commands.
+
+## Running Codex inside another sandbox
+
+Codex's Linux sandbox reserves `/tmp/codex-daemon-<uid>` and requires its real
+owner-only directory. An outer sandbox may deliberately mask that path with mode
+000; nested worker commands then fail before execution. Use the environment's
+approved execution route outside that outer sandbox while retaining Codex's own
+read-only/workspace-write sandbox. Do not disable Codex sandboxing or weaken the
+reserved directory's protections. Live validation here required that route.

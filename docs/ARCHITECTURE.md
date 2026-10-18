@@ -53,9 +53,13 @@ are mapped from supplied catalogs/manifests and exported logs/metrics/documents.
 There are no live observability collectors in this iteration. An unavailable system
 is recorded as a gap, never silently claimed to have been examined.
 
-Mandatory knowledge retrieval precedes new investigation. Reads capture bounded
+Mandatory knowledge retrieval precedes new investigation and is recorded separately
+from the agent's discretionary tool-call budget, so a one-read budget still permits
+one source read. Reads capture bounded
 UTF-8 excerpts, line numbers, content SHA-256 revisions, source modification times,
-and observation timestamps. Files are limited to 128 KiB; large resources need a
+and observation timestamps. The 1–100 line bound is explicit in the SDK tool schema; argument errors return
+actionable feedback instead of implying source permissions failed. Files are limited
+to 128 KiB; large resources need a
 bounded export. Every read/search query, accessed evidence ID, and spent tool call
 is durable. Search has bounded pagination and is workspace-scoped. JSON export includes
 maps, findings, rejected hypotheses, queries, job/attempt histories and source snapshots.
@@ -68,7 +72,12 @@ reasons. Unsupported opportunities get confidence zero. Scores aid the manager;
 they are not calibrated economic predictions. Repeated discovery updates the backlog.
 
 Focused research consults earlier work, gathers support and contradictions, and
-returns findings, assumptions, uncertainty and a next action. A separate evaluator
+returns findings, assumptions, uncertainty and a next action. Structured discovery
+and research reports are delivered directly to the manager; historical retrieval is
+additional context, not a substitute for the worker handoff. Invalid plans return
+targeted rejection feedback; three identical rejections escalate instead of crashing
+the application or launching an unbounded retry. Database-backed SDK tools are async: SDK 0.24 dispatches synchronous tools in
+threads, which would violate SQLite connection ownership. A separate evaluator
 gets the original hypothesis, falsification condition, report, and **actual captured
 source excerpts**, and can independently read scoped files. It produces supported,
 insufficient, falsified or blocked findings with evidence IDs and targeted feedback.
@@ -84,11 +93,17 @@ an observation is over 24 hours old; semantic freshness of exported metrics stil
 needs evaluator judgment. Rejected and invalidated knowledge remains searchable.
 
 Each specialist role has a timeout, tool-call cap and SDK turn cap. The goal has a
-persisted total role-run budget (12 by default; evaluation spends a run too). A retry
+persisted total role-run budget (12 by default; evaluation spends a run too). Manager reasoning turn/time exhaustion also produces a durable pause/blocker rather
+than an uncaught crash. A retry
 requires targeted feedback and cannot reset the attempt budget. Exhaustion escalates.
 There is no retry loop that invents fresh budgets after every failure.
 
 ## Codex execution and communication
+
+When `OPENAI_API_KEY` is present, both Codex adapters use an explicit Responses API
+provider with `env_key = "OPENAI_API_KEY"` and a writable local session home. No key
+value is stored in arguments/configuration or copied from another credential file.
+Without it, the existing Codex configuration is preserved.
 
 The original `CodexWorker`/Node bridge uses the official Codex SDK for structured
 start/resume handoffs. Interactive workers use `CodexRuntime`, a Python JSONL
@@ -136,7 +151,10 @@ The quality of the authorized test oracle bounds what a passing result establish
 Local failures return concrete artifacts to a bounded repair attempt. A check classified
 as an architectural/assumption failure returns `needs_research`, requiring manager
 reprioritization. Exhausted attempts escalate. Success is only `ready_for_audit`.
-A separate manager-requested goal audit checks current criteria, current authorization,
+Code goals can require verified implementation explicitly (`--require-implementation`);
+they cannot complete on recommendations even if no implementation has been assigned.
+The manager sees the authorized objective, paths and executable checks, not just an
+opaque authorization ID. A separate manager-requested goal audit checks current criteria, current authorization,
 exact candidate revision and immutable verification artifacts. Missing criterion coverage
 fails even if all executed tests passed. Only an audit can complete implementation work;
 no merge, production deployment or destructive action follows automatically.

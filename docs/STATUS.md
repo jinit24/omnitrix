@@ -25,7 +25,8 @@ scheduler was added.
   verification without recoding after a lost response, stale-result rejection, progress
   deadlines, no model polling for waiting questions and safe retained shutdown state.
 
-The deterministic suite passes **40 tests**, with **one live Codex test skipped**.
+The deterministic suite passes **55 tests**; the full run with live Codex enabled
+passes **56 tests**, including real SDK start/resume using `OPENAI_API_KEY`.
 It uses mocked model reasoning/coding with real SQLite, SDK session storage, Git worktrees,
 subprocess verification, cross-process messaging, SIGKILL and worker-process termination.
 No mocked result is presented as a live model result.
@@ -48,21 +49,57 @@ are pinned. The repository was empty before the first stage.
 References: https://github.com/openai/openai-agents-python and
 https://github.com/openai/codex/tree/main/sdk/typescript, plus installed CLI schema output.
 
-The earlier real Codex SDK smoke returned a thread ID, then failed model connectivity
-with proxy HTTP CONNECT 403. Codex authentication was present; its read-only home needed
-session-write permission for that attempt. `OPENAI_API_KEY` is absent. No successful live
-manager/research/implementation cycle, live native steering/recovery, multi-hour run or
-comparative model-quality result is claimed. Native protocol tests use a subprocess double.
+`OPENAI_API_KEY` is now available and used by both Python agents and both Codex
+adapters through an explicit environment-key API provider. It is never copied into
+arguments or saved configuration. API-backed Codex uses a writable local session home;
+the previous ChatGPT-route 403 and protected-home failures are no longer blockers.
+Native worker commands required the approved execution route outside an outer sandbox
+that masks Codex's daemon socket directory; Codex's own sandbox remained enabled.
 
-Supply credentials securely, permit configured provider destinations and provide writable
-Codex session storage before live validation. Start with:
+Live validation now includes SDK start/resume; native worker execution; a manager reply
+in 2.52 seconds while a real delayed worker ran; approved policy delivery/interruption;
+conversation/pending-message restoration; and native reconciliation of the interrupted
+turn. Live manager tasks completed discovery, accepted research, authorized Codex
+implementation, executable verification and final audit.
 
-```sh
-OMNITRIX_LIVE_CODEX=1 .venv/bin/python -m pytest tests/test_codex_live.py -q
-```
+The clean paired comparison passed **6/6 criteria (3/3 tasks) for a single Codex worker**
+and **3/6 criteria (1/3 tasks) for the manager**. Times were 62.6 s versus 112.4 s total.
+The manager paused the retry and batching tasks over callback details it could not
+establish from the supplied sources. No application exception or false completion claim
+occurred in that clean trial. This is evidence of current limitations, not superiority.
+See [fixture-v1 results](experiments/live-api.json).
 
-Then exercise chat/run and the explicitly authorized live benchmark. Environment
-publication and restoration on a new cloud machine are separate, unverified operations.
+A final separate fixture-v2 run supplied the existing callback acceptance contracts to
+both arms, keeping all executable assertions unchanged. With GPT-5.4 as coordinator,
+the manager completed **2/3 tasks and 4/6 criteria**, versus **3/3 and 6/6** for the
+single worker. Times were 176.2 s versus 59.0 s; observed input/output tokens were
+461,690/12,328 versus 232,753/4,404. The manager paused retries after independent review
+demanded more edge-case evidence. It had no authorization to implement that task and
+its final explanation did not clearly distinguish that from missing user permission.
+This planning/evaluation limitation remains; no architectural advantage is established.
+See [v2 results](experiments/live-api-v2-gpt54.json) and [protocol](EXPERIMENTS.md).
+
+Live experiments exposed and led to fixes for:
+
+- API credentials not being selected for Codex's default login route.
+- SDK synchronous tools executing SQLite operations on the wrong thread; database tools
+  are now async, with tests invoking the actual SDK dispatch wrapper.
+- Invalid research scopes crashing an arm instead of returning bounded corrective feedback.
+- Hidden read-range limits and opaque SDK tool errors; line bounds are now advertised
+  in the schema and argument failures give corrective feedback.
+- Manager SDK turn exhaustion escaping the supervisor; it now records a durable pause
+  and blocker without automatically retrying.
+- Mandatory knowledge prefetch consuming a one-call research budget before any source read.
+- Structured research reports being omitted from manager handoffs.
+- Authorized executable checks being hidden behind opaque authorization IDs in manager state.
+- Premature completion of code goals before any verified implementation existed; explicit
+  code-goal completion gates are now persisted and enforced.
+- Benchmark scoring mutable worker files and crashing on unstarted worktrees; scoring now
+  uses a separate checkout at an immutable candidate revision with regression tests.
+
+Earlier diagnostic runs and their failures are preserved, not pooled with the clean
+comparison. No multi-hour experiment, statistical quality advantage, production benefit,
+or new-cloud-machine restoration is claimed. Environment publication remains separate.
 
 ## Remaining limits and next improvements
 
@@ -81,7 +118,8 @@ publication and restoration on a new cloud machine are separate, unverified oper
 - Native APIs are version-sensitive. Failed provider calls can omit usage; missing baseline
   research/correction/recovery measurements are not invented.
 
-Prioritize paid live end-to-end validation, then paired multi-hour trials with identical
+Prioritize reducing unnecessary research/clarification and improving callback-contract
+reasoning without weakening evidence gates, then paired multi-hour trials with identical
 instrumentation and held-out oracles. Measure failure rates and contention before adding
 infrastructure. Improve oracle coverage, semantic retrieval and external source adapters
 when measurements establish value. See [architecture](ARCHITECTURE.md) and [recovery](RECOVERY.md).

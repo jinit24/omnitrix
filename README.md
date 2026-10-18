@@ -20,9 +20,14 @@ npm ci
 pytest -q
 ```
 
-Set `OPENAI_API_KEY` securely for the manager and research roles. Authenticate Codex
-separately (`codex login`) with writable Codex session storage. `OMNITRIX_MODEL`
-defaults to `gpt-4.1`. Never put credentials in goal text, Markdown, or the database.
+Set `OPENAI_API_KEY` securely: the manager, research roles, Codex SDK adapter and
+Codex App Server all use it. No separate Codex login is needed when that variable
+is present. API-backed Codex defaults to `gpt-5.3-codex`; override it with
+`OMNITRIX_CODEX_MODEL`. `OMNITRIX_MODEL` defaults to `gpt-4.1` for SDK agents.
+Codex sessions use `.omnitrix/codex-api` (override `OMNITRIX_CODEX_HOME`); credentials
+are referenced by environment variable name and never written to its configuration.
+Without the key, existing Codex login/configuration is retained. Never put credentials
+in goal text, Markdown, or the database.
 Model calls incur usage costs. Source/editable installation is required for the role
 Markdown and Node bridge; this iteration is not a standalone distributed wheel.
 
@@ -30,7 +35,7 @@ Markdown and Node bridge; this iteration is not a standalone distributed wheel.
 
 ```sh
 omnitrix create 'Improve performance, reliability and cost of the engineering system' \
-  --criterion 'Identify and verify one bounded improvement' --workspace .
+  --criterion 'Identify and verify one bounded improvement' --require-implementation --workspace .
 # Use the printed goal ID:
 omnitrix chat GOAL_ID
 ```
@@ -127,6 +132,8 @@ First obtain accepted research for the goal. Review a JSON specification such as
 }
 ```
 
+`--require-implementation` prevents a code goal from completing without an independent
+verified implementation and current audit, even before an implementation is assigned.
 Every mandatory criterion needs a check. Use `failure_kind: "assumption"` for a
 check whose failure means the architecture/assumption needs research. External oracle
 files are hashed at authorization. Checks execute in a separate candidate worktree;
@@ -161,8 +168,8 @@ python scripts/benchmark.py --live --allow-code-modifications --hours 4 \
 
 Use new output paths. Completed benchmark arms are reusable on a rerun. An incomplete
 arm requires inspection/reconciliation rather than blind replay. Mock benchmark numbers
-validate the harness; they say nothing about whether multiple real agents outperform
-one real Codex worker. See [experiment results and protocol](docs/EXPERIMENTS.md).
+validate the harness. The recorded live runs did not outperform a single Codex worker;
+see the separate fixture/model profiles and remaining planning limits in the report. See [experiment results and protocol](docs/EXPERIMENTS.md).
 
 See [architecture](docs/ARCHITECTURE.md), [status and limitations](docs/STATUS.md), and
 [recovery](docs/RECOVERY.md). Keep the SQLite DB, `.sessions.db`, Codex home, worktrees

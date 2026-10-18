@@ -12,6 +12,7 @@ import time
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from omnitrix.store import Store
+from omnitrix.control import Control
 from omnitrix.implementation import Implementations,ImplementationSpec,AcceptanceCheck,git
 from omnitrix.research import Research
 from omnitrix.research_models import ResearchPlan
@@ -90,7 +91,9 @@ def fixture(task,directory):
     for check in checks:
         measured=subprocess.run(check.argv,cwd=repo,env={**os.environ,'OMNITRIX_CANDIDATE':str(repo),'PYTHONDONTWRITEBYTECODE':'1'},capture_output=True,timeout=10)
         observations.append(('PASS' if measured.returncode==0 else 'FAIL')+': '+check.requirement)
-    (repo/'system.md').write_text('Independent baseline observations for '+task['name']+'\n'+'\n'.join(observations)+'\n')
+    contracts='\n\n'.join(c['requirement']+'\n```python\n'+c['code']+'\n```' for c in task['criteria'])
+    (repo/'system.md').write_text('Independent baseline observations for '+task['name']+'\n'+'\n'.join(observations)+
+        '\n\nAuthoritative acceptance contracts (including injected callback definitions). These are expectations, not implementation code:\n'+contracts+'\n')
     (repo/'.gitignore').write_text('__pycache__/\n.pytest_cache/\n')
     git(repo,'add','.')
     git(repo,'-c','user.name=Benchmark','-c','user.email=benchmark@localhost','commit','-m','Identical task fixture')
@@ -98,6 +101,11 @@ def fixture(task,directory):
 
 
 async def score(candidate,repo,checks,output):
+    # Score immutable code, never a potentially dirty or partially edited worker tree.
+    candidate=candidate or git(repo,'rev-parse','HEAD^{commit}')
+    scoring_tree=(output/'score-worktree').resolve()
+    git(repo,'worktree','add','--detach',str(scoring_tree),candidate)
+    repo=scoring_tree
     results=[]
     for i,check in enumerate(checks):
         env={'PATH':os.environ.get('PATH','/usr/bin:/bin'),'OMNITRIX_CANDIDATE':str(repo),'PYTHONDONTWRITEBYTECODE':'1'}
@@ -107,7 +115,11 @@ async def score(candidate,repo,checks,output):
         except asyncio.TimeoutError:
             proc.kill();await proc.wait();stdout=b'timeout'
         artifact=output/f'score-{i}.log';artifact.write_bytes(stdout)
-        results.append({'requirement':check.requirement,'passed':proc.returncode==0 and b'criterion passed' in stdout,'artifact':str(artifact)})
+        results.append({'requirement':check.requirement,'passed':proc.returncode==0 and b'criterion passed' in stdout,'artifact':str(artifact),'candidate':candidate})
+    if git(repo,'rev-parse','HEAD')!=candidate or git(repo,'diff','--name-only'):
+        for result in results:
+            result['passed']=False
+            result['error']='Acceptance scoring mutated the candidate'
     return results
 
 
@@ -121,6 +133,16 @@ async def run_arm(task,arm,directory,live,allow,steps,runtime_override=None,arm_
     store=Store(directory/'state.db')
     goal=store.create_goal(task['goal'],[c['requirement'] for c in task['criteria']],repo)
     supervisor=None
+    if arm=='manager':
+        control=Control(store)
+        control.require_implementation(goal)
+        proposal=control.propose(goal,'policy',{'instructions':
+            'Use bounded discover and hypothesis-driven research for investigations; generic delegate work is not accepted research. '
+            'Once research is independently supported, this explicitly authorized benchmark harness creates an implementation ID. '
+            'Choose implementation and final audit to satisfy all mandatory executable criteria. '
+            'Do not complete on recommendations or spend budget on unobservable production-scale behavior. '
+            'The fixture, measured baseline observations and independent acceptance checks define the scope.'})
+        control.accept(goal,proposal)
     try:
         if arm=='single':
             prompt=json.dumps({'goal':task['goal'],'criteria':[c.model_dump() for c in checks],
@@ -162,12 +184,13 @@ async def run_arm(task,arm,directory,live,allow,steps,runtime_override=None,arm_
                 await asyncio.sleep(.1)
             row=store.db.execute('SELECT * FROM implementations ORDER BY created DESC LIMIT 1').fetchone()
             if row:
-                candidate=row['candidate'];candidate_repo=Path(row['worktree']);claims=row['status']=='completed'
+                candidate=row['candidate'];candidate_repo=Path(row['worktree']) if Path(row['worktree']).is_dir() else repo;claims=row['status']=='completed'
     except Exception as exc:
         errors.append(f'{type(exc).__name__}: {exc}')
     finally:
         if supervisor: await supervisor.close()
         else: await runtime.close()
+    candidate=candidate or git(repo,'rev-parse','HEAD^{commit}')
     scored=await score(candidate,candidate_repo,checks,directory)
     elapsed=time.monotonic()-started
     queries=[(r[0],r[1]) for r in store.db.execute('SELECT operation,query FROM research_queries')]
@@ -178,7 +201,7 @@ async def run_arm(task,arm,directory,live,allow,steps,runtime_override=None,arm_
     runtime_usage=getattr(runtime,'usage',{})
     if usage or runtime_usage:
         tokens={'input':sum(u.get('input_tokens',0) for u in usage)+sum(u.get('inputTokens',0) for u in runtime_usage.values()),'output':sum(u.get('output_tokens',0) for u in usage)+sum(u.get('outputTokens',0) for u in runtime_usage.values())}
-    report={'task':task['name'],'arm':arm,'goal_id':goal,'database':str(store.path),'initial_tree':initial_tree,'arm_seconds':arm_seconds,'manager_model':os.getenv('OMNITRIX_MODEL','gpt-4.1'),'codex_model':os.getenv('OMNITRIX_CODEX_MODEL','runtime default'),'mode':'live' if live else 'mock-harness-only','candidate':candidate,
+    report={'task':task['name'],'fixture_version':2,'arm':arm,'goal_id':goal,'database':str(store.path),'initial_tree':initial_tree,'arm_seconds':arm_seconds,'manager_model':os.getenv('OMNITRIX_MODEL','gpt-4.1'),'codex_model':os.getenv('OMNITRIX_CODEX_MODEL','runtime default'),'mode':'live' if live else 'mock-harness-only','candidate':candidate,
         'requirements_satisfied':sum(r['passed'] for r in scored),'requirements_total':len(scored),'checks':scored,
         'wall_seconds':elapsed,'tokens':tokens,'token_measurement_complete':bool(live and not errors and getattr(runtime,'session_ids',set()) and set(runtime.usage)==runtime.session_ids),
         'repeated_research_queries':repeated if arm=='manager' else None,'corrections':corrections if arm=='manager' else None,

@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from typing import Callable, Protocol
 from .models import Handoff
+from .codex_config import api_provider_config, codex_environment
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -25,9 +26,9 @@ class CodexWorker:
 
     async def run(self, instructions, workspace, session_id, on_session):
         payload = json.dumps(dict(instructions=instructions, workspace=workspace,
-                                  session_id=session_id, schema=Handoff.model_json_schema()))
+                                  session_id=session_id, schema=Handoff.model_json_schema(), config=api_provider_config()))
         proc = await asyncio.create_subprocess_exec(
-            'node', str(ROOT / 'bridge/codex.mjs'), stdin=asyncio.subprocess.PIPE,
+            'node', str(ROOT / 'bridge/codex.mjs'), env=codex_environment(), stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         async def collect():
             proc.stdin.write(payload.encode())

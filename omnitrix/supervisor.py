@@ -6,6 +6,7 @@ import json
 import time
 import uuid
 from agents import Agent, Runner, RunConfig
+from agents.exceptions import MaxTurnsExceeded
 from .control import Control
 from .execution import Execution
 from .implementation import Implementations
@@ -150,78 +151,105 @@ class Supervisor:
                 self.autonomy = 0
                 return {'blocked': 'Reconcile uncertain worker threads before further autonomous actions'}
             self.autonomy -= 1
-            decision = await asyncio.wait_for(self.brain.decide(self.status()), 120)
+            try:
+                decision = await asyncio.wait_for(self.brain.decide(self.status()),120)
+            except (MaxTurnsExceeded,asyncio.TimeoutError) as exc:
+                self.autonomy=0
+                self.store.execute("UPDATE goals SET status='paused' WHERE id=?",(self.goal_id,))
+                reason={'error':type(exc).__name__,'reason':'Manager reasoning budget exhausted; retained conversation/state require a changed approach, not automatic replay'}
+                self.control.message(self.goal_id,'manager_budget_exhausted',reason,direction='worker_to_manager')
+                self.control.event(self.goal_id,'manager_budget_exhausted',reason)
+                return {'blocked':reason}
             self.store.execute('INSERT INTO decisions(goal_id,body) VALUES(?,?)', (self.goal_id, decision.model_dump_json()))
             self.control.event(self.goal_id, 'decision', decision.model_dump())
-            action = decision.action
-            if action in ('pause','complete'):
-                self.autonomy = 0
-                if action == 'complete':
-                    # Implementation goals cannot complete on an agent's assertion alone.
-                    implementations = self.status()['implementations']
-                    revision = self.control.current(self.goal_id)['goal']['revision']
-                    audit = self.db.execute('SELECT 1 FROM completion_audits WHERE goal_id=? AND revision=? AND passed=1',(self.goal_id,revision)).fetchone()
-                    if implementations and (not audit or not any(r['status'] == 'completed' for r in implementations)):
-                        return {'blocked': 'An exact-revision goal audit is required before completion'}
-                self.store.execute('UPDATE goals SET status=? WHERE id=?', ('completed' if action=='complete' else 'paused', self.goal_id))
-                return decision.model_dump()
-            if action in ('discover','research','retry_research'):
-                if action == 'retry_research':
-                    job = self.research.job(decision.research_id)
-                    if job['goal_id'] != self.goal_id:
-                        raise ValueError('Research job belongs to another goal')
-                    job_id = job['id']
-                else:
-                    if decision.research_plan is None:
-                        raise ValueError('Research needs an explicit bounded plan')
-                    plan = self.research.plan(self.goal_id, 'discovery' if action=='discover' else 'research', decision.research_plan)
-                    if plan['duplicate']:
-                        self.control.message(self.goal_id, 'duplicate_research', plan, direction='worker_to_manager')
-                        return plan
-                    job_id = plan['job_id']
-                async def investigate(task_id):
-                    return await self.research.attempt(job_id, decision.instructions if action=='retry_research' else '')
-                return {'task_id': await self.submit('research', {'job_id': job_id}, investigate,
-                    json.loads(self.research.job(job_id)['spec'])['budget']['seconds'] * 2 + 10)}
-            if action in ('implement','audit'):
-                service = Implementations(self.store, self.runtime)
-                row = service.get(decision.implementation_id)
-                if row['goal_id'] != self.goal_id:
-                    raise ValueError('Implementation belongs to another goal')
-                if action == 'audit':
-                    return service.audit(row['id'])
-                async def implement(task_id):
-                    return await service.run(row['id'], task_id)
-                return {'task_id': await self.submit('implementation', {'implementation_id': row['id']}, implement, 1800)}
-            if action in ('delegate', 'follow_up'):
-                session_id = None
-                if action == 'follow_up':
-                    previous = self.store.task(decision.task_id)
-                    if previous['goal_id'] != self.goal_id:
-                        raise ValueError('Task belongs to another goal')
-                    session_id = previous['session_id']
-                async def run(task_id):
-                    thread_id, turn_id = await self.runtime.start(self.status()['goal']['workspace'], decision.instructions, session_id,
-                        on_thread=lambda sid: self.store.execute('UPDATE task_runtime SET session_id=? WHERE task_id=?',(sid,task_id)),schema=Handoff.model_json_schema())
-                    self.store.execute('UPDATE task_runtime SET session_id=?,turn_id=? WHERE task_id=?', (thread_id,turn_id,task_id))
-                    self.store.execute('UPDATE tasks SET session_id=? WHERE id=?', (thread_id, task_id))
-                    result = await self.runtime.wait(thread_id, turn_id, 300)
-                    if result['status'] != 'completed':
-                        raise RuntimeError('Worker turn failed or was interrupted; reconcile before retry')
-                    for item in reversed(result.get('items',[])):
-                        if item.get('type')=='agentMessage':
-                            try:
-                                return Handoff.model_validate_json(item['text']).model_dump()
-                            except (ValueError,KeyError):
-                                continue
-                    raise RuntimeError('Worker returned no structured handoff; inspect its preserved session')
-                repeats = self.db.execute("SELECT count(*) FROM tasks WHERE goal_id=? AND adapter='codex' AND instructions=? AND status IN ('failed','paused','cancelled')",(self.goal_id,json.dumps({'instructions':decision.instructions}))).fetchone()[0]
-                if repeats>=2:
+            try:
+                return await self.dispatch(decision)
+            except (ValueError,FileNotFoundError) as exc:
+                feedback={'action':decision.action,'error':str(exc),
+                    'next':'Inspect available resources and correct the bounded plan; do not repeat the rejected arguments'}
+                self.control.message(self.goal_id,'decision_rejected',feedback,direction='worker_to_manager')
+                self.control.event(self.goal_id,'decision_rejected',feedback)
+                repetitions=self.db.execute("SELECT count(*) FROM activity WHERE goal_id=? AND kind='decision_rejected' AND detail=?",(self.goal_id,json.dumps(feedback))).fetchone()[0]
+                if repetitions>=3:
                     self.autonomy=0
-                    self.control.event(self.goal_id,'approach_escalated',{'instructions':decision.instructions,'failures':repeats})
-                    return {'blocked':'Repeated unsuccessful approach; manager must change the hypothesis or plan'}
-                return {'task_id': await self.submit('codex', {'instructions': decision.instructions}, run)}
-            raise ValueError('Unsupported manager action')
+                    self.store.execute("UPDATE goals SET status='paused' WHERE id=?",(self.goal_id,))
+                return {'rejected':feedback,'escalated':repetitions>=3}
+
+    async def dispatch(self, decision):
+        action = decision.action
+        if self.status()['goal']['requires_verified_implementation'] and action in ('delegate','follow_up'):
+            raise ValueError('This code goal requires typed discover/research agents before authorized implementation; use list_resources directly for inventory, not legacy delegation')
+        if action in ('pause','complete'):
+            if action == 'complete':
+                # Implementation goals cannot complete on an agent's assertion alone.
+                implementations = self.status()['implementations']
+                revision = self.control.current(self.goal_id)['goal']['revision']
+                audit = self.db.execute('SELECT 1 FROM completion_audits WHERE goal_id=? AND revision=? AND passed=1',(self.goal_id,revision)).fetchone()
+                required=self.status()['goal']['requires_verified_implementation']
+                if (implementations or required) and (not audit or not any(r['status'] == 'completed' for r in implementations)):
+                    reason='An exact-revision verified implementation and goal audit are required; research or recommendations alone do not satisfy this goal'
+                    self.control.message(self.goal_id,'completion_rejected',{'reason':reason},direction='worker_to_manager')
+                    return {'blocked':reason}
+            self.autonomy=0
+            self.store.execute('UPDATE goals SET status=? WHERE id=?', ('completed' if action=='complete' else 'paused', self.goal_id))
+            return decision.model_dump()
+        if action in ('discover','research','retry_research'):
+            if action == 'retry_research':
+                job = self.research.job(decision.research_id)
+                if job['goal_id'] != self.goal_id:
+                    raise ValueError('Research job belongs to another goal')
+                job_id = job['id']
+            else:
+                if decision.research_plan is None:
+                    raise ValueError('Research needs an explicit bounded plan')
+                plan = self.research.plan(self.goal_id, 'discovery' if action=='discover' else 'research', decision.research_plan)
+                if plan['duplicate']:
+                    self.control.message(self.goal_id, 'duplicate_research', plan, direction='worker_to_manager')
+                    return plan
+                job_id = plan['job_id']
+            async def investigate(task_id):
+                return await self.research.attempt(job_id, decision.instructions if action=='retry_research' else '')
+            return {'task_id': await self.submit('research', {'job_id': job_id}, investigate,
+                json.loads(self.research.job(job_id)['spec'])['budget']['seconds'] * 2 + 10)}
+        if action in ('implement','audit'):
+            service = Implementations(self.store, self.runtime)
+            row = service.get(decision.implementation_id)
+            if row['goal_id'] != self.goal_id:
+                raise ValueError('Implementation belongs to another goal')
+            if action == 'audit':
+                return service.audit(row['id'])
+            async def implement(task_id):
+                return await service.run(row['id'], task_id)
+            return {'task_id': await self.submit('implementation', {'implementation_id': row['id']}, implement, 1800)}
+        if action in ('delegate', 'follow_up'):
+            session_id = None
+            if action == 'follow_up':
+                previous = self.store.task(decision.task_id)
+                if previous['goal_id'] != self.goal_id:
+                    raise ValueError('Task belongs to another goal')
+                session_id = previous['session_id']
+            async def run(task_id):
+                thread_id, turn_id = await self.runtime.start(self.status()['goal']['workspace'], decision.instructions, session_id,
+                    on_thread=lambda sid: self.store.execute('UPDATE task_runtime SET session_id=? WHERE task_id=?',(sid,task_id)),schema=Handoff.model_json_schema())
+                self.store.execute('UPDATE task_runtime SET session_id=?,turn_id=? WHERE task_id=?', (thread_id,turn_id,task_id))
+                self.store.execute('UPDATE tasks SET session_id=? WHERE id=?', (thread_id, task_id))
+                result = await self.runtime.wait(thread_id, turn_id, 300)
+                if result['status'] != 'completed':
+                    raise RuntimeError('Worker turn failed or was interrupted; reconcile before retry')
+                for item in reversed(result.get('items',[])):
+                    if item.get('type')=='agentMessage':
+                        try:
+                            return Handoff.model_validate_json(item['text']).model_dump()
+                        except (ValueError,KeyError):
+                            continue
+                raise RuntimeError('Worker returned no structured handoff; inspect its preserved session')
+            repeats = self.db.execute("SELECT count(*) FROM tasks WHERE goal_id=? AND adapter='codex' AND instructions=? AND status IN ('failed','paused','cancelled')",(self.goal_id,json.dumps({'instructions':decision.instructions}))).fetchone()[0]
+            if repeats>=2:
+                self.autonomy=0
+                self.control.event(self.goal_id,'approach_escalated',{'instructions':decision.instructions,'failures':repeats})
+                return {'blocked':'Repeated unsuccessful approach; manager must change the hypothesis or plan'}
+            return {'task_id': await self.submit('codex', {'instructions': decision.instructions}, run)}
+        raise ValueError('Unsupported manager action')
 
     async def on_runtime_event(self, data):
         params = data.get('params', {})

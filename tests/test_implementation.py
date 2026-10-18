@@ -153,3 +153,12 @@ async def test_changed_independent_oracle_revokes_authorization(project,tmp_path
     checker.write_text('assert False\n')
     with pytest.raises(ValueError,match='oracle changed'):
         service.auth(service.get(implementation)['authorization'])
+
+
+async def test_manager_can_see_authorized_checks_instead_of_guessing_they_are_missing(project):
+    service,implementation=await create(project,CodingRuntime())
+    visible=project[0].snapshot(project[1])['implementations'][0]
+    assert visible['id']==implementation
+    assert visible['spec']['checks'][0]['argv']
+    assert {c['requirement'] for c in visible['spec']['checks']}=={'Double positive numbers','Handle zero'}
+    assert visible['authorization_revoked']==0

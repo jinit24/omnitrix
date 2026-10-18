@@ -5,6 +5,7 @@ import os
 import shutil
 from pathlib import Path
 import uuid
+from .codex_config import cli_config_args, codex_environment
 
 
 class CodexRuntime:
@@ -26,7 +27,8 @@ class CodexRuntime:
     async def connect(self):
         if self.proc is not None:
             return
-        self.proc = await asyncio.create_subprocess_exec(self.executable, 'app-server', '--stdio',
+        self.proc = await asyncio.create_subprocess_exec(self.executable, 'app-server', '--stdio', *cli_config_args(),
+            env=codex_environment(),
             stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
             limit=4*1024*1024)
         self.reader = asyncio.create_task(self._read())

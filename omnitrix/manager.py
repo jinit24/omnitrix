@@ -19,7 +19,7 @@ class AgentBrain:
 
     async def decide(self, snapshot):
         @function_tool
-        def recall_history(section: str, offset: int = 0) -> str:
+        async def recall_history(section: str, offset: int = 0) -> str:
             """Read earlier tasks or decisions from durable history, 10 entries at a time."""
             if offset<0:
                 return 'Use a nonnegative offset.'
@@ -39,11 +39,11 @@ class AgentBrain:
             policy = '\nDurable manager policy:\n' + current['policy']['instructions']
             session = control.session(goal_id)
             @function_tool
-            def search_knowledge(query: str = '', offset: int = 0) -> str:
+            async def search_knowledge(query: str = '', offset: int = 0) -> str:
                 """Retrieve shared verified facts, system maps, assumptions and rejected hypotheses."""
                 return json.dumps(Knowledge(self.store).search(snapshot['goal']['workspace'], query, offset=offset))
             @function_tool
-            def list_resources(directory: str = '.') -> str:
+            async def list_resources(directory: str = '.') -> str:
                 """List at most 40 direct children; no recursive scan. Select explicit bounded research scopes."""
                 from pathlib import Path
                 root = Path(snapshot['goal']['workspace']).resolve()
@@ -139,7 +139,7 @@ class Manager:
                 self.store.db.execute('INSERT INTO decisions(goal_id,body) VALUES(?,?)',
                                       (goal_id, decision.model_dump_json()))
                 if decision.action in ('complete', 'pause'):
-                    if decision.action=='complete' and self.store.snapshot(goal_id)['implementations']:
+                    if decision.action=='complete' and (self.store.snapshot(goal_id)['implementations'] or self.store.snapshot(goal_id)['goal']['requires_verified_implementation']):
                         current = Control(self.store).current(goal_id)
                         if not self.store.db.execute('SELECT 1 FROM completion_audits WHERE goal_id=? AND revision=? AND passed=1',(goal_id,current['goal']['revision'])).fetchone():
                             raise ValueError('Completion requires a current exact-revision goal audit')

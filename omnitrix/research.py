@@ -5,10 +5,20 @@ import json
 import os
 import time
 import uuid
+from typing import Annotated
+from pydantic import Field
 from agents import Agent, Runner, RunConfig, ModelSettings, function_tool
 from .knowledge import Knowledge, ResearchTools, source_path, read_source_bytes
 from .research_models import DiscoveryReport, ResearchReport, Evaluation, ResearchPlan
 from .workers import ROOT
+
+
+def research_tool_error(context, error):
+    if isinstance(error, RuntimeError) and 'budget exhausted' in str(error):
+        return 'Research tool budget exhausted. Stop gathering data and report the gap.'
+    if isinstance(error, ValueError):
+        return 'Invalid research tool arguments: '+str(error)
+    return 'Research tool call failed. Read only explicit scoped files, with start_line >= 1 and line_count between 1 and 100. Check the supplied arguments before declaring source access blocked.'
 
 
 class ResearchAgents:
@@ -16,13 +26,13 @@ class ResearchAgents:
         self.model = model or os.getenv('OMNITRIX_MODEL', 'gpt-4.1')
 
     async def run(self, role, context, tools):
-        @function_tool
-        def read_source(locator: str, start_line: int = 1, line_count: int = 80) -> str:
-            """Read an explicitly scoped file and receive captured, revisioned evidence."""
+        @function_tool(failure_error_function=research_tool_error)
+        async def read_source(locator: str, start_line: Annotated[int, Field(ge=1)] = 1, line_count: Annotated[int, Field(ge=1,le=100)] = 80) -> str:
+            """Read 1 to 100 lines from an explicit scoped file; start_line must be positive. Returns captured evidence IDs and source revisions."""
             return json.dumps(tools.read(locator, start_line, line_count))
 
         @function_tool
-        def search_knowledge(query: str = '', offset: int = 0) -> str:
+        async def search_knowledge(query: str = '', offset: int = 0) -> str:
             """Reuse earlier system maps, rejected hypotheses and evaluated findings."""
             return json.dumps(tools.search(query, offset))
 
@@ -105,7 +115,8 @@ class Research:
                 self.db.execute('UPDATE opportunities SET status=?,updated=? WHERE id=?',
                                  (status, time.time(), spec['opportunity_id']))
         return {'job_id': job['id'], 'run_id': run_id, 'status': status, 'feedback': feedback,
-                'evaluation': evaluation.model_dump() if evaluation else None}
+                'evaluation': evaluation.model_dump() if evaluation else None,
+                'report': report.model_dump() if report else None}
 
     async def attempt(self, job_id, feedback=''):
         job = self.job(job_id)
@@ -133,7 +144,7 @@ class Research:
         try:
             tools = ResearchTools(self.store, run_id, workspace, spec.scope, spec.budget.tool_calls)
             # Mandatory retrieval happens before any new investigation, even if the model omits it.
-            existing = tools.search('')
+            existing = tools.prefetch()
             context = {'plan': spec.model_dump(), 'prior_knowledge': existing, 'feedback': feedback,
                        'goal': self.store.snapshot(job['goal_id'])['goal']}
             report = await asyncio.wait_for(self.agents.run(job['stage'], context, tools), spec.budget.seconds)

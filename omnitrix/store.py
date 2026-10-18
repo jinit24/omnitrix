@@ -64,13 +64,15 @@ class Store:
             goal.update(objective=revision['objective'], requirements=json.loads(revision['requirements']),
                         revision=revision['revision'], constraints=json.loads(revision['constraints']))
         goal['original_requirements'] = original_requirements
+        gate=self.db.execute('SELECT require_implementation FROM goal_completion_gates WHERE goal_id=?',(goal_id,)).fetchone()
+        goal['requires_verified_implementation']=bool(gate and gate[0])
         research = [dict(r) for r in self.db.execute('SELECT * FROM research_jobs WHERE goal_id=? ORDER BY created DESC LIMIT 20', (goal_id,))]
         from .knowledge import Knowledge
         return {'goal': goal, 'tasks': tasks, 'decisions': decisions,
                 'research': research, 'opportunities': Knowledge(self).backlog(goal_id),
                 'research_budget': dict(r) if (r := self.db.execute('SELECT * FROM research_limits WHERE goal_id=?', (goal_id,)).fetchone()) else None,
                 'active': [dict(r) for r in self.db.execute('SELECT * FROM task_runtime WHERE task_id IN (SELECT id FROM tasks WHERE goal_id=?)', (goal_id,))],
-                'implementations': [dict(r) for r in self.db.execute('SELECT * FROM implementations WHERE goal_id=?', (goal_id,))],
+                'implementations': [dict(r) | {'spec':json.loads(r['spec'])} for r in self.db.execute('SELECT i.*,a.spec,a.revoked AS authorization_revoked FROM implementations i JOIN implementation_authorizations a ON i.authorization=a.id WHERE i.goal_id=?', (goal_id,))],
                 'worker_messages': [dict(r) for r in self.db.execute("SELECT kind,body,task_id,created FROM messages WHERE goal_id=? AND direction='worker_to_manager' AND kind IN ('implementation_handoff','question','blocker','findings') ORDER BY created DESC LIMIT 20",(goal_id,))],
                 'pending_messages': [dict(r) for r in self.db.execute("SELECT * FROM messages WHERE goal_id=? AND state IN ('pending','uncertain','sending','sent_no_ack') ORDER BY created LIMIT 20", (goal_id,))]}
 

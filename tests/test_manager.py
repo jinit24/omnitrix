@@ -130,3 +130,21 @@ async def test_database_lock_prevents_overlapping_managers(tmp_path):
     finally:
         release.set()
         await active
+
+
+async def test_manager_sqlite_tools_use_real_sdk_dispatch(tmp_path,monkeypatch):
+    from agents.tool_context import ToolContext
+    store,goal=setup(tmp_path)
+    async def fake_run(agent,prompt,**kwargs):
+        for tool,args in [(agent.tools[0],{'section':'messages','offset':0}),
+                          (agent.tools[1],{'query':'','offset':0}),
+                          (agent.tools[2],{'directory':'.'})]:
+            payload=json.dumps(args)
+            ctx=ToolContext(context=None,tool_name=tool.name,tool_call_id=tool.name,tool_arguments=payload)
+            output=await tool.on_invoke_tool(ctx,payload)
+            assert isinstance(json.loads(output),list)
+        class Result:
+            final_output=decision('pause')
+        return Result()
+    monkeypatch.setattr('omnitrix.manager.Runner.run',fake_run)
+    assert (await AgentBrain(store=store).decide(store.snapshot(goal))).action=='pause'

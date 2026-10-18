@@ -169,3 +169,49 @@ async def test_other_process_can_send_status_without_becoming_manager(state):
     assert json.loads(row[0])['active'][0]['state']=='running'
     assert not release.is_set()
     await supervisor.close()
+
+
+async def test_bad_model_scope_returns_targeted_feedback_instead_of_crashing(state):
+    from omnitrix.models import Decision
+    from omnitrix.research_models import ResearchPlan
+    store,goal=state
+    class BadBrain:
+        async def decide(self,snapshot):
+            return Decision(action='discover',rationale='Map the service',instructions='Inspect sources',task_id=None,priority=1,
+                research_plan=ResearchPlan(scope=['.'],question='Where is the retry behavior?'))
+    supervisor=await Supervisor(store,goal,brain=BadBrain(),runtime=Runtime()).open()
+    result=await supervisor.advance(steps=5)
+    assert result['rejected'] and not result['escalated']
+    assert supervisor.control.pending(goal)[0]['kind']=='decision_rejected'
+    await supervisor.advance();result=await supervisor.advance()
+    assert result['escalated'] and supervisor.autonomy==0
+    await supervisor.close()
+
+
+async def test_implementation_goal_cannot_complete_without_any_implementation(state):
+    from omnitrix.models import Decision
+    store,goal=state
+    Control(store).require_implementation(goal)
+    class Brain:
+        async def decide(self,snapshot):
+            return Decision(action='complete',rationale='Suggestions are sufficient',instructions='Done',task_id=None,priority=1)
+    supervisor=await Supervisor(store,goal,brain=Brain(),runtime=Runtime()).open()
+    assert (await supervisor.advance(steps=2))['blocked']
+    assert supervisor.status()['goal']['status']!='completed'
+    assert supervisor.autonomy==1
+    await supervisor.close()
+
+
+async def test_manager_sdk_turn_exhaustion_pauses_without_crashing_or_retrying(state):
+    from agents.exceptions import MaxTurnsExceeded
+    store,goal=state
+    class Brain:
+        async def decide(self,snapshot):
+            raise MaxTurnsExceeded('Max turns (8) exceeded')
+    supervisor=await Supervisor(store,goal,brain=Brain(),runtime=Runtime()).open()
+    result=await supervisor.advance(steps=5)
+    assert result['blocked']['error']=='MaxTurnsExceeded'
+    assert supervisor.status()['goal']['status']=='paused'
+    assert supervisor.autonomy==0
+    assert not supervisor.work
+    await supervisor.close()

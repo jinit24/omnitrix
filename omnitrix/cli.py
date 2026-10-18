@@ -17,6 +17,7 @@ def main():
     create = commands.add_parser('create')
     create.add_argument('objective')
     create.add_argument('--criterion', action='append', required=True)
+    create.add_argument('--require-implementation',action='store_true',help='Require independently verified code and a current goal audit before completion')
     create.add_argument('--workspace', type=Path, default=Path.cwd())
     status = commands.add_parser('status')
     status.add_argument('goal_id')
@@ -53,7 +54,11 @@ def main():
         if args.command == 'create':
             if not args.workspace.is_dir():
                 raise ValueError('Workspace must be an existing directory')
-            print(store.create_goal(args.objective, args.criterion, args.workspace))
+            goal_id=store.create_goal(args.objective,args.criterion,args.workspace)
+            if args.require_implementation:
+                from .control import Control
+                Control(store).require_implementation(goal_id)
+            print(goal_id)
         elif args.command == 'status':
             print(json.dumps(store.snapshot(args.goal_id), indent=2))
         elif args.command == 'send':
