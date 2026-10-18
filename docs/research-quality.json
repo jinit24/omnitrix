@@ -358,9 +358,37 @@
             "fix": "Campaign prompt now includes only six recent tasks and compact report handoffs, eight decisions/jobs/opportunities, and five recent repair messages. Original reports remain on disk and are recallable.",
             "validation": "Focused manager/campaign/report tests pass; live before/after comparison pending."
           }
+        },
+        {
+          "at": "2026-10-18T19:20:21.256377+00:00",
+          "status": "compaction verified; cost trend remains under observation",
+          "event": "live checkpoint",
+          "details": {
+            "latest_manager_usage": [
+              {
+                "role": "manager",
+                "requests": 3,
+                "input_tokens": 73694,
+                "output_tokens": 605
+              },
+              {
+                "role": "manager",
+                "requests": 2,
+                "input_tokens": 45121,
+                "output_tokens": 425
+              },
+              {
+                "role": "manager",
+                "requests": 2,
+                "input_tokens": 46630,
+                "output_tokens": 422
+              }
+            ],
+            "boundary": "Snapshots are smaller and full history stays recallable. Multi-request catalog navigation can still dominate costs; per-request ledger remains authoritative."
+          }
         }
       ],
-      "status": "partial fix; handoff compaction implemented"
+      "status": "compaction verified; cost trend remains under observation"
     },
     {
       "id": "R25",
@@ -494,9 +522,104 @@
             "fix": "Catalog responses now include exact total match counts and representative paths/counts per matched component, including components beyond the current page. Path search is explicitly a literal substring.",
             "limit": "This reduces interface-only first-page bias but does not prove the model will follow pagination or use counterevidence."
           }
+        },
+        {
+          "at": "2026-10-18T19:20:21.435294+00:00",
+          "status": "recovery observed; generalization unproven",
+          "event": "live checkpoint",
+          "details": {
+            "observed": "Latest probe reached real assignment implementation files and their balancing steps after total-match/component examples were exposed. This is recovery on the development case, not a held-out guarantee.",
+            "quality": {
+              "required": {
+                "sources": 20,
+                "branches": 4,
+                "hypotheses": 6,
+                "mechanisms": 2
+              },
+              "actual": {
+                "sources": 23,
+                "branches": 13,
+                "hypotheses": 0,
+                "mechanisms": 0
+              },
+              "met": false,
+              "note": "Minimum breadth and evidence gates, not proof of exhaustive coverage or production impact."
+            },
+            "spending": {
+              "goal_id": "c849afa7ebea434ea01d292996c10a77",
+              "limit_nanos": 25000000000,
+              "spent_nanos": 3459756000,
+              "reserved_nanos": 76654000,
+              "limit_usd": 25.0,
+              "spent_usd": 3.459756,
+              "reserved_usd": 0.076654,
+              "available_usd": 21.46359,
+              "model": "gpt-4.1-2025-04-14",
+              "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+            }
+          }
         }
       ],
-      "status": "catalog metadata improved; live recovery pending"
+      "status": "recovery observed; generalization unproven"
+    },
+    {
+      "id": "R31",
+      "title": "Discovery breadth improves while independently resolved hypotheses remain scarce",
+      "history": [
+        {
+          "at": "2026-10-18T19:20:21.611152+00:00",
+          "status": "open; observe exploration/exploitation allocation",
+          "event": "live checkpoint",
+          "details": {
+            "observed": "The probe now reads actual mechanism code and compares candidate assignors, but repeated discovery maps still dominate. Independently supported/falsified hypothesis and verified mechanism counts remain the acceptance signal.",
+            "counts": [
+              {
+                "stage": "discovery",
+                "status": "discovered",
+                "jobs": 11
+              },
+              {
+                "stage": "discovery",
+                "status": "running",
+                "jobs": 1
+              },
+              {
+                "stage": "research",
+                "status": "escalated",
+                "jobs": 1
+              },
+              {
+                "stage": "research",
+                "status": "insufficient",
+                "jobs": 1
+              },
+              {
+                "stage": "research",
+                "status": "invalidated",
+                "jobs": 1
+              }
+            ],
+            "quality": {
+              "required": {
+                "sources": 20,
+                "branches": 4,
+                "hypotheses": 6,
+                "mechanisms": 2
+              },
+              "actual": {
+                "sources": 23,
+                "branches": 13,
+                "hypotheses": 0,
+                "mechanisms": 0
+              },
+              "met": false,
+              "note": "Minimum breadth and evidence gates, not proof of exhaustive coverage or production impact."
+            },
+            "limit": "Do not equate source/branch counts or opportunity generation with a validated system inefficiency."
+          }
+        }
+      ],
+      "status": "open; observe exploration/exploitation allocation"
     }
   ],
   "runs": [
@@ -2215,6 +2338,65 @@
       },
       "head": "cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282",
       "decisions": []
+    },
+    {
+      "name": "kafka-progress-05",
+      "mode": "live read-only; human-steered recovery",
+      "status": "running",
+      "reason": "Ongoing bounded probe. Improved file grounding; no claim of solved autonomous research quality.",
+      "autonomous_discovery": false,
+      "spending": {
+        "goal_id": "c849afa7ebea434ea01d292996c10a77",
+        "limit_nanos": 25000000000,
+        "spent_nanos": 3459756000,
+        "reserved_nanos": 76654000,
+        "limit_usd": 25.0,
+        "spent_usd": 3.459756,
+        "reserved_usd": 0.076654,
+        "available_usd": 21.46359,
+        "model": "gpt-4.1-2025-04-14",
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "frontier": {
+        "goal_id": "c849afa7ebea434ea01d292996c10a77",
+        "head": "cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282",
+        "complete": 1,
+        "skipped": 64,
+        "files": 7551,
+        "by_kind": {
+          "code": 6760,
+          "document": 785,
+          "logs": 4,
+          "metrics": 2
+        },
+        "by_origin": {
+          "export": 6,
+          "git": 7545
+        },
+        "observed_files": 23,
+        "basis": "Git-tracked UTF-8 files and explicitly registered local exports <=32 MiB; binaries, unavailable files and oversized files counted as skipped. Excerpts do not establish full coverage."
+      },
+      "quality": {
+        "required": {
+          "sources": 20,
+          "branches": 4,
+          "hypotheses": 6,
+          "mechanisms": 2
+        },
+        "actual": {
+          "sources": 23,
+          "branches": 13,
+          "hypotheses": 0,
+          "mechanisms": 0
+        },
+        "met": false,
+        "note": "Minimum breadth and evidence gates, not proof of exhaustive coverage or production impact."
+      },
+      "artifacts": [
+        "experiments/research-quality/kafka-progress-05.html"
+      ],
+      "head": "cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282",
+      "decisions": []
     }
   ],
   "limitations": [
@@ -2377,6 +2559,69 @@
           "met": false,
           "note": "Minimum breadth and evidence gates, not proof of exhaustive coverage or production impact."
         },
+        "head": "cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282",
+        "decisions": []
+      }
+    },
+    {
+      "id": "92d697f903e64a9f8f57f070dfcb7bb0",
+      "at": "2026-10-18T19:20:21.789537+00:00",
+      "result": {
+        "name": "kafka-progress-05",
+        "mode": "live read-only; human-steered recovery",
+        "status": "running",
+        "reason": "Ongoing bounded probe. Improved file grounding; no claim of solved autonomous research quality.",
+        "autonomous_discovery": false,
+        "spending": {
+          "goal_id": "c849afa7ebea434ea01d292996c10a77",
+          "limit_nanos": 25000000000,
+          "spent_nanos": 3459756000,
+          "reserved_nanos": 76654000,
+          "limit_usd": 25.0,
+          "spent_usd": 3.459756,
+          "reserved_usd": 0.076654,
+          "available_usd": 21.46359,
+          "model": "gpt-4.1-2025-04-14",
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "frontier": {
+          "goal_id": "c849afa7ebea434ea01d292996c10a77",
+          "head": "cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282",
+          "complete": 1,
+          "skipped": 64,
+          "files": 7551,
+          "by_kind": {
+            "code": 6760,
+            "document": 785,
+            "logs": 4,
+            "metrics": 2
+          },
+          "by_origin": {
+            "export": 6,
+            "git": 7545
+          },
+          "observed_files": 23,
+          "basis": "Git-tracked UTF-8 files and explicitly registered local exports <=32 MiB; binaries, unavailable files and oversized files counted as skipped. Excerpts do not establish full coverage."
+        },
+        "quality": {
+          "required": {
+            "sources": 20,
+            "branches": 4,
+            "hypotheses": 6,
+            "mechanisms": 2
+          },
+          "actual": {
+            "sources": 23,
+            "branches": 13,
+            "hypotheses": 0,
+            "mechanisms": 0
+          },
+          "met": false,
+          "note": "Minimum breadth and evidence gates, not proof of exhaustive coverage or production impact."
+        },
+        "artifacts": [
+          "experiments/research-quality/kafka-progress-05.html"
+        ],
         "head": "cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282",
         "decisions": []
       }
