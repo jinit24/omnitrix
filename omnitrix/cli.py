@@ -48,7 +48,14 @@ def main():
     send.add_argument('--id',help='Stable idempotency key for this message')
     messages=commands.add_parser('messages')
     messages.add_argument('goal_id')
+    dashboard = commands.add_parser('dashboard', help='Read-only manager dashboard')
+    dashboard.add_argument('--host', default='127.0.0.1')
+    dashboard.add_argument('--port', type=int, default=8765)
     args = parser.parse_args()
+    if args.command == 'dashboard':
+        from .dashboard import serve
+        serve(args.db, args.host, args.port)
+        return
     store = Store(args.db)
     try:
         if args.command == 'create':

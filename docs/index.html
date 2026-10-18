@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Get started · Omnitrix docs</title>
+    <link rel="stylesheet" href="docs.css" />
+    <script defer src="docs.js"></script>
+  </head>
+  <body>
+    <header>
+      <a class="logo" href="/">◈ &nbsp; omnitrix<span> / documentation</span></a
+      ><a class="back" href="/">← Mission control</a>
+    </header>
+    <div class="docs-layout">
+      <aside class="docs-nav">
+        <div class="nav-caption">THE FIELD GUIDE</div>
+        <label class="search-wrap"
+          ><span>⌕</span
+          ><input
+            id="docs-search"
+            type="search"
+            placeholder="Search all guides…"
+            aria-label="Search documentation"
+        /></label>
+        <div id="search-results" hidden role="status"></div>
+        <nav aria-label="Documentation">
+          <a class="selected" href="index.html"><span>01</span>Get started</a
+          ><a class="" href="architecture.html"><span>02</span>Architecture</a
+          ><a class="selected" href="dashboard.html"
+            ><span>03</span>Mission control</a
+          ><a class="" href="recovery.html"
+            ><span>04</span>Recovery &amp; operations</a
+          ><a class="" href="experiments.html"
+            ><span>05</span>Experiments &amp; results</a
+          ><a class="" href="status.html"
+            ><span>06</span>Status &amp; limitations</a
+          >
+        </nav>
+        <div class="nav-footer">
+          Local HTML. No external services.<br />HTML guides · README is
+          Markdown.
+        </div>
+      </aside>
+      <main>
+        <div class="kicker">FIELD GUIDE / 01</div><h1 class="page-title">Get started</h1><article><h1>Omnitrix</h1>
+<p>A persistent engineering manager using the OpenAI Agents SDK, real Codex workers,
+and SQLite. It plans bounded research, accepts steering during work, and verifies
+explicitly authorized code changes. The manager has <strong>not outperformed a single Codex
+worker</strong> in the recorded trials.</p>
+<h2>Install</h2>
+<p>Requires Python 3.11+, Node 20+, Git, and Codex CLI on PATH. Linux/macOS only.</p>
+<pre><code class="language-sh">python -m venv .venv
+. .venv/bin/activate
+pip install -e '.[test]'
+npm ci
+pytest -q
+</code></pre>
+<p>Set <code>OPENAI_API_KEY</code> securely; all agents and Codex adapters use it. Never put keys in
+goals, files, or the database. Model calls cost money. Without the key, Codex keeps its
+existing login configuration. <code>OMNITRIX_CODEX_PATH</code> can select the installed CLI.</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OMNITRIX_MODEL</code></td>
+<td><code>gpt-4.1</code></td>
+</tr>
+<tr>
+<td><code>OMNITRIX_CODEX_MODEL</code></td>
+<td><code>gpt-5.3-codex</code></td>
+</tr>
+<tr>
+<td><code>OMNITRIX_CODEX_HOME</code></td>
+<td><code>.omnitrix/codex-api</code></td>
+</tr>
+<tr>
+<td>Database (<code>--db PATH</code> before command)</td>
+<td><code>.omnitrix/state.db</code></td>
+</tr>
+</tbody>
+</table>
+<p>Use a source/editable install: instructions and Node bridge are repository resources.</p>
+<h2>Run and observe</h2>
+<pre><code class="language-sh">omnitrix create 'Improve service reliability' \
+  --criterion 'Verify one bounded improvement' --require-implementation --workspace .
+omnitrix chat GOAL_ID
+# Another terminal; read-only app and HTML documentation:
+omnitrix --db .omnitrix/state.db dashboard
+</code></pre>
+<p>The dashboard binds loopback port 8765. It has no authentication; keep access trusted.
+Use <code>--require-implementation</code> for code goals: recommendations alone cannot complete them.</p>
+<table>
+<thead>
+<tr>
+<th>Chat command</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/status</code>, <code>/events</code>, <code>/run 10</code></td>
+<td>Inspect or run bounded decisions</td>
+</tr>
+<tr>
+<td><code>/policy TEXT</code>, <code>/accept PROPOSAL_ID</code></td>
+<td>Propose and explicitly accept permanent policy</td>
+</tr>
+<tr>
+<td><code>/requirements JSON</code></td>
+<td>Add constraints/criteria; originals cannot be removed</td>
+</tr>
+<tr>
+<td><code>/send TASK_ID TEXT</code></td>
+<td>Steer a worker</td>
+</tr>
+<tr>
+<td><code>/pause TASK_ID</code>, <code>/cancel TASK_ID</code></td>
+<td>Interrupt work, retaining state</td>
+</tr>
+<tr>
+<td><code>/answer MESSAGE_ID JSON</code></td>
+<td>Answer a worker question</td>
+</tr>
+<tr>
+<td><code>/reconcile TASK_ID</code></td>
+<td>Inspect an uncertain native turn</td>
+</tr>
+<tr>
+<td><code>/resolve MESSAGE_ID delivered EVIDENCE</code></td>
+<td>Record delivery reconciliation</td>
+</tr>
+<tr>
+<td><code>/quit</code></td>
+<td>Save and shut down</td>
+</tr>
+</tbody>
+</table>
+<p><code>/policy</code> replaces the full policy; review before accepting. Requirement JSON accepts
+<code>constraint</code>, <code>add_requirements</code>, and <code>affected_tasks</code>; omitted task IDs affect all active work.
+Changes revoke implementation authorization. Pause interrupts; it is not an OS freeze.</p>
+<pre><code class="language-sh">omnitrix run GOAL_ID --steps 50 --hours 4
+omnitrix send GOAL_ID 'What are you working on?' --id unique-message-id
+omnitrix send GOAL_ID 'TASK_ID Check contradictory evidence' --command steer
+omnitrix status GOAL_ID
+omnitrix messages GOAL_ID
+omnitrix knowledge GOAL_ID 'retry'
+omnitrix export GOAL_ID &gt; research.json
+</code></pre>
+<p>One manager owns each DB. <code>send</code> queues to that owner; it never starts another manager.
+<code>resume GOAL_ID --steps 5 --message TEXT</code> restarts bounded work when no owner is running.</p>
+<h2>Authorize code changes</h2>
+<p>Accepted research and a committed Git workspace are required. Review <code>implementation.json</code>:</p>
+<pre><code class="language-json">{
+  &quot;objective&quot;: &quot;Fix the bounded retry contract&quot;,
+  &quot;research_job&quot;: &quot;ACCEPTED_RESEARCH_JOB_ID&quot;,
+  &quot;allowed_paths&quot;: [&quot;src/retry.py&quot;],
+  &quot;checks&quot;: [{
+    &quot;requirement&quot;: &quot;EXACT CURRENT MANDATORY CRITERION TEXT&quot;,
+    &quot;argv&quot;: [&quot;/absolute/path/python&quot;, &quot;/absolute/path/trusted_check.py&quot;],
+    &quot;timeout&quot;: 60,
+    &quot;failure_kind&quot;: &quot;local&quot;
+  }],
+  &quot;max_attempts&quot;: 2,
+  &quot;seconds&quot;: 300
+}
+</code></pre>
+<pre><code class="language-sh">omnitrix authorize GOAL_ID implementation.json --allow-code-modifications
+omnitrix resume GOAL_ID --steps 5
+</code></pre>
+<p>Every mandatory criterion needs an executable check. <code>failure_kind: &quot;assumption&quot;</code>
+returns failures to research. External oracles are hashed; <code>OMNITRIX_CANDIDATE</code> identifies
+the clean candidate worktree. Commands are trusted local processes, not a hostile-code
+sandbox; provider credentials are removed. Authorization permits bounded worktree edits,
+never deployments, destructive operations, merges or pushes.</p>
+<h2>Learn more</h2>
+<p>The app's <strong>Documentation</strong> section includes searchable HTML guides, flowcharts, tables,
+and raw experiment records. README is the only Markdown documentation page; edit other guides directly as HTML.</p>
+<ul>
+<li><a href="architecture.html">Architecture</a></li>
+<li><a href="dashboard.html">Dashboard</a></li>
+<li><a href="recovery.html">Recovery</a></li>
+<li><a href="experiments.html">Experiments and commands</a></li>
+<li><a href="status.html">Status and limitations</a></li>
+</ul>
+</article>
+        <div class="article-footer">Source: README.md</div>
+      </main>
+      </div></body></html>

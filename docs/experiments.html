@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Experiments &amp; results · Omnitrix docs</title>
+    <link rel="stylesheet" href="docs.css" />
+    <script defer src="docs.js"></script>
+  </head>
+  <body>
+    <header>
+      <a class="logo" href="/">◈ &nbsp; omnitrix<span> / documentation</span></a
+      ><a class="back" href="/">← Mission control</a>
+    </header>
+    <div class="docs-layout">
+      <aside class="docs-nav">
+        <div class="nav-caption">THE FIELD GUIDE</div>
+        <label class="search-wrap"
+          ><span>⌕</span
+          ><input
+            id="docs-search"
+            type="search"
+            placeholder="Search all guides…"
+            aria-label="Search documentation"
+        /></label>
+        <div id="search-results" hidden role="status"></div>
+        <nav aria-label="Documentation">
+          <a class="" href="index.html"><span>01</span>Get started</a
+          ><a class="" href="architecture.html"><span>02</span>Architecture</a
+          ><a class="" href="dashboard.html"><span>03</span>Mission control</a
+          ><a class="" href="recovery.html"
+            ><span>04</span>Recovery &amp; operations</a
+          ><a class="selected" href="experiments.html"
+            ><span>05</span>Experiments &amp; results</a
+          ><a class="" href="status.html"
+            ><span>06</span>Status &amp; limitations</a
+          >
+        </nav>
+        <div class="nav-footer">
+          Local HTML. No external services.<br />HTML guides · README is
+          Markdown.
+        </div>
+      </aside>
+      <main>
+        <div class="kicker">FIELD GUIDE / 05</div>
+        <h1 class="page-title">Experiments &amp; results</h1>
+        <p class="lede">
+          Measured engineering outcomes, not agent claims. The current manager
+          has not outperformed a single Codex worker.
+        </p>
+        <figure class="comparison">
+          <figcaption>
+            Latest live comparison · fixture v2 · three paired tasks
+          </figcaption>
+          <div>
+            <span>Single Codex</span><strong>6 / 6 criteria</strong
+            ><span>59.0 seconds</span>
+          </div>
+          <div>
+            <span>Manager + specialists</span><strong>4 / 6 criteria</strong
+            ><span>176.2 seconds</span>
+          </div>
+          <p>
+            One small trial. Different coordinator models and observed token
+            counts do not establish dollar costs, statistical significance, or
+            production-wide results.
+          </p>
+        </figure>
+        <article>
+          <p>
+            The manager has
+            <strong>not outperformed a single Codex worker</strong> in the
+            recorded live trials. These are small trials, not statistical or
+            production-wide evidence.
+          </p>
+          <h2 id="measured-results">Measured results</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Profile</th>
+                <th>Arm</th>
+                <th>Criteria</th>
+                <th>Tasks</th>
+                <th>Wall time</th>
+                <th>Input / output tokens</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>v2 · GPT-5.4 coordinator</td>
+                <td>Single Codex</td>
+                <td>6/6</td>
+                <td>3/3</td>
+                <td>59.0s</td>
+                <td>232,753 / 4,404</td>
+              </tr>
+              <tr>
+                <td>v2 · GPT-5.4 coordinator</td>
+                <td>Manager</td>
+                <td>4/6</td>
+                <td>2/3</td>
+                <td>176.2s</td>
+                <td>461,690 / 12,328</td>
+              </tr>
+              <tr>
+                <td>v1 · GPT-4.1 coordinator</td>
+                <td>Single Codex</td>
+                <td>6/6</td>
+                <td>3/3</td>
+                <td>62.6s</td>
+                <td>266,871 / 4,364</td>
+              </tr>
+              <tr>
+                <td>v1 · GPT-4.1 coordinator</td>
+                <td>Manager</td>
+                <td>3/6</td>
+                <td>1/3</td>
+                <td>112.4s</td>
+                <td>287,409 / 9,309</td>
+              </tr>
+              <tr>
+                <td>Scripted harness</td>
+                <td>Single worker</td>
+                <td>6/6</td>
+                <td>3/3</td>
+                <td>0.234s</td>
+                <td>Unmeasured; no models</td>
+              </tr>
+              <tr>
+                <td>Scripted harness</td>
+                <td>Manager</td>
+                <td>6/6</td>
+                <td>3/3</td>
+                <td>0.869s</td>
+                <td>Unmeasured; no models</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            Live workers used GPT-5.3-Codex, medium reasoning. Each pair
+            received the same initial source, executable criteria and 420s cap.
+            Tasks covered deduplication complexity/order, bounded
+            retries/permanent errors, and batching with duplicate/missing keys.
+          </p>
+          <p>
+            <strong>v2:</strong> Both arms could read the unchanged callback
+            contracts in <code>system.md</code>. Manager completed deduplication
+            and batching through accepted research, authorized code, independent
+            checks and audit. Retry stopped because evaluation demanded more
+            edge-case evidence. No application exception, false completion claim
+            or recorded human intervention occurred.
+            <a href="live-api-v2-gpt54.json">Full v2 record</a>.
+          </p>
+          <p>
+            <strong>v1:</strong> Manager completed deduplication; it paused
+            retries and batching over callback contracts. No application
+            exception, false completion claim or recorded intervention.
+            <a href="live-api.json">Full v1 record</a>.
+          </p>
+          <p>
+            Unfinished tasks stay in denominators. Fixture/tool/model changes
+            confound cross-profile comparisons. Token totals mix models and may
+            include cached input; they are not dollar costs. Baseline internal
+            research/corrections and comparative live recovery rates remain
+            unknown. Failed diagnostic profiles are retained separately, never
+            pooled into clean runs.
+          </p>
+          <h2 id="bugs-found-during-live-trials">
+            Bugs found during live trials
+          </h2>
+          <p>
+            Fixed API-key routing, SDK/SQLite thread affinity, invalid-scope
+            crashes, hidden read limits, unhandled manager turn exhaustion,
+            prefetch budget starvation, missing report/check context, premature
+            code-goal completion and mutable/unstarted-worktree scoring.
+            Diagnostic trial 4 was partial after a scoring crash, not a
+            fabricated zero. Trial 1 included a recorded policy intervention.
+            Raw artifacts: <code>.omnitrix/live-api-trial-*</code>.
+          </p>
+          <p>
+            Separately, real interaction returned a manager reply in 2.52s
+            during a delayed worker, then delivered policy steering/interruption
+            and restored conversation/pending messages. That is a functional
+            check, not a recovery-rate experiment.
+          </p>
+          <h2 id="reproduce-harness-checks">Reproduce harness checks</h2>
+          <pre><code class="language-sh">python scripts/demo.py --output .omnitrix/demo-new
+python scripts/faults.py --output .omnitrix/faults-new
+python scripts/benchmark.py --output .omnitrix/benchmark-new
+</code></pre>
+          <p>
+            Mock decisions/coding use actual SQLite, Git and subprocess checks.
+            The demo includes one failed complexity check followed by repair.
+            Nine faults cover worker kill, manager SIGKILL, requirement
+            change/stale result, repeated verification failure, misleading
+            research, lost message/Git acknowledgment, external waiting, and
+            activity without meaningful progress. Fault output includes
+            JUnit/JSON and preserves pytest's exit status.
+          </p>
+          <p>
+            The benchmark stores initial tree identities, exact candidates,
+            criterion logs, goal/DB IDs, time, usage, repeated queries, repairs
+            and completion checks. Missing measurements are null. Quality means
+            declared criterion coverage; broader business utility is unmeasured.
+          </p>
+          <h2 id="multi-hour-live-comparison">Multi-hour live comparison</h2>
+          <p>
+            Requires secure <code>OPENAI_API_KEY</code>, writable sessions, Git,
+            installed dependencies and an isolated development machine. Model
+            calls are paid. This authorizes changes only in generated fixtures,
+            never deployment, merge or push.
+          </p>
+          <pre><code class="language-sh">export OMNITRIX_MODEL=gpt-4.1
+python scripts/benchmark.py --live --allow-code-modifications \
+  --hours 4 --steps 12 --arm-seconds 1200 --output .omnitrix/live-4h
+</code></pre>
+          <ul>
+            <li>
+              Use identical fixture/oracle, worker model/runtime and per-arm
+              deadlines. Include all manager/research costs. Arm order
+              alternates to reduce warm-up bias.
+            </li>
+            <li>
+              Manager is model-driven; no mock plan. Authorization follows
+              accepted research.
+            </li>
+            <li>
+              Hours repeats whole trials and may overrun to finish the last one.
+              Scoring is separate and uses immutable candidate revisions, never
+              mutable worker files.
+            </li>
+            <li>
+              Reuse completed arms; inspect incomplete native turns/journals
+              before resuming. No blind replay.
+            </li>
+            <li>
+              Keep steerable via
+              <code>omnitrix --db PATH status/send/messages</code>; record every
+              intervention.
+            </li>
+            <li>
+              Successful calls report usage; count native cumulative usage once
+              per thread. Interrupted calls can omit it. Do not compare costs
+              without checking completeness.
+            </li>
+            <li>
+              An SDK turn ending is not a success claim. Compare explicit claims
+              to executable criteria.
+            </li>
+          </ul>
+          <p>
+            No multi-hour experiment has been performed. Next: larger
+            multi-service tasks, held-out oracles, randomized
+            repeats/uncertainty intervals, equal-resolution baseline telemetry,
+            and live interruption/requirement-change faults. Add infrastructure
+            only after measured need.
+          </p>
+        </article>
+        <div class="article-footer">Source: docs/experiments.html</div>
+      </main>
+      <aside class="outline">
+        <div class="nav-caption">ON THIS PAGE</div>
+        <a class="" href="#measured-results">Measured results</a
+        ><a class="" href="#bugs-found-during-live-trials"
+          >Bugs found during live trials</a
+        ><a class="" href="#reproduce-harness-checks"
+          >Reproduce harness checks</a
+        ><a class="" href="#multi-hour-live-comparison"
+          >Multi-hour live comparison</a
+        >
+        <div class="outline-note">
+          Need to steer the manager?<br />Use CLI chat. The web app is
+          read-only.
+        </div>
+      </aside>
+    </div>
+  </body>
+</html>

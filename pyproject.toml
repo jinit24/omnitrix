@@ -9,6 +9,7 @@ requires-python = ">=3.11"
 dependencies = ["openai-agents==0.24.0"]
 
 [project.optional-dependencies]
+docs = ["markdown-it-py==4.0.0"]
 test = ["pytest==9.1.1", "pytest-asyncio==1.4.0"]
 
 [project.scripts]
@@ -19,3 +20,6 @@ packages = ["omnitrix"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+
+[tool.setuptools.package-data]
+omnitrix = ["web/*.html", "web/*.css", "web/*.js", "web/docs/*", "web/docs/experiments/*.json"]
