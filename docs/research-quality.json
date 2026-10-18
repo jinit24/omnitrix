@@ -105,6 +105,14 @@
       "status": "Reproduced; candidate preserved for reconciliation",
       "baseline": "Self-audit live-03 reached accepted research and real edits but timed out before candidate verification. Latest native usage snapshot: 603768 input tokens (566912 cached), 3869 output tokens. These are cumulative usage values, not unique prompt bytes or a dollar estimate.",
       "remaining": "The app correctly retains uncertainty and prevents replay/completion. Automatic implementation quality and efficiency remain unresolved; a successful human-led PR must not be counted as an autonomous end-to-end success."
+    },
+    {
+      "id": "R14",
+      "title": "Evaluation process could exit zero with failed research checkpoints",
+      "status": "Fixed and regression-tested",
+      "baseline": "The initial harness used exit status only to distinguish runtime exceptions; a completed conversation with 0/8 or 5/8 checks could still exit zero. Those recorded scores remain failures regardless of historical command exit codes.",
+      "fix": "Exit 0 only for all checkpoints passed, 1 for behavioral failure/no trials, 2 for blocked/error.",
+      "verification": "tests/test_research_eval.py"
     }
   ],
   "runs": [
@@ -1548,6 +1556,113 @@
       "status": "passed",
       "result": "74 passed, 1 opt-in live Codex test skipped",
       "seconds": 9.98
+    },
+    {
+      "name": "Final evaluation exit-status regression validation",
+      "mode": "deterministic",
+      "status": "passed",
+      "result": "76 passed, 1 opt-in live test skipped",
+      "seconds": 10.06
+    },
+    {
+      "name": ".omnitrix/research-eval/exit-status-final/buried-bottleneck",
+      "mode": "scripted-harness-only",
+      "status": "completed",
+      "seconds": 0.619,
+      "score": {
+        "checks": {
+          "compared_alternatives": true,
+          "read_code": true,
+          "used_metrics": true,
+          "used_logs": true,
+          "searched_beyond_prefix": true,
+          "aggregated_later_rows": true,
+          "supported_target_mention": true,
+          "target_claim_triangulated": true
+        },
+        "passed": 8,
+        "total": 8,
+        "oracle": {
+          "case": "buried-bottleneck",
+          "target": "batch_loader",
+          "cost_ms": {
+            "cache": 1200,
+            "batch_loader": 24000,
+            "upstream": 60
+          },
+          "note": "Negative control still has a suspicious per-item loop, but measured local cost is small. Upstream measurements warrant investigation, not an invented local optimization."
+        },
+        "verified_findings": [
+          "batch_loader has the largest measured elapsed sum, 24000.0 ms, in this fixture run only"
+        ],
+        "limitation": "Synthetic workload; target matching is a lexical heuristic. Inspect full claims and citations in goal.html. Coverage alone is not causal correctness or open-source generalization.",
+        "executed": true
+      },
+      "usage": [],
+      "decisions": [
+        {
+          "action": "discover",
+          "rationale": "Scripted harness control"
+        },
+        {
+          "action": "research",
+          "rationale": "Scripted harness control"
+        },
+        {
+          "action": "complete",
+          "rationale": "Scripted harness control"
+        }
+      ]
+    },
+    {
+      "name": ".omnitrix/research-eval/exit-status-final/negative-control",
+      "mode": "scripted-harness-only",
+      "status": "completed",
+      "seconds": 0.621,
+      "score": {
+        "checks": {
+          "compared_alternatives": true,
+          "read_code": true,
+          "used_metrics": true,
+          "used_logs": true,
+          "searched_beyond_prefix": true,
+          "aggregated_later_rows": true,
+          "supported_target_mention": true,
+          "target_claim_triangulated": true
+        },
+        "passed": 8,
+        "total": 8,
+        "oracle": {
+          "case": "negative-control",
+          "target": "upstream",
+          "cost_ms": {
+            "cache": 1200,
+            "batch_loader": 60,
+            "upstream": 24000
+          },
+          "note": "Negative control still has a suspicious per-item loop, but measured local cost is small. Upstream measurements warrant investigation, not an invented local optimization."
+        },
+        "verified_findings": [
+          "upstream has the largest measured elapsed sum, 24000.0 ms, in this fixture run only"
+        ],
+        "limitation": "Synthetic workload; target matching is a lexical heuristic. Inspect full claims and citations in goal.html. Coverage alone is not causal correctness or open-source generalization.",
+        "executed": true
+      },
+      "usage": [],
+      "decisions": [
+        {
+          "action": "discover",
+          "rationale": "Scripted harness control"
+        },
+        {
+          "action": "research",
+          "rationale": "Scripted harness control"
+        },
+        {
+          "action": "complete",
+          "rationale": "Scripted harness control"
+        }
+      ]
     }
   ],
   "limitations": [
@@ -1570,9 +1685,16 @@
       "base": "PR #1"
     },
     {
-      "scope": "Evaluation harness, self-audit and HTML logs",
-      "status": "Draft PR being prepared",
-      "base": "PR #2"
+      "url": "https://github.com/jinit24/omnitrix/pull/3",
+      "scope": "Research evaluation, self-audit and HTML tracking",
+      "base": "PR #2",
+      "validation": "76 passed, 1 skipped in combined checkout; clean-archive validation in progress"
     }
-  ]
+  ],
+  "retained_evidence_reports": {
+    "baseline": "experiments/research-quality/baseline.html",
+    "buried-bottleneck": "experiments/research-quality/buried-bottleneck.html",
+    "negative-control": "experiments/research-quality/negative-control.html",
+    "note": "These portable HTML reports preserve actual source excerpts, queries and evaluations in the repository for PR review."
+  }
 }

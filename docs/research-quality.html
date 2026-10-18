@@ -21,11 +21,18 @@
       &quot;base&quot;: &quot;PR #1&quot;
     },
     {
-      &quot;scope&quot;: &quot;Evaluation harness, self-audit and HTML logs&quot;,
-      &quot;status&quot;: &quot;Draft PR being prepared&quot;,
-      &quot;base&quot;: &quot;PR #2&quot;
+      &quot;url&quot;: &quot;https://github.com/jinit24/omnitrix/pull/3&quot;,
+      &quot;scope&quot;: &quot;Research evaluation, self-audit and HTML tracking&quot;,
+      &quot;base&quot;: &quot;PR #2&quot;,
+      &quot;validation&quot;: &quot;76 passed, 1 skipped in combined checkout; clean-archive validation in progress&quot;
     }
-  ]
+  ],
+  &quot;retained_evidence_reports&quot;: {
+    &quot;baseline&quot;: &quot;experiments/research-quality/baseline.html&quot;,
+    &quot;buried-bottleneck&quot;: &quot;experiments/research-quality/buried-bottleneck.html&quot;,
+    &quot;negative-control&quot;: &quot;experiments/research-quality/negative-control.html&quot;,
+    &quot;note&quot;: &quot;These portable HTML reports preserve actual source excerpts, queries and evaluations in the repository for PR review.&quot;
+  }
 }</pre><article><h2>R1: Inventory hides resources after the first 40 directory entries</h2><p class="status">Implemented; deterministic regressions passed</p><pre>{
   &quot;baseline&quot;: &quot;Manager list_resources truncates before filtering runtime directories, has no cursor, and returns filesystem order.&quot;,
   &quot;fix&quot;: &quot;Sorted inventory, filtering before pagination, paths, resource kinds, byte sizes, explicit scan limits.&quot;,
@@ -77,7 +84,11 @@
 }</pre></article><article><h2>R13: Native implementation exceeds its bounded turn without verified completion</h2><p class="status">Reproduced; candidate preserved for reconciliation</p><pre>{
   &quot;baseline&quot;: &quot;Self-audit live-03 reached accepted research and real edits but timed out before candidate verification. Latest native usage snapshot: 603768 input tokens (566912 cached), 3869 output tokens. These are cumulative usage values, not unique prompt bytes or a dollar estimate.&quot;,
   &quot;remaining&quot;: &quot;The app correctly retains uncertainty and prevents replay/completion. Automatic implementation quality and efficiency remain unresolved; a successful human-led PR must not be counted as an autonomous end-to-end success.&quot;
-}</pre></article><h2>Experiment history</h2><table><thead><tr><th>Experiment</th><th>Mode</th><th>Outcome</th><th>Checks</th><th>Seconds</th></tr></thead><tbody><tr><td>Existing suite baseline</td><td></td><td>55 passed, 1 opt-in live Codex test skipped</td><td>Unscored</td><td>8.83</td></tr><tr><td>New adversarial regression baseline</td><td></td><td>8 failed</td><td>Unscored</td><td></td></tr><tr><td>baseline-connected-01/buried-bottleneck</td><td>live-autonomous</td><td>paused</td><td>0/8</td><td>10.874</td></tr><tr><td>baseline-live-01/buried-bottleneck</td><td>live-autonomous</td><td>error</td><td>Unscored</td><td>1.521</td></tr><tr><td>harness-01/buried-bottleneck</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.622</td></tr><tr><td>harness-01/negative-control</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.623</td></tr><tr><td>live-01/buried-bottleneck</td><td>live-autonomous</td><td>error</td><td>Unscored</td><td>1.398</td></tr><tr><td>live-02/negative-control</td><td>live-autonomous</td><td>error</td><td>Unscored</td><td>1.387</td></tr><tr><td>live-connected-01/buried-bottleneck</td><td>live-autonomous</td><td>paused</td><td>0/8</td><td>12.558</td></tr><tr><td>live-connected-02/negative-control</td><td>live-autonomous</td><td>active</td><td>3/8</td><td>57.432</td></tr><tr><td>live-iteration-02/buried-bottleneck</td><td>live-autonomous</td><td>paused</td><td>0/8</td><td>26.6</td></tr><tr><td>live-iteration-03/buried-bottleneck</td><td>live-autonomous</td><td>paused</td><td>0/8</td><td>7.391</td></tr><tr><td>live-iteration-04/buried-bottleneck</td><td>live-autonomous</td><td>completed</td><td>6/8</td><td>39.711</td></tr><tr><td>live-iteration-05/buried-bottleneck</td><td>live-autonomous</td><td>completed</td><td>5/8</td><td>23.581</td></tr><tr><td>live-negative-04/negative-control</td><td>live-autonomous</td><td>completed</td><td>5/8</td><td>27.945</td></tr><tr><td>live-negative-05/negative-control</td><td>live-autonomous</td><td>paused</td><td>5/8</td><td>27.234</td></tr><tr><td>.omnitrix/research-eval/harness-final/buried-bottleneck</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.622</td></tr><tr><td>.omnitrix/research-eval/harness-final/negative-control</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.624</td></tr><tr><td>.omnitrix/self-audit/live-01</td><td>live-seeded-defect-triage-and-repair</td><td>paused</td><td>Unscored</td><td>17.382</td></tr><tr><td>.omnitrix/self-audit/live-02</td><td>live-seeded-defect-triage-and-repair</td><td>paused</td><td>Unscored</td><td>79.535</td></tr><tr><td>.omnitrix/self-audit/live-03</td><td>live-seeded-defect-triage-and-repair</td><td>active</td><td>Unscored</td><td>331.634</td></tr><tr><td>Final combined deterministic validation</td><td>deterministic</td><td>passed</td><td>Unscored</td><td>9.98</td></tr></tbody></table><details><summary>Existing suite baseline</summary><pre>{
+}</pre></article><article><h2>R14: Evaluation process could exit zero with failed research checkpoints</h2><p class="status">Fixed and regression-tested</p><pre>{
+  &quot;baseline&quot;: &quot;The initial harness used exit status only to distinguish runtime exceptions; a completed conversation with 0/8 or 5/8 checks could still exit zero. Those recorded scores remain failures regardless of historical command exit codes.&quot;,
+  &quot;fix&quot;: &quot;Exit 0 only for all checkpoints passed, 1 for behavioral failure/no trials, 2 for blocked/error.&quot;,
+  &quot;verification&quot;: &quot;tests/test_research_eval.py&quot;
+}</pre></article><h2>Experiment history</h2><table><thead><tr><th>Experiment</th><th>Mode</th><th>Outcome</th><th>Checks</th><th>Seconds</th></tr></thead><tbody><tr><td>Existing suite baseline</td><td></td><td>55 passed, 1 opt-in live Codex test skipped</td><td>Unscored</td><td>8.83</td></tr><tr><td>New adversarial regression baseline</td><td></td><td>8 failed</td><td>Unscored</td><td></td></tr><tr><td>baseline-connected-01/buried-bottleneck</td><td>live-autonomous</td><td>paused</td><td>0/8</td><td>10.874</td></tr><tr><td>baseline-live-01/buried-bottleneck</td><td>live-autonomous</td><td>error</td><td>Unscored</td><td>1.521</td></tr><tr><td>harness-01/buried-bottleneck</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.622</td></tr><tr><td>harness-01/negative-control</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.623</td></tr><tr><td>live-01/buried-bottleneck</td><td>live-autonomous</td><td>error</td><td>Unscored</td><td>1.398</td></tr><tr><td>live-02/negative-control</td><td>live-autonomous</td><td>error</td><td>Unscored</td><td>1.387</td></tr><tr><td>live-connected-01/buried-bottleneck</td><td>live-autonomous</td><td>paused</td><td>0/8</td><td>12.558</td></tr><tr><td>live-connected-02/negative-control</td><td>live-autonomous</td><td>active</td><td>3/8</td><td>57.432</td></tr><tr><td>live-iteration-02/buried-bottleneck</td><td>live-autonomous</td><td>paused</td><td>0/8</td><td>26.6</td></tr><tr><td>live-iteration-03/buried-bottleneck</td><td>live-autonomous</td><td>paused</td><td>0/8</td><td>7.391</td></tr><tr><td>live-iteration-04/buried-bottleneck</td><td>live-autonomous</td><td>completed</td><td>6/8</td><td>39.711</td></tr><tr><td>live-iteration-05/buried-bottleneck</td><td>live-autonomous</td><td>completed</td><td>5/8</td><td>23.581</td></tr><tr><td>live-negative-04/negative-control</td><td>live-autonomous</td><td>completed</td><td>5/8</td><td>27.945</td></tr><tr><td>live-negative-05/negative-control</td><td>live-autonomous</td><td>paused</td><td>5/8</td><td>27.234</td></tr><tr><td>.omnitrix/research-eval/harness-final/buried-bottleneck</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.622</td></tr><tr><td>.omnitrix/research-eval/harness-final/negative-control</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.624</td></tr><tr><td>.omnitrix/self-audit/live-01</td><td>live-seeded-defect-triage-and-repair</td><td>paused</td><td>Unscored</td><td>17.382</td></tr><tr><td>.omnitrix/self-audit/live-02</td><td>live-seeded-defect-triage-and-repair</td><td>paused</td><td>Unscored</td><td>79.535</td></tr><tr><td>.omnitrix/self-audit/live-03</td><td>live-seeded-defect-triage-and-repair</td><td>active</td><td>Unscored</td><td>331.634</td></tr><tr><td>Final combined deterministic validation</td><td>deterministic</td><td>passed</td><td>Unscored</td><td>9.98</td></tr><tr><td>Final evaluation exit-status regression validation</td><td>deterministic</td><td>passed</td><td>Unscored</td><td>10.06</td></tr><tr><td>.omnitrix/research-eval/exit-status-final/buried-bottleneck</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.619</td></tr><tr><td>.omnitrix/research-eval/exit-status-final/negative-control</td><td>scripted-harness-only</td><td>completed</td><td>8/8</td><td>0.621</td></tr></tbody></table><details><summary>Existing suite baseline</summary><pre>{
   &quot;name&quot;: &quot;Existing suite baseline&quot;,
   &quot;command&quot;: &quot;.venv/bin/python -m pytest -q&quot;,
   &quot;result&quot;: &quot;55 passed, 1 opt-in live Codex test skipped&quot;,
@@ -1496,4 +1507,108 @@
   &quot;status&quot;: &quot;passed&quot;,
   &quot;result&quot;: &quot;74 passed, 1 opt-in live Codex test skipped&quot;,
   &quot;seconds&quot;: 9.98
+}</pre></details><details><summary>Final evaluation exit-status regression validation</summary><pre>{
+  &quot;name&quot;: &quot;Final evaluation exit-status regression validation&quot;,
+  &quot;mode&quot;: &quot;deterministic&quot;,
+  &quot;status&quot;: &quot;passed&quot;,
+  &quot;result&quot;: &quot;76 passed, 1 opt-in live test skipped&quot;,
+  &quot;seconds&quot;: 10.06
+}</pre></details><details><summary>.omnitrix/research-eval/exit-status-final/buried-bottleneck</summary><pre>{
+  &quot;name&quot;: &quot;.omnitrix/research-eval/exit-status-final/buried-bottleneck&quot;,
+  &quot;mode&quot;: &quot;scripted-harness-only&quot;,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;seconds&quot;: 0.619,
+  &quot;score&quot;: {
+    &quot;checks&quot;: {
+      &quot;compared_alternatives&quot;: true,
+      &quot;read_code&quot;: true,
+      &quot;used_metrics&quot;: true,
+      &quot;used_logs&quot;: true,
+      &quot;searched_beyond_prefix&quot;: true,
+      &quot;aggregated_later_rows&quot;: true,
+      &quot;supported_target_mention&quot;: true,
+      &quot;target_claim_triangulated&quot;: true
+    },
+    &quot;passed&quot;: 8,
+    &quot;total&quot;: 8,
+    &quot;oracle&quot;: {
+      &quot;case&quot;: &quot;buried-bottleneck&quot;,
+      &quot;target&quot;: &quot;batch_loader&quot;,
+      &quot;cost_ms&quot;: {
+        &quot;cache&quot;: 1200,
+        &quot;batch_loader&quot;: 24000,
+        &quot;upstream&quot;: 60
+      },
+      &quot;note&quot;: &quot;Negative control still has a suspicious per-item loop, but measured local cost is small. Upstream measurements warrant investigation, not an invented local optimization.&quot;
+    },
+    &quot;verified_findings&quot;: [
+      &quot;batch_loader has the largest measured elapsed sum, 24000.0 ms, in this fixture run only&quot;
+    ],
+    &quot;limitation&quot;: &quot;Synthetic workload; target matching is a lexical heuristic. Inspect full claims and citations in goal.html. Coverage alone is not causal correctness or open-source generalization.&quot;,
+    &quot;executed&quot;: true
+  },
+  &quot;usage&quot;: [],
+  &quot;decisions&quot;: [
+    {
+      &quot;action&quot;: &quot;discover&quot;,
+      &quot;rationale&quot;: &quot;Scripted harness control&quot;
+    },
+    {
+      &quot;action&quot;: &quot;research&quot;,
+      &quot;rationale&quot;: &quot;Scripted harness control&quot;
+    },
+    {
+      &quot;action&quot;: &quot;complete&quot;,
+      &quot;rationale&quot;: &quot;Scripted harness control&quot;
+    }
+  ]
+}</pre></details><details><summary>.omnitrix/research-eval/exit-status-final/negative-control</summary><pre>{
+  &quot;name&quot;: &quot;.omnitrix/research-eval/exit-status-final/negative-control&quot;,
+  &quot;mode&quot;: &quot;scripted-harness-only&quot;,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;seconds&quot;: 0.621,
+  &quot;score&quot;: {
+    &quot;checks&quot;: {
+      &quot;compared_alternatives&quot;: true,
+      &quot;read_code&quot;: true,
+      &quot;used_metrics&quot;: true,
+      &quot;used_logs&quot;: true,
+      &quot;searched_beyond_prefix&quot;: true,
+      &quot;aggregated_later_rows&quot;: true,
+      &quot;supported_target_mention&quot;: true,
+      &quot;target_claim_triangulated&quot;: true
+    },
+    &quot;passed&quot;: 8,
+    &quot;total&quot;: 8,
+    &quot;oracle&quot;: {
+      &quot;case&quot;: &quot;negative-control&quot;,
+      &quot;target&quot;: &quot;upstream&quot;,
+      &quot;cost_ms&quot;: {
+        &quot;cache&quot;: 1200,
+        &quot;batch_loader&quot;: 60,
+        &quot;upstream&quot;: 24000
+      },
+      &quot;note&quot;: &quot;Negative control still has a suspicious per-item loop, but measured local cost is small. Upstream measurements warrant investigation, not an invented local optimization.&quot;
+    },
+    &quot;verified_findings&quot;: [
+      &quot;upstream has the largest measured elapsed sum, 24000.0 ms, in this fixture run only&quot;
+    ],
+    &quot;limitation&quot;: &quot;Synthetic workload; target matching is a lexical heuristic. Inspect full claims and citations in goal.html. Coverage alone is not causal correctness or open-source generalization.&quot;,
+    &quot;executed&quot;: true
+  },
+  &quot;usage&quot;: [],
+  &quot;decisions&quot;: [
+    {
+      &quot;action&quot;: &quot;discover&quot;,
+      &quot;rationale&quot;: &quot;Scripted harness control&quot;
+    },
+    {
+      &quot;action&quot;: &quot;research&quot;,
+      &quot;rationale&quot;: &quot;Scripted harness control&quot;
+    },
+    {
+      &quot;action&quot;: &quot;complete&quot;,
+      &quot;rationale&quot;: &quot;Scripted harness control&quot;
+    }
+  ]
 }</pre></details></body></html>

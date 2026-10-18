@@ -229,7 +229,16 @@ async def main(args):
         (args.output / 'results.json').write_text(json.dumps(report, indent=2))
         write_report(report, args.output / 'index.html')
         print(json.dumps({'case': case, 'mode': result['mode'], 'status': result['status'], 'checks': result['score']['checks'], 'seconds': result['seconds']}), flush=True)
-    return 0 if all(r['status'] not in ('blocked', 'error') for r in report['runs']) else 1
+    return evaluation_exit_code(report['runs'])
+
+
+def evaluation_exit_code(runs):
+    """0: every checkpoint passed; 1: behavioral failure/no trials; 2: blocked/error."""
+    if any(r['status'] in ('blocked', 'error') for r in runs):
+        return 2
+    if not runs:
+        return 1
+    return 0 if all(r['score']['total'] > 0 and r['score']['passed'] == r['score']['total'] for r in runs) else 1
 
 
 if __name__ == '__main__':

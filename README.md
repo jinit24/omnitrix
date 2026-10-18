@@ -206,3 +206,6 @@ Synthetic scoring measures observable research behavior, with explicitly reporte
 lexical target matching. It is not proof of causal correctness or generalization
 to large public repositories. The self-audit probes are human-authored known
 failures: successful triage/repair is separate from autonomous issue discovery.
+The research evaluator exits 0 only when every checkpoint passes, 1 for behavioral
+failures (or no trials), and 2 for blocked/error runs. A completed agent conversation
+does not by itself pass the evaluation.
