@@ -136,9 +136,18 @@
           "at": "2026-10-18T18:59:14.440313+00:00",
           "event": "diagnosis / change",
           "details": "A default of 12 role runs and in-memory autonomy/time limits cannot represent a multi-day investigation. Added persisted absolute deadline, decision/role counters, restart-safe read-only recovery, and 72-hour campaign configuration. Tested crossing a 3-day deadline and restoring consumed budgets without sleeping for days."
+        },
+        {
+          "at": "2026-10-18T19:14:31.582540+00:00",
+          "status": "persistent caps implemented; recovery/deadline regressions pass",
+          "event": "verification",
+          "details": {
+            "checks": "108 passed, 1 skipped after integration with current main. Live Codex test is opt-in; no multi-day soak result claimed.",
+            "boundary": "Guard/capability validation is separate from live reasoning quality."
+          }
         }
       ],
-      "status": "implemented; accelerated recovery tests pass"
+      "status": "persistent caps implemented; recovery/deadline regressions pass"
     },
     {
       "id": "R16",
@@ -148,9 +157,18 @@
           "at": "2026-10-18T18:59:14.444235+00:00",
           "event": "diagnosis / change",
           "details": "Added provider token-count preflight, atomic maximum-cost reservation, fixed standard-tier GPT-4.1 pricing, output caps, actual cached-token settlement and retained reservations for unknown outcomes. HTTP retries, hosted tools, hidden mutable history and unmetered native actions are excluded. First Kafka live pass cost $0.120434 and respected the ledger."
+        },
+        {
+          "at": "2026-10-18T19:14:31.590095+00:00",
+          "status": "hard reservation ledger implemented; live requests reconciled",
+          "event": "verification",
+          "details": {
+            "checks": "108 passed, 1 skipped after integration with current main. Live Codex test is opt-in; no multi-day soak result claimed.",
+            "boundary": "Guard/capability validation is separate from live reasoning quality."
+          }
         }
       ],
-      "status": "implemented and verified on live requests"
+      "status": "hard reservation ledger implemented; live requests reconciled"
     },
     {
       "id": "R17",
@@ -160,9 +178,18 @@
           "at": "2026-10-18T18:59:14.447751+00:00",
           "event": "diagnosis / change",
           "details": "Metrics.java was classified as metrics by name before checking its code extension. Code extensions now take precedence; unchanged code no longer expires merely because 24 hours passed. Runtime log/metric freshness still expires."
+        },
+        {
+          "at": "2026-10-18T19:14:31.596684+00:00",
+          "status": "classification and code freshness regressions pass",
+          "event": "verification",
+          "details": {
+            "checks": "108 passed, 1 skipped after integration with current main. Live Codex test is opt-in; no multi-day soak result claimed.",
+            "boundary": "Guard/capability validation is separate from live reasoning quality."
+          }
         }
       ],
-      "status": "fixed in regression tests"
+      "status": "classification and code freshness regressions pass"
     },
     {
       "id": "R18",
@@ -362,9 +389,18 @@
             "diagnosis": "CLI/inbox paths using the ordinary supervisor shared model metering but could bypass campaign-specific decision/completion controls. The legacy manager could bypass the read-only actor entirely.",
             "fix": "Enforce decision claiming and campaign action validation in the common supervisor. Legacy manager refuses campaign goals. All inference paths keep the reservation ledger."
           }
+        },
+        {
+          "at": "2026-10-18T19:14:31.602436+00:00",
+          "status": "common actor controls verified by alternate-entry regressions",
+          "event": "verification",
+          "details": {
+            "checks": "108 passed, 1 skipped after integration with current main. Live Codex test is opt-in; no multi-day soak result claimed.",
+            "boundary": "Guard/capability validation is separate from live reasoning quality."
+          }
         }
       ],
-      "status": "implemented; regression validation pending"
+      "status": "common actor controls verified by alternate-entry regressions"
     },
     {
       "id": "R27",
@@ -379,9 +415,52 @@
             "fix": "Check observed progress and stagnation when the actor is idle, after the previous worker finishes. Pending new research gets its bounded chance to read.",
             "check": "Start the real read/evaluate/complete orchestration test with seven prior stagnant decisions."
           }
+        },
+        {
+          "at": "2026-10-18T19:14:31.608398+00:00",
+          "status": "stagnation scheduling regression passes",
+          "event": "verification",
+          "details": {
+            "checks": "108 passed, 1 skipped after integration with current main. Live Codex test is opt-in; no multi-day soak result claimed.",
+            "boundary": "Guard/capability validation is separate from live reasoning quality."
+          }
         }
       ],
-      "status": "implemented; regression validation pending"
+      "status": "stagnation scheduling regression passes"
+    },
+    {
+      "id": "R29",
+      "title": "Manager confuses path catalog search with source-content search",
+      "history": [
+        {
+          "at": "2026-10-18T19:13:49.612966+00:00",
+          "status": "tool contract clarified; live recovery pending",
+          "event": "live regression",
+          "details": {
+            "observed": "After a five-file discovery, the manager issued 24 catalog turns searching words such as run/sample under README.md and jmh.sh as if directory filters selected file contents. MaxTurnsExceeded paused the campaign.",
+            "result": "9 files and 9 buckets observed; no independently resolved current hypothesis or mechanism; cumulative $1.555578, zero held reservations.",
+            "fix": "Tool documentation and returned catalog metadata now explicitly state pathname-only queries, directory-only subtree filters and the need for a research plan to read/search contents. Original failed queries remain in the goal report."
+          }
+        }
+      ],
+      "status": "tool contract clarified; live recovery pending"
+    },
+    {
+      "id": "R28",
+      "title": "Documentation index assumes every report has a plain first article tag",
+      "history": [
+        {
+          "at": "2026-10-18T19:13:49.619410+00:00",
+          "status": "fixed; generated guide and focused docs checks pass",
+          "event": "integration test and repair",
+          "details": {
+            "observed": "Adding HTML article IDs for issue links exposed an IndexError in the old docs search generator.",
+            "fix": "Support attributed/multiple articles, include all dated issue histories and stop titles at </title>. Preserve current main dashboard and recorded experiment view.",
+            "validation": "34 focused campaign/spending/report/dashboard checks pass; full checks repeated after merging current main."
+          }
+        }
+      ],
+      "status": "fixed; generated guide and focused docs checks pass"
     }
   ],
   "runs": [
@@ -2044,6 +2123,62 @@
       },
       "head": "cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282",
       "decisions": []
+    },
+    {
+      "name": "kafka-frontier-04",
+      "mode": "live read-only; human-steered corrections",
+      "status": "paused",
+      "reason": "{'error': 'MaxTurnsExceeded', 'reason': 'Manager reasoning budget exhausted; retained conversation/state require a changed approach, not automatic replay'}",
+      "autonomous_discovery": false,
+      "spending": {
+        "goal_id": "c849afa7ebea434ea01d292996c10a77",
+        "limit_nanos": 25000000000,
+        "spent_nanos": 1555578000,
+        "reserved_nanos": 0,
+        "limit_usd": 25.0,
+        "spent_usd": 1.555578,
+        "reserved_usd": 0.0,
+        "available_usd": 23.444422,
+        "model": "gpt-4.1-2025-04-14",
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "frontier": {
+        "goal_id": "c849afa7ebea434ea01d292996c10a77",
+        "head": "cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282",
+        "complete": 1,
+        "skipped": 64,
+        "files": 7551,
+        "by_kind": {
+          "code": 6760,
+          "document": 785,
+          "logs": 4,
+          "metrics": 2
+        },
+        "by_origin": {
+          "export": 6,
+          "git": 7545
+        },
+        "observed_files": 9,
+        "basis": "Git-tracked UTF-8 files and explicitly registered local exports <=32 MiB; binaries, unavailable files and oversized files counted as skipped. Excerpts do not establish full coverage."
+      },
+      "quality": {
+        "required": {
+          "sources": 20,
+          "branches": 4,
+          "hypotheses": 6,
+          "mechanisms": 2
+        },
+        "actual": {
+          "sources": 9,
+          "branches": 9,
+          "hypotheses": 0,
+          "mechanisms": 0
+        },
+        "met": false,
+        "note": "Minimum breadth and evidence gates, not proof of exhaustive coverage or production impact."
+      },
+      "head": "cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282",
+      "decisions": []
     }
   ],
   "limitations": [
@@ -2140,6 +2275,66 @@
           "actual": {
             "sources": 4,
             "branches": 4,
+            "hypotheses": 0,
+            "mechanisms": 0
+          },
+          "met": false,
+          "note": "Minimum breadth and evidence gates, not proof of exhaustive coverage or production impact."
+        },
+        "head": "cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282",
+        "decisions": []
+      }
+    },
+    {
+      "id": "53f382761f9f45529439154c06586203",
+      "at": "2026-10-18T19:13:49.660361+00:00",
+      "result": {
+        "name": "kafka-frontier-04",
+        "mode": "live read-only; human-steered corrections",
+        "status": "paused",
+        "reason": "{'error': 'MaxTurnsExceeded', 'reason': 'Manager reasoning budget exhausted; retained conversation/state require a changed approach, not automatic replay'}",
+        "autonomous_discovery": false,
+        "spending": {
+          "goal_id": "c849afa7ebea434ea01d292996c10a77",
+          "limit_nanos": 25000000000,
+          "spent_nanos": 1555578000,
+          "reserved_nanos": 0,
+          "limit_usd": 25.0,
+          "spent_usd": 1.555578,
+          "reserved_usd": 0.0,
+          "available_usd": 23.444422,
+          "model": "gpt-4.1-2025-04-14",
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "frontier": {
+          "goal_id": "c849afa7ebea434ea01d292996c10a77",
+          "head": "cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282",
+          "complete": 1,
+          "skipped": 64,
+          "files": 7551,
+          "by_kind": {
+            "code": 6760,
+            "document": 785,
+            "logs": 4,
+            "metrics": 2
+          },
+          "by_origin": {
+            "export": 6,
+            "git": 7545
+          },
+          "observed_files": 9,
+          "basis": "Git-tracked UTF-8 files and explicitly registered local exports <=32 MiB; binaries, unavailable files and oversized files counted as skipped. Excerpts do not establish full coverage."
+        },
+        "quality": {
+          "required": {
+            "sources": 20,
+            "branches": 4,
+            "hypotheses": 6,
+            "mechanisms": 2
+          },
+          "actual": {
+            "sources": 9,
+            "branches": 9,
             "hypotheses": 0,
             "mechanisms": 0
           },
