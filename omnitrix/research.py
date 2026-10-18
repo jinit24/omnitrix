@@ -84,11 +84,11 @@ class Research:
                 raise ValueError('Opportunity must belong to this goal')
         from .control import Control
         revisions = Control(self.store).current(goal_id)
-        signature = hashlib.sha256(json.dumps([workspace, stage, revisions['goal']['revision'], revisions['policy']['version'],
+        signature = hashlib.sha256(json.dumps([goal_id, workspace, stage, revisions['goal']['revision'], revisions['policy']['version'],
             ' '.join((spec.hypothesis or spec.question).casefold().split()), scope,
             [hashlib.sha256(read_source_bytes(workspace,s)[1]).hexdigest() for s in scope]], sort_keys=True).encode()).hexdigest()
-        prior = self.db.execute('SELECT id,status FROM research_jobs WHERE signature=? ORDER BY created DESC LIMIT 1',
-                                (signature,)).fetchone()
+        prior = self.db.execute('SELECT id,status FROM research_jobs WHERE goal_id=? AND signature=? ORDER BY created DESC LIMIT 1',
+                                (goal_id, signature)).fetchone()
         if prior:
             return {'duplicate': True, 'job_id': prior['id'], 'status': prior['status'],
                     'feedback': 'Retrieve earlier findings; retry the existing job only with targeted feedback.'}
@@ -193,6 +193,8 @@ class Research:
             errors.append('Evaluator must cite independently available evidence')
         if evaluation.verdict == 'supported' and (not claims or any(not f.evidence_ids for f in claims)):
             errors.append('Every asserted claim needs observed evidence; assumptions are not verified facts')
+        if evaluation.verdict == 'supported' and any(not set(f.evidence_ids).issubset(evaluation.evidence_ids) for f in claims):
+            errors.append('Evaluator evidence must cover every factual claim, not unrelated observations')
         if report.blocked and evaluation.verdict == 'supported':
             errors.append('Blocked research cannot establish support')
         if errors:
