@@ -32,7 +32,7 @@
             ><span>04</span>Recovery &amp; operations</a
           ><a class="" href="experiments.html"
             ><span>05</span>Experiments &amp; results</a
-          ><a class="selected" href="status.html"
+          ><a class="" href="status.html"
             ><span>06</span>Status &amp; limitations</a
           >
         </nav>
@@ -44,8 +44,8 @@
       <main>
         <div class="kicker">VALIDATION / 2026-10-19</div><h1 class="page-title">Long-running reliability</h1><p class="lede">Requirement-bound progress and an isolated Django repair experiment.</p><article><h2 id="outcome">Outcome</h2>
 <p>The final profile repaired two deliberately seeded regressions in Django at <code>cae7247962de54a94023d28d84f05fc9842e9646</code>, a checkout with 6,929 tracked files. It passed all three authorized criteria, including 129 unchanged upstream data-structure and HTTP-wrapper tests, then passed the exact-revision goal audit. The final manager used GPT-5.4 and the worker used GPT-5.3-Codex with medium reasoning.</p>
-<p>Elapsed time: <strong>217.3 seconds</strong>. Candidate: <code>2bf5d2ccfdbcb8666895529a569ec754987aea4c</code>. The manager was restarted after research acceptance and authorization, before coding; it continued from durable state. The final run received no human steering. Worker commands were bounded; the independent verification process established all authorized acceptance criteria. The preceding profile demonstrated a worker-context timeout followed by successful independent verification.</p>
-<p>Local regression suite: <strong>93 passed, 2 skipped</strong>. The skipped tests require separately enabled live experiments. The live Django run is reported separately.</p>
+<p>Elapsed time: <strong>227.1 seconds</strong>. Candidate: <code>9c8d66fd63dc3fe1d6c9a0065757f82ca3a9ef04</code>. The manager was restarted after research acceptance and authorization, before coding; it continued from durable state. The final run received no human steering. Worker commands were bounded; the independent verification process established all authorized acceptance criteria. Profile 7 demonstrated a worker-context timeout followed by successful independent verification.</p>
+<p>Local regression suite: <strong>126 passed, 1 skipped</strong>. The skipped test requires a separately enabled live experiment; documentation checks were enabled. The live Django run is reported separately.</p>
 <h2 id="fixes">Changes</h2>
 <ul><li>Evaluation receives current requirements, constraints and policy. Blocking gaps name their basis and next action; optional uncertainty stays explicit.</li>
 <li>Manager decisions have four discretionary tool calls. Malformed decisions receive one bounded correction before a durable pause. Recoverable plan errors include known-valid file paths and cannot immediately become an external-input or research pause.</li>
@@ -53,12 +53,12 @@
 <li>The latest focused research outcome, feedback, scope gaps and retry eligibility are reconstructed from SQLite every turn. Full reports are available through paginated recall.</li>
 <li>Code-goal pauses distinguish research prerequisites from missing authorization. Independent verification results and the latest audit are visible in status. A successful current audit atomically completes both the implementation and the goal. Explicit authorization, evidence integrity, independent checks and exact-revision audits remain enforced.</li>
 <li>Usage is persisted after each completed model response, even if the enclosing run later fails. Workers are instructed to use an OS-enforced command timeout and hand off execution-context limitations to independent verification.</li>
-<li>The default coordinator and research model is GPT-5.4; <code>OMNITRIX_MODEL</code> still overrides it. GPT-4.1 repeatedly stopped during planning in the earlier profiles.</li></ul>
+<li>The default coordinator and research model for ordinary goals is GPT-5.4; dollar-capped campaigns retain pinned GPT-4.1 pricing; <code>OMNITRIX_MODEL</code> still overrides it. GPT-4.1 repeatedly stopped during planning in the earlier profiles.</li></ul>
 <h2 id="profiles">All diagnostic profiles</h2>
 <p>Code and instructions evolved between profiles; the coordinator changed after profile 4. These are diagnostic records, not a controlled before/after comparison or a model ranking.</p>
-<table><thead><tr><th>Profile</th><th>Coordinator</th><th>Observed result</th><th>Cost estimate</th></tr></thead><tbody><tr><td>1</td><td>gpt-4.1</td><td>Reasoning-turn exhaustion during directory inventory; usage unmeasured.</td><td>Unmeasured; $2 reserve</td></tr><tr><td>2</td><td>gpt-4.1</td><td>Invalid directory scope followed by an unnecessary scope question.</td><td>$0.138</td></tr><tr><td>3</td><td>gpt-4.1</td><td>Malformed decision JSON escaped the supervisor before bounded correction handling.</td><td>$0.203</td></tr><tr><td>4</td><td>gpt-4.1</td><td>Planning update returned as a research pause.</td><td>$0.133</td></tr><tr><td>5</td><td>gpt-5.4</td><td>Research accepted and state restored; worker test command hung until its turn timeout. Outcome remained uncertain; no false completion.</td><td>$1.523</td></tr><tr><td>6</td><td>gpt-5.4</td><td>Retry prose named extra test files without changing the immutable scope. No accepted research or implementation.</td><td>$0.437</td></tr><tr><td>7</td><td>gpt-5.4</td><td>All independent checks and audit passed, but the manager paused afterward because audit results were absent from its working state.</td><td>$1.878</td></tr><tr><td>8</td><td>gpt-5.4</td><td>Completed discovery, accepted research, stage-boundary restart, implementation, independent verification and atomic goal completion by audit.</td><td>$1.267</td></tr></tbody></table>
+<table><thead><tr><th>Profile</th><th>Coordinator</th><th>Observed result</th><th>Cost estimate</th></tr></thead><tbody><tr><td>1</td><td>gpt-4.1</td><td>Reasoning-turn exhaustion during directory inventory; usage unmeasured.</td><td>Unmeasured; $2 reserve</td></tr><tr><td>2</td><td>gpt-4.1</td><td>Invalid directory scope followed by an unnecessary scope question.</td><td>$0.138</td></tr><tr><td>3</td><td>gpt-4.1</td><td>Malformed decision JSON escaped the supervisor before bounded correction handling.</td><td>$0.203</td></tr><tr><td>4</td><td>gpt-4.1</td><td>Planning update returned as a research pause.</td><td>$0.133</td></tr><tr><td>5</td><td>gpt-5.4</td><td>Research accepted and state restored; worker test command hung until its turn timeout. Outcome remained uncertain; no false completion.</td><td>$1.523</td></tr><tr><td>6</td><td>gpt-5.4</td><td>Retry prose named extra test files without changing the immutable scope. No accepted research or implementation.</td><td>$0.437</td></tr><tr><td>7</td><td>gpt-5.4</td><td>All independent checks and audit passed, but the manager paused afterward because audit results were absent from its working state.</td><td>$1.878</td></tr><tr><td>8</td><td>gpt-5.4</td><td>Completed discovery, accepted research, stage-boundary restart, implementation, independent verification and atomic goal completion by audit.</td><td>$1.267</td></tr><tr><td>9</td><td>gpt-5.4</td><td>Repeated the complete repair and audit after integrating remote campaign and spending controls.</td><td>$1.347</td></tr></tbody></table>
 <h2 id="budget">Testing budget</h2>
-<p>The authorized ceiling was $25. Recorded responses total approximately <strong>$5.58</strong> at standard token rates, charging cached input at the full input rate. Adding a <strong>$2 reserve</strong> for the first unmetered profile gives <strong>$7.58</strong>. These figures are estimates, not invoice totals. Each later run used a $3 observed-usage stop threshold to leave substantial headroom for in-flight responses.</p>
+<p>The authorized ceiling was $25. Recorded responses total approximately <strong>$6.93</strong> at standard token rates, charging cached input at the full input rate. Adding a <strong>$2 reserve</strong> for the first unmetered profile gives <strong>$8.93</strong>. These figures are estimates, not invoice totals. Each later run used a $3 observed-usage stop threshold to leave substantial headroom for in-flight responses.</p>
 <p>Rates per million input/output tokens: GPT-4.1 $2/$8, GPT-5.4 $2.50/$15, GPT-5.3-Codex $1.75/$14. See the source URLs in the machine-readable report. Per-response input sizes stayed below the GPT-5.4 long-context pricing threshold.</p>
 <h2 id="method">Protocol and reproduction</h2>
 <p>The baseline upstream suite passed before fault injection. The isolated fixture replaced OrderedSet reverse iteration with forward iteration and disabled MultiValueDict.getlist copying. No upstream tests were edited. Independent oracles imported candidate code while running unchanged tests from the separate clean checkout. The permitted edit was only <code>django/utils/datastructures.py</code>. The final patch restores the upstream behavior. Nothing was pushed to Django.</p>
@@ -69,7 +69,29 @@
   --output work/django-validation-new --model gpt-5.4 \
   --allow-code-modifications</code></pre>
 <p>Use a new output path and preserve the upstream checkout with the shared clone/worktrees. Set <code>OPENAI_API_KEY</code> securely. The script performs paid model calls and modifies only its isolated seeded fixture.</p>
+<h3>Final Django patch</h3><pre><code>diff --git a/django/utils/datastructures.py b/django/utils/datastructures.py
+index 5276448..ded606d 100644
+--- a/django/utils/datastructures.py
++++ b/django/utils/datastructures.py
+@@ -26,7 +26,7 @@ class OrderedSet:
+         return iter(self.dict)
+
+     def __reversed__(self):
+-        return iter(self.dict)
++        return reversed(self.dict)
+
+     def __contains__(self, item):
+         return item in self.dict
+@@ -149,7 +149,7 @@ class MultiValueDict(dict):
+         Return the list of values for the key. If key doesn&#x27;t exist, return a
+         default value.
+         &quot;&quot;&quot;
+-        return self._getlist(key, default, force_list=False)
++        return self._getlist(key, default, force_list=True)
+
+     def setlist(self, key, list_):
+         super().__setitem__(key, list_)</code></pre>
 <h2 id="limits">Limits and next work</h2>
-<p>This is one bounded repair inside a large repository, with seeded defects and a restart between stages. It is not discovery of an upstream bug, a whole-repository audit, a multi-hour trial, a process-kill recovery rate or evidence that a manager beats a single worker. The worker-context test hang was observed; its underlying runtime cause was not established. OS timeouts are requested from the worker and were observed in the final run; they are not a universal tool-execution enforcement layer.</p>
+<p>This demonstrates bounded repairs inside a large repository, with seeded defects and a restart between stages. It is not discovery of an upstream bug, a whole-repository audit, a multi-hour trial, a process-kill recovery rate or evidence that a manager beats a single worker. The worker-context test hang was observed; its underlying runtime cause was not established. OS timeouts are requested from the worker and were observed in the final run; they are not a universal tool-execution enforcement layer.</p>
 <p>Next: repeated multi-hour trials with matched single-worker baselines, faults during live work, compact milestone state as history grows, and measured recovery from genuinely uncertain external outcomes. Keep unresolved outcomes visible and require reconciliation before replay.</p>
-<p><a href="experiments/django-liveness.json">Full records, checks, handoffs, usage and diagnostics</a> · <a href="experiments/django-liveness.patch">Django candidate patch</a></p></article><div class="article-footer">Source: docs/long-running.html · Asia/Calcutta</div></main><aside class="outline"><div class="nav-caption">ON THIS PAGE</div><a href="#outcome">Outcome</a><a href="#fixes">Changes</a><a href="#profiles">Diagnostic profiles</a><a href="#budget">Budget</a><a href="#method">Protocol</a><a href="#limits">Limits</a></aside></div></body></html>
+<p><a href="experiments/django-liveness.json">Full records, checks, handoffs, usage and diagnostics</a></p></article><div class="article-footer">Source: docs/long-running.html · Asia/Calcutta</div></main><aside class="outline"><div class="nav-caption">ON THIS PAGE</div><a href="#outcome">Outcome</a><a href="#fixes">Changes</a><a href="#profiles">Diagnostic profiles</a><a href="#budget">Budget</a><a href="#method">Protocol</a><a href="#limits">Limits</a></aside></div></body></html>

@@ -54,7 +54,7 @@ worker</strong> in the recorded trials.</p>
 . .venv/bin/activate
 pip install -e '.[test]'
 npm ci
-pytest -q
+python -m pytest -q
 </code></pre>
 <p>Set <code>OPENAI_API_KEY</code> securely; all agents and Codex adapters use it. Never put keys in
 goals, files, or the database. Model calls cost money. Without the key, Codex keeps its
@@ -69,7 +69,7 @@ existing login configuration. <code>OMNITRIX_CODEX_PATH</code> can select the in
 <tbody>
 <tr>
 <td><code>OMNITRIX_MODEL</code></td>
-<td><code>gpt-4.1</code></td>
+<td><code>gpt-5.4</code></td>
 </tr>
 <tr>
 <td><code>OMNITRIX_CODEX_MODEL</code></td>
@@ -85,7 +85,13 @@ existing login configuration. <code>OMNITRIX_CODEX_PATH</code> can select the in
 </tr>
 </tbody>
 </table>
+<p>Dollar-capped research campaigns retain their pinned GPT-4.1 pricing contract.
+An explicit incompatible model override is rejected before inference.</p>
 <p>Use a source/editable install: instructions and Node bridge are repository resources.</p>
+<p>The default coordinator is now GPT-5.4. Planning has a per-decision tool budget,
+recoverable scope errors trigger replanning, and a successful independent goal audit
+completes the goal directly. See the <a href="long-running.html">Django validation and diagnostic findings</a>
+for the bounded repair experiment, all failed profiles, costs and remaining limits.</p>
 <h2>Run and observe</h2>
 <pre><code class="language-sh">omnitrix create 'Improve service reliability' \
   --criterion 'Verify one bounded improvement' --require-implementation --workspace .

@@ -2,9 +2,9 @@
   "date": "2026-10-19",
   "timezone": "Asia/Calcutta",
   "budget_usd": 25,
-  "observed_cost_estimate_without_cache_discount_usd": 5.57982825,
+  "observed_cost_estimate_without_cache_discount_usd": 6.92636375,
   "unmetered_first_profile_reserve_usd": 2,
-  "estimate_plus_reserve_usd": 7.57982825,
+  "estimate_plus_reserve_usd": 8.92636375,
   "billing_note": "Standard published token rates, no cache discount; estimates are not an invoice. First profile is reserved separately, not counted as free.",
   "prices_per_million_tokens": {
     "gpt-4.1": [
@@ -31,7 +31,7 @@
     "asgiref": "3.12.1",
     "sqlparse": "0.6.0"
   },
-  "final_profile": 8,
+  "final_profile": 9,
   "profiles": [
     {
       "upstream": "https://github.com/django/django",
@@ -2340,7 +2340,709 @@
       ],
       "provider_responses_recorded": 13,
       "max_sdk_input_tokens_per_response": 53047
+    },
+    {
+      "upstream": "https://github.com/django/django",
+      "upstream_revision": "cae7247962de54a94023d28d84f05fc9842e9646",
+      "tracked_files": 6929,
+      "seeded_revision": "820c698de8517431717d271f5bd0b87de70ab766",
+      "goal_id": "bdba67786ed44c83a5972d3b02263688",
+      "manager_model": "gpt-5.4",
+      "worker_model": "gpt-5.3-codex",
+      "seeded_defects": [
+        "OrderedSet.__reversed__ returns insertion order",
+        "MultiValueDict.getlist returns its mutable backing list"
+      ],
+      "baseline": [
+        {
+          "requirement": "OrderedSet reversal preserves reverse insertion order",
+          "exit_code": 1,
+          "output": "Testing against Django installed in '<experiment>/seeded/django'\nFound 8 test(s).\nSystem check identified no issues (0 silenced).\n.......F\n======================================================================\nFAIL: test_reversed (utils_tests.test_datastructures.OrderedSetTests.test_reversed)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<upstream-checkout>/tests/utils_tests/test_datastructures.py\", line 44, in test_reversed\n    self.assertEqual(list(s), [3, 2, 1])\nAssertionError: Lists differ: [1, 2, 3] != [3, 2, 1]\n\nFirst differing element 0:\n1\n3\n\n- [1, 2, 3]\n?  ^     ^\n\n+ [3, 2, 1]\n?  ^     ^\n\n\n----------------------------------------------------------------------\nRan 8 tests in 0.001s\n\nFAILED (failures=1)\n"
+        },
+        {
+          "requirement": "MultiValueDict.getlist returns independent lists while preserving internal mutation and default semantics",
+          "exit_code": 1,
+          "output": "Testing against Django installed in '<experiment>/seeded/django'\nFound 21 test(s).\nSystem check identified no issues (0 silenced).\n.....F...............\n======================================================================\nFAIL: test_getlist_doesnt_mutate (utils_tests.test_datastructures.MultiValueDictTests.test_getlist_doesnt_mutate)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<upstream-checkout>/tests/utils_tests/test_datastructures.py\", line 163, in test_getlist_doesnt_mutate\n    self.assertEqual(x.getlist(\"a\"), [\"1\", \"2\"])\nAssertionError: Lists differ: ['1', '2', '3'] != ['1', '2']\n\nFirst list contains 1 additional elements.\nFirst extra element 2:\n'3'\n\n- ['1', '2', '3']\n?          -----\n\n+ ['1', '2']\n\n----------------------------------------------------------------------\nRan 21 tests in 0.002s\n\nFAILED (failures=1)\n"
+        },
+        {
+          "requirement": "The Django data-structure and HTTP-wrapper regression tests all pass",
+          "exit_code": 1,
+          "output": "Testing against Django installed in '<experiment>/seeded/django'\nFound 129 test(s).\nSystem check identified no issues (0 silenced).\n.....................F......................F....................................................................................\n======================================================================\nFAIL: test_getlist_doesnt_mutate (utils_tests.test_datastructures.MultiValueDictTests.test_getlist_doesnt_mutate)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<upstream-checkout>/tests/utils_tests/test_datastructures.py\", line 163, in test_getlist_doesnt_mutate\n    self.assertEqual(x.getlist(\"a\"), [\"1\", \"2\"])\nAssertionError: Lists differ: ['1', '2', '3'] != ['1', '2']\n\nFirst list contains 1 additional elements.\nFirst extra element 2:\n'3'\n\n- ['1', '2', '3']\n?          -----\n\n+ ['1', '2']\n\n======================================================================\nFAIL: test_reversed (utils_tests.test_datastructures.OrderedSetTests.test_reversed)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<upstream-checkout>/tests/utils_tests/test_datastructures.py\", line 44, in test_reversed\n    self.assertEqual(list(s), [3, 2, 1])\nAssertionError: Lists differ: [1, 2, 3] != [3, 2, 1]\n\nFirst differing element 0:\n1\n3\n\n- [1, 2, 3]\n?  ^     ^\n\n+ [3, 2, 1]\n?  ^     ^\n\n\n----------------------------------------------------------------------\nRan 129 tests in 0.021s\n\nFAILED (failures=2)\n"
+        }
+      ],
+      "goal_status": "completed",
+      "decisions": [
+        {
+          "action": "discover",
+          "rationale": "The goal is a bounded repair experiment with verified implementation required, so the next highest-value uncertainty is identifying the exact source and regression-test files named by the contract in VALIDATION.md before any implementation can be authorized. I verified the workspace inventory directly and confirmed VALIDATION.md plus likely source roots under django/ and tests/ are present. A focused discovery over the validation doc and the most relevant data-structure/http source and test files is the best next step because it can establish the defect boundaries and candidate implementation targets without guessing scope or using disallowed delegation.",
+          "instructions": "Inspect the bounded contract and entry points for this Django regression repair. Read VALIDATION.md first, then identify the exact source files and existing regression tests governing: (1) OrderedSet reversal behavior, and (2) MultiValueDict.getlist copy/default semantics including HTTP-wrapper interactions. Produce a concise report with: current required behaviors, cited source locations, cited test locations, likely defective methods/classes, and whether the existing tests already encode the acceptance criteria or need only verification after repair. Do not propose code changes beyond naming the likely implementation sites.",
+          "task_id": null,
+          "priority": 1,
+          "research_plan": {
+            "scope": [
+              "VALIDATION.md",
+              "django/utils/datastructures.py",
+              "django/http/request.py",
+              "tests/utils_tests/test_datastructures.py",
+              "tests/httpwrappers/tests.py"
+            ],
+            "question": "Which existing source files and tests define the required OrderedSet and MultiValueDict contracts, and where is the bounded defect most likely located?",
+            "hypothesis": null,
+            "falsification": null,
+            "opportunity_id": null,
+            "budget": {
+              "tool_calls": 5,
+              "seconds": 45,
+              "attempts": 1
+            }
+          },
+          "research_id": null,
+          "implementation_id": null,
+          "pause_reason": null
+        },
+        {
+          "action": "research",
+          "rationale": "Discovery narrowed the work to django/utils/datastructures.py and identified two plausible defects, but the exact faulty behavior and test contracts are still unverified because the previous run exhausted budget before reading the relevant bodies. The highest-value next uncertainty is whether MultiValueDict.getlist truly returns shared internal state instead of an independent list while preserving default semantics, since that opportunity has the strongest evidence and may also explain HTTP-wrapper regressions indirectly. I am choosing a single falsifiable hypothesis rather than broadening further, because accepted research is required before implementation can be authorized.",
+          "instructions": "Test this explicit hypothesis: MultiValueDict.getlist in django/utils/datastructures.py returns shared internal list state instead of an independent list, while _getlist is intended to expose mutable internal state; this violates the contracts exercised by unchanged regression tests. Read the implementation body in django/utils/datastructures.py and the relevant test bodies in tests/utils_tests/test_datastructures.py and tests/httpwrappers/tests.py. Determine whether the hypothesis is true or false, citing the exact methods and tests that establish copy behavior, internal mutation behavior, and default/None semantics. Also note any indirect HTTP-wrapper dependency you can support from source, or explicitly state if the HTTP-wrapper suite appears unrelated from the inspected evidence. Return a concise verdict with code/test citations and the bounded implementation site if confirmed.",
+          "task_id": null,
+          "priority": 1,
+          "research_plan": {
+            "scope": [
+              "django/utils/datastructures.py",
+              "tests/utils_tests/test_datastructures.py",
+              "tests/httpwrappers/tests.py"
+            ],
+            "question": "Does MultiValueDict.getlist currently violate Django's contract by returning shared internal list state instead of an independent list while preserving _getlist mutation and default semantics?",
+            "hypothesis": "MultiValueDict.getlist in django/utils/datastructures.py returns the same list object stored internally rather than an independent copy, causing external callers to mutate stored values and breaking the regression tests covering getlist copy behavior and defaults.",
+            "falsification": "If the inspected implementation already returns an independent list copy for existing keys while preserving the tested default/None semantics, or if the cited tests do not require independence from internal state, then this hypothesis is false.",
+            "opportunity_id": "43dff7d3666e40d69e748125a3454890",
+            "budget": {
+              "tool_calls": 6,
+              "seconds": 60,
+              "attempts": 2
+            }
+          },
+          "research_id": null,
+          "implementation_id": null,
+          "pause_reason": null
+        },
+        {
+          "action": "research",
+          "rationale": "Accepted research has established the MultiValueDict defect and an authorized implementation now exists, but the goal has two seeded regressions and completion requires all three acceptance criteria. Before using the implementation path, the remaining highest-value uncertainty is the separate OrderedSet regression in the same allowed file. Resolving that contract now keeps the repair bounded to one implementation attempt and avoids changing code without full defect understanding.",
+          "instructions": "Test this explicit hypothesis: OrderedSet in django/utils/datastructures.py violates Django's reverse-order contract by returning insertion order instead of reverse insertion order when reversed. Inspect the OrderedSet implementation body in django/utils/datastructures.py and the relevant test body in tests/utils_tests/test_datastructures.py. Determine whether the hypothesis is true or false, citing the exact implementation method(s) and test(s). Return a concise verdict with code/test citations and the bounded implementation site if confirmed. Ignore broader refactors; stay within the existing contract and note any interaction with the authorized repair scope in django/utils/datastructures.py.",
+          "task_id": null,
+          "priority": 1,
+          "research_plan": {
+            "scope": [
+              "django/utils/datastructures.py",
+              "tests/utils_tests/test_datastructures.py"
+            ],
+            "question": "Does OrderedSet in django/utils/datastructures.py currently violate the required reverse-order contract exercised by the unchanged datastructures regression test?",
+            "hypothesis": "OrderedSet's reverse implementation in django/utils/datastructures.py yields insertion order rather than reverse insertion order, which is why the unchanged OrderedSet regression test fails.",
+            "falsification": "If the inspected implementation already returns elements in reverse insertion order when reversed, or if the cited test does not require reverse insertion order, then this hypothesis is false.",
+            "opportunity_id": "d6dbc44931454020be7a86c813c358a6",
+            "budget": {
+              "tool_calls": 6,
+              "seconds": 60,
+              "attempts": 2
+            }
+          },
+          "research_id": null,
+          "implementation_id": null,
+          "pause_reason": null
+        },
+        {
+          "action": "implement",
+          "rationale": "Both seeded defects are now supported by accepted bounded research in the only authorized edit file, django/utils/datastructures.py. MultiValueDict.getlist is established as returning shared internal state contrary to test contracts, and OrderedSet.__reversed__ is established as yielding insertion order instead of reverse insertion order. An authorized implementation already exists for this goal, and all mandatory acceptance criteria depend on making these two narrow fixes and then running the specified verification checks. Implementation is now the highest-value next action; additional research would not reduce the key uncertainty as much as executing the authorized repair and checks.",
+          "instructions": "In the authorized worktree for implementation 0cddffcc4c684fb5b5094afac92b2607, modify only django/utils/datastructures.py to restore the two established contracts: (1) OrderedSet.__reversed__ must yield reverse insertion order, and (2) MultiValueDict.getlist must return an independent list for existing keys while preserving _getlist internal-mutation behavior and missing-key default/None semantics. Keep the change minimal and targeted. After editing, run the three required checks from the implementation spec: check.py ordered, check.py values, and check.py regression. Report the candidate revision and the exact outcomes of each check.",
+          "task_id": null,
+          "priority": 1,
+          "research_plan": null,
+          "research_id": null,
+          "implementation_id": "0cddffcc4c684fb5b5094afac92b2607",
+          "pause_reason": null
+        },
+        {
+          "action": "audit",
+          "rationale": "The authorized implementation produced candidate revision 9c8d66fd63dc3fe1d6c9a0065757f82ca3a9ef04 and independent verification results now show all three mandatory checks passed at that exact candidate revision, including the full regression suite. The worker handoff mentioned an earlier timeout under a stricter ad hoc limit, but persisted verification results supersede that uncertainty. Since the implementation is ready_for_audit and executable checks satisfy every current requirement, the correct next action is audit.",
+          "instructions": "Audit implementation 0cddffcc4c684fb5b5094afac92b2607 at candidate revision 9c8d66fd63dc3fe1d6c9a0065757f82ca3a9ef04 against the original acceptance criteria. Use the recorded independent verification results for: OrderedSet reversal, MultiValueDict.getlist independence/default semantics, and the unchanged Django data-structure and HTTP-wrapper regression tests. Confirm the candidate revision matches the verified results and finalize if audit passes.",
+          "task_id": null,
+          "priority": 1,
+          "research_plan": null,
+          "research_id": null,
+          "implementation_id": "0cddffcc4c684fb5b5094afac92b2607",
+          "pause_reason": null
+        }
+      ],
+      "research": [
+        {
+          "id": "5266c772ca034831b9f717b953f1a33b",
+          "goal_id": "bdba67786ed44c83a5972d3b02263688",
+          "stage": "research",
+          "signature": "5f71cdb6bea129a62e353d87fce2eb55eae62a0d787743e7db6ea7a39e0f0e09",
+          "spec": "{\"scope\":[\"django/utils/datastructures.py\",\"tests/utils_tests/test_datastructures.py\"],\"question\":\"Does OrderedSet in django/utils/datastructures.py currently violate the required reverse-order contract exercised by the unchanged datastructures regression test?\",\"hypothesis\":\"OrderedSet's reverse implementation in django/utils/datastructures.py yields insertion order rather than reverse insertion order, which is why the unchanged OrderedSet regression test fails.\",\"falsification\":\"If the inspected implementation already returns elements in reverse insertion order when reversed, or if the cited test does not require reverse insertion order, then this hypothesis is false.\",\"opportunity_id\":\"d6dbc44931454020be7a86c813c358a6\",\"budget\":{\"tool_calls\":6,\"seconds\":60,\"attempts\":2}}",
+          "status": "supported",
+          "attempts": 1,
+          "created": 1792352294.3236256,
+          "updated": 1792352307.4248996,
+          "run_id": "7e9233508c764b30b85295e772a60230",
+          "run_status": "supported",
+          "report": {
+            "findings": [
+              {
+                "statement": "OrderedSet.__reversed__ currently returns iter(self.dict), which yields insertion order rather than reverse insertion order.",
+                "classification": "claim",
+                "evidence_ids": [
+                  "dd1d836b773b4d81bedf9de0967c04c7"
+                ],
+                "category": "mechanism",
+                "workload": "Calling reversed() on an OrderedSet with inserted elements, e.g. OrderedSet([1, 2, 3]).",
+                "falsification": "This finding would be false if __reversed__ delegated to reversed(self.dict) or otherwise produced keys in reverse insertion order."
+              },
+              {
+                "statement": "The unchanged OrderedSet regression test explicitly requires reversed(OrderedSet([1, 2, 3])) to iterate as [3, 2, 1].",
+                "classification": "claim",
+                "evidence_ids": [
+                  "0b4e3b532e8646a7bd67c3121dcfe50c"
+                ],
+                "category": "observation",
+                "workload": "tests/utils_tests/test_datastructures.py::OrderedSetTests.test_reversed",
+                "falsification": "This finding would be false if the test asserted insertion order or did not check the resulting sequence."
+              },
+              {
+                "statement": "Given the current implementation and the test contract, the hypothesis is supported: OrderedSet's reverse implementation violates the required reverse-order contract exercised by the unchanged regression test.",
+                "classification": "claim",
+                "evidence_ids": [
+                  "dd1d836b773b4d81bedf9de0967c04c7",
+                  "0b4e3b532e8646a7bd67c3121dcfe50c"
+                ],
+                "category": "mechanism",
+                "workload": "Reversing an OrderedSet under the regression-test fixture OrderedSet([1, 2, 3]).",
+                "falsification": "This conclusion would be false if either the implementation already reversed key order correctly or the test did not require reverse insertion order."
+              },
+              {
+                "statement": "A prior bounded validation report also records test_reversed failing with actual [1, 2, 3] versus expected [3, 2, 1], consistent with the inspected mechanism.",
+                "classification": "claim",
+                "evidence_ids": [
+                  "89ce624e62e146afb165091e1661f06c"
+                ],
+                "category": "observation",
+                "workload": "Prior regression run of utils_tests.test_datastructures.OrderedSetTests.test_reversed.",
+                "falsification": "This would be false if the prior report showed a different failure or no OrderedSet reversal failure."
+              },
+              {
+                "statement": "No fresh runtime re-test was collected in this pass; the conclusion is established from source, test contract, and prior validation evidence rather than a new execution.",
+                "classification": "claim",
+                "evidence_ids": [
+                  "89ce624e62e146afb165091e1661f06c"
+                ],
+                "category": "evidence_gap",
+                "workload": null,
+                "falsification": "This would be false if this pass had executed the test and captured new runtime results."
+              }
+            ],
+            "supporting_evidence": [
+              "dd1d836b773b4d81bedf9de0967c04c7",
+              "0b4e3b532e8646a7bd67c3121dcfe50c",
+              "89ce624e62e146afb165091e1661f06c"
+            ],
+            "contradictory_evidence": [],
+            "uncertainties": [
+              "This pass did not perform a fresh test execution, so the runtime failure was not re-measured here.",
+              "Investigation was intentionally limited to django/utils/datastructures.py and tests/utils_tests/test_datastructures.py; no broader caller inspection was needed to resolve this hypothesis within scope."
+            ],
+            "recommendation": "Treat the hypothesis as verified within scope. The next action is to change OrderedSet.__reversed__ so it returns reverse insertion order, then run the unchanged datastructures regression test to confirm the fix.",
+            "blocked": false
+          },
+          "evaluation": {
+            "verdict": "supported",
+            "evidence_ids": [
+              "dd1d836b773b4d81bedf9de0967c04c7",
+              "0b4e3b532e8646a7bd67c3121dcfe50c",
+              "89ce624e62e146afb165091e1661f06c"
+            ],
+            "reason": "Within scoped sources, OrderedSet.__reversed__ is implemented as return iter(self.dict), which iterates keys in insertion order, not reverse insertion order. The unchanged regression test explicitly asserts that list(reversed(OrderedSet([1, 2, 3]))) equals [3, 2, 1]. These two facts directly satisfy the hypothesis and do not meet the falsification criterion. A prior validation run also recorded this exact test failing with actual [1, 2, 3] versus expected [3, 2, 1], consistent with the inspected implementation.",
+            "feedback": "The bounded defect is established from current source and test contract: OrderedSet.__reversed__ violates the required reverse-order behavior exercised by test_reversed. Next step is to change __reversed__ to produce reverse insertion order and then run the unchanged regression tests to verify the repair.",
+            "blocking_gaps": [],
+            "non_blocking_uncertainties": [
+              "This review did not collect a fresh runtime execution in this pass; runtime confirmation comes from the recent VALIDATION.md record rather than a new test run.",
+              "The conclusion is intentionally limited to the scoped OrderedSet reverse-order contract, not broader behavior outside django/utils/datastructures.py and tests/utils_tests/test_datastructures.py."
+            ]
+          },
+          "feedback": "The bounded defect is established from current source and test contract: OrderedSet.__reversed__ violates the required reverse-order behavior exercised by test_reversed. Next step is to change __reversed__ to produce reverse insertion order and then run the unchanged regression tests to verify the repair."
+        },
+        {
+          "id": "ce1705c29c4f485688737d5efbd36712",
+          "goal_id": "bdba67786ed44c83a5972d3b02263688",
+          "stage": "research",
+          "signature": "8180bd47a2e689b5f0c8c9998fdf770cec8a6ae55888e1b7ab944af994ea9967",
+          "spec": "{\"scope\":[\"django/utils/datastructures.py\",\"tests/httpwrappers/tests.py\",\"tests/utils_tests/test_datastructures.py\"],\"question\":\"Does MultiValueDict.getlist currently violate Django's contract by returning shared internal list state instead of an independent list while preserving _getlist mutation and default semantics?\",\"hypothesis\":\"MultiValueDict.getlist in django/utils/datastructures.py returns the same list object stored internally rather than an independent copy, causing external callers to mutate stored values and breaking the regression tests covering getlist copy behavior and defaults.\",\"falsification\":\"If the inspected implementation already returns an independent list copy for existing keys while preserving the tested default/None semantics, or if the cited tests do not require independence from internal state, then this hypothesis is false.\",\"opportunity_id\":\"43dff7d3666e40d69e748125a3454890\",\"budget\":{\"tool_calls\":6,\"seconds\":60,\"attempts\":2}}",
+          "status": "supported",
+          "attempts": 1,
+          "created": 1792352269.360397,
+          "updated": 1792352289.229583,
+          "run_id": "447dd82a59e240039c78ba10552bff7d",
+          "run_status": "supported",
+          "report": {
+            "findings": [
+              {
+                "statement": "MultiValueDict.getlist currently returns the stored internal list object for existing keys because getlist() calls _getlist(..., force_list=False), while _getlist() only copies when force_list is True.",
+                "classification": "claim",
+                "evidence_ids": [
+                  "515ca46983b54dd587acb456fb581586",
+                  "dd64eea21710442498b9817b68e01302"
+                ],
+                "category": "mechanism",
+                "workload": "Any caller that retrieves an existing key via getlist() and then mutates or augments the returned list.",
+                "falsification": "This would be false if getlist() invoked _getlist() with force_list=True or otherwise copied existing-key lists before returning them."
+              },
+              {
+                "statement": "The datastructures tests require getlist() to be independent from internal state, while _getlist() is expected to expose mutable internal state, and they also require current default/None semantics.",
+                "classification": "claim",
+                "evidence_ids": [
+                  "2af6d587623b4c76af699992327766c1"
+                ],
+                "category": "observation",
+                "workload": null,
+                "falsification": "This would be false if the tests did not distinguish getlist() from _getlist(), or if they expected mutation through getlist() to affect stored values."
+              },
+              {
+                "statement": "The observed failing regression matches the shared-list mechanism: VALIDATION.md reports test_getlist_doesnt_mutate failing because x.getlist(\"a\") later reflects an added \"3\".",
+                "classification": "claim",
+                "evidence_ids": [
+                  "89ce624e62e146afb165091e1661f06c"
+                ],
+                "category": "observation",
+                "workload": "Regression test fixture MultiValueDict({\"a\": [\"1\", \"2\"], \"b\": [\"3\"]}) with list concatenation on the result of getlist().",
+                "falsification": "This would be false if the failure report showed a different mismatch unrelated to external mutation of the getlist() result."
+              },
+              {
+                "statement": "tests/httpwrappers/tests.py contains QueryDict.getlist expectations for accumulated values, so changing MultiValueDict.getlist must preserve externally visible list contents for HTTP-wrapper callers even though this file does not, in the inspected excerpt, assert copy independence directly.",
+                "classification": "claim",
+                "evidence_ids": [
+                  "66832650123141b1aa495d38f43d308c",
+                  "c10f44e5494843e78703934d6ca58690"
+                ],
+                "category": "observation",
+                "workload": "HTTP-wrapper/QueryDict callers retrieving multi-valued query parameters.",
+                "falsification": "This would be false if the HTTP-wrapper tests had no getlist() assertions or if they explicitly required identity sharing with internal storage."
+              },
+              {
+                "statement": "No runtime re-test or broader production measurement was collected in this pass; the evidence is bounded to source/tests and the prior failing test report.",
+                "classification": "claim",
+                "evidence_ids": [
+                  "89ce624e62e146afb165091e1661f06c"
+                ],
+                "category": "evidence_gap",
+                "workload": null,
+                "falsification": "This would be false if this investigation had gathered fresh execution results or production telemetry."
+              }
+            ],
+            "supporting_evidence": [
+              "dd64eea21710442498b9817b68e01302",
+              "2af6d587623b4c76af699992327766c1",
+              "89ce624e62e146afb165091e1661f06c"
+            ],
+            "contradictory_evidence": [],
+            "uncertainties": [
+              "tests/httpwrappers/tests.py was only sampled around getlist() assertions; no direct bounded evidence was gathered here for copy-independence requirements beyond content expectations.",
+              "This pass did not execute tests, so post-fix verification remains unmeasured in this investigation.",
+              "The hypothesis is evaluated only within the supplied scope; any behavior supplied by callers outside these files was not inspected."
+            ],
+            "recommendation": "Accept the hypothesis as true. The next action is to change MultiValueDict.getlist to return an independent list for existing keys while leaving _getlist mutation behavior and missing-key default/None semantics unchanged, then run the unchanged datastructures and HTTP-wrapper regression tests to verify.",
+            "blocked": false
+          },
+          "evaluation": {
+            "verdict": "supported",
+            "evidence_ids": [
+              "515ca46983b54dd587acb456fb581586",
+              "dd64eea21710442498b9817b68e01302",
+              "2af6d587623b4c76af699992327766c1",
+              "66832650123141b1aa495d38f43d308c",
+              "c10f44e5494843e78703934d6ca58690",
+              "89ce624e62e146afb165091e1661f06c"
+            ],
+            "reason": "The implementation evidence shows _getlist() only copies when force_list is True, while getlist() currently calls _getlist(key, default, force_list=False), so existing-key calls return the stored list object rather than an independent list copy. The scoped datastructures tests explicitly require the opposite contract for getlist(), while preserving mutable internal exposure via _getlist(), missing-key default passthrough, and None/empty-list semantics. VALIDATION.md also records a direct failing regression matching this mechanism: mutating the result of getlist(\"a\") via list concatenation causes a later getlist(\"a\") to include \"3\". The HTTP-wrapper tests in scope confirm getlist() content semantics are externally relied upon by QueryDict callers, and nothing in the scoped tests requires identity sharing. This satisfies the hypothesis and does not trigger the falsification condition.",
+            "feedback": "Accept the defect as established within scope: MultiValueDict.getlist currently violates the tested contract by exposing shared internal list state for existing keys, while _getlist is the API intentionally allowed to expose mutable internal state. A bounded fix should make getlist return an independent list for existing keys without changing missing-key default behavior or the None/[] semantics covered by tests.",
+            "blocking_gaps": [],
+            "non_blocking_uncertainties": [
+              "tests/httpwrappers/tests.py confirms getlist content expectations for QueryDict but does not directly assert copy independence.",
+              "This review is bounded to the supplied files and prior validation output; it does not include fresh re-execution in this pass.",
+              "VALIDATION.md reports another unrelated regression in OrderedSet; that does not contradict the MultiValueDict conclusion."
+            ]
+          },
+          "feedback": "Accept the defect as established within scope: MultiValueDict.getlist currently violates the tested contract by exposing shared internal list state for existing keys, while _getlist is the API intentionally allowed to expose mutable internal state. A bounded fix should make getlist return an independent list for existing keys without changing missing-key default behavior or the None/[] semantics covered by tests."
+        },
+        {
+          "id": "aa324b2b6728431bb3e1d5bdc0298e59",
+          "goal_id": "bdba67786ed44c83a5972d3b02263688",
+          "stage": "discovery",
+          "signature": "9e0e666436a1e7fd3d1a5983390698457412623ed62be9f0fae48ed6620a00a6",
+          "spec": "{\"scope\":[\"VALIDATION.md\",\"django/http/request.py\",\"django/utils/datastructures.py\",\"tests/httpwrappers/tests.py\",\"tests/utils_tests/test_datastructures.py\"],\"question\":\"Which existing source files and tests define the required OrderedSet and MultiValueDict contracts, and where is the bounded defect most likely located?\",\"hypothesis\":null,\"falsification\":null,\"opportunity_id\":null,\"budget\":{\"tool_calls\":5,\"seconds\":45,\"attempts\":1}}",
+          "status": "discovered",
+          "attempts": 1,
+          "created": 1792352246.7052252,
+          "updated": 1792352262.9323056,
+          "run_id": "9b3c78394efa41a89dbb876375232312",
+          "run_status": "discovered",
+          "report": {
+            "system_map": [
+              {
+                "name": "VALIDATION.md",
+                "kind": "document",
+                "description": "Bounded repair brief listing the two observed regressions, allowed edit scope, and failing upstream tests.",
+                "depends_on": [],
+                "evidence_ids": [
+                  "89ce624e62e146afb165091e1661f06c"
+                ],
+                "assumption": false
+              },
+              {
+                "name": "django/utils/datastructures.py",
+                "kind": "repository",
+                "description": "Primary implementation file for both OrderedSet and MultiValueDict; VALIDATION.md says only this file may change. Literal search confirms definitions for OrderedSet and MultiValueDict are here.",
+                "depends_on": [],
+                "evidence_ids": [
+                  "89ce624e62e146afb165091e1661f06c",
+                  "97abc8e34606454c91efba02ee87fbe9",
+                  "2c1c459800114388add138f47649e93d"
+                ],
+                "assumption": false
+              },
+              {
+                "name": "tests/utils_tests/test_datastructures.py",
+                "kind": "repository",
+                "description": "Primary contract tests for OrderedSet and MultiValueDict. Search results show getlist behavior checks, mutation-vs-copy distinction, default semantics, and the failing test names cited in VALIDATION.md.",
+                "depends_on": [
+                  "django/utils/datastructures.py"
+                ],
+                "evidence_ids": [
+                  "89ce624e62e146afb165091e1661f06c",
+                  "393a6c503b284514bdcb314b9b28d654"
+                ],
+                "assumption": false
+              },
+              {
+                "name": "tests/httpwrappers/tests.py",
+                "kind": "repository",
+                "description": "Additional unchanged regression test suite mentioned by VALIDATION.md. Direct literal search for MultiValueDict returned no matches, so any dependency is likely indirect via QueryDict or request wrappers rather than explicit references.",
+                "depends_on": [
+                  "django/utils/datastructures.py"
+                ],
+                "evidence_ids": [
+                  "89ce624e62e146afb165091e1661f06c",
+                  "38ed8530e7f24a4ebaac9c90eb612972"
+                ],
+                "assumption": true
+              }
+            ],
+            "opportunities": [
+              {
+                "title": "Repair OrderedSet reverse-iteration contract in django/utils/datastructures.py",
+                "hypothesis": "OrderedSet's reverse/iteration implementation in django/utils/datastructures.py returns insertion order instead of reverse insertion order, causing test_reversed to fail.",
+                "falsification": "Inspect OrderedSet implementation in django/utils/datastructures.py and verify whether __reversed__ or related iteration logic yields [1,2,3] for inserted [1,2,3] instead of [3,2,1]; after a targeted fix, unchanged OrderedSetTests.test_reversed should pass.",
+                "scope": [
+                  "django/utils/datastructures.py",
+                  "tests/utils_tests/test_datastructures.py"
+                ],
+                "impact": 5,
+                "confidence": 4,
+                "risk": 2,
+                "effort": 1,
+                "evidence_ids": [
+                  "89ce624e62e146afb165091e1661f06c",
+                  "97abc8e34606454c91efba02ee87fbe9"
+                ],
+                "rationale": "VALIDATION.md explicitly identifies OrderedSet reversal as a seeded regression and reports the exact failing assertion for test_reversed. The implementation class is confirmed in the allowed file, making this a narrow, high-confidence repair target."
+              },
+              {
+                "title": "Repair MultiValueDict.getlist copy-vs-mutation semantics in django/utils/datastructures.py",
+                "hypothesis": "MultiValueDict.getlist currently exposes the internal stored list instead of returning an independent list, while _getlist is meant to expose the mutable internal list; this causes external concatenation of getlist() results to mutate stored values.",
+                "falsification": "Inspect MultiValueDict.getlist and any helper it delegates to in django/utils/datastructures.py; if getlist returns the same list object used internally, then values += x.getlist(\"b\") can mutate x[\"a\"]. After fixing getlist to return an independent list while preserving default/None semantics, unchanged tests test_getlist_doesnt_mutate, test_internal_getlist_does_mutate, test_getlist_default, and test_getlist_none_empty_values should pass.",
+                "scope": [
+                  "django/utils/datastructures.py",
+                  "tests/utils_tests/test_datastructures.py",
+                  "tests/httpwrappers/tests.py"
+                ],
+                "impact": 5,
+                "confidence": 5,
+                "risk": 2,
+                "effort": 1,
+                "evidence_ids": [
+                  "89ce624e62e146afb165091e1661f06c",
+                  "2c1c459800114388add138f47649e93d",
+                  "393a6c503b284514bdcb314b9b28d654"
+                ],
+                "rationale": "VALIDATION.md and the test search together define the contract: getlist must not mutate internal storage, _getlist does mutate, defaults are preserved, and None/empty handling matters. Because QueryDict and request wrappers often rely on MultiValueDict behavior, this defect may also affect the HTTP-wrapper suite indirectly."
+              }
+            ],
+            "gaps": [
+              "Tool budget was exhausted before reading the implementation bodies in django/utils/datastructures.py, so the exact faulty lines are not yet evidenced.",
+              "Tool budget was exhausted before reading the surrounding OrderedSet and MultiValueDict test bodies; current contract evidence comes from VALIDATION.md plus literal-match locations only.",
+              "tests/httpwrappers/tests.py was only searched for the literal string 'MultiValueDict'; no bounded evidence was gathered yet for its indirect QueryDict/request-wrapper dependency.",
+              "No runtime re-test or measurement was collected in this discovery pass; observed impact is limited to the failing test report in VALIDATION.md, and there is no broader runtime/production evidence.",
+              "Next useful bounded discovery scope: read django/utils/datastructures.py around OrderedSet and MultiValueDict definitions, read test_datastructures.py around the referenced test methods, then inspect tests/httpwrappers/tests.py for QueryDict/getlist expectations."
+            ]
+          },
+          "evaluation": null,
+          "feedback": ""
+        }
+      ],
+      "implementations": [
+        {
+          "id": "0cddffcc4c684fb5b5094afac92b2607",
+          "goal_id": "bdba67786ed44c83a5972d3b02263688",
+          "authorization": "0ea3b7168a554604aba2f79691a0a409",
+          "base_revision": "820c698de8517431717d271f5bd0b87de70ab766",
+          "candidate": "9c8d66fd63dc3fe1d6c9a0065757f82ca3a9ef04",
+          "worktree": "<experiment>/worktrees/0cddffcc4c684fb5b5094afac92b2607",
+          "status": "completed",
+          "attempts": 1,
+          "feedback": "",
+          "created": 1792352289.3738117,
+          "spec": {
+            "objective": "Restore the three explicit Django data-structure acceptance criteria",
+            "research_job": "ce1705c29c4f485688737d5efbd36712",
+            "allowed_paths": [
+              "django/utils/datastructures.py"
+            ],
+            "checks": [
+              {
+                "requirement": "OrderedSet reversal preserves reverse insertion order",
+                "argv": [
+                  "<python>",
+                  "<experiment>/check.py",
+                  "ordered"
+                ],
+                "timeout": 120,
+                "failure_kind": "local",
+                "stdout_contains": null,
+                "oracle_revisions": {
+                  "<experiment>/check.py": "8000c7ae22ea65a9ebb7bbc0beacc8064f31bc021b3d8b5a006fb045d69d4e9d"
+                }
+              },
+              {
+                "requirement": "MultiValueDict.getlist returns independent lists while preserving internal mutation and default semantics",
+                "argv": [
+                  "<python>",
+                  "<experiment>/check.py",
+                  "values"
+                ],
+                "timeout": 120,
+                "failure_kind": "local",
+                "stdout_contains": null,
+                "oracle_revisions": {
+                  "<experiment>/check.py": "8000c7ae22ea65a9ebb7bbc0beacc8064f31bc021b3d8b5a006fb045d69d4e9d"
+                }
+              },
+              {
+                "requirement": "The Django data-structure and HTTP-wrapper regression tests all pass",
+                "argv": [
+                  "<python>",
+                  "<experiment>/check.py",
+                  "regression"
+                ],
+                "timeout": 120,
+                "failure_kind": "local",
+                "stdout_contains": null,
+                "oracle_revisions": {
+                  "<experiment>/check.py": "8000c7ae22ea65a9ebb7bbc0beacc8064f31bc021b3d8b5a006fb045d69d4e9d"
+                }
+              }
+            ],
+            "max_attempts": 2,
+            "seconds": 300
+          },
+          "authorization_revoked": 0
+        }
+      ],
+      "verifications": [
+        {
+          "id": "694906a17ae44d2391e3673c6a1e2855",
+          "implementation_id": "0cddffcc4c684fb5b5094afac92b2607",
+          "candidate": "9c8d66fd63dc3fe1d6c9a0065757f82ca3a9ef04",
+          "goal_revision": 1,
+          "requirement": "OrderedSet reversal preserves reverse insertion order",
+          "argv": "{\"argv\": [\"<python>\", \"<experiment>/check.py\", \"ordered\"], \"oracle_revisions\": {\"<experiment>/check.py\": \"8000c7ae22ea65a9ebb7bbc0beacc8064f31bc021b3d8b5a006fb045d69d4e9d\"}}",
+          "passed": 1,
+          "exit_code": 0,
+          "artifact": "<experiment>/artifacts/6df4c27a2f694d079a241fd2e511ca74.log",
+          "digest": "ef0de323726683d52a5848a0d89d481fe3ed01dae73f3599d436b50751eb437c",
+          "failure_kind": "local",
+          "created": 1792352461.8638685,
+          "output": "........\n----------------------------------------------------------------------\nRan 8 tests in 0.001s\n\nOK\nTesting against Django installed in '<experiment>/verification/0cddffcc4c684fb5b5094afac92b2607-1/django'\nFound 8 test(s).\nSystem check identified no issues (0 silenced).\n"
+        },
+        {
+          "id": "71130f070bb74a51af670d34eca4e9ea",
+          "implementation_id": "0cddffcc4c684fb5b5094afac92b2607",
+          "candidate": "9c8d66fd63dc3fe1d6c9a0065757f82ca3a9ef04",
+          "goal_revision": 1,
+          "requirement": "MultiValueDict.getlist returns independent lists while preserving internal mutation and default semantics",
+          "argv": "{\"argv\": [\"<python>\", \"<experiment>/check.py\", \"values\"], \"oracle_revisions\": {\"<experiment>/check.py\": \"8000c7ae22ea65a9ebb7bbc0beacc8064f31bc021b3d8b5a006fb045d69d4e9d\"}}",
+          "passed": 1,
+          "exit_code": 0,
+          "artifact": "<experiment>/artifacts/caeadb92a59a4f0184fe40b347636c71.log",
+          "digest": "4808f442e736eb4b42c1cb0d76478c79287855ee150dfb510abff3f80074cdc6",
+          "failure_kind": "local",
+          "created": 1792352462.570824,
+          "output": ".....................\n----------------------------------------------------------------------\nRan 21 tests in 0.001s\n\nOK\nTesting against Django installed in '<experiment>/verification/0cddffcc4c684fb5b5094afac92b2607-1/django'\nFound 21 test(s).\nSystem check identified no issues (0 silenced).\n"
+        },
+        {
+          "id": "f697cc05eb9e4903902b0a7316bbc3cf",
+          "implementation_id": "0cddffcc4c684fb5b5094afac92b2607",
+          "candidate": "9c8d66fd63dc3fe1d6c9a0065757f82ca3a9ef04",
+          "goal_revision": 1,
+          "requirement": "The Django data-structure and HTTP-wrapper regression tests all pass",
+          "argv": "{\"argv\": [\"<python>\", \"<experiment>/check.py\", \"regression\"], \"oracle_revisions\": {\"<experiment>/check.py\": \"8000c7ae22ea65a9ebb7bbc0beacc8064f31bc021b3d8b5a006fb045d69d4e9d\"}}",
+          "passed": 1,
+          "exit_code": 0,
+          "artifact": "<experiment>/artifacts/bd4521404ea14023b2632408ed921fa8.log",
+          "digest": "36d71e07ba99faf02b97c5daad488935007731cccf4603aeb25b998e947eda74",
+          "failure_kind": "local",
+          "created": 1792352463.3010488,
+          "output": ".................................................................................................................................\n----------------------------------------------------------------------\nRan 129 tests in 0.012s\n\nOK\nTesting against Django installed in '<experiment>/verification/0cddffcc4c684fb5b5094afac92b2607-1/django'\nFound 129 test(s).\nSystem check identified no issues (0 silenced).\n"
+        }
+      ],
+      "audits": [
+        {
+          "id": "7edcee6b88094513a77784c041278fe3",
+          "goal_id": "bdba67786ed44c83a5972d3b02263688",
+          "revision": 1,
+          "candidate": "9c8d66fd63dc3fe1d6c9a0065757f82ca3a9ef04",
+          "requirements": "[\"OrderedSet reversal preserves reverse insertion order\", \"MultiValueDict.getlist returns independent lists while preserving internal mutation and default semantics\", \"The Django data-structure and HTTP-wrapper regression tests all pass\"]",
+          "passed": 1,
+          "created": 1792352467.1771345
+        }
+      ],
+      "restart_after_accepted_research": true,
+      "wall_seconds": 227.05201038999985,
+      "usage": {
+        "sdk_input": 294856,
+        "sdk_output": 6104,
+        "native_input": 279634,
+        "native_output": 2034,
+        "estimated_usd_no_cache_discount": 1.3465355
+      },
+      "stop_at_usd": 3,
+      "stopped_for_budget": false,
+      "errors": [],
+      "events": [
+        {
+          "event": "advance",
+          "outcome": {
+            "task_id": "88628706dc3148b7acbf567a29f366ea"
+          },
+          "usage": {
+            "sdk_input": 18310,
+            "sdk_output": 385,
+            "native_input": 0,
+            "native_output": 0,
+            "estimated_usd_no_cache_discount": 0.05155
+          }
+        },
+        {
+          "event": "advance",
+          "outcome": {
+            "task_id": "1a2e62b33e7d48e1afee73e11be3f398"
+          },
+          "usage": {
+            "sdk_input": 47703,
+            "sdk_output": 2404,
+            "native_input": 0,
+            "native_output": 0,
+            "estimated_usd_no_cache_discount": 0.1553175
+          }
+        },
+        {
+          "event": "authorized",
+          "implementation": "0cddffcc4c684fb5b5094afac92b2607"
+        },
+        {
+          "event": "restart_after_accepted_research",
+          "state_restored": true
+        },
+        {
+          "event": "advance",
+          "outcome": {
+            "task_id": "94967bbc4152422b8dd78fbdacb20536"
+          },
+          "usage": {
+            "sdk_input": 131875,
+            "sdk_output": 4305,
+            "native_input": 0,
+            "native_output": 0,
+            "estimated_usd_no_cache_discount": 0.3942625
+          }
+        },
+        {
+          "event": "advance",
+          "outcome": {
+            "task_id": "a38798c5627b454aa3754c42d98f8b30"
+          },
+          "usage": {
+            "sdk_input": 218792,
+            "sdk_output": 5827,
+            "native_input": 0,
+            "native_output": 0,
+            "estimated_usd_no_cache_discount": 0.634385
+          }
+        },
+        {
+          "event": "advance",
+          "outcome": {
+            "passed": true,
+            "candidate": "9c8d66fd63dc3fe1d6c9a0065757f82ca3a9ef04",
+            "requirements": [
+              "OrderedSet reversal preserves reverse insertion order",
+              "MultiValueDict.getlist returns independent lists while preserving internal mutation and default semantics",
+              "The Django data-structure and HTTP-wrapper regression tests all pass"
+            ]
+          },
+          "usage": {
+            "sdk_input": 294856,
+            "sdk_output": 6104,
+            "native_input": 279634,
+            "native_output": 2034,
+            "estimated_usd_no_cache_discount": 1.3465355
+          }
+        }
+      ],
+      "limitations": [
+        "Seeded defects, not newly discovered upstream bugs.",
+        "One bounded task in a large checkout, not a multi-hour or whole-repository trial.",
+        "Restart between stages, not a kill during an in-flight external action.",
+        "Usage-based cost estimate without cache discount; not an invoice. Failed calls may omit usage."
+      ],
+      "candidate_patch": "diff --git a/django/utils/datastructures.py b/django/utils/datastructures.py\nindex 5276448..ded606d 100644\n--- a/django/utils/datastructures.py\n+++ b/django/utils/datastructures.py\n@@ -26,7 +26,7 @@ class OrderedSet:\n         return iter(self.dict)\n \n     def __reversed__(self):\n-        return iter(self.dict)\n+        return reversed(self.dict)\n \n     def __contains__(self, item):\n         return item in self.dict\n@@ -149,7 +149,7 @@ class MultiValueDict(dict):\n         Return the list of values for the key. If key doesn't exist, return a\n         default value.\n         \"\"\"\n-        return self._getlist(key, default, force_list=False)\n+        return self._getlist(key, default, force_list=True)\n \n     def setlist(self, key, list_):\n         super().__setitem__(key, list_)",
+      "profile": 9,
+      "worker_handoffs": [
+        {
+          "implementation_id": "0cddffcc4c684fb5b5094afac92b2607",
+          "thread_id": "01a15085-dbc8-7f11-a978-85a1b345e1b8",
+          "turn_id": "01a15085-dbf2-7022-81f8-1560c1738d4e",
+          "report": {
+            "summary": "Implemented the bounded repair in `django/utils/datastructures.py` to restore the targeted data-structure contracts and validated the first two acceptance checks; the full regression suite could not complete within the required 60s per-command limit.",
+            "artifacts": [
+              "Changed `django/utils/datastructures.py:28` so `OrderedSet.__reversed__()` now returns `reversed(self.dict)`, preserving reverse insertion order.",
+              "Changed `django/utils/datastructures.py:152` so `MultiValueDict.getlist()` now calls `_getlist(..., force_list=True)`, returning an independent list copy for existing keys while keeping `_getlist()` internal mutability behavior and missing-key default semantics unchanged."
+            ],
+            "tests_run": [
+              "PASS: `OMNITRIX_CANDIDATE=$PWD timeout 60s <python> <experiment>/check.py ordered`",
+              "PASS: `OMNITRIX_CANDIDATE=$PWD timeout 60s <python> <experiment>/check.py values`",
+              "TIMEOUT (twice, exit 124): `OMNITRIX_CANDIDATE=$PWD timeout 60s <python> <experiment>/check.py regression` (produced ongoing dot progress, then was terminated at 60s per instruction)."
+            ],
+            "unresolved_concerns": [
+              "Could not obtain a complete pass/fail result for the full regression check within the enforced 60-second command timeout; independent verifier run is still needed for acceptance criterion 3."
+            ],
+            "questions": []
+          }
+        }
+      ],
+      "provider_responses_recorded": 17,
+      "max_sdk_input_tokens_per_response": 76064
     }
   ],
-  "interpretation": "Evolving diagnostic profiles, not eight independent trials of the same implementation. The coordinator changed after profile 4. This establishes one bounded successful repair and stage-boundary restart, not superiority or multi-hour reliability."
+  "integrated_omnitrix_revision": "72e86225aa8409c26940e72c27b5f7491ece803a",
+  "clean_upstream_baseline_output": ".................................................................................................................................\n----------------------------------------------------------------------\nRan 129 tests in 0.013s\n\nOK\nTesting against Django installed in '<upstream-checkout>/django'\nFound 129 test(s).\nSystem check identified no issues (0 silenced).\n",
+  "interpretation": "Evolving diagnostic profiles, not nine independent trials of the same implementation. The coordinator changed after profile 4. This establishes bounded successful repairs and stage-boundary restarts, not superiority or multi-hour reliability."
 }
