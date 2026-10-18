@@ -1,0 +1,103 @@
+import argparse
+import asyncio
+import json
+from pathlib import Path
+from .manager import AgentBrain
+from .store import Store
+from .chat import interactive
+from .knowledge import Knowledge
+from .implementation import ImplementationSpec, Implementations
+from .supervisor import Supervisor
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Persistent engineering manager')
+    parser.add_argument('--db', default='.omnitrix/state.db')
+    commands = parser.add_subparsers(dest='command', required=True)
+    create = commands.add_parser('create')
+    create.add_argument('objective')
+    create.add_argument('--criterion', action='append', required=True)
+    create.add_argument('--workspace', type=Path, default=Path.cwd())
+    status = commands.add_parser('status')
+    status.add_argument('goal_id')
+    resume = commands.add_parser('resume')
+    resume.add_argument('goal_id')
+    resume.add_argument('--steps', type=int, default=5)
+    resume.add_argument('--message', help='Additional conversational guidance for the manager')
+    resume.add_argument('--model')
+    chat = commands.add_parser('chat')
+    chat.add_argument('goal_id')
+    run = commands.add_parser('run')
+    run.add_argument('goal_id')
+    run.add_argument('--steps',type=int,default=20)
+    run.add_argument('--hours',type=float,default=1)
+    search = commands.add_parser('knowledge')
+    search.add_argument('goal_id')
+    search.add_argument('query',nargs='?',default='')
+    export = commands.add_parser('export')
+    export.add_argument('goal_id')
+    authorize = commands.add_parser('authorize')
+    authorize.add_argument('goal_id')
+    authorize.add_argument('spec',type=Path)
+    authorize.add_argument('--allow-code-modifications',action='store_true',required=True)
+    send = commands.add_parser('send',help='Queue a command to an already-running manager without taking ownership')
+    send.add_argument('goal_id')
+    send.add_argument('text',nargs='?',default='')
+    send.add_argument('--command',dest='command_type',default='chat',choices=['chat','status','policy','requirements','accept','pause','cancel','steer','continue','reconcile'])
+    send.add_argument('--id',help='Stable idempotency key for this message')
+    messages=commands.add_parser('messages')
+    messages.add_argument('goal_id')
+    args = parser.parse_args()
+    store = Store(args.db)
+    try:
+        if args.command == 'create':
+            if not args.workspace.is_dir():
+                raise ValueError('Workspace must be an existing directory')
+            print(store.create_goal(args.objective, args.criterion, args.workspace))
+        elif args.command == 'status':
+            print(json.dumps(store.snapshot(args.goal_id), indent=2))
+        elif args.command == 'send':
+            from .control import Control
+            control=Control(store);control.initialize(args.goal_id)
+            print(control.message(args.goal_id,'control',{'command':args.command_type,'text':args.text},message_id=args.id))
+        elif args.command == 'messages':
+            print(json.dumps([dict(r) for r in store.db.execute('SELECT * FROM messages WHERE goal_id=? ORDER BY created DESC LIMIT 40',(args.goal_id,))],indent=2))
+        elif args.command == 'knowledge':
+            print(json.dumps(Knowledge(store).search(store.snapshot(args.goal_id)['goal']['workspace'],args.query),indent=2))
+        elif args.command == 'export':
+            print(json.dumps(Knowledge(store).export(args.goal_id),indent=2))
+        elif args.command == 'authorize':
+            service = Implementations(store)
+            spec = ImplementationSpec.model_validate_json(args.spec.read_text())
+            authorization = service.authorize(args.goal_id,spec,explicit=args.allow_code_modifications)
+            print(json.dumps({'authorization':authorization,'implementation_id':service.create(authorization)}))
+        elif args.command == 'chat':
+            asyncio.run(interactive(store,args.goal_id))
+        elif args.command == 'run':
+            async def run_manager():
+                supervisor = await Supervisor(store,args.goal_id).open()
+                try:
+                    return await supervisor.drive(args.steps,args.hours*3600,linger=True)
+                finally:
+                    await supervisor.close()
+            print(json.dumps(asyncio.run(run_manager()),indent=2))
+        else:
+            if not __import__('os').getenv('OPENAI_API_KEY'):
+                raise ValueError('Set OPENAI_API_KEY securely for the manager; authenticate Codex separately')
+            async def resume_manager():
+                supervisor = await Supervisor(store,args.goal_id,brain=AgentBrain(args.model,store=store)).open()
+                try:
+                    if args.message:
+                        store.execute('INSERT INTO decisions(goal_id,body) VALUES(?,?)',(args.goal_id,json.dumps({'user_message':args.message})))
+                    return await supervisor.drive(args.steps)
+                finally:
+                    await supervisor.close()
+            print(json.dumps(asyncio.run(resume_manager()),indent=2))
+    except (ValueError, RuntimeError) as exc:
+        parser.exit(1, f'{exc}\n')
+    finally:
+        store.db.close()
+
+
+if __name__ == '__main__':
+    main()

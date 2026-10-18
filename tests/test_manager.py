@@ -1,0 +1,132 @@
+import asyncio
+import json
+import pytest
+from omnitrix.manager import Manager, AgentBrain
+from omnitrix.models import Decision, Handoff
+from omnitrix.store import Store
+
+
+def decision(action='delegate', task_id=None):
+    return Decision(action=action, rationale='Evaluate repository evidence',
+                    instructions='Inspect README and report the setup requirements',
+                    task_id=task_id, priority=1)
+
+
+class Brain:
+    def __init__(self, *actions):
+        self.actions = iter(actions)
+        self.seen = []
+
+    async def decide(self, state):
+        self.seen.append(state)
+        value = next(self.actions)
+        return value(state) if callable(value) else value
+
+
+class Worker:
+    name = 'codex'
+
+    def __init__(self, fail=False):
+        self.calls = []
+        self.fail = fail
+
+    async def run(self, instructions, workspace, session_id, on_session):
+        self.calls.append((instructions, workspace, session_id))
+        on_session(session_id or 'session-123')
+        if self.fail:
+            raise RuntimeError('test transport failure')
+        return Handoff(status='completed', summary='Found setup instructions',
+                       evidence=['README.md:1'], next_steps=[])
+
+
+def setup(tmp_path):
+    store = Store(tmp_path / 'state.db')
+    goal = store.create_goal('Understand project setup', ['Cite setup instructions'], tmp_path)
+    return store, goal
+
+
+async def test_delegation_restart_followup_and_completion(tmp_path):
+    store, goal = setup(tmp_path)
+    worker = Worker()
+    first = await Manager(store, Brain(decision()), worker).resume(goal, steps=1)
+    task_id = first['tasks'][0]['id']
+    assert first['tasks'][0]['status'] == 'completed'
+    store.db.close()
+    store = Store(tmp_path / 'state.db')
+    brain = Brain(decision('follow_up', task_id), decision('complete'))
+    final = await Manager(store, brain, worker).resume(goal, message='Verify the evidence')
+    assert worker.calls[1][2] == 'session-123'
+    assert final['goal']['status'] == 'completed'
+    assert len(final['decisions']) == 4
+    assert any(d.get('user_message') for d in brain.seen[0]['decisions'])
+    assert json.loads(brain.seen[0]['tasks'][0]['result'])['evidence'] == ['README.md:1']
+    assert store.db.execute('SELECT count(*) FROM attempts').fetchone()[0] == 2
+
+
+async def test_failure_is_returned_to_manager(tmp_path):
+    store, goal = setup(tmp_path)
+    brain = Brain(decision(), decision('pause'))
+    final = await Manager(store, brain, Worker(fail=True)).resume(goal)
+    assert final['goal']['status'] == 'paused'
+    assert brain.seen[1]['tasks'][0]['error'] == 'test transport failure'
+    assert final['tasks'][0]['session_id'] == 'session-123'
+
+
+async def test_interrupted_attempt_is_not_blindly_replayed(tmp_path):
+    store, goal = setup(tmp_path)
+    await Manager(store, Brain(decision()), Worker()).resume(goal, steps=1)
+    store.execute("UPDATE tasks SET status='running'")
+    store.execute("UPDATE attempts SET status='running'")
+    brain = Brain(decision('pause'))
+    worker = Worker()
+    await Manager(store, brain, worker).resume(goal)
+    assert brain.seen[0]['tasks'][0]['status'] == 'interrupted'
+    assert not worker.calls
+    assert store.db.execute('SELECT status FROM attempts').fetchone()[0] == 'interrupted'
+
+
+async def test_cross_goal_followup_rejected(tmp_path):
+    store, goal = setup(tmp_path)
+    first = await Manager(store, Brain(decision()), Worker()).resume(goal, steps=1)
+    other = store.create_goal('Other', ['Other'], tmp_path)
+    with pytest.raises(ValueError, match='belong'):
+        await Manager(store, Brain(decision('follow_up', first['tasks'][0]['id'])), Worker()).resume(other)
+
+
+async def test_completed_goal_does_not_repeat_work(tmp_path):
+    store, goal = setup(tmp_path)
+    await Manager(store, Brain(decision('complete')), Worker()).resume(goal)
+    assert (await Manager(store, Brain(), Worker()).resume(goal))['goal']['status'] == 'completed'
+
+
+async def test_sdk_agent_uses_tools_and_structured_decision(tmp_path, monkeypatch):
+    store, goal = setup(tmp_path)
+    async def fake_run(agent, prompt, **kwargs):
+        assert agent.output_type is Decision
+        assert agent.tools[0].name == 'recall_history'
+        assert json.loads(prompt)['goal']['objective'] == 'Understand project setup'
+        assert kwargs['max_turns'] == 8
+        class Result:
+            final_output = decision('pause')
+        return Result()
+    monkeypatch.setattr('omnitrix.manager.Runner.run', fake_run)
+    result = await AgentBrain().decide(store.snapshot(goal))
+    assert result.action == 'pause'
+
+
+async def test_database_lock_prevents_overlapping_managers(tmp_path):
+    store, goal = setup(tmp_path)
+    entered, release = asyncio.Event(), asyncio.Event()
+    class WaitingBrain:
+        async def decide(self, state):
+            entered.set()
+            await release.wait()
+            return decision('pause')
+    active = asyncio.create_task(Manager(store, WaitingBrain(), Worker()).resume(goal))
+    await entered.wait()
+    try:
+        with pytest.raises(RuntimeError, match='owns'):
+            await Manager(Store(store.path), Brain(decision()), Worker()).resume(goal)
+    finally:
+        release.set()
+        await active

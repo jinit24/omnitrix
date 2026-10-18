@@ -1,0 +1,32 @@
+[
+  {
+    "name":"deduplication",
+    "goal":"Improve the performance and reliability of event deduplication without changing public behavior.",
+    "initial":"def process(items):\n    result = []\n    for item in items:\n        if item not in result:\n            result.append(item)\n    return result\n",
+    "solution":"def process(items):\n    return list(dict.fromkeys(items))\n",
+    "criteria":[
+      {"requirement":"Preserve first occurrence order without mutating input","code":"items=[3,1,3,2]; assert process(items)==[3,1,2] and items==[3,1,3,2]"},
+      {"requirement":"Deduplication uses a linear number of equality checks","code":"class Key:\n def __init__(self,n): self.n=n\n def __hash__(self): return self.n\n def __eq__(self,other):\n  global comparisons\n  comparisons+=1\n  return self.n==other.n\ncomparisons=0\nitems=[Key(i) for i in range(300)]; assert len(process(items))==300; assert comparisons<1000"}
+    ]
+  },
+  {
+    "name":"bounded-retries",
+    "goal":"Improve reliability of a network job while bounding cost and preserving failure semantics.",
+    "initial":"def process(call, attempts=3):\n    return call()\n",
+    "solution":"def process(call, attempts=3):\n    if attempts < 1:\n        raise ValueError('attempts must be positive')\n    for index in range(attempts):\n        try:\n            return call()\n        except TimeoutError:\n            if index == attempts - 1:\n                raise\n",
+    "criteria":[
+      {"requirement":"Retry transient timeouts and return the eventual result","code":"count=0\ndef call():\n global count\n count+=1\n if count<3: raise TimeoutError()\n return 7\nassert process(call,3)==7 and count==3"},
+      {"requirement":"Bound retry attempts and do not retry permanent errors","code":"count=0\ndef call():\n global count\n count+=1\n raise TimeoutError()\ntry: process(call,2)\nexcept TimeoutError: pass\nelse: raise AssertionError('must fail')\nassert count==2\ncount=0\ndef permanent():\n global count\n count+=1\n raise ValueError('invalid')\ntry: process(permanent,5)\nexcept ValueError: pass\nelse: raise AssertionError('must fail')\nassert count==1"}
+    ]
+  },
+  {
+    "name":"batch-cost",
+    "goal":"Reduce database request cost of a batch processor while preserving order, multiplicity, and missing-value behavior.",
+    "initial":"def process(keys, fetch_many):\n    return [fetch_many([key]).get(key) for key in keys]\n",
+    "solution":"def process(keys, fetch_many):\n    if not keys:\n        return []\n    found=fetch_many(list(dict.fromkeys(keys)))\n    return [found.get(key) for key in keys]\n",
+    "criteria":[
+      {"requirement":"Preserve duplicate keys, order, and missing values","code":"assert process([2,1,2,9],lambda keys:{1:'a',2:'b'})==['b','a','b',None]"},
+      {"requirement":"Use one database request per nonempty batch and none for empty input","code":"calls=[]\ndef fetch(keys):\n calls.append(keys)\n return {1:'a',2:'b'}\nassert process([1,2,1],fetch)==['a','b','a']; assert calls==[[1,2]]\ncalls.clear(); assert process([],fetch)==[] and calls==[]"}
+    ]
+  }
+]

@@ -1,0 +1,122 @@
+{
+  "mode": "mock-harness-only",
+  "architecture_superiority": "not established",
+  "arms": [
+    {
+      "arm": "single",
+      "tasks": 3,
+      "criteria_satisfied": 6,
+      "criteria_total": 6,
+      "wall_seconds": 0.23394599600032961,
+      "tokens": null,
+      "incorrect_completion_claims": 0,
+      "verified_outcome_gain": 4
+    },
+    {
+      "arm": "manager",
+      "tasks": 3,
+      "criteria_satisfied": 6,
+      "criteria_total": 6,
+      "wall_seconds": 0.868749084999763,
+      "tokens": null,
+      "incorrect_completion_claims": 0,
+      "verified_outcome_gain": 4
+    }
+  ],
+  "faults": {
+    "mode": "deterministic fault injection, not live Codex",
+    "wall_seconds": 3.415938068000287,
+    "exit_code": 0,
+    "cases": [
+      {
+        "name": "test_stall_and_worker_death_are_uncertain_not_success",
+        "seconds": 0.007,
+        "outcome": "passed"
+      },
+      {
+        "name": "test_sigkill_manager_preserves_ownership_messages_and_conversation",
+        "seconds": 1.168,
+        "outcome": "passed"
+      },
+      {
+        "name": "test_requirements_revision_invalidates_only_affected_work",
+        "seconds": 0.027,
+        "outcome": "passed"
+      },
+      {
+        "name": "test_repeated_local_failure_exhausts_budget",
+        "seconds": 0.185,
+        "outcome": "passed"
+      },
+      {
+        "name": "test_unsupported_claims_fail_even_if_evaluator_trusts_them",
+        "seconds": 0.01,
+        "outcome": "passed"
+      },
+      {
+        "name": "test_lost_ack_is_reconciled_not_replayed",
+        "seconds": 0.004,
+        "outcome": "passed"
+      },
+      {
+        "name": "test_lost_worktree_ack_reconciles_existing_checkout",
+        "seconds": 0.039,
+        "outcome": "passed"
+      },
+      {
+        "name": "test_waiting_worker_does_not_spend_manager_tokens",
+        "seconds": 0.006,
+        "outcome": "passed"
+      },
+      {
+        "name": "test_tokens_and_duplicate_activity_are_not_meaningful_progress",
+        "seconds": 0.003,
+        "outcome": "passed"
+      }
+    ],
+    "covered_faults": [
+      "kill_worker",
+      "restart_manager",
+      "update_requirements_and_stale_result",
+      "repeated_verification_failure",
+      "misleading_research",
+      "lost_external_ack",
+      "lost_git_ack",
+      "waiting_dependency",
+      "false_activity"
+    ]
+  },
+  "demo": {
+    "manager_actions": [
+      "discover",
+      "research",
+      "pause",
+      "implement",
+      "audit",
+      "complete"
+    ],
+    "research": [
+      {
+        "stage": "discovery",
+        "status": "discovered",
+        "attempts": 1
+      },
+      {
+        "stage": "research",
+        "status": "supported",
+        "attempts": 1
+      }
+    ],
+    "evaluation_verdicts": [
+      "supported"
+    ],
+    "verification_passes": [
+      1,
+      0,
+      1,
+      1
+    ],
+    "corrections": 1,
+    "verified_outcome": true
+  }
+}
