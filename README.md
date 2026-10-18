@@ -103,6 +103,11 @@ the clean candidate worktree. Commands are trusted local processes, not a hostil
 sandbox; provider credentials are removed. Authorization permits bounded worktree edits,
 never deployments, destructive operations, merges or pushes.
 
+## GitHub Pages
+
+Enable **Settings → Pages → GitHub Actions**. The included workflow publishes a labeled
+static demo and HTML docs. Live manager state stays local.
+
 ## Learn more
 
 The app's **Documentation** section includes searchable HTML guides, flowcharts, tables,
