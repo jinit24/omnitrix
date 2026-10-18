@@ -6,6 +6,7 @@ import json
 import os
 import time
 import uuid
+from pathlib import Path
 from typing import Annotated
 from pydantic import Field
 from agents import Agent, Runner, RunConfig, ModelSettings, function_tool
@@ -69,7 +70,9 @@ class ResearchAgents:
             catalog.append(item)
         context = context | {'source_catalog': catalog}
         choice = 'auto' if role == 'evaluation' else 'summarize_csv' if numeric_csv else 'required'
-        agent = Agent(name=f'Independent {role} agent', model=self.model,
+        from .spending import metered_model
+        goal_id = tools.store.db.execute('SELECT goal_id FROM research_jobs WHERE id=(SELECT job_id FROM research_runs WHERE id=?)',(tools.run_id,)).fetchone()[0]
+        agent = Agent(name=f'Independent {role} agent', model=metered_model(tools.store, goal_id, role, self.model),
             instructions=(ROOT / f'instructions/{role.upper()}.md').read_text(),
             tools=[read_source, search_knowledge, search_source, summarize_csv], output_type=output,
             model_settings=ModelSettings(max_tokens=3500,
@@ -89,8 +92,8 @@ class Research:
         self.knowledge = Knowledge(store)
 
     def configure(self, goal_id, max_runs=12):
-        if not 1 <= max_runs <= 1000:
-            raise ValueError('Research run budget must be 1..1000')
+        if not 1 <= max_runs <= 100000:
+            raise ValueError('Research run budget must be 1..100000')
         self.store.execute('INSERT OR IGNORE INTO research_limits(goal_id,max_runs) VALUES(?,?)',
                            (goal_id, max_runs))
 
@@ -109,7 +112,21 @@ class Research:
         if stage == 'discovery' and spec.hypothesis:
             raise ValueError('Discovery maps uncertainty; use research for a hypothesis')
         workspace = self.store.snapshot(goal_id)['goal']['workspace']
-        scope = sorted({str(source_path(workspace, s).relative_to(__import__('pathlib').Path(workspace))) for s in spec.scope})
+        scope = []
+        for locator in spec.scope:
+            try:
+                scope.append(str(source_path(workspace, locator).relative_to(Path(workspace))))
+            except ValueError as exc:
+                from .frontier import Frontier
+                catalog=Frontier(self.store,goal_id).page(prefix=locator,limit=5)
+                parent=Path(locator).parent
+                while not catalog['entries'] and str(parent)!='.':
+                    catalog=Frontier(self.store,goal_id).page(prefix=str(parent),limit=5)
+                    parent=parent.parent
+                raise ValueError(f'Invalid scope {locator!r}: {exc}. Scope must contain explicit regular files. '
+                    'Choose relevant leaf paths using list_resources/search_frontier; directory scope is invalid. '
+                    'Indexed descendant examples: '+json.dumps(catalog)) from None
+        scope = sorted(set(scope))
         spec = spec.model_copy(update={'scope': scope})
         if spec.opportunity_id:
             row = self.db.execute('SELECT goal_id FROM opportunities WHERE id=?', (spec.opportunity_id,)).fetchone()
@@ -180,7 +197,7 @@ class Research:
             existing = tools.prefetch()
             context = {'plan': spec.model_dump(), 'prior_knowledge': existing, 'feedback': feedback,
                        'goal': self.store.snapshot(job['goal_id'])['goal'],
-                       'research_progress': self.knowledge.progress(job['goal_id'])}
+                       'research_progress': self.knowledge.progress(job['goal_id'], limit=40)}
             report = await asyncio.wait_for(self.agents.run(job['stage'], context, tools), spec.budget.seconds)
             if Control(self.store).current(job['goal_id']) != revision or self.job(job_id)['status'] == 'invalidated':
                 return self.finish(job, run_id, 'stale', feedback='Goal or policy changed during research; retained report is not accepted evidence')

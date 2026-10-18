@@ -24,3 +24,14 @@ mtime is not its measurement window. Check at least one plausible alternative
 or disconfirming observation, and distinguish a correctness defect, a measured
 fixture cost, and an unmeasured production performance claim. If the hypothesis
 fails, recommend reprioritization instead of repeatedly weakening the same claim.
+
+Classify findings honestly: mechanism means a concrete code-supported inefficiency
+under a stated workload, with an explicit falsification condition; measurement
+means an observed numeric result; evidence_gap means missing data or validation;
+observation covers other bounded facts. Do not relabel missing telemetry or test
+coverage as a system inefficiency. A code-supported mechanism may still lack a
+production impact measurement: state that uncertainty instead of claiming speedup.
+Frameworks, callers and harnesses may supply instrumentation or behavior outside
+a leaf file. Before claiming that measurements or behavior are absent, inspect
+the relevant execution contract. If the plan excludes it, state the scope gap;
+do not generalize a local absence into a system-wide conclusion.

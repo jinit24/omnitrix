@@ -10,7 +10,7 @@ ASSETS = Path(__file__).with_name('web')
 JSON_FIELDS = {'requirements', 'constraints', 'spec', 'body', 'detail', 'result', 'report', 'evaluation', 'citations', 'feedback'}
 TABLES = ('tasks', 'research_jobs', 'opportunities', 'activity', 'decisions', 'messages',
           'knowledge', 'implementations', 'goal_versions', 'policy_versions', 'research_limits',
-          'completion_audits', 'proposals')
+          'completion_audits', 'proposals', 'campaigns', 'spending_limits', 'spending_requests', 'frontier_meta')
 
 
 def snapshot(path):

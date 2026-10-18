@@ -41,8 +41,9 @@ def build():
             continue
         parser = PlainText()
         # Index the article, not repeated navigation.
-        parser.feed(html.split('<article>', 1)[1].split('</article>', 1)[0])
-        title = html.split('<title>', 1)[1].split(' · ', 1)[0]
+        # Reports have multiple articles with IDs; index all issue histories.
+        parser.feed(html.split('<article', 1)[1].split('>', 1)[1].rsplit('</article>', 1)[0])
+        title = html.split('<title>', 1)[1].split('</title>', 1)[0].split(' · ', 1)[0]
         search.append({'title': title, 'href': name, 'text': ' '.join(parser.parts)})
     outputs['search.json'] = json.dumps(search, ensure_ascii=False, indent=2) + '\n'
     return {name: outputs[name] for name in ('index.html', 'search.json')}

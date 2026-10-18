@@ -112,6 +112,33 @@ static demo and HTML docs. Live manager state stays local.
 Research sources up to 32 MiB support bounded reads, search, and CSV aggregation.
 Partition larger exports; observed coverage is not exhaustive system coverage.
 
+## Durable research campaigns
+
+Create a fresh goal for a pinned local clone, then start a read-only investigation
+with persistent time, decision, role-run and dollar limits:
+
+```sh
+omnitrix create 'Find system inefficiencies and compare falsifiable explanations' \
+  --criterion 'Distinguish code mechanisms, measured impact and missing data' \
+  --workspace /absolute/path/to/pinned-repository
+omnitrix --db .omnitrix/state.db campaign GOAL_ID \
+  --days 3 --decisions 1000 --research-runs 2000 --dollars 25
+# After a process restart: reuse the same DB and goal, without new limits.
+omnitrix --db .omnitrix/state.db campaign GOAL_ID
+# Inspect or pause from another terminal.
+omnitrix --db .omnitrix/state.db status GOAL_ID
+omnitrix --db .omnitrix/state.db campaign GOAL_ID --pause
+```
+
+Each campaign is capped at $25. Standard-tier GPT-4.1 requests reserve maximum
+cost before inference; lost responses retain that reservation. Native workers,
+hosted tools, code changes and external PRs are disabled for these campaigns.
+The HTML checkpoint includes evidence, decisions, spending and remaining coverage.
+Register local exported logs/CSV with repeatable `--evidence workspace/relative/path`;
+record workload and measurement-window context alongside them. See the
+[campaign and tracking guide](docs/campaigns.html) for pricing, recovery, explicit
+continuation after a pause, and the limits of the current Kafka experiment.
+
 ## Learn more
 
 The app's **Documentation** section includes searchable HTML guides, flowcharts, tables,
@@ -129,6 +156,10 @@ The [HTML findings and repair log](docs/research-quality.html) records baseline
 failures, changes, actual live outcomes, and unresolved limitations. Its source is
 `docs/research-quality.json`; per-goal HTML includes decisions, evidence, queries,
 evaluations and measured model usage. Source/model text is escaped, never executed.
+Each issue retains dated observations, fixes, tests and regressions. Latest run
+summaries coexist with an append-only experiment history, including model costs
+and coverage where available. A fixed guard is distinguished from improved live
+research behavior; unresolved failures remain visible.
 
 ```sh
 # Scripted tool/harness checks: these do not measure model reasoning.

@@ -9,12 +9,12 @@ EXCLUDED = {'.git', '.omnitrix', '.venv', 'node_modules', '__pycache__', '.pytes
 def resource_kind(locator):
     path = Path(locator)
     name = path.name.lower()
+    if path.suffix.lower() in {'.py', '.js', '.ts', '.tsx', '.go', '.rs', '.c', '.cpp', '.h', '.java', '.scala', '.kt', '.kts', '.rb', '.sh', '.gradle'}:
+        return 'code'
     if path.suffix.lower() in {'.csv', '.prom'} or 'metric' in name:
         return 'metrics'
     if path.suffix.lower() in {'.log', '.jsonl'} or 'trace' in name:
         return 'logs'
-    if path.suffix.lower() in {'.py', '.js', '.ts', '.tsx', '.go', '.rs', '.c', '.cpp', '.java', '.rb'}:
-        return 'code'
     return 'document'
 
 

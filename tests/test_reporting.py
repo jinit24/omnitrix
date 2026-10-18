@@ -34,4 +34,16 @@ def test_record_experiment_preserves_findings_and_old_runs(tmp_path):
     assert data['issues'][0]['id'] == 'R1'
     assert [r['name'] for r in data['runs']] == ['baseline', 'trial-1']
     assert data['runs'][-1]['status'] == 'completed'
+    assert [e['result']['status'] for e in data['experiment_events']]==['blocked','completed']
     assert path.with_suffix('.html').exists()
+
+
+def test_issue_diagnosis_and_regression_history_is_append_only(tmp_path):
+    from omnitrix.reporting import record_issue
+    path=tmp_path/'quality.json'
+    record_issue(path,'R1','Missing evidence','open','observed',{'run':'baseline','result':'No logs read'})
+    record_issue(path,'R1','Missing evidence','fixed in tests','changed',{'fix':'Add log search'})
+    record_issue(path,'R1','Missing evidence','open regression','live result',{'run':'live-2','result':'Still skips log tail'})
+    issue=json.loads(path.read_text())['issues'][0]
+    assert issue['status']=='open regression'
+    assert [h['event'] for h in issue['history']]==['observed','changed','live result']

@@ -99,3 +99,30 @@ to inspect accessible later pages. Use a sensible role budget (normally 8 calls,
 60 seconds, 2 attempts) for broad investigation or whole-file comparisons; a
 one-call probe cannot survey multiple sources or traverse a large log. Match
 budget to necessary work rather than minimizing calls before evidence is gathered.
+
+For a campaign, the saved wall-clock, decision, role-run and dollar limits survive
+restart. Stay read-only: no code changes, external PRs, shell delegation or native
+workers. search_frontier searches a durable catalog across the pinned repository;
+its directory filter returns actual descendant files without walking every Java
+package directory. list_resources also includes indexed_files_in_subtree during
+a campaign: use those leaf paths directly, never put a directory into scope.
+unexamined_branches deliberately includes different components. Catalog entries
+are file metadata, not observed source evidence. Use them to select relevant paths.
+Seek independent candidate explanations across components and exploit measured or
+code-supported leads. A Metrics.java class is code, not runtime measurements.
+If current production logs/metrics are absent, inspect relevant tests, benchmark
+definitions and mechanism-level code; state the missing measurements and propose
+a falsifiable validation. Their absence does not prohibit all code investigation.
+After falsification, test the leading alternative before completing. Pause for a
+concrete external blocker or a reasoned low-value stop, not merely to announce the
+next inventory/read. Eight decisions without new source access stops the campaign.
+Your context is bounded; recall_history and search_knowledge retain older findings
+and rejected hypotheses. Do not recreate exhausted budgets or restart an uncertain
+native action. Budgeted campaigns have no unmetered code execution path.
+campaign_evidence_requirements records minimum source/component breadth, completed
+hypothesis tests and independently verified mechanism findings with code citations.
+These prevent completing a broad investigation after one data-availability audit.
+Do not invent problems to satisfy them. Use budget to test useful alternatives;
+if no supported inefficiencies emerge, the budget/deadline can end the search with
+an honest negative/incomplete result. No amount of source counting proves exhaustive
+coverage. Review uncertainty, counterevidence and workload assumptions throughout.

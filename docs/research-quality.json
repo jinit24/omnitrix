@@ -70,10 +70,17 @@
     {
       "id": "R9",
       "title": "Live manager stops at the first inventory page and underfunds research",
-      "status": "Partially improved; log-tail coverage and replacement-hypothesis support remain open",
+      "status": "partially addressed; live campaign rerun pending",
       "baseline": "Original code: 0/8 checks and premature pause. First tool-improved live case: 0/8 with pause after first 40 entries. Negative control: 3/8; repeated 1-2 call probes sampled cache-only prefixes and never reached decisive code, CSV rows or log tail.",
       "fix": "Provide observed root inventory in manager context, surface subdirectory names/counts beyond current page, resolve conflicting delegation guidance, and require budgets suited to whole-file comparisons.",
-      "verification": "Live iteration 04: 6/8 buried-bottleneck checks, 5/8 negative-control checks. Iteration 05: 5/8 each. Trials are development cases used during tuning, not a held-out estimate."
+      "verification": "Live iteration 04: 6/8 buried-bottleneck checks, 5/8 negative-control checks. Iteration 05: 5/8 each. Trials are development cases used during tuning, not a held-out estimate.",
+      "history": [
+        {
+          "at": "2026-10-18T18:59:14.462322+00:00",
+          "event": "diagnosis / change",
+          "details": "A durable index of 7,545 Kafka source/document files and component-diverse frontier is now available. Early-completion and data-gap-only completion were reproduced and gated; baseline failures remain in the history. No claim of multi-day reliability yet."
+        }
+      ]
     },
     {
       "id": "R10",
@@ -102,9 +109,16 @@
     {
       "id": "R13",
       "title": "Native implementation exceeds its bounded turn without verified completion",
-      "status": "Reproduced twice; attempt budget exhausted and candidate retained",
+      "status": "still open; read-only campaigns exclude native workers",
       "baseline": "Self-audit live-03 reached accepted research and real edits but timed out before candidate verification. Latest native usage snapshot: 603768 input tokens (566912 cached), 3869 output tokens. These are cumulative usage values, not unique prompt bytes or a dollar estimate.",
-      "remaining": "Both native turns reached their 300-second bounds. Final interruption was reconciled and status is escalated. Manual verification of the generated patch is recorded separately; it is not autonomous end-to-end success."
+      "remaining": "Both native turns reached their 300-second bounds. Final interruption was reconciled and status is escalated. Manual verification of the generated patch is recorded separately; it is not autonomous end-to-end success.",
+      "history": [
+        {
+          "at": "2026-10-18T18:59:14.465785+00:00",
+          "event": "diagnosis / change",
+          "details": "Earlier native self-audit timeouts remain unresolved. New long-running Kafka research uses metered SDK roles and cannot launch native code workers, edit Kafka or create external PRs. Successful long-running research would not establish that native code handoffs are fixed."
+        }
+      ]
     },
     {
       "id": "R14",
@@ -113,6 +127,261 @@
       "baseline": "The initial harness used exit status only to distinguish runtime exceptions; a completed conversation with 0/8 or 5/8 checks could still exit zero. Those recorded scores remain failures regardless of historical command exit codes.",
       "fix": "Exit 0 only for all checkpoints passed, 1 for behavioral failure/no trials, 2 for blocked/error.",
       "verification": "tests/test_research_eval.py"
+    },
+    {
+      "id": "R15",
+      "title": "Short-lived budgets cannot support multi-day investigations",
+      "history": [
+        {
+          "at": "2026-10-18T18:59:14.440313+00:00",
+          "event": "diagnosis / change",
+          "details": "A default of 12 role runs and in-memory autonomy/time limits cannot represent a multi-day investigation. Added persisted absolute deadline, decision/role counters, restart-safe read-only recovery, and 72-hour campaign configuration. Tested crossing a 3-day deadline and restoring consumed budgets without sleeping for days."
+        }
+      ],
+      "status": "implemented; accelerated recovery tests pass"
+    },
+    {
+      "id": "R16",
+      "title": "A usage report alone cannot enforce the $25 ceiling",
+      "history": [
+        {
+          "at": "2026-10-18T18:59:14.444235+00:00",
+          "event": "diagnosis / change",
+          "details": "Added provider token-count preflight, atomic maximum-cost reservation, fixed standard-tier GPT-4.1 pricing, output caps, actual cached-token settlement and retained reservations for unknown outcomes. HTTP retries, hosted tools, hidden mutable history and unmetered native actions are excluded. First Kafka live pass cost $0.120434 and respected the ledger."
+        }
+      ],
+      "status": "implemented and verified on live requests"
+    },
+    {
+      "id": "R17",
+      "title": "Metric-named source classes were mistaken for telemetry",
+      "history": [
+        {
+          "at": "2026-10-18T18:59:14.447751+00:00",
+          "event": "diagnosis / change",
+          "details": "Metrics.java was classified as metrics by name before checking its code extension. Code extensions now take precedence; unchanged code no longer expires merely because 24 hours passed. Runtime log/metric freshness still expires."
+        }
+      ],
+      "status": "fixed in regression tests"
+    },
+    {
+      "id": "R18",
+      "title": "Deep Java package navigation exhausts manager turns",
+      "history": [
+        {
+          "at": "2026-10-18T18:59:14.451179+00:00",
+          "event": "diagnosis / change",
+          "details": "The first Kafka owner paused after 2 decisions and 13 API requests at $0.120434, mostly walking core/src/main/java directories. Directory listings now include indexed descendant files; search_frontier has a directory filter. Campaign manager reasoning is bounded at 24 turns. Resuming the same goal preserved all previous spending and deadline."
+        }
+      ],
+      "status": "fixed navigation; live continuation observed"
+    },
+    {
+      "id": "R19",
+      "title": "Large-repository job completed after one evidence-gap investigation",
+      "history": [
+        {
+          "at": "2026-10-18T18:59:14.454729+00:00",
+          "event": "diagnosis / change",
+          "details": "The next Kafka pass completed after one supported investigation of missing end-to-end throughput measurement, at $0.382260, with most of 7,545 indexed files untouched. Added explicit minimum source/component breadth, completed hypothesis tests, and code-cited mechanism findings. Finding categories distinguish measurement gaps from workload-specific inefficiencies. These are minimum quality gates, not exhaustive-coverage claims."
+        },
+        {
+          "at": "2026-10-18T19:06:35.831218+00:00",
+          "event": "live regression",
+          "details": {
+            "run": "kafka-resume-03",
+            "result": "Completion gate blocked the previous data-gap-only success, but the manager paused after four decisions with no new observations.",
+            "actual": {
+              "required": {
+                "sources": 20,
+                "branches": 4,
+                "hypotheses": 6,
+                "mechanisms": 2
+              },
+              "actual": {
+                "sources": 4,
+                "branches": 4,
+                "hypotheses": 0,
+                "mechanisms": 0
+              },
+              "met": false,
+              "note": "Minimum breadth and evidence gates, not proof of exhaustive coverage or production impact."
+            },
+            "spending": {
+              "goal_id": "c849afa7ebea434ea01d292996c10a77",
+              "limit_nanos": 25000000000,
+              "spent_nanos": 766726000,
+              "reserved_nanos": 0,
+              "limit_usd": 25.0,
+              "spent_usd": 0.766726,
+              "reserved_usd": 0.0,
+              "available_usd": 24.233274,
+              "model": "gpt-4.1-2025-04-14",
+              "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+            }
+          }
+        }
+      ],
+      "status": "guard verified; autonomous breadth still failing"
+    },
+    {
+      "id": "R20",
+      "title": "Kafka validation prerequisites are missing",
+      "history": [
+        {
+          "at": "2026-10-18T18:59:14.458571+00:00",
+          "event": "diagnosis / change",
+          "details": "Initial wrapper download used direct Java networking and timed out. Downloaded pinned Gradle 9.7.1 through the supported proxy and verified its repository checksum. Gradle then found only a JRE without javac. Downloaded official Temurin 25 JDK and verified the release SHA-256; targeted client test is next."
+        },
+        {
+          "at": "2026-10-18T19:06:35.837624+00:00",
+          "event": "environment repair and validation",
+          "details": {
+            "problems": [
+              "Java networking ignored HTTPS_PROXY",
+              "Image has a JRE without javac",
+              "Downloaded JDK lacks cloud proxy CA"
+            ],
+            "fixes": [
+              "Explicit Gradle proxy settings",
+              "Official checksum-verified Temurin25 JDK",
+              "System Java trust store, TLS verification retained"
+            ],
+            "check": "Kafka :clients:test --tests org.apache.kafka.common.cache.LRUCacheTest: 3 passed",
+            "artifact": "local build logs exported with workload/provenance context; not production telemetry"
+          }
+        }
+      ],
+      "status": "local baseline passes; no performance claim"
+    },
+    {
+      "id": "R21",
+      "title": "Git-only source catalog hides local logs and measurement exports",
+      "history": [
+        {
+          "at": "2026-10-18T19:06:35.842569+00:00",
+          "event": "diagnosis and change",
+          "details": {
+            "fix": "Explicit exported UTF-8 files can be registered in the frontier. Git and local-export origin counts remain separate. --evidence can be repeated; paths stay inside workspace.",
+            "validation": "Export pagination/classification/path-boundary regression; 6 actual Kafka local validation artifacts registered."
+          }
+        }
+      ],
+      "status": "implemented; focused regression passed"
+    },
+    {
+      "id": "R22",
+      "title": "Updating experiment summaries discards earlier outcomes",
+      "history": [
+        {
+          "at": "2026-10-18T19:06:35.847570+00:00",
+          "event": "longitudinal tracking repair",
+          "details": {
+            "fix": "Latest experiment summary plus append-only timestamped experiment_events; issue history records observations, changes and regressions. Atomic file replacement prevents partial reports.",
+            "validation": "Blocked-to-completed rerun and open-to-fixed-to-regressed issue tests preserve every earlier event."
+          }
+        }
+      ],
+      "status": "implemented; focused regression passed"
+    },
+    {
+      "id": "R23",
+      "title": "Research and evaluator infer missing metrics from a framework leaf method",
+      "history": [
+        {
+          "at": "2026-10-18T19:06:35.854785+00:00",
+          "event": "live false-confidence finding",
+          "details": {
+            "observed": "Both roles treated a JMH benchmark method returning data as evidence that it cannot output throughput/cost. JMH instrumentation is provided by its harness; Kafka benchmark README documents default throughput and result options.",
+            "repair": "Prior job invalidated; findings downgraded to assumptions without erasing source/report history. Research and evaluation instructions now require caller/framework execution-contract checks for absence claims.",
+            "limit": "This is a prompt change, not a proven semantic verifier. A fresh independent correction is pending."
+          }
+        }
+      ],
+      "status": "open semantic reliability gap; prior finding downgraded"
+    },
+    {
+      "id": "R24",
+      "title": "Campaign sessions replay large snapshots and multiply model input cost",
+      "history": [
+        {
+          "at": "2026-10-18T19:06:35.859792+00:00",
+          "event": "cost diagnosis and change",
+          "details": {
+            "observed": "One manager decision consumed 94628 input tokens across 2 requests, while adding zero source observations. Prior full state prompts were replayed in the SDK session.",
+            "fix": "Campaigns use fresh SDK turns with bounded durable snapshots and SQLite recall tools. Ordinary interactive sessions stay persistent.",
+            "validation": "Campaign SDK invocation regression asserts no duplicate session replay."
+          }
+        }
+      ],
+      "status": "implemented; live cost comparison pending"
+    },
+    {
+      "id": "R25",
+      "title": "Rejected directory plans repeat without useful repair and recent feedback can be hidden",
+      "history": [
+        {
+          "at": "2026-10-18T19:06:35.864563+00:00",
+          "event": "live diagnosis and change",
+          "details": {
+            "observed": "Manager alternated directory-scoped discovery and unnecessary user clarification. Three identical scope rejections caused a safety pause.",
+            "fix": "Scope errors now include actual indexed descendant leaf paths; manager context includes recent parsed rejection feedback. Pending-message sampling keeps newest 20; full history remains recallable. Manager inventory/frontier tool queries are recorded for audit.",
+            "validation": "Invalid directory regression checks a real suggested Java leaf; old pending messages cannot hide the newest rejection."
+          }
+        },
+        {
+          "at": "2026-10-18T19:09:10.080312+00:00",
+          "status": "open live planning failure; concise controller instructions added",
+          "event": "live rerun",
+          "details": {
+            "observed": "After path-error repair feedback, the manager instead returned discover actions with research_plan=null three times. It gathered zero new evidence. Spent $0.884294 cumulative; no held reservations.",
+            "change": "Campaign now uses a short dedicated controller contract with an executable plan example and only its five permitted actions. This is a prompt change whose effect remains to be measured."
+          }
+        },
+        {
+          "at": "2026-10-18T19:11:18.883633+00:00",
+          "status": "open live filename grounding failure; new probe started",
+          "event": "live rerun",
+          "details": {
+            "observed": "Dedicated prompt produced a complete plan, but invented GroupCoordinatorPerformanceTest.java. Stagnation stop fired. Cumulative spend $0.925306, zero reservations.",
+            "change": "Campaign forces one real catalog query before each decision; a nonexistent path error now returns files from its nearest indexed parent. Explicit continuation records the old stall and resets only the stagnation window, never consumed budgets or deadline."
+          }
+        }
+      ],
+      "status": "open live filename grounding failure; new probe started"
+    },
+    {
+      "id": "R26",
+      "title": "Alternate actor entry points bypass campaign decision and completion gates",
+      "history": [
+        {
+          "at": "2026-10-18T19:09:10.072492+00:00",
+          "status": "implemented; regression validation pending",
+          "event": "code review",
+          "details": {
+            "diagnosis": "CLI/inbox paths using the ordinary supervisor shared model metering but could bypass campaign-specific decision/completion controls. The legacy manager could bypass the read-only actor entirely.",
+            "fix": "Enforce decision claiming and campaign action validation in the common supervisor. Legacy manager refuses campaign goals. All inference paths keep the reservation ledger."
+          }
+        }
+      ],
+      "status": "implemented; regression validation pending"
+    },
+    {
+      "id": "R27",
+      "title": "Stagnation guard can cancel useful work before the first read",
+      "history": [
+        {
+          "at": "2026-10-18T19:10:23.669514+00:00",
+          "status": "implemented; regression validation pending",
+          "event": "code review",
+          "details": {
+            "diagnosis": "The counter was checked immediately after dispatching an async worker. On the eighth decision it could cancel a useful newly launched read before that worker executed.",
+            "fix": "Check observed progress and stagnation when the actor is idle, after the previous worker finishes. Pending new research gets its bounded chance to read.",
+            "check": "Start the real read/evaluate/complete orchestration test with seven prior stagnant decisions."
+          }
+        }
+      ],
+      "status": "implemented; regression validation pending"
     }
   ],
   "runs": [
@@ -1719,6 +1988,62 @@
       ],
       "source_digest": "8c55f3bcb8524a55f4874b4faf65ae265b499b9c77957856c76938936e919354",
       "note": "Native turns timed out and have no final audit. This manual isolated verification is separate from autonomous end-to-end success."
+    },
+    {
+      "name": "kafka-resume-03",
+      "mode": "live read-only; human-steered recovery",
+      "status": "paused",
+      "reason": "No new source evidence; invalid directory plans and unnecessary clarification. Prior JMH absence claim challenged manually.",
+      "autonomous_discovery": false,
+      "spending": {
+        "goal_id": "c849afa7ebea434ea01d292996c10a77",
+        "limit_nanos": 25000000000,
+        "spent_nanos": 766726000,
+        "reserved_nanos": 0,
+        "limit_usd": 25.0,
+        "spent_usd": 0.766726,
+        "reserved_usd": 0.0,
+        "available_usd": 24.233274,
+        "model": "gpt-4.1-2025-04-14",
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "frontier": {
+        "goal_id": "c849afa7ebea434ea01d292996c10a77",
+        "head": "cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282",
+        "complete": 1,
+        "skipped": 64,
+        "files": 7551,
+        "by_kind": {
+          "code": 6760,
+          "document": 785,
+          "logs": 4,
+          "metrics": 2
+        },
+        "by_origin": {
+          "export": 6,
+          "git": 7545
+        },
+        "observed_files": 4,
+        "basis": "Git-tracked UTF-8 files and explicitly registered local exports <=32 MiB; binaries, unavailable files and oversized files counted as skipped. Excerpts do not establish full coverage."
+      },
+      "quality": {
+        "required": {
+          "sources": 20,
+          "branches": 4,
+          "hypotheses": 6,
+          "mechanisms": 2
+        },
+        "actual": {
+          "sources": 4,
+          "branches": 4,
+          "hypotheses": 0,
+          "mechanisms": 0
+        },
+        "met": false,
+        "note": "Minimum breadth and evidence gates, not proof of exhaustive coverage or production impact."
+      },
+      "head": "cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282",
+      "decisions": []
     }
   ],
   "limitations": [
@@ -1763,5 +2088,67 @@
     "manual_candidate_verification": "Independent integrity oracle passed; original suite 55 passed, 1 skipped",
     "current_fix_branch_validation": "76 passed, 1 skipped in clean source archive",
     "candidate_adoption": "The native patch is retained as evidence; PR #1 contains the separately reviewed minimal fix."
-  }
+  },
+  "experiment_events": [
+    {
+      "id": "a09ab2008a274aa2978ab13e91fbdb99",
+      "at": "2026-10-18T19:06:35.892684+00:00",
+      "result": {
+        "name": "kafka-resume-03",
+        "mode": "live read-only; human-steered recovery",
+        "status": "paused",
+        "reason": "No new source evidence; invalid directory plans and unnecessary clarification. Prior JMH absence claim challenged manually.",
+        "autonomous_discovery": false,
+        "spending": {
+          "goal_id": "c849afa7ebea434ea01d292996c10a77",
+          "limit_nanos": 25000000000,
+          "spent_nanos": 766726000,
+          "reserved_nanos": 0,
+          "limit_usd": 25.0,
+          "spent_usd": 0.766726,
+          "reserved_usd": 0.0,
+          "available_usd": 24.233274,
+          "model": "gpt-4.1-2025-04-14",
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "frontier": {
+          "goal_id": "c849afa7ebea434ea01d292996c10a77",
+          "head": "cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282",
+          "complete": 1,
+          "skipped": 64,
+          "files": 7551,
+          "by_kind": {
+            "code": 6760,
+            "document": 785,
+            "logs": 4,
+            "metrics": 2
+          },
+          "by_origin": {
+            "export": 6,
+            "git": 7545
+          },
+          "observed_files": 4,
+          "basis": "Git-tracked UTF-8 files and explicitly registered local exports <=32 MiB; binaries, unavailable files and oversized files counted as skipped. Excerpts do not establish full coverage."
+        },
+        "quality": {
+          "required": {
+            "sources": 20,
+            "branches": 4,
+            "hypotheses": 6,
+            "mechanisms": 2
+          },
+          "actual": {
+            "sources": 4,
+            "branches": 4,
+            "hypotheses": 0,
+            "mechanisms": 0
+          },
+          "met": false,
+          "note": "Minimum breadth and evidence gates, not proof of exhaustive coverage or production impact."
+        },
+        "head": "cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282",
+        "decisions": []
+      }
+    }
+  ]
 }
