@@ -190,3 +190,20 @@ async def test_manager_can_see_authorized_checks_instead_of_guessing_they_are_mi
     assert visible['spec']['checks'][0]['argv']
     assert {c['requirement'] for c in visible['spec']['checks']}=={'Double positive numbers','Handle zero'}
     assert visible['authorization_revoked']==0
+
+
+@pytest.mark.parametrize('terminal', ['interrupted', 'failed'])
+@pytest.mark.parametrize('incorrect', [False, True])
+async def test_terminated_worker_artifacts_are_verified_before_any_paid_retry(project,terminal,incorrect):
+    class Interrupted(CodingRuntime):
+        async def wait(self,*args): raise RuntimeError('Owner stopped after files were written')
+        async def reconcile(self,thread):
+            return {'thread':{'id':thread,'turns':[{'id':'turn-1','status':terminal,'items':[]}]}}
+    runtime=Interrupted(always_fail=incorrect)
+    service,implementation=await create(project,runtime)
+    assert (await service.run(implementation))['status']=='uncertain'
+    result=await service.reconcile(implementation)
+    assert runtime.calls==1 and result['attempts']==1
+    assert result['status']==('repair' if incorrect else 'ready_for_audit')
+    assert service.audit(implementation)['passed']==(not incorrect)
+    assert (project[0].snapshot(project[1])['goal']['status']=='completed')==(not incorrect)

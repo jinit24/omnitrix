@@ -48,11 +48,36 @@
     "each_wall_seconds_below": 300
   },
   "per_run_observed_cost_stop_usd": 1.75,
-  "cumulative_observed_stop_including_prior_usd": 22,
+  "cumulative_observed_stop_including_prior_usd": 23.5,
   "limitations": [
     "Seeded regressions with observed failing tests and source paths, not newly discovered upstream defects.",
     "A process restart occurs after accepted research, before coding.",
     "Lost completion is injected after a real native worker completes, before the manager receives its result; this is controlled delivery loss, not a random network fault.",
-    "No multi-hour or single-agent-superiority claim."
+    "No completed multi-day uptime or single-agent-superiority claim."
+  ],
+  "confirmation_runs": [
+    {
+      "case": "django",
+      "repeat": 3,
+      "fault": null
+    },
+    {
+      "case": "flask",
+      "repeat": 3,
+      "fault": null
+    },
+    {
+      "case": "flask",
+      "repeat": 4,
+      "fault": null
+    }
+  ],
+  "confirmation_reason": "Repeat the two early successes after the final research decomposition fix, aiming for six confirmations on the final implementation. The cumulative cost stop still applies.",
+  "inflight_headroom_usd": 1.5,
+  "confirmation_budget_note": "After a $22.50 conservative stop interrupted Flask 3, verify its retained patch without inference and run one final fresh confirmation. Its observed stop is $23.50 including the full future $3 campaign cap, retaining $1.50 in-flight headroom. No further paid repair runs follow.",
+  "observed_stop_history_usd": [
+    22,
+    22.5,
+    23.5
   ]
 }

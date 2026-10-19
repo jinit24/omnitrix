@@ -133,6 +133,31 @@ class DeliveryLossRuntime(CodexRuntime):
         return result
 
 
+async def settle_without_inference(store, goal):
+    """A spending stop forbids inference, but retained artifacts can be verified."""
+    class NoInferenceRuntime(CodexRuntime):
+        async def start(self, *args, **kwargs):
+            raise AssertionError('Spending stop forbids another model turn')
+    class NoInferenceBrain:
+        async def decide(self, snapshot):
+            raise AssertionError('Spending stop forbids another manager call')
+    supervisor = await Supervisor(store, goal, runtime=NoInferenceRuntime(), brain=NoInferenceBrain()).open()
+    supervisor.autonomy = 0
+    outcomes = []
+    try:
+        for row in store.db.execute("SELECT task_id FROM task_runtime WHERE state='uncertain' AND session_id IS NOT NULL").fetchall():
+            result = await supervisor.reconcile(row['task_id'])
+            implementation = result.get('implementation', {})
+            outcome = {'task_id':row['task_id'], 'implementation':implementation,
+                       'no_new_inference':True}
+            if implementation.get('status') == 'ready_for_audit':
+                outcome['audit'] = Implementations(store).audit(implementation['id'])
+            outcomes.append(outcome)
+    finally:
+        await supervisor.close()
+    return outcomes
+
+
 async def trial(args):
     output = args.output.resolve()
     if args.resume:
@@ -211,6 +236,11 @@ async def trial(args):
         print(json.dumps({'event':'checkpoint_exit', 'remaining_decisions':supervisor.autonomy}),flush=True)
         store.db.close()
         return 75
+    if stopping:
+        try:
+            recovery.extend(await settle_without_inference(store, goal))
+        except Exception as exc:
+            errors.append('Offline reconciliation: '+type(exc).__name__+': '+str(exc))
     state = store.snapshot(goal)
     records = [dict(row) for row in store.db.execute('SELECT * FROM verifications')]
     for record in records: record['output'] = Path(record['artifact']).read_text()

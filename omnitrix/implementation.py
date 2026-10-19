@@ -253,18 +253,26 @@ class Implementations:
         turn=next((t for t in turns if reference and t['id']==reference['turn_id']),None)
         if turn is None:
             return {'blocked':'Exact external turn outcome is not available; no coding action was replayed'}
-        if turn['status'] in ('failed','interrupted'):
-            status='repair' if row['attempts']<spec.max_attempts else 'escalated'
-            self.store.execute('UPDATE implementations SET status=?,feedback=? WHERE id=?',
-                (status,'External turn termination reconciled; inspect retained worktree before a bounded repair',implementation_id))
-            return self.get(implementation_id)
-        if turn['status']!='completed':
+        terminated = turn['status'] in ('failed','interrupted')
+        if turn['status']!='completed' and not terminated:
             return {'blocked':'External turn is still active; interrupt or await it before retry'}
         workspace=Path(row['worktree'])
         changed=subprocess.check_output(['git','-C',str(workspace),'diff',row['base_revision'],'--no-renames','--name-only','-z']).decode().split('\0')
         changed+=subprocess.check_output(['git','-C',str(workspace),'ls-files','--others','--exclude-standard','-z']).decode().split('\0')
         if any(p and not any(p==a or p.startswith(a.rstrip('/')+'/') for a in spec.allowed_paths) for p in changed):
             raise ValueError('Reconciled candidate changed unauthorized paths')
+        if terminated and not any(changed):
+            status='repair' if row['attempts']<spec.max_attempts else 'escalated'
+            self.store.execute('UPDATE implementations SET status=?,feedback=? WHERE id=?',
+                (status,'External turn terminated without candidate changes; a bounded repair is still required',implementation_id))
+            return self.get(implementation_id)
+        if terminated:
+            # A killed worker may already have written a correct patch. Verify
+            # its retained artifacts under the original authorization before
+            # paying to redo work. Failed checks still block completion.
+            self.control.event(row['goal_id'],'interrupted_candidate_verification',{
+                'implementation':implementation_id,'turn_status':turn['status'],
+                'note':'Verify retained changes only; no model request or coding attempt is replayed. Final worker concerns are unavailable.'})
         if git(workspace,'status','--porcelain'):
             git(workspace,'add','--all')
             git(workspace,'-c','user.name=Omnitrix','-c','user.email=omnitrix@localhost','commit','-m',f'Reconciled candidate {implementation_id}')
