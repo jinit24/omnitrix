@@ -175,3 +175,78 @@ See [architecture](docs/ARCHITECTURE.md), [status and limitations](docs/STATUS.m
 [recovery](docs/RECOVERY.md). Keep the SQLite DB, `.sessions.db`, Codex home, worktrees
 and artifacts together when moving/restoring an environment. Authentication and live
 processes must be reestablished after restoration.
+
+## Custom research context and quality gates
+
+Provide a per-goal JSON brief and rubric. The file is read by the CLI and its
+contents are stored in SQLite; every manager decision, discovery/research attempt
+and independent evaluation receives the current version directly.
+
+```json
+{
+  "brief": "Prioritize checkout reliability. Preserve idempotency. Our belief that retries amplify overload is unverified. Compare alternatives against failure rate, duplicate charges, latency and cost.",
+  "rubric": [
+    "Support factual claims with current source evidence",
+    "Address contrary evidence and distinguish measured results from assumptions"
+  ]
+}
+```
+
+```sh
+omnitrix context GOAL_ID --file research-context.json
+# Review the proposed brief/rubric, then in omnitrix chat GOAL_ID:
+# /accept PROPOSAL_ID
+omnitrix context GOAL_ID
+```
+
+`/context` displays the active brief in chat. `context --file` proposes a complete
+replacement; it does not change active instructions until accepted. Updates keep
+all earlier versions, advance the goal revision, invalidate pending/active research, mark earlier accepted research stale,
+invalidate its verified findings and revoke implementation authorizations. Existing candidates and evidence remain
+available. A brief supplies context, not verified facts or code-change permission.
+
+With context configured, each new discovery/research plan must state `decision`,
+`expected_value` and `stop_condition`. Evaluation must assess each exact rubric
+criterion once. Supported results are rejected when applicable criteria are unmet,
+met criteria lack evidence, or citations are stale/unknown. A justified
+`not_applicable` judgment remains the evaluator's responsibility. These checks
+validate structured review and evidence integrity; semantic correctness still
+requires judgment, and executable acceptance checks remain separate.
+
+Longer investigations can record bounded `checkpoint` tool calls with evidence,
+remaining uncertainty and next action. Checkpoints consume the tool budget and do
+not reset deadlines or count as independently verified progress. Status includes
+recent checkpoints and a research agenda summary grouped by stage/status. The
+manager can retrieve older jobs through `recall_history(section='research')` to
+review coverage, repeated approaches and priorities. This is deliberative oversight
+between bounded attempts, not continuous independent semantic supervision.
+
+## Whole-repository manager trials
+
+See [public-repository audit protocol](docs/PUBLIC_RESEARCH.md) for pinned full
+source snapshots, persistent area/sub-area agendas, read-only live runs, $25
+per-goal request guards, crash/restart experiments and standalone reports.
+`triaged` and `deferred` never mean fully audited; source sampling and exclusions
+are reported separately from inventory. Reopened requirements resume the same
+budget. No PRs, pushes, public-repository changes or deployment occur.
+
+Independent review receives the actual researcher checkpoint ledger and bounded
+portfolio context. To enforce a pre-report evidence checkpoint for custom goals,
+include `"require_checkpoint": true` in the context JSON. This is a Python gate,
+not a reviewer inference. `reevaluate` can spend one additional bounded evaluation
+on a retained report without rerunning research or resetting attempts. Original
+reports/reviews remain intact; supported observations do not satisfy failed
+workflow gates or authorize implementation.
+
+For the durable campaign queue, evidence obligations, protected evaluation budgets,
+compact manager context and automatic local recovery, see
+[workflow controls](docs/WORKFLOW_CONTROL.md). Run the offline integration benchmark
+without provider calls:
+
+```sh
+python scripts/workflow_benchmark.py --output work/workflow-benchmark
+```
+
+Use a new output directory. Its JSON results and SQLite databases preserve both
+successful scenarios and injected failures. Scripted fixture results validate the
+controls; they do not measure live research quality or dollar savings.

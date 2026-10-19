@@ -28,6 +28,8 @@ class Execution:
     async def send(self, task_id, instructions, workspace):
         """Send another turn, resuming the saved session if available."""
         task = self.status(task_id)
+        from .budget import assert_no_unmetered_worker
+        assert_no_unmetered_worker(self.store, task['goal_id'])
         if task['adapter'] != self.worker.name:
             raise ValueError('Assignment belongs to a different adapter')
         with self.store.db:

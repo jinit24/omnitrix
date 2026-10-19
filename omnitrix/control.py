@@ -2,9 +2,22 @@
 import json
 import time
 import uuid
+from contextlib import nullcontext
 from agents import SQLiteSession
 
 SCHEMA = '''
+CREATE TABLE IF NOT EXISTS research_context_versions (
+ goal_id TEXT NOT NULL REFERENCES goals(id), version INTEGER NOT NULL,
+ body TEXT NOT NULL, created REAL NOT NULL, PRIMARY KEY(goal_id,version));
+CREATE TABLE IF NOT EXISTS research_run_contexts (
+ run_id TEXT NOT NULL REFERENCES research_runs(id), role TEXT NOT NULL,
+ context TEXT NOT NULL, revisions TEXT NOT NULL, created REAL NOT NULL,
+ PRIMARY KEY(run_id,role));
+CREATE TABLE IF NOT EXISTS research_reviews (
+ id TEXT PRIMARY KEY, job_id TEXT NOT NULL UNIQUE REFERENCES research_jobs(id),
+ run_id TEXT NOT NULL REFERENCES research_runs(id), feedback TEXT NOT NULL,
+ context TEXT NOT NULL, revisions TEXT NOT NULL, status TEXT NOT NULL,
+ evaluation TEXT, error TEXT, created REAL NOT NULL, finished REAL);
 CREATE TABLE IF NOT EXISTS goal_completion_gates (
  goal_id TEXT PRIMARY KEY REFERENCES goals(id), require_implementation INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS goal_versions (
@@ -42,10 +55,14 @@ class Control:
         self.store, self.db = store, store.db
 
     def initialize(self, goal_id):
-        goal = self.store.snapshot(goal_id)['goal']
-        with self.db:
+        row = self.db.execute('SELECT objective,requirements FROM goals WHERE id=?', (goal_id,)).fetchone()
+        if row is None:
+            raise ValueError('Unknown goal')
+        # Initialization is also used inside admission/queue transactions. Do
+        # not commit a caller's reservation or build a full history snapshot.
+        with nullcontext() if self.db.in_transaction else self.db:
             self.db.execute('INSERT OR IGNORE INTO goal_versions VALUES(?,?,?,?,?,?,?)',
-                (goal_id, 1, goal['objective'], json.dumps(goal['requirements']), '[]', 'Original goal', time.time()))
+                (goal_id, 1, row['objective'], row['requirements'], '[]', 'Original goal', time.time()))
             self.db.execute('INSERT OR IGNORE INTO policy_versions VALUES(?,?,?,?,?)',
                 (goal_id, 1, '', 'initial', time.time()))
 
@@ -57,7 +74,11 @@ class Control:
         goal['constraints'] = json.loads(goal['constraints'])
         policy = dict(self.db.execute('SELECT * FROM policy_versions WHERE goal_id=? ORDER BY version DESC LIMIT 1',
                                      (goal_id,)).fetchone())
-        return {'goal': goal, 'policy': policy, 'session_id': f'manager:{goal_id}'}
+        return {'goal': goal, 'policy': policy, 'research_context': self.research_context(goal_id), 'session_id': f'manager:{goal_id}'}
+
+    def research_context(self, goal_id):
+        row = self.db.execute('SELECT version,body FROM research_context_versions WHERE goal_id=? ORDER BY version DESC LIMIT 1', (goal_id,)).fetchone()
+        return {'version': row['version'], **json.loads(row['body'])} if row else {'version': 0, 'brief': '', 'rubric': []}
 
     def require_implementation(self, goal_id):
         self.initialize(goal_id)
@@ -84,8 +105,11 @@ class Control:
                            (goal_id, task_id, kind, json.dumps(detail), time.time()))
 
     def propose(self, goal_id, kind, body):
-        if kind not in ('policy', 'requirements'):
+        if kind not in ('policy', 'requirements', 'research_context'):
             raise ValueError('Only explicit policy or requirements proposals are supported')
+        if kind == 'research_context':
+            from .research_models import ResearchContext
+            body = ResearchContext.model_validate(body).model_dump()
         proposal_id = uuid.uuid4().hex
         self.store.execute('INSERT INTO proposals VALUES(?,?,?,?,?,?)',
                            (proposal_id, goal_id, kind, json.dumps(body), 'pending', time.time()))
@@ -102,8 +126,24 @@ class Control:
             raise ValueError('Proposal must be an object')
         if proposal['kind']=='requirements' and (not isinstance(body.get('constraint'),str) or not body['constraint'].strip() or not isinstance(body.get('add_requirements',[]),list) or any(not isinstance(c,str) or not c.strip() for c in body.get('add_requirements',[]))):
             raise ValueError('Requirements need a constraint and a list of nonempty criteria')
+        if proposal['kind'] == 'research_context':
+            from .research_models import ResearchContext
+            body = ResearchContext.model_validate(body).model_dump()
+            # Context applies to all research and invalidates existing implementation authority.
+            body['affected_tasks'] = None
         with self.db:
-            if proposal['kind'] == 'policy':
+            if proposal['kind'] == 'research_context':
+                self.db.execute('INSERT INTO research_context_versions VALUES(?,?,?,?)',
+                    (goal_id, current['research_context']['version']+1,
+                     json.dumps({k:v for k,v in body.items() if k != 'affected_tasks'}), time.time()))
+                self.db.execute('INSERT INTO goal_versions VALUES(?,?,?,?,?,?,?)',
+                    (goal_id, current['goal']['revision']+1, current['goal']['objective'],
+                     json.dumps(current['goal']['requirements']), json.dumps(current['goal']['constraints']),
+                     'Research context updated', time.time()))
+                self.db.execute("UPDATE research_jobs SET status='invalidated' WHERE goal_id=? AND status IN ('pending','insufficient','blocked','interrupted')", (goal_id,))
+                self.db.execute("UPDATE knowledge SET classification='invalidated' WHERE goal_id=? AND classification='verified'", (goal_id,))
+                self.db.execute("UPDATE research_jobs SET status='stale' WHERE goal_id=? AND status='supported'", (goal_id,))
+            elif proposal['kind'] == 'policy':
                 text = body['instructions'].strip()
                 if not text:
                     raise ValueError('Policy text cannot be empty')
@@ -149,6 +189,7 @@ class Control:
             self.db.execute("UPDATE task_runtime SET state='uncertain' WHERE state IN ('running','waiting') AND task_id IN (SELECT id FROM tasks WHERE goal_id=?)", (goal_id,))
             self.db.execute("UPDATE tasks SET status='uncertain' WHERE id IN (SELECT task_id FROM task_runtime WHERE state='uncertain')")
             self.db.execute("UPDATE messages SET state='uncertain' WHERE goal_id=? AND state='sending'", (goal_id,))
-            self.db.execute("UPDATE research_runs SET status='interrupted',feedback='Process restart; inspect prior evidence before retry' WHERE status='running' AND job_id IN (SELECT id FROM research_jobs WHERE goal_id=?)", (goal_id,))
+            self.db.execute("UPDATE research_runs SET status='interrupted',feedback='Process restart; inspect prior evidence before retry',finished=? WHERE status='running' AND job_id IN (SELECT id FROM research_jobs WHERE goal_id=?)", (time.time(), goal_id))
             self.db.execute("UPDATE research_jobs SET status='interrupted' WHERE status='running' AND goal_id=?", (goal_id,))
+            self.db.execute("UPDATE research_reviews SET status='interrupted',error='Process restart; additional review is not automatically replayed',finished=? WHERE status='running' AND job_id IN (SELECT id FROM research_jobs WHERE goal_id=?)", (time.time(), goal_id))
         self.event(goal_id, 'recovery', {'pending_messages': len(self.pending(goal_id))})

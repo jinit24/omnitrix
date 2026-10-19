@@ -159,6 +159,8 @@ class Implementations:
 
     async def run(self, implementation_id, task_id=None):
         row = self.get(implementation_id)
+        from .budget import assert_no_unmetered_worker
+        assert_no_unmetered_worker(self.store, row['goal_id'])
         auth, spec = self.auth(row['authorization'])
         if row['status'] in ('ready_for_audit', 'completed', 'needs_research', 'escalated', 'uncertain'):
             return row

@@ -7,7 +7,7 @@ from .supervisor import Supervisor
 async def interactive(store, goal_id):
     supervisor = await Supervisor(store, goal_id).open()
     driver = None
-    print('Manager session ready. /status /run [steps] /policy TEXT /accept ID /send TASK TEXT /pause TASK /cancel TASK /reconcile TASK /events /quit')
+    print('Manager session ready. /status /run [steps] /policy TEXT /context /accept ID /send TASK TEXT /pause TASK /cancel TASK /reconcile TASK /events /quit')
     try:
         while True:
             try:
@@ -31,6 +31,8 @@ async def interactive(store, goal_id):
                 elif command == '/policy':
                     proposal = supervisor.control.propose(goal_id,'policy', {'instructions':rest})
                     result = {'proposal':proposal,'next':f'/accept {proposal}'}
+                elif command == '/context':
+                    result = supervisor.control.research_context(goal_id)
                 elif command == '/requirements':
                     proposal = supervisor.control.propose(goal_id,'requirements',json.loads(rest))
                     result = {'proposal':proposal,'next':f'/accept {proposal}'}

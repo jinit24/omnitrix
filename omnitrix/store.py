@@ -68,12 +68,32 @@ class Store:
         goal['requires_verified_implementation']=bool(gate and gate[0])
         research = [dict(r) for r in self.db.execute('SELECT * FROM research_jobs WHERE goal_id=? ORDER BY created DESC LIMIT 20', (goal_id,))]
         from .knowledge import Knowledge
-        return {'goal': goal, 'tasks': tasks, 'decisions': decisions,
+        from .control import Control
+        from .budget import budget_enabled, Budget
+        dollar_budget = Budget(self,goal_id).summary() if budget_enabled(self,goal_id) else None
+        audit = None
+        if self.db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='audit_areas'").fetchone():
+            from .audit import Audit
+            audit = Audit(self,goal_id).summary()
+        campaign = None
+        if self.db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='campaign_queue'").fetchone():
+            from .campaign import Campaign
+            campaign = Campaign(self, goal_id).summary()
+        repairs = []
+        if self.db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='manager_repair_tickets'").fetchone():
+            repairs = [dict(r) for r in self.db.execute(
+                "SELECT * FROM manager_repair_tickets WHERE goal_id=? AND state='pending' ORDER BY created DESC LIMIT 1", (goal_id,))]
+        return {'dollar_budget': dollar_budget, 'audit_coverage': audit, 'goal': goal, 'tasks': tasks, 'decisions': decisions,
+                'campaign': campaign, 'manager_repairs': repairs,
+                'research_context': Control(self).research_context(goal_id),
+                'research_reviews': [dict(r) for r in self.db.execute('SELECT id,job_id,run_id,status,error,created,finished FROM research_reviews WHERE job_id IN (SELECT id FROM research_jobs WHERE goal_id=?) ORDER BY created DESC LIMIT 20',(goal_id,))],
+                'research_agenda': [dict(r) for r in self.db.execute('SELECT stage,status,count(*) AS jobs FROM research_jobs WHERE goal_id=? GROUP BY stage,status', (goal_id,))],
+                'research_checkpoints': [dict(r) for r in self.db.execute("SELECT detail,created FROM activity WHERE goal_id=? AND kind='research_checkpoint' ORDER BY id DESC LIMIT 10", (goal_id,))],
                 'research': research, 'opportunities': Knowledge(self).backlog(goal_id),
                 'research_budget': dict(r) if (r := self.db.execute('SELECT * FROM research_limits WHERE goal_id=?', (goal_id,)).fetchone()) else None,
                 'active': [dict(r) for r in self.db.execute('SELECT * FROM task_runtime WHERE task_id IN (SELECT id FROM tasks WHERE goal_id=?)', (goal_id,))],
                 'implementations': [dict(r) | {'spec':json.loads(r['spec'])} for r in self.db.execute('SELECT i.*,a.spec,a.revoked AS authorization_revoked FROM implementations i JOIN implementation_authorizations a ON i.authorization=a.id WHERE i.goal_id=?', (goal_id,))],
-                'worker_messages': [dict(r) for r in self.db.execute("SELECT kind,body,task_id,created FROM messages WHERE goal_id=? AND direction='worker_to_manager' AND kind IN ('implementation_handoff','question','blocker','findings') ORDER BY created DESC LIMIT 20",(goal_id,))],
+                'worker_messages': [dict(r) for r in self.db.execute("SELECT id,kind,body,task_id,direction,state,created FROM messages WHERE goal_id=? AND direction='worker_to_manager' AND kind IN ('implementation_handoff','question','blocker','findings','reconciled_outcome','stalled','manager_output_invalid','budget_guard_blocked','decision_rejected','completion_rejected') ORDER BY created DESC LIMIT 20",(goal_id,))],
                 'pending_messages': [dict(r) for r in self.db.execute("SELECT * FROM messages WHERE goal_id=? AND state IN ('pending','uncertain','sending','sent_no_ack') ORDER BY created LIMIT 20", (goal_id,))]}
 
 

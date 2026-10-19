@@ -5,17 +5,25 @@ import hashlib
 import json
 import time
 import uuid
-from agents import Agent, Runner, RunConfig
-from agents.exceptions import MaxTurnsExceeded
+from agents import Agent, Runner
+from agents.exceptions import MaxTurnsExceeded, ModelBehaviorError
 from .control import Control
 from .execution import Execution
 from .implementation import Implementations
 from .knowledge import Knowledge
 from .manager import AgentBrain
-from .models import ChatReply,Handoff
+from .models import ChatReply,Handoff,Decision
 from .research import Research
 from .runtime import CodexRuntime
 from .workers import ROOT
+from .budget import budget_run_config, close_budget_run_config, assert_no_unmetered_worker, BudgetError
+
+
+REPAIR_SCHEMA = '''CREATE TABLE IF NOT EXISTS manager_repair_tickets (
+ id TEXT PRIMARY KEY, goal_id TEXT NOT NULL REFERENCES goals(id),
+ fingerprint TEXT NOT NULL, category TEXT NOT NULL, diagnostic TEXT NOT NULL,
+ state TEXT NOT NULL, created REAL NOT NULL, finished REAL,
+ UNIQUE(goal_id,fingerprint));'''
 
 
 class Supervisor:
@@ -34,6 +42,24 @@ class Supervisor:
         self._lock = None
         self.closed = False
         self.housekeeper = None
+        self.store.execute(REPAIR_SCHEMA)
+
+    def campaign(self, create=False):
+        """Keep legacy goals untouched until a campaign queue is explicitly used."""
+        if not create and not self.db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='campaign_queue'").fetchone():
+            return None
+        from .campaign import Campaign
+        return Campaign(self.store, self.goal_id)
+
+    def finish_queued(self, spec, outcome):
+        campaign = self.campaign()
+        if campaign is not None and spec.get('job_id'):
+            row = self.db.execute("SELECT state FROM campaign_queue WHERE goal_id=? AND job_id=?", (self.goal_id, spec['job_id'])).fetchone()
+            if row and row['state'] == 'claimed':
+                outcome = dict(outcome)
+                if outcome.get('status') in ('paused', 'cancelled'):
+                    outcome['status'] = 'interrupted'
+                campaign.complete_job(spec['job_id'], outcome)
 
     async def open(self):
         self._lock = open(str(self.store.path)+'.lock', 'a')
@@ -44,8 +70,34 @@ class Supervisor:
             raise RuntimeError('Another manager owns this database') from None
         self.control.initialize(self.goal_id)
         self.control.recover(self.goal_id)
+        # A corrective request interrupted by process death is not replayed.
+        pending_repairs = self.db.execute("SELECT id FROM manager_repair_tickets WHERE goal_id=? AND state='pending'", (self.goal_id,)).fetchall()
+        if pending_repairs:
+            with self.db:
+                self.db.execute("UPDATE manager_repair_tickets SET state='interrupted',finished=? WHERE goal_id=? AND state='pending'", (time.time(), self.goal_id))
+                self.db.execute("UPDATE goals SET status='paused' WHERE id=?", (self.goal_id,))
+            self.control.event(self.goal_id, 'manager_repair_interrupted', {'tickets': [r['id'] for r in pending_repairs]})
         # Uncertain implementations must be inspected, never automatically reexecuted.
         self.store.execute("UPDATE implementations SET status='uncertain' WHERE goal_id=? AND status='running'", (self.goal_id,))
+        # Local SDK observations have no external action to replay. Reconcile
+        # their retained results automatically; attempts and dollar reservations
+        # remain consumed. Unknown external threads/deliveries stay fenced.
+        local = self.db.execute('''SELECT r.task_id FROM task_runtime r JOIN tasks t ON t.id=r.task_id
+            WHERE t.goal_id=? AND t.adapter IN ('research','evaluation')
+            AND r.state='uncertain' AND r.session_id IS NULL''', (self.goal_id,)).fetchall()
+        for row in local:
+            spec = json.loads(self.db.execute('SELECT spec FROM task_runtime WHERE task_id=?', (row['task_id'],)).fetchone()[0])
+            if spec.get('job_id'):
+                await self.reconcile(row['task_id'])
+        campaign = self.campaign()
+        if campaign is not None:
+            # A crash can land between the committed claim and local task
+            # creation. Preserve that consumed claim instead of inventing a
+            # replacement execution on restart.
+            for queued in self.db.execute("SELECT job_id,claimed FROM campaign_queue WHERE goal_id=? AND state='claimed'", (self.goal_id,)).fetchall():
+                dispatched = self.db.execute("SELECT 1 FROM task_runtime r JOIN tasks t ON t.id=r.task_id WHERE t.goal_id=? AND json_extract(r.spec,'$.job_id')=? AND r.started>=?", (self.goal_id, queued['job_id'], queued['claimed'])).fetchone()
+                if not dispatched:
+                    campaign.complete_job(queued['job_id'], {'status': 'interrupted', 'feedback': 'Process stopped after the durable queue claim; no automatic replay of the assignment'})
         self.housekeeper = asyncio.create_task(self.housekeeping())
         return self
 
@@ -107,7 +159,8 @@ class Supervisor:
         async def execute():
             try:
                 result = await operation(task_id)
-                if self.control.valid_result(task_id, generation):
+                accepted = self.control.valid_result(task_id, generation)
+                if accepted:
                     with self.db:
                         terminal = 'uncertain' if isinstance(result,dict) and result.get('status')=='uncertain' else 'completed'
                         self.db.execute('UPDATE task_runtime SET state=?,last_progress=? WHERE task_id=?', (terminal,time.time(),task_id))
@@ -116,22 +169,81 @@ class Supervisor:
                 else:
                     self.control.message(self.goal_id, 'stale_result', result, task_id, 'worker_to_manager')
                 self.control.event(self.goal_id, 'worker_finished', {'result': result}, task_id)
+                self.finish_queued(spec, result if accepted else {'status': 'invalidated'})
             except asyncio.CancelledError:
                 row = self.db.execute('SELECT state FROM task_runtime WHERE task_id=?', (task_id,)).fetchone()
                 state = row[0] if row and row[0] in ('paused','cancelled','invalidated') else 'uncertain'
                 self.store.execute('UPDATE task_runtime SET state=? WHERE task_id=?', (state, task_id))
                 self.store.execute('UPDATE tasks SET status=? WHERE id=?', (state, task_id))
                 self.control.event(self.goal_id, 'worker_stopped', {'state': state}, task_id)
+                self.finish_queued(spec, {'status': state})
                 raise
             except Exception as exc:
                 self.store.execute("UPDATE task_runtime SET state='uncertain' WHERE task_id=?", (task_id,))
                 self.store.execute("UPDATE tasks SET status='failed',error=? WHERE id=?", (str(exc), task_id))
                 self.control.message(self.goal_id, 'blocker', {'error': str(exc)}, task_id, 'worker_to_manager')
+                self.finish_queued(spec, {'status': 'uncertain', 'error': str(exc)})
             finally:
                 self.work.pop(task_id, None)
         self.work[task_id] = asyncio.create_task(execute())
         self.control.event(self.goal_id, 'worker_started', {'kind': kind, 'spec': spec}, task_id)
         return task_id
+
+    @staticmethod
+    def repair_category(exc):
+        diagnostic = str(exc).casefold()
+        if type(exc).__name__ == 'ContextLimitError':
+            return 'context_limit'
+        if isinstance(exc, ModelBehaviorError) and any(word in diagnostic for word in ('json', 'schema', 'structured', 'validation', 'parse', 'output type')):
+            return 'structured_output'
+        if isinstance(exc, BudgetError) and 'http 400' in diagnostic and any(word in diagnostic for word in ('no tool call found', 'no tool output found', 'orphan')):
+            return 'history_pairing'
+        return None
+
+    async def manager_decision(self):
+        """At most one changed local repair, separately charged to autonomy.
+
+        Provider failures, timeouts and dollar exhaustion are never replayed.
+        Corrective requests use fresh current state and an explicit repair
+        instruction; the failed request and any reservation remain untouched.
+        """
+        ticket = None
+        snapshot = self.status()
+        while True:
+            try:
+                decision = await asyncio.wait_for(self.brain.decide(snapshot), 300 if snapshot.get('audit_coverage') else 120)
+            except (ModelBehaviorError, BudgetError) as exc:
+                if ticket:
+                    self.store.execute("UPDATE manager_repair_tickets SET state='failed',finished=? WHERE id=?", (time.time(), ticket))
+                    self.control.event(self.goal_id, 'manager_repair_failed', {'ticket_id': ticket, 'error': type(exc).__name__, 'diagnostic': str(exc)[:2000]})
+                    raise
+                category = self.repair_category(exc)
+                if not category or self.autonomy < 1:
+                    raise
+                current = self.control.current(self.goal_id)
+                fingerprint = hashlib.sha256(json.dumps([category, current['goal']['revision'], current['policy']['version'], current['research_context']['version']]).encode()).hexdigest()
+                ticket = uuid.uuid4().hex
+                inserted = self.store.execute('''INSERT OR IGNORE INTO manager_repair_tickets
+                    VALUES(?,?,?,?,?,'pending',?,NULL)''',
+                    (ticket, self.goal_id, fingerprint, category, str(exc)[:2000], time.time()))
+                if inserted.rowcount != 1:
+                    raise
+                self.autonomy -= 1
+                repair = {'ticket_id': ticket, 'category': category, 'diagnostic': str(exc)[:2000],
+                    'required_change': 'Build a smaller fresh decision from current durable state. Return one valid structured decision. Do not repeat prior tool calls or replay the failed request.',
+                    'fresh_context': True}
+                self.control.event(self.goal_id, 'manager_repair_started', repair)
+                snapshot = self.status()
+                snapshot['manager_repair'] = repair
+            except BaseException:
+                if ticket:
+                    self.store.execute("UPDATE manager_repair_tickets SET state='interrupted',finished=? WHERE id=? AND state='pending'", (time.time(), ticket))
+                raise
+            else:
+                if ticket:
+                    self.store.execute("UPDATE manager_repair_tickets SET state='completed',finished=? WHERE id=?", (time.time(), ticket))
+                    self.control.event(self.goal_id, 'manager_repair_completed', {'ticket_id': ticket})
+                return decision
 
     async def advance(self, steps=None):
         async with self.actor:
@@ -139,20 +251,65 @@ class Supervisor:
                 if not 1 <= steps <= 1000:
                     raise ValueError('Autonomy budget must be 1..1000 decisions')
                 self.autonomy = steps
-            if self.status()['goal']['status']=='completed':
+            status = self.status()
+            if status['goal']['status']=='completed':
                 self.autonomy=0
                 return {'completed':True}
+            terminal_kinds = ('budget_guard_blocked', 'manager_budget_exhausted', 'manager_repair_interrupted')
+            terminal = self.db.execute("SELECT kind,detail FROM activity WHERE goal_id=? AND kind IN ('budget_guard_blocked','manager_budget_exhausted','manager_repair_interrupted','decision','scheduled_decision','revision_changed') ORDER BY id DESC LIMIT 1", (self.goal_id,)).fetchone()
+            if status['goal']['status']=='paused' and terminal and terminal['kind'] in terminal_kinds:
+                self.autonomy=0
+                return {'blocked': {'error': terminal['kind'], 'reason': 'A terminal budget or interrupted corrective request remains paused; apply a changed policy or requirements before continuing'}}
             if self.work or self.autonomy < 1 or self.closed:
                 return {'waiting': bool(self.work)}
+            # Finished local observation tasks can be inspected immediately.
+            # This never restarts a role or retries its provider request, and
+            # the in-memory-work fence above ensures its finalizer has run.
+            local = self.db.execute('''SELECT r.task_id,r.spec FROM task_runtime r
+                JOIN tasks t ON t.id=r.task_id WHERE t.goal_id=?
+                AND t.adapter IN ('research','evaluation')
+                AND r.state='uncertain' AND r.session_id IS NULL''', (self.goal_id,)).fetchall()
+            for row in local:
+                if row['task_id'] not in self.work and json.loads(row['spec']).get('job_id'):
+                    await self.reconcile(row['task_id'])
             # Unknown external outcomes are a reconciliation requirement, not a retry signal.
             unresolved = self.db.execute("SELECT 1 FROM task_runtime WHERE state='uncertain' AND task_id IN (SELECT id FROM tasks WHERE goal_id=?)", (self.goal_id,)).fetchone()
             uncertain_delivery = self.db.execute("SELECT 1 FROM messages WHERE goal_id=? AND direction='manager_to_worker' AND state IN ('uncertain','sending')",(self.goal_id,)).fetchone()
             if unresolved or uncertain_delivery:
                 self.autonomy = 0
                 return {'blocked': 'Reconcile uncertain worker threads before further autonomous actions'}
+            campaign = self.campaign()
+            queued = campaign.claim_next() if campaign is not None else None
+            if queued:
+                self.autonomy -= 1
+                decision = Decision(action='retry_research', rationale='Dispatch the next current preflighted campaign task without a manager call',
+                    instructions=queued['instructions'], task_id=None, priority=queued['priority'], research_id=queued['job_id'])
+                self.store.execute('INSERT INTO decisions(goal_id,body) VALUES(?,?)', (self.goal_id, decision.model_dump_json()))
+                self.control.event(self.goal_id, 'scheduled_decision', {'decision': decision.model_dump(), 'queue_id': queued['queue_id']})
+                try:
+                    return await self.dispatch(decision)
+                except Exception as exc:
+                    campaign.complete_job(queued['job_id'], {'status': 'failed', 'error': str(exc)})
+                    raise
             self.autonomy -= 1
             try:
-                decision = await asyncio.wait_for(self.brain.decide(self.status()),120)
+                decision = await self.manager_decision()
+            except ModelBehaviorError as exc:
+                self.autonomy=0
+                self.store.execute("UPDATE goals SET status='paused' WHERE id=?",(self.goal_id,))
+                reason={'error':type(exc).__name__,'reason':str(exc),
+                        'next':'Inspect retained provider response and correct the structured decision; no action was dispatched'}
+                self.control.message(self.goal_id,'manager_output_invalid',reason,direction='worker_to_manager')
+                self.control.event(self.goal_id,'manager_output_invalid',reason)
+                return {'blocked':reason}
+            except BudgetError as exc:
+                self.autonomy=0
+                self.store.execute("UPDATE goals SET status='paused' WHERE id=?",(self.goal_id,))
+                reason={'error':type(exc).__name__,'reason':str(exc),
+                        'next':'Inspect durable dollar reservations and provider diagnostics before continuing'}
+                self.control.message(self.goal_id,'budget_guard_blocked',reason,direction='worker_to_manager')
+                self.control.event(self.goal_id,'budget_guard_blocked',reason)
+                return {'blocked':reason}
             except (MaxTurnsExceeded,asyncio.TimeoutError) as exc:
                 self.autonomy=0
                 self.store.execute("UPDATE goals SET status='paused' WHERE id=?",(self.goal_id,))
@@ -177,10 +334,22 @@ class Supervisor:
 
     async def dispatch(self, decision):
         action = decision.action
+        if action in ('delegate','follow_up','implement'):
+            assert_no_unmetered_worker(self.store, self.goal_id)
         if self.status()['goal']['requires_verified_implementation'] and action in ('delegate','follow_up'):
             raise ValueError('This code goal requires typed discover/research agents before authorized implementation; use list_resources directly for inventory, not legacy delegation')
         if action in ('pause','complete'):
             if action == 'complete':
+                campaign = self.campaign()
+                if campaign is not None:
+                    queue = campaign.summary()['queue']
+                    if queue['ready'] or queue['claimed']:
+                        raise ValueError('Approved campaign research remains queued or active; dispatch it before completing the budgeted deliverable')
+                if self.status().get('audit_coverage',{}):
+                    from .audit import Audit
+                    gaps = Audit(self.store,self.goal_id).completion_gaps()
+                    if gaps:
+                        raise ValueError(f'Audit remains incomplete: {len(gaps)} top-level areas lack independent source sampling; retain gaps and continue or pause within budget')
                 # Implementation goals cannot complete on an agent's assertion alone.
                 implementations = self.status()['implementations']
                 revision = self.control.current(self.goal_id)['goal']['revision']
@@ -193,6 +362,22 @@ class Supervisor:
             self.autonomy=0
             self.store.execute('UPDATE goals SET status=? WHERE id=?', ('completed' if action=='complete' else 'paused', self.goal_id))
             return decision.model_dump()
+        if action == 'schedule_research':
+            if not decision.research_batch:
+                raise ValueError('Scheduling research requires at least one explicit bounded plan')
+            from .scheduling import enqueue_batch
+            result = enqueue_batch(self.store, self.goal_id, decision.research_batch,
+                                   research=self.research, instructions=decision.instructions)
+            self.control.event(self.goal_id, 'research_batch_scheduled', {'jobs': result['scheduled']})
+            return result
+        if action == 'reevaluate':
+            job = self.research.job(decision.research_id)
+            if job['goal_id'] != self.goal_id:
+                raise ValueError('Research job belongs to another goal')
+            async def review(task_id):
+                return await self.research.reevaluate(job['id'], decision.instructions)
+            return {'task_id': await self.submit('evaluation', {'job_id':job['id'], 'review_only':True}, review,
+                json.loads(job['spec'])['budget']['seconds'] + 10)}
         if action in ('discover','research','retry_research'):
             if action == 'retry_research':
                 job = self.research.job(decision.research_id)
@@ -208,7 +393,7 @@ class Supervisor:
                     return plan
                 job_id = plan['job_id']
             async def investigate(task_id):
-                return await self.research.attempt(job_id, decision.instructions if action=='retry_research' else '')
+                return await self.research.attempt(job_id, decision.instructions)
             return {'task_id': await self.submit('research', {'job_id': job_id}, investigate,
                 json.loads(self.research.job(job_id)['spec'])['budget']['seconds'] * 2 + 10)}
         if action in ('implement','audit'):
@@ -347,13 +532,80 @@ class Supervisor:
     async def monitor(self, now=None, stall_seconds=300):
         now = now or time.time()
         for row in self.db.execute("SELECT * FROM task_runtime WHERE state='running' AND task_id IN (SELECT id FROM tasks WHERE goal_id=?)", (self.goal_id,)).fetchall():
-            if now > row['deadline'] or now-row['last_progress'] > stall_seconds:
+            spec = json.loads(row['spec'])
+            progress = None
+            last_meaningful = row['last_progress']
+            adapter = self.db.execute('SELECT adapter FROM tasks WHERE id=?', (row['task_id'],)).fetchone()[0]
+            if adapter == 'research' and spec.get('job_id') and not row['session_id']:
+                progress = self.research.progress_assessment(spec['job_id'])
+                if not progress.get('legacy_scope_only', True) and not progress.get('report_saved', False):
+                    # Capturing more files and token heartbeats cannot keep a
+                    # dependency-aware task alive indefinitely. Its checkpoint
+                    # must close a new evidence obligation.
+                    last_meaningful = progress['semantic_progress_at']
+                    if now-last_meaningful > stall_seconds / 2:
+                        detail = {'job_id': spec['job_id'], 'suggested_action': progress['suggested_action'],
+                            'remaining_tool_calls': progress.get('remaining_tool_calls'),
+                            'unresolved_obligations': progress.get('unresolved_obligations', []),
+                            'semantic_progress_count': progress['semantic_progress_count']}
+                        prior = self.db.execute("SELECT 1 FROM activity WHERE task_id=? AND kind='research_progress_guidance' AND detail=?", (row['task_id'], json.dumps(detail))).fetchone()
+                        if not prior:
+                            self.control.event(self.goal_id, 'research_progress_guidance', detail, row['task_id'])
+                            self.control.message(self.goal_id, 'research_progress_guidance', detail, row['task_id'], 'worker_to_manager')
+            if now > row['deadline'] or now-last_meaningful > stall_seconds:
                 await self.stop(row['task_id'], pause=True)
-                self.control.message(self.goal_id,'stalled',{'reason':'Deadline or meaningful-progress budget exhausted'},row['task_id'],'worker_to_manager')
+                self.control.message(self.goal_id,'stalled',{'reason':'Deadline or meaningful-progress budget exhausted',
+                    'progress': progress, 'next': 'Preserve evidence and revise the missing obligation or dependency before a targeted retry'},row['task_id'],'worker_to_manager')
         # waiting workers are not polled with model calls. External events/user answers wake them.
 
     async def reconcile(self, task_id):
         row = self.db.execute('SELECT * FROM task_runtime WHERE task_id=? AND task_id IN (SELECT id FROM tasks WHERE goal_id=?)', (task_id,self.goal_id)).fetchone()
+        adapter = self.db.execute('SELECT adapter FROM tasks WHERE id=?', (task_id,)).fetchone()
+        if row is not None and adapter and adapter[0] in ('research', 'evaluation') and not row['session_id'] and json.loads(row['spec']).get('job_id'):
+            # SDK research is read-only local work, with no external thread to reconcile.
+            # Its durable observations can be inspected without replaying a model call.
+            if task_id in self.work:
+                return {'blocked': 'Research is still active; stop it before reconciliation'}
+            job_id = json.loads(row['spec'])['job_id']
+            job = self.research.job(job_id)
+            if job['goal_id'] != self.goal_id:
+                raise ValueError('Research job belongs to another goal')
+            runs = [dict(r) for r in self.db.execute('SELECT * FROM research_runs WHERE job_id=? ORDER BY created', (job_id,))]
+            sources = [Knowledge(self.store).source(r[0]) for r in self.db.execute(
+                'SELECT DISTINCT a.source_id FROM research_access a JOIN research_runs r ON r.id=a.run_id WHERE r.job_id=?', (job_id,))]
+            latest = runs[-1] if runs else {}
+            result = {'job_id': job_id, 'status': job['status'], 'runs': len(runs),
+                'evidence': [{'id': s['id'], 'locator': s['locator'], 'stale': s['stale']} for s in sources],
+                'report': json.loads(latest['report']) if latest.get('report') else None,
+                'evaluation': json.loads(latest['evaluation']) if latest.get('evaluation') else None,
+                'feedback': 'Local research reconciled without replay; retries require targeted feedback and remaining budget'}
+            review = None
+            if json.loads(row['spec']).get('review_only'):
+                review = self.db.execute('SELECT id,status,evaluation,error FROM research_reviews WHERE job_id=? ORDER BY created DESC LIMIT 1',(job_id,)).fetchone()
+                if review:
+                    result['additional_review'] = dict(review)
+                    result['status'] = review['status']
+                    result['evaluation'] = json.loads(review['evaluation']) if review['evaluation'] else None
+                    result['feedback'] = 'Additional review reconciled without replay; its one-review budget remains consumed'
+            with self.db:
+                self.db.execute("UPDATE task_runtime SET state='reconciled' WHERE task_id=?", (task_id,))
+                self.db.execute("UPDATE tasks SET status=?,result=? WHERE id=?",
+                    ('interrupted' if result['status'] == 'interrupted' else 'completed', json.dumps(result), task_id))
+            self.control.message(self.goal_id, 'reconciled_outcome', result, task_id, 'worker_to_manager')
+            self.control.event(self.goal_id, 'reconciliation', result, task_id)
+            from .budget import Budget, budget_enabled
+            if budget_enabled(self.store, self.goal_id):
+                budget = Budget(self.store, self.goal_id)
+                if budget.economical_policy():
+                    for run in runs:
+                        if run['status'] != 'running':
+                            # This releases unused review protection, never a
+                            # charged or uncertain provider request reservation.
+                            budget.release_review(run['id'])
+                    if review is not None and review['status'] != 'running':
+                        budget.release_review(review['id'])
+            self.finish_queued(json.loads(row['spec']), result)
+            return result
         if row is None or not row['session_id']:
             return {'blocked':'No external session ID; inspect recorded artifacts manually before authorizing replacement'}
         result = await self.runtime.reconcile(row['session_id'])
@@ -376,10 +628,14 @@ class Supervisor:
             current = self.control.current(self.goal_id)
             agent = Agent(name='Engineering manager', model=self.brain.model if hasattr(self.brain,'model') else 'gpt-4.1',
                 instructions=(ROOT / 'instructions/CHAT.md').read_text()+'\n'+current['policy']['instructions'], output_type=ChatReply)
+            run_config = budget_run_config(self.store, self.goal_id, 'manager_chat', model=agent.model)
+            from .manager_context import manager_chat_context, manager_history_filter
+            from .manager import merge_manager_history
+            run_config.call_model_input_filter = manager_history_filter
+            run_config.session_input_callback = merge_manager_history
             try:
-                result = await asyncio.wait_for(Runner.run(agent, json.dumps({'user_message':text,
-                    'state':self.status(),'policy':current['policy']}), session=session,
-                    max_turns=4, run_config=RunConfig(tracing_disabled=True)),120)
+                result = await asyncio.wait_for(Runner.run(agent, json.dumps(manager_chat_context(self.status(), text, current['policy'])), session=session,
+                    max_turns=4, run_config=run_config),120)
                 from .telemetry import record_usage
                 record_usage(self.store,self.goal_id,result,'manager_chat')
                 reply = result.final_output
@@ -403,6 +659,7 @@ class Supervisor:
                     return {'response':reply.response,'delivery':results}
                 return {'response':reply.response}
             finally:
+                await close_budget_run_config(run_config)
                 session.close()
 
     async def accept(self, proposal_id):

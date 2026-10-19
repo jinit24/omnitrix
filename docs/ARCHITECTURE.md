@@ -16,7 +16,7 @@ classification pipeline. Discovery, research, and verification do not own the go
 
 `SQLiteSession('manager:<goal-id>')` preserves actual manager conversation across
 restarts in a separate sessions database. Worker tool histories stay out of that
-session. The latest 12 SDK session items and recent task summaries bound the context;
+session. Byte-bounded cards and complete paired tool exchanges bound model input;
 original criteria, policy, durable decisions and shared knowledge remain in SQLite
 and can be recalled after older conversation falls outside the context window.
 Markdown in `instructions/` defines each role. `policy_versions` stores approved
@@ -189,3 +189,72 @@ Codex token usage snapshots are recorded where available. Shutdown interrupts ow
 workers, preserves pending messages and stops the local runtime. Lost termination
 acknowledgments remain uncertain until reconciliation. There is no distributed lease
 service; this is a single-owner, local-filesystem system.
+
+## Versioned research context
+
+`research_context_versions` retains approved per-goal briefs and rubrics. CLI
+`context --file` proposes a validated replacement through the existing approval
+path. Acceptance advances the goal revision, invalidates pending and affected
+active research, and revokes implementation authority. The manager snapshot and
+both specialist contexts carry the full current brief/rubric; evaluator input also
+includes goal and policy. Revision checks fence results if context changes during
+research or evaluation. Existing goals without configured context retain their
+original planning contract.
+
+Configured plans add decision, expected value and stop condition. Evaluators emit
+one structured assessment per rubric item; deterministic gates enforce coverage,
+no unmet criteria for supported results, and current citations for met criteria.
+Rubric interpretation and justified non-applicability remain model judgments.
+Checkpoints record evidence, uncertainty and next action as durable activity and
+consume tool calls without extending execution budgets. Snapshots expose recent
+checkpoints and agenda counts; manager history retrieval paginates older jobs.
+
+## Wide audit management and cost control
+
+`audit.py` maintains immutable source-area inventory and append-only triage,
+priorities, next questions, deferrals and independently reviewed samples.
+Managers can expand large areas into child frontiers using actual directory
+metadata; totals keep top-level inventory separate to avoid double counting.
+`navigation.py` provides paginated paths and deterministic bounded literal text
+search. Managers read catalog metadata directly before choosing explicit research
+files. Search results guide scope selection; only captured reads are citations.
+
+`budget.py` reserves conservative per-request dollars before HTTP transmission,
+including every model/tool turn. It bounds explicit text input by serialized bytes
+plus framing and supported encrypted-history provenance, and output by provider
+limits. Measured responses settle reservations; errors/crashes retain their full
+bound. Retry-free transport, model-price allowlisting and unmetered-worker rejection
+keep the same goal under its immutable $25 cap across restarts. Payload JSON and
+usage are durable before SDK parsing, excluding HTTP authentication headers.
+
+The manager retains complete SQLite history while constructing bounded cards for
+model input. The current goal, original/current criteria, approved brief/rubric and
+policy are preserved; oversized mandatory context fails before transmission rather
+than being silently truncated. Paged retrieval exposes retained reports and history.
+New dollar budgets reserve at most 25% for manager/chat requests by default, with
+three requests per invocation and a 48 KiB serialized-request ceiling. Existing
+experiment budgets retain their original policy. Research turn limits match their
+explicit tool budget rather than silently stopping at eight reads.
+
+Researcher checkpoints and portfolio context are explicit evaluator inputs.
+Python enforces configured checkpoint provenance, revision/citation validity and
+rubric coverage. `evidential_verdict` is distinct from overall workflow acceptance.
+Append-only `research_reviews` allows one targeted additional independent review
+of a retained report, with no research-attempt reset, and refuses stale/revised
+inputs. Interrupted SDK research and review tasks reconcile locally without replay.
+
+`planning.py` validates typed evidence obligations against real files, ranges,
+captured evidence and available read/checkpoint calls before admitting work.
+Authorized callsite-backed dependency grants add bounded prerequisites during the
+same attempt. The report-time obligation snapshot prevents evaluator reads from
+retroactively repairing missing researcher proof. Semantic progress requires a
+checkpoint that closes a new declared obligation; raw reads do not renew it.
+
+`campaign.py` persists approved batches, priority/aging/area fairness, revision/source
+fences and atomic claims. Python dispatches those plans without another strategy
+call for each worker. Independently accepted results credit only their declared
+primary area, preserving remaining questions. Queue completion, a reviewed sampling
+floor and complete semantic coverage are separate claims. Review escrow protects an
+explicit per-plan allowance before research and never refills the goal budget.
+See [workflow controls](WORKFLOW_CONTROL.md) for configuration, failure behavior and
+verification limits.

@@ -19,6 +19,9 @@ def main():
     create.add_argument('--criterion', action='append', required=True)
     create.add_argument('--require-implementation',action='store_true',help='Require independently verified code and a current goal audit before completion')
     create.add_argument('--workspace', type=Path, default=Path.cwd())
+    context = commands.add_parser('context', help='Inspect context or propose a replacement brief and rubric from a JSON file')
+    context.add_argument('goal_id')
+    context.add_argument('--file', type=Path)
     status = commands.add_parser('status')
     status.add_argument('goal_id')
     resume = commands.add_parser('resume')
@@ -59,6 +62,16 @@ def main():
                 from .control import Control
                 Control(store).require_implementation(goal_id)
             print(goal_id)
+        elif args.command == 'context':
+            from .control import Control
+            control = Control(store)
+            control.initialize(args.goal_id)
+            if args.file:
+                body = json.loads(args.file.read_text())
+                proposal = control.propose(args.goal_id, 'research_context', body)
+                print(json.dumps({'proposal': proposal, 'proposed_change': body, 'next': f'/accept {proposal}'}))
+            else:
+                print(json.dumps(control.research_context(args.goal_id), indent=2))
         elif args.command == 'status':
             print(json.dumps(store.snapshot(args.goal_id), indent=2))
         elif args.command == 'send':

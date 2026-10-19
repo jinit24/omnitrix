@@ -25,11 +25,43 @@ scheduler was added.
   verification without recoding after a lost response, stale-result rejection, progress
   deadlines, no model polling for waiting questions and safe retained shutdown state.
 
-The deterministic suite passes **55 tests**; the full run with live Codex enabled
-passes **56 tests**, including real SDK start/resume using `OPENAI_API_KEY`.
-It uses mocked model reasoning/coding with real SQLite, SDK session storage, Git worktrees,
-subprocess verification, cross-process messaging, SIGKILL and worker-process termination.
-No mocked result is presented as a live model result.
+The offline suite uses scripted model reasoning/coding with real SQLite, SDK session
+storage, Git worktrees, subprocess verification, cross-process messaging, SIGKILL
+and worker-process termination. The optional live SDK start/resume test requires
+`OMNITRIX_LIVE_CODEX=1` and `OPENAI_API_KEY`; it is skipped during offline checks.
+The historical 55-test offline/56-test live measurements below predate the wider
+research controls. No scripted result is presented as a live model result.
+
+## Wide research controls
+
+New whole-repository campaigns persist approved strategy batches, atomic queue
+claims, area fairness, source/revision fences, primary-area sample attribution and
+remaining questions. Typed evidence obligations are preflighted against real ranges
+and read/checkpoint budgets; authorized dependency grants remain within the same
+attempt and resource limits. Report-time proof snapshots and independent evaluation
+prevent later reads from repairing missing researcher evidence.
+
+Manager model input uses bounded cards and paged retrieval while preserving current
+mandatory contracts. New dollar budgets cap manager/chat allocation and requests,
+and protect explicit evaluation allowances before research. Structured/history
+failures get one durable corrective decision; local research/review interruptions
+reconcile without replay or refunding uncertain provider charges.
+
+The offline `scripts/workflow_benchmark.py` covers six scenarios with real persisted
+state and frozen code/prompt hashes. It checks approved batch dispatch against a
+per-task scripted baseline, same-attempt dependency repair, atomic preflight,
+bounded manager correction, restart reconciliation, staleness/scope/completion
+fences, and context/history limits. This validates mechanics rather than live
+research effectiveness. See [workflow controls](WORKFLOW_CONTROL.md).
+
+Final offline validation on 2026-10-19: **234 passed, 1 skipped**. All six workflow
+benchmark scenarios passed with zero provider calls; the existing full-loop demo
+also completed both acceptance criteria after one executable repair. The frozen
+workflow benchmark result is [retained as JSON](experiments/workflow-control-20261019.json).
+
+The earlier Kubernetes and Apache HTTP Server trials remain incomplete,
+operator-assisted audits. No new paid public-repository run, full semantic coverage,
+measured cost improvement or architectural superiority is established by these fixes.
 
 `scripts/demo.py` demonstrates discovery → research → evaluation → authorization boundary
 → failed check → bounded repair → executable success → manager goal audit.

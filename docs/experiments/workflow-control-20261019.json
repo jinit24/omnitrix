@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "mode": "deterministic-control-plane-only",
+  "frozen": {
+    "code_sha256": "34141fdb352f639837b2061ae86d9c5ddf5d357458908c24f49c473e3e464f6f",
+    "files_sha256": {
+      "instructions/CHAT.md": "b3af0079c5fbb6597019415aa290e7f2e570545c0e0d5ca7b01357ac363a970a",
+      "instructions/DISCOVERY.md": "3afde7832a89bb5ad23c7f5f806a8be727a82176943f32c26c9df808eb8e0706",
+      "instructions/EVALUATION.md": "b40f4fa70078a4b9dbf1cd24e834c1b481f2caa2b56c267becc29db175064c54",
+      "instructions/KNOWLEDGE.md": "262d98726629ba1a39b8d7e664b23ff3ee08bc0e7cdc324ede84ed06874fae25",
+      "instructions/MANAGER.md": "71578d760c10d95107aba4c7a32064d8a0209561819738771d42d5cf22396da0",
+      "instructions/RESEARCH.md": "bdc5d9601fc8c912eb803c00347ac09b63fec8a93ad34b912434cc1b2162e948",
+      "omnitrix/__init__.py": "f4705a1b7451b889c7c76fac90497fd8c494d5d69f87212a4099d0328fb88d2e",
+      "omnitrix/audit.py": "22d08295bdf893279a4ed7eca1a0a28ce4d49e68b29149853e459034b4cc347d",
+      "omnitrix/budget.py": "0d1c24d7c0b26cca1f2c8447c78d72b1f683f706e2eaaf15315f15772b89227d",
+      "omnitrix/campaign.py": "43635a95f4cc5e213ef081d8c8c4d12a63a91cdac344365370e4797239729e10",
+      "omnitrix/chat.py": "f120a222df2983f7009393f7c0dfca4a257cf4d03f2331869285277e4f8196e1",
+      "omnitrix/cli.py": "d544ecdf6e3ed91e663e519ed0a51a51c26e8a62ba5b11d1888b7eaa1cb02360",
+      "omnitrix/codex_config.py": "67b74f4a717ab22446e1f9799e27004c44ef432e457e3009dfa99c86a419d565",
+      "omnitrix/control.py": "af47d32154264741fb6546743f95ac7aa55e67cb8e78bb0d5054aea66a8eb5b1",
+      "omnitrix/execution.py": "a222ace889d251648807045a26e741388a98701c64a4ec0109f00cf66c3d6581",
+      "omnitrix/implementation.py": "41104204df7ac87d4467610d90b99ad039c0db4dbe9381dd8982a8bfe344e6c3",
+      "omnitrix/knowledge.py": "5c33861d6c7a733daa979f278149dcd7f8a2cec5ea0206135b06badeca383412",
+      "omnitrix/manager.py": "578578034ef6fa010cec2a819c2809a660f488a5d397292b729aae3d074a6ae5",
+      "omnitrix/manager_context.py": "7ade1f36730968ef1317d449b4168153cd2f408a9cd7557923439b56771079f9",
+      "omnitrix/models.py": "e3367bdd79c7a2d2a63893aa7237d88932148775f8cb6845bdc4e295d83a0375",
+      "omnitrix/navigation.py": "74553abc8ec722d5b3e72ce6fc3fd89917b02435e92fd4f70c996baf7ceb5c46",
+      "omnitrix/planning.py": "4374ddcceeaf6af3e73425405db54a23ef438c4978c7f7c130a71371b7c42f76",
+      "omnitrix/research.py": "a559b202464e9a68b952155d4d0d1ed7d667e7ea870383b81f5efee377388539",
+      "omnitrix/research_models.py": "3573509b6a41da7811898849b7c3b7f778d4e76d94fd4b17f14c080eae512ef6",
+      "omnitrix/runtime.py": "d4440a3ac7fc117fd5cf28eeffb000abf2e9f4ebd4bc94953ccd337daf0d2988",
+      "omnitrix/scheduling.py": "41025e3d1274ed386c17489345d568685597655054d53f460b02f6aa7d1c0b43",
+      "omnitrix/store.py": "a21059dec387e73daa42f07b150ddc7ffd3760f2850aa1b056f0c621539fc627",
+      "omnitrix/supervisor.py": "4acf0f83d6bc436188f6d34d716840f957ca1fc0348fd3e2427870f4c85b6e8b",
+      "omnitrix/telemetry.py": "174d4bf1b5d9ae4c2b1a80c20300917cd68273643b55623c5cd1b40cfdac11fb",
+      "omnitrix/workers.py": "62c138d6c8c0eabbf6f4115de2b0c86ae9664bd7f05b7c88fdcb1071b8ffba3b",
+      "scripts/workflow_benchmark.py": "782b790453ce2b30bd5b4f21b6727da79e7278bc77cd59b7fcf9f6e711636236"
+    },
+    "fixture_sha256": "7e7d254e47135af79e3ead08c1aad81f7338f122912cea5e1bb3bee31b5c7f22",
+    "scripted_policy_sha256": "14ca44fa0fba0de83686e5e2d7ba40f9157ec44a327df8bdb76c2c283df4440c",
+    "scripted_policy": {
+      "version": 1,
+      "tasks": [
+        [
+          "ci",
+          "wrapper.sh",
+          "helper.sh",
+          "The wrapper preserves the helper failure status"
+        ],
+        [
+          "auth",
+          "handler.py",
+          "contract.py",
+          "The handler permits only the admin fixture user"
+        ],
+        [
+          "storage",
+          "reader.py",
+          "contract.py",
+          "The reader checks the durable fixture value"
+        ]
+      ],
+      "rubric": "Inspect the dependency and cite current source evidence",
+      "mode": "scripted-control-plane-only",
+      "faults": [
+        "malformed-decision",
+        "process-death-record",
+        "stale-source",
+        "outside-root",
+        "premature-completion"
+      ]
+    },
+    "models": [],
+    "provider_calls": 0,
+    "external_worker_calls": 0
+  },
+  "scenarios": [
+    {
+      "name": "approved_batch_and_dependency_repair",
+      "passed": true,
+      "measurements": {
+        "batch": {
+          "manager_strategy_calls": 1,
+          "scripted_specialist_calls": 6,
+          "supported_bounded_contracts": 3,
+          "attempts": 3,
+          "same_attempt_scope_grants": 3,
+          "premature_completion_rejected": true,
+          "remaining_areas": [
+            {
+              "path": "network",
+              "status": "unexamined",
+              "reason": "No independently evaluated current sample; area remains unexamined"
+            }
+          ],
+          "database": "batch/state.sqlite",
+          "sqlite_integrity": "ok"
+        },
+        "per_task_scripted_baseline": {
+          "manager_strategy_calls": 3,
+          "scripted_specialist_calls": 6,
+          "supported_bounded_contracts": 3,
+          "attempts": 3,
+          "same_attempt_scope_grants": 3,
+          "premature_completion_rejected": true,
+          "remaining_areas": [
+            {
+              "path": "network",
+              "status": "unexamined",
+              "reason": "No independently evaluated current sample; area remains unexamined"
+            }
+          ],
+          "database": "per-task/state.sqlite",
+          "sqlite_integrity": "ok"
+        },
+        "interpretation": "Dispatch-call reduction is deterministic for already-approved work; no live token, dollar, or finding-quality improvement is established."
+      },
+      "wall_seconds": 0.6061579530000927
+    },
+    {
+      "name": "bounded_structured_output_repair",
+      "passed": true,
+      "measurements": {
+        "cases": [
+          {
+            "fault_persists": false,
+            "manager_calls": 2,
+            "repair_state": "completed",
+            "dispatched_workers": 0
+          },
+          {
+            "fault_persists": true,
+            "manager_calls": 2,
+            "repair_state": "failed",
+            "dispatched_workers": 0
+          }
+        ],
+        "automatic_repair_limit": 1
+      },
+      "wall_seconds": 0.1015795230000549
+    },
+    {
+      "name": "read_only_restart_reconciliation",
+      "passed": true,
+      "measurements": {
+        "runtime_state": "reconciled",
+        "manager_calls": 0,
+        "preserved_attempts": 1,
+        "evidence_preserved": true,
+        "requests_before": 1,
+        "requests_after": 1,
+        "committed_usd_before": 0.02179,
+        "committed_usd_after": 0.02179,
+        "sqlite_integrity": "ok",
+        "fault": "A real SQLite process-death record, closed connection and reopened supervisor; not an OS kill test"
+      },
+      "wall_seconds": 0.08649640500016176
+    },
+    {
+      "name": "stale_source_and_scope_fences",
+      "passed": true,
+      "measurements": {
+        "stale_queued_source_invalidated": true,
+        "outside_root_dependency_rejected": true,
+        "unauthorized_scope_grants": 0
+      },
+      "wall_seconds": 0.06496108300007108
+    },
+    {
+      "name": "atomic_scope_preflight",
+      "passed": true,
+      "measurements": {
+        "missing_required_callee_rejected": true,
+        "infeasible_read_and_checkpoint_budget_rejected": true,
+        "partial_batch_jobs": 0,
+        "worker_starts": 0,
+        "provider_calls": 0
+      },
+      "wall_seconds": 0.0484158680001201
+    },
+    {
+      "name": "bounded_manager_context",
+      "passed": true,
+      "measurements": {
+        "synthetic_handoff_count": 3,
+        "count_limited_snapshot_bytes": 179012,
+        "compact_snapshot_bytes": 5055,
+        "snapshot_byte_ceiling": 16384,
+        "filtered_history_bytes": 11896,
+        "history_byte_ceiling": 12288,
+        "mandatory_contract_preserved": true,
+        "complete_tool_pairs": true,
+        "interpretation": "Synthetic serialization measurement; no live API token or quality savings established."
+      },
+      "wall_seconds": 0.05798897900012889
+    }
+  ],
+  "limitations": [
+    "No live models or public repository audits were run.",
+    "Scripted specialists have known answers; finding quality and architecture superiority are not measured.",
+    "Strategy-call and synthetic byte comparisons are not measured dollar savings.",
+    "Recovery closes and reopens a real database with interrupted records; this is not a new OS crash experiment."
+  ],
+  "frozen_code_unchanged": true,
+  "passed": true,
+  "wall_seconds": 0.972985319000145
+}

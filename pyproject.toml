@@ -18,4 +18,5 @@ omnitrix = "omnitrix.cli:main"
 packages = ["omnitrix"]
 
 [tool.pytest.ini_options]
+testpaths = ["tests"]
 asyncio_mode = "auto"
