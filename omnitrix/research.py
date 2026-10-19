@@ -279,6 +279,8 @@ class Research:
             errors.append('Evaluator evidence must cover every factual claim, not unrelated observations')
         if report.blocked and evaluation.verdict == 'supported':
             errors.append('Blocked research cannot establish support')
+        if evaluation.verdict == 'supported' and evaluation.blocking_questions:
+            errors.append('Resolve the evaluator blocking questions before accepting support: ' + '; '.join(evaluation.blocking_questions))
         if errors:
             return Evaluation(verdict='insufficient', evidence_ids=[], reason='; '.join(errors),
                               feedback='; '.join(errors))

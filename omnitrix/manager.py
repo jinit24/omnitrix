@@ -4,6 +4,8 @@ import json
 import os
 import time
 from agents import Agent, Runner, RunConfig, ModelSettings, function_tool
+from pydantic import create_model
+from typing import Literal
 from .control import Control
 from .knowledge import Knowledge
 from .research import Research
@@ -89,6 +91,31 @@ def compact_snapshot(snapshot, store=None):
     return context
 
 
+def available_actions(snapshot):
+    """Constrain the model's action enum before it can invent an executable ID."""
+    actions = ['discover','research','research_batch','pause']
+    if any(r['status'] in ('pending','insufficient','blocked','interrupted') for r in snapshot['research']):
+        actions.append('retry_research')
+    campaign = snapshot.get('campaign') or snapshot.get('spending')
+    code_goal = snapshot['goal'].get('requires_verified_implementation') or snapshot.get('implementations')
+    if not campaign:
+        ready = snapshot.get('implementation_readiness', [])
+        if any(r['authorized'] and r['status'] in ('authorized','repair') for r in ready):
+            actions.append('implement')
+        if any(r['authorized'] and r['status']=='ready_for_audit' for r in ready):
+            actions.append('audit')
+        if not code_goal:
+            actions.append('delegate')
+            if any(t.get('session_id') for t in snapshot['tasks']):
+                actions.append('follow_up')
+        if not code_goal or any(r['authorized'] and r['status']=='completed' for r in ready):
+            actions.append('complete')
+    else:
+        # Campaign completion is still checked against its durable breadth gates.
+        actions.append('complete')
+    return actions
+
+
 class AgentBrain:
     """A conversational Agents SDK agent with durable context and recall tools."""
     def __init__(self, model=None, store=None):
@@ -165,15 +192,18 @@ class AgentBrain:
                     control.event(goal_id,'manager_frontier_query',{'query':query,'kind':kind,'after':after,'directory':directory,'result':result})
                     return json.dumps(result)
                 tools.append(search_frontier)
+        context = compact_snapshot(snapshot, self.store)
+        context['available_actions'] = available_actions(context)
+        output_type = create_model('AvailableDecision', __base__=Decision,
+            action=(Literal[tuple(context['available_actions'])], ...)) if self.store else Decision
         from .spending import metered_model
         agent = Agent(
             name='Engineering manager', model=metered_model(self.store, snapshot['goal']['id'], 'manager', self.model),
             instructions=load_instructions('campaign' if snapshot.get('campaign') else 'manager', policy),
-            tools=tools, output_type=Decision,
+            tools=tools, output_type=output_type,
             model_settings=ModelSettings(tool_choice='search_frontier' if self.store and snapshot.get('campaign')
                 else 'auto'))
         # Stable objective + concise outcomes, never worker event streams.
-        context = compact_snapshot(snapshot, self.store)
         if self.store:
             from .resources import list_resources as inventory
             context['resource_inventory'] = inventory(snapshot['goal']['workspace'])

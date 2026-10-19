@@ -149,7 +149,8 @@ async def run_arm(task,arm,directory,live,allow,steps,runtime_override=None,arm_
         control.require_implementation(goal)
         proposal=control.propose(goal,'policy',{'instructions':
             ('Use bounded discover and hypothesis-driven research for investigations; generic delegate work is not accepted research. '
-             'Once research is independently supported, this explicitly authorized benchmark harness creates an implementation ID. ' if arm=='manager' else
+             'This is the research-first comparison arm: before any implementation ID exists, choose a focused research plan establishing the baseline defect against system.md. '
+             'Once research is independently supported, this explicitly authorized benchmark harness creates an implementation ID. Do not pause for that ID while this research prerequisite can proceed. ' if arm=='manager' else
              'The explicitly authorized direct implementation has the fixture contract and executable checks. Use it immediately; research is needed only for a concrete material uncertainty. ')+
             'Choose implementation and final audit to satisfy all mandatory executable criteria. '
             'Do not complete on recommendations or spend budget on unobservable production-scale behavior. '
@@ -227,6 +228,7 @@ async def run_arm(task,arm,directory,live,allow,steps,runtime_override=None,arm_
     report={'task':task['name'],'fixture_version':2,'arm':arm,'goal_id':goal,'database':str(store.path),'initial_tree':initial_tree,'arm_seconds':arm_seconds,'manager_model':os.getenv('OMNITRIX_MODEL','gpt-4.1'),'codex_model':os.getenv('OMNITRIX_CODEX_MODEL','runtime default'),'mode':'live' if live else 'mock-harness-only','candidate':candidate,
         'source_revision':git(ROOT,'rev-parse','HEAD'),'source_dirty':bool(git(ROOT,'status','--porcelain')),
         'stage_timings':timings,'manager_decisions':store.db.execute('SELECT count(*) FROM decisions').fetchone()[0],
+        'goal_status':store.snapshot(goal)['goal']['status'],
         'requirements_satisfied':sum(r['passed'] for r in scored),'requirements_total':len(scored),'checks':scored,
         'wall_seconds':elapsed,'tokens':tokens,'token_measurement_complete':bool(live and not errors and getattr(runtime,'session_ids',set()) and set(runtime.usage)==runtime.session_ids),
         'repeated_research_queries':repeated if arm!='single' else None,'corrections':corrections if arm!='single' else None,

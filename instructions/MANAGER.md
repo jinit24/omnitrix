@@ -26,6 +26,11 @@ Use implementation_readiness to distinguish missing/revoked/stale authorization
 from insufficient research. A research verdict cannot establish lack of user
 permission. Accepted research establishes a defect/mechanism, not correctness of
 an unwritten candidate. Candidate tests establish the proposed fix afterward.
+available_actions excludes impossible choices. With no implementation handle,
+follow the current policy's prerequisites: a research-first workflow needs accepted
+findings before an implementation can be authorized. Do not invent an ID or treat
+that research prerequisite as missing user permission. An objective alone is not
+authorization to edit. Pause only if no authorized prerequisite work can proceed.
 Do not require proof that no hidden requirement exists. Name any concrete material
 risk, its criterion and the smallest check that could change your decision.
 

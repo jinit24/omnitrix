@@ -259,3 +259,52 @@ async def test_adaptive_benchmark_scores_exact_candidate_with_no_research(tmp_pa
     assert report['repeated_research_queries']==0
     assert report['manager_decisions']==2
     assert not report['incorrect_completion_claim']
+
+
+async def test_action_schema_excludes_impossible_implementation_and_legacy_delegation(project,monkeypatch):
+    store,goal,repo,spec=project
+    async def fake_run(agent,prompt,**kwargs):
+        schema=agent.output_type.model_json_schema()['properties']['action']['enum']
+        assert 'implement' not in schema and 'follow_up' not in schema
+        assert 'delegate' not in schema and 'complete' not in schema
+        assert {'research','discover','research_batch','pause'} <= set(schema)
+        assert json.loads(prompt)['available_actions']==schema
+        return SimpleNamespace(final_output=decision('pause'))
+    monkeypatch.setattr('omnitrix.manager.Runner.run',fake_run)
+    await AgentBrain(store=store).decide(store.snapshot(goal))
+
+
+async def test_prefetch_prioritizes_older_relevant_evidence_over_unrelated_recent_records(project):
+    from omnitrix.knowledge import ResearchTools
+    store,goal,repo,spec=project
+    research=Research(store,FixtureAgents())
+    first=research.plan(goal,'research',plans()[0])['job_id']
+    assert (await research.attempt(first))['status']=='supported'
+    for i in range(7):
+        filename=f'unrelated{i}.md';(repo/filename).write_text('Queue polling interval=30 seconds\n')
+        p=plans()[0].model_copy(update={'scope':[filename],'question':f'Unrelated question number {i}'})
+        job=research.plan(goal,'discovery',p.model_copy(update={'hypothesis':None,'falsification':None}))['job_id']
+        await research.attempt(job)
+    latest=research.plan(goal,'research',plans()[1])['job_id']
+    store.execute("INSERT INTO research_runs(id,job_id,status,created) VALUES('prefetch-run',?,'running',0)",(latest,))
+    tools=ResearchTools(store,'prefetch-run',str(repo),['system.md'],1)
+    records=tools.prefetch()
+    assert records[0]['job_id']==first
+    assert tools.remaining==1
+    (repo/'system.md').write_text('Queue polling interval=60 seconds\n')
+    assert tools.prefetch()[0]['stale']
+
+
+@pytest.mark.parametrize('blocking,expected',[(False,'supported'),(True,'insufficient')])
+async def test_nonblocking_unknowns_do_not_override_supported_evidence(project,blocking,expected):
+    store,goal,repo,spec=project
+    class Reviewer(FixtureAgents):
+        async def run(self,role,context,tools):
+            result=await super().run(role,context,tools)
+            if role=='evaluation':
+                result.nonblocking_uncertainties=['Production latency has not been measured; claim is code-only']
+                result.blocking_questions=['Caller contradicts the stated contract; inspect the scoped call site'] if blocking else []
+            return result
+    service=Research(store,Reviewer())
+    job=service.plan(goal,'research',plans()[0])['job_id']
+    assert (await service.attempt(job))['status']==expected
