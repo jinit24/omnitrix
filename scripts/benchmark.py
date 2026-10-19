@@ -256,6 +256,11 @@ async def main(args):
     if args.live and not os.getenv('OPENAI_API_KEY'):
         raise SystemExit('Set OPENAI_API_KEY securely for live manager calls; authenticate Codex separately')
     tasks=json.loads((ROOT/'benchmarks/tasks.json').read_text())
+    if args.tasks:
+        unknown=set(args.tasks)-{task['name'] for task in tasks}
+        if unknown:
+            raise SystemExit('Unknown benchmark tasks: '+', '.join(sorted(unknown)))
+        tasks=[task for task in tasks if task['name'] in args.tasks]
     args.output=args.output.resolve()
     args.output.mkdir(parents=True,exist_ok=True)
     results=[];trial=0;deadline=time.monotonic()+args.hours*3600
@@ -286,6 +291,7 @@ if __name__=='__main__':
     p.add_argument('--hours',type=float,default=0)
     p.add_argument('--trials',type=int,default=0,help='Fixed number of paired trials; overrides hours')
     p.add_argument('--arms',nargs='+',choices=['single','manager','adaptive'],default=['single','manager','adaptive'])
+    p.add_argument('--tasks',nargs='+',help='Run only named fixtures; all fixtures by default')
     p.add_argument('--steps',type=int,default=12)
     p.add_argument('--arm-seconds',type=int,default=1200)
     p.add_argument('--output',type=Path,default=ROOT/'.omnitrix/benchmark')
