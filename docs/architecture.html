@@ -36,7 +36,7 @@
           ><a class="" href="status.html"
             ><span>06</span>Status &amp; limitations</a
           >
-        </nav>
+        <a href="deployment.html">Deployment</a></nav>
         <div class="nav-footer">
           Local HTML. No external services.<br />HTML guides · README is
           Markdown.
@@ -92,243 +92,50 @@
           budgets escalate to the manager.
         </div>
         <article>
-          <p>
-            Python + OpenAI Agents SDK + SQLite + real Codex workers. One local
-            manager owner; no broker, workflow framework, distributed scheduler,
-            automatic merge or deployment.
-          </p>
+
           <h2 id="components">Components</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Component</th>
-                <th>Responsibility</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><code>AgentBrain</code></td>
-                <td>
-                  Conversational agent owning objective, priorities and
-                  mandatory criteria
-                </td>
-              </tr>
-              <tr>
-                <td><code>Supervisor</code></td>
-                <td>
-                  Serializes decisions while workers execute asynchronously
-                </td>
-              </tr>
-              <tr>
-                <td><code>Store</code>, <code>Control</code></td>
-                <td>
-                  SQLite goals, revisions, ownership, generations, messages and
-                  policy
-                </td>
-              </tr>
-              <tr>
-                <td><code>Research</code>, <code>Knowledge</code></td>
-                <td>
-                  Discovery, hypotheses, evidence, evaluation and retrieval
-                </td>
-              </tr>
-              <tr>
-                <td><code>Implementations</code></td>
-                <td>
-                  Authorization, isolated changes, executable verification and
-                  audit
-                </td>
-              </tr>
-              <tr>
-                <td><code>CodexRuntime</code></td>
-                <td>
-                  Native App Server sessions, steering, questions and
-                  interruption
-                </td>
-              </tr>
-              <tr>
-                <td><code>CodexWorker</code> + Node bridge</td>
-                <td>Original official SDK start/resume integration</td>
-              </tr>
-              <tr>
-                <td><code>dashboard</code></td>
-                <td>
-                  HTTP dashboard with optional authenticated inbox controls
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <table><thead><tr><th>Component</th><th>Responsibility</th></tr></thead><tbody>
+            <tr><td><code>AgentBrain</code></td><td>Conversational Agents SDK manager; owns objectives, priorities and mandatory criteria.</td></tr>
+            <tr><td><code>Supervisor</code></td><td>One process owner, serialized decisions, asynchronous workers and independent heartbeat.</td></tr>
+            <tr><td><code>Store</code>, <code>Control</code></td><td>SQLite goals, revisions, conversations, messages, ownership and result fences.</td></tr>
+            <tr><td><code>Research</code>, <code>Knowledge</code></td><td>Discovery, hypotheses, captured evidence, independent evaluation and retrieval.</td></tr>
+            <tr><td><code>Implementations</code></td><td>Explicit authorization, isolated Git worktrees, executable checks, bounded repair and audit.</td></tr>
+            <tr><td><code>CodexRuntime</code></td><td>Real App Server sessions; the original Node SDK bridge remains available.</td></tr>
+            <tr><td><code>dashboard</code>, <code>web_auth</code></td><td>HTML application, scoped goal creation, password sessions and durable inbox controls.</td></tr>
+          </tbody></table>
+          <p>Python, OpenAI Agents SDK and SQLite. No workflow framework, broker, automatic merge or application deployment.</p>
           <h2 id="context-and-control">Context and control</h2>
-          <p>
-            <code>SQLiteSession('manager:&lt;goal-id&gt;')</code> preserves
-            conversation in the adjacent sessions DB. The latest 12 session
-            items and task summaries bound prompt context. Original criteria,
-            policy, decisions and knowledge remain retrievable; detailed worker
-            histories stay separate. Role instructions live in
-            <code>instructions/</code> Markdown.
-          </p>
-          <p>
-            A process lock prevents competing owners; an async actor lock
-            serializes manager calls. SQLite inbox messages allow another CLI
-            process to steer the owner. Waiting questions and external
-            dependencies do not poll an LLM. Reasoning/time exhaustion records a
-            pause.
-          </p>
-          <p>
-            Permanent changes require explicit proposal acceptance. Policy
-            versions and goal revisions are append-only; original mandatory
-            criteria cannot disappear. Affected task generations reject late
-            results. Unaffected work and old evidence remain. Policy/goal
-            changes revoke implementation authorizations and approvals,
-            requiring reauthorization.
-          </p>
+          <p><code>SQLiteSession('manager:&lt;goal-id&gt;')</code> retains manager conversation in the adjacent sessions DB. The latest 12 session items and task summaries bound prompt context; worker histories remain separate. Goals, original criteria, decisions and knowledge survive restarts.</p>
+          <p>A process lock enforces one owner per database. An async actor lock serializes decisions; durable inbox messages reach that owner without starting another. Waiting dependencies do not poll a model. Deadlines and reasoning budgets pause work.</p>
+          <p>Policy and requirement changes require explicit acceptance. Review shows old/new instructions, added criteria, affected tasks and approval/evidence effects. Each proposal binds its original goal/policy revisions; stale proposals cannot apply. Mandatory originals remain. Task generations reject affected late results, while unaffected work remains available.</p>
           <h2 id="research-and-knowledge">Research and knowledge</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Stage</th>
-                <th>Contract</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Discovery</td>
-                <td>
-                  At most 20 explicit sources; map resources and rank
-                  opportunities
-                </td>
-              </tr>
-              <tr>
-                <td>Focused research</td>
-                <td>
-                  At most 8 sources; one hypothesis, falsification condition and
-                  budget
-                </td>
-              </tr>
-              <tr>
-                <td>Evaluation</td>
-                <td>
-                  Read captured evidence independently; support, reject, request
-                  evidence or block
-                </td>
-              </tr>
-              <tr>
-                <td>Manager</td>
-                <td>
-                  Resolve the highest-value uncertainty; retry with feedback,
-                  replan or stop
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <p>
-            Research tools read scoped local UTF-8 files/exports only: 32 MiB
-            per file, 1–100 lines per read. No shell, remote collectors or
-            recursive crawl. Knowledge prefetch happens before investigation
-            without consuming a discretionary read. DB-backed SDK tools are
-            async to preserve SQLite thread ownership. Reports go directly to
-            the manager.
-          </p>
-          <p>
-            Captured evidence includes excerpt, lines, content hash, source
-            modification time and observation time. Citation gates reject
-            invented/stale citations and unsupported claims; LLM evaluation
-            still cannot prove semantic truth. Only independently supported
-            cited claims become verified. Rejected/invalidated findings remain
-            searchable.
-          </p>
-          <p>
-            Opportunity scores are
-            <code>impact * confidence / (risk * effort)</code>, using explained
-            ordinal inputs; unsupported confidence is zero. These are
-            prioritization aids, not economic forecasts. Canonical
-            question/scope/source/revision signatures detect exact repeat
-            investigations, not all paraphrases. Changed/missing sources or
-            observations older than 24h flag staleness. Metric freshness still
-            needs judgment.
-          </p>
-          <p>
-            Timeouts, tool/turn caps, attempt caps and a persisted goal budget
-            (12 role runs by default, including evaluation) bound work. Three
-            identical invalid plans escalate. Retrying requires targeted
-            feedback and cannot reset budgets.
-          </p>
+          <table><thead><tr><th>Stage</th><th>Bounded contract</th></tr></thead><tbody>
+            <tr><td>Discovery</td><td>At most 20 explicit sources; map resources and rank opportunities.</td></tr>
+            <tr><td>Focused research</td><td>At most 8 sources; one falsifiable hypothesis, contradictory evidence and an execution budget.</td></tr>
+            <tr><td>Evaluation</td><td>Inspect captured evidence independently; support, falsify, request targeted evidence or block.</td></tr>
+            <tr><td>Manager</td><td>Resolve the highest-value uncertainty; retry with feedback, replan or stop.</td></tr>
+          </tbody></table>
+          <p>Research reads scoped local UTF-8 exports: 32 MiB per file, 1–100 lines per call. Knowledge prefetch preserves discretionary read budget. DB-backed SDK tools are async. Reports return directly to the manager.</p>
+          <p>Evidence records excerpts, source hashes and timestamps. Citation gates reject missing or stale citations; an LLM cannot establish truth by assertion. Independently supported claims become verified. Discovery maps and findings publish atomically with a final goal/policy revision check under a SQLite writer lock.</p>
+          <p>Exact question/scope/source signatures detect repeat investigations. Changed sources and aged logs/metrics flag stale knowledge. Time, tool, turn and attempt caps persist; exhausted budgets escalate. These mechanisms do not detect every paraphrase or guarantee good research judgment.</p>
           <h2 id="coding-and-verification">Coding and verification</h2>
           <ol>
-            <li>
-              User authorization binds accepted research, current goal/policy
-              revisions, allowed paths, checks and attempt limits. Every
-              mandatory criterion needs a check; external oracles are hashed.
-            </li>
-            <li>
-              Real Codex edits an isolated detached Git worktree with
-              workspace-write sandbox and no sandbox network or automatic
-              escalation. Candidate SHA, handoff, artifacts and concerns
-              persist.
-            </li>
-            <li>
-              Separate processes run authorized checks in a clean worktree at
-              that exact SHA. Outputs, digests, exit codes and
-              criterion/revision coverage persist. Source/HEAD changes fail
-              verification.
-            </li>
-            <li>
-              Local defects get bounded repair; incorrect assumptions return to
-              research; repeated failures escalate. Success becomes
-              <code>ready_for_audit</code>.
-            </li>
-            <li>
-              A manager-requested audit checks current requirements,
-              authorization, candidate and immutable artifacts. Only a passing
-              audit completes implementation. No merge or deployment follows.
-            </li>
+            <li>User authorization binds accepted research, goal/policy revisions, allowed paths, checks and attempt limits. Every mandatory criterion needs an executable check.</li>
+            <li>Real Codex edits an isolated worktree. Candidate SHA, artifacts, concerns and questions persist. No automatic merge or deployment follows.</li>
+            <li>Independent subprocesses execute authorized checks in a clean worktree at that exact candidate. Outputs, digests, exit codes and revision coverage persist.</li>
+            <li>Local defects receive bounded repair. Incorrect assumptions return to research; repeated failures require a changed approach.</li>
+            <li>A goal audit compares the candidate against every current criterion. A worker success claim cannot complete a code goal.</li>
           </ol>
-          <p>
-            Code goals can require verified implementation before any assignment
-            exists. Test commands are trusted local processes with provider
-            credentials removed, not a hostile-code sandbox. Oracle coverage
-            bounds what success establishes; use external isolation for
-            untrusted code.
-          </p>
+          <p>The UI checklist requires current authorization, goal/policy revisions and candidate SHA. One passing assertion cannot hide another failing check for that criterion; whole-goal verification requires one implementation covering all criteria. Trusted test commands are not a hostile-code sandbox.</p>
           <h2 id="codex-and-delivery">Codex and delivery</h2>
-          <p>
-            <code>OPENAI_API_KEY</code> selects an explicit Responses provider
-            through <code>env_key</code>, never a persisted key value. Sessions
-            use a writable local Codex home. Without the key, existing auth is
-            preserved.
-          </p>
-          <p>
-            Native methods: <code>initialize</code>, <code>thread/start</code>,
-            <code>thread/resume</code>, <code>thread/read</code>,
-            <code>turn/start</code>, <code>turn/steer</code>,
-            <code>turn/interrupt</code>, and user-input responses. Persist
-            thread IDs before turns. Steering uses native expected-turn
-            preconditions, not fake conversation entries.
-          </p>
-          <p>
-            Delivery states distinguish pending, sending, acknowledged,
-            uncertain and <code>sent_no_ack</code>. RPC acceptance does not
-            prove task completion. Old connection-specific question IDs cannot
-            be replayed after restart. SDK research uses cancellation and a
-            fresh bounded attempt, not live steering.
-          </p>
+          <p><code>OPENAI_API_KEY</code> configures the Responses provider through <code>env_key</code>; its value is never persisted by the adapters. Session IDs and a writable Codex home survive application restarts.</p>
+          <p>Native thread start/resume/read and turn start/steer/interrupt APIs preserve real runtime identity. Steering uses expected-turn preconditions. Old connection-specific question IDs cannot be replayed after reconnect.</p>
+          <p>Delivery distinguishes pending, sending, acknowledged, uncertain and <code>sent_no_ack</code>. RPC acceptance does not establish task completion. Unknown outcomes require reconciliation before retry; SDK research restarts as a fresh bounded attempt.</p>
           <h2 id="recovery-and-observation">Recovery and observation</h2>
-          <p>
-            WAL SQLite retains ownership, progress, messages, evidence and
-            revision fences. Native turns and journaled Git actions are
-            reconciled before retry; a missing response does not prove failure.
-            Progress counts distinct observations/command outcomes/artifacts,
-            not tokens or repeated activity. Stalls pause work. See
-            <a href="recovery.html">recovery</a>.
-          </p>
-          <p>
-            Dashboard snapshots use read-only/query-only transactions. Optional bearer-authenticated
-            commands append to the durable inbox and are processed by the existing supervisor. The web server never
-            takes ownership. It refreshes committed state every five seconds,
-            shows bounded recent records, and retains the last snapshot on
-            errors. HTML guides are maintained directly. See
-            <a href="dashboard.html">dashboard</a>.
-          </p>
+          <p>A separate heartbeat continues during slow manager replies. Online requires both a held owner lock and a recent heartbeat; a held lock with an old heartbeat is stale. Clean shutdown records stopped state. Worker activity and tokens do not count as meaningful progress.</p>
+          <p>Dashboard snapshots use read-only transactions. Authenticated commands append to the durable inbox. Goal creation validates an existing workspace inside the configured root, preserves original criteria and is idempotent; it neither starts an owner nor authorizes code changes.</p>
+          <p>Password login uses scrypt hashes, persistent revocable sessions, secure HttpOnly cookies behind HTTPS, origin checks and CSRF tokens for writes. Optional bearer access remains available. The UI separates live, recorded, stale and offline state and retains its last snapshot after connection failures.</p>
+          <p><a href="deployment.html">Single-host service templates</a> provide persistent paths and an HTTPS proxy. They are tested locally, not publicly deployed. GitHub Pages serves archived experiment snapshots. See <a href="recovery.html">recovery</a> for uncertain actions and backups.</p>
         </article>
         <div class="article-footer">Source: docs/architecture.html</div>
       </main>

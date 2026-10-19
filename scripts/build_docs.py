@@ -20,7 +20,7 @@ class PlainText(HTMLParser):
 
 
 def build():
-    outputs = {p.name: p.read_text() for p in (ROOT / 'docs').glob('*.html') if p.name != 'index.html'}
+    outputs = {p.name: p.read_text() for p in sorted((ROOT / 'docs').glob('*.html')) if p.name != 'index.html'}
     # Share the layout with the maintained HTML guides, without another template.
     template = outputs['dashboard.html']
     readme = (ROOT / 'README.md').read_text()

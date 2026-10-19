@@ -141,17 +141,20 @@ continuation after a pause, and the limits of the current Kafka experiment.
 
 ## UI control
 
-Set `OMNITRIX_DASHBOARD_TOKEN` securely to 32+ random characters, then run:
-
 ```sh
+omnitrix dashboard-user operator --users .omnitrix/auth/users.json
 omnitrix --db .omnitrix/state.db dashboard --allow-control \
-  --allowed-origin https://jinit24.github.io
-omnitrix --db .omnitrix/state.db run GOAL_ID --steps 0 --hours 4
+  --auth-users .omnitrix/auth/users.json --workspace-root .
 ```
 
-Use **Connect manager** → **Manager chat**. Messages and controls queue to the existing
-owner; permanent changes require explicit acceptance. GitHub Pages requires your own
-HTTPS backend URL. Tokens stay in the browser tab, never in published files or storage.
+Sign in locally. The UI shows manager liveness, delivery stages, task evidence, approval
+changes and the requirement checklist. Create goals inside the configured workspace root;
+start their single manager owner separately. Code permission remains explicit.
+
+[Deployment](docs/deployment.html) provides systemd and Caddy templates for a persistent
+HTTPS host. No host is configured here; Pages remains a recorded experiment view.
+
+Browser checks: `pip install -e '.[browser]'`, then `python scripts/check_ui.py`.
 
 ## Learn more
 

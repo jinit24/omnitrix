@@ -1,0 +1,27 @@
+[Unit]
+Description=Omnitrix authenticated dashboard
+After=network.target
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+[Service]
+Type=simple
+User=omnitrix
+Group=omnitrix
+WorkingDirectory=/opt/omnitrix
+EnvironmentFile=/etc/omnitrix.env
+UnsetEnvironment=OPENAI_API_KEY OMNITRIX_DASHBOARD_TOKEN
+ExecStart=/opt/omnitrix/.venv/bin/python -m omnitrix.cli --db ${OMNITRIX_DB} dashboard --host 127.0.0.1 --port 8765 --allow-control --auth-users ${OMNITRIX_AUTH_USERS} --auth-sessions ${OMNITRIX_AUTH_SESSIONS} --secure-cookies --workspace-root ${OMNITRIX_WORKSPACE_ROOT}
+Restart=on-failure
+RestartSec=5
+StateDirectory=omnitrix
+StateDirectoryMode=0700
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/omnitrix
+
+[Install]
+WantedBy=multi-user.target

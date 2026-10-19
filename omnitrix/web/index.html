@@ -9,6 +9,7 @@
     <script defer src="/app.js"></script>
   </head>
   <body>
+    <a class="skip-link" href="#content">Skip to workspace</a>
     <aside class="sidebar">
       <a class="brand" href="/" aria-label="Omnitrix home"
         ><span class="brandmark">o<span></span></span>omnitrix<span
@@ -89,9 +90,10 @@
               <select id="goal-select" aria-label="Select goal">
                 <option>No goals yet</option>
               </select></label
-            ><span id="updated">Waiting for state</span>
+            ><span id="updated">Waiting for state</span><button class="connect-button" id="goal-create-open" disabled>New goal</button>
           </div>
         </div>
+        <div class="system-status" id="system-status" aria-live="polite"></div>
         <div id="notice" role="status" hidden></div>
         <section
           id="metrics"
@@ -106,7 +108,7 @@
           </div>
           <span class="auto-refresh"><span></span> Refreshes every 5s</span>
         </div>
-        <div id="content" aria-live="polite"></div>
+        <div id="content" tabindex="-1"></div>
         <footer>
           <span class="footer-mark">◈</span>
           <span id="workspace-mode">Read-only workspace</span
@@ -128,9 +130,42 @@
       </button>
       <div class="eyebrow">INSPECT RECORD</div>
       <h2 id="drawer-title"></h2>
-      <p class="muted">Persisted state · read-only</p>
+      <p class="muted">Persisted evidence and task context</p>
       <div id="drawer-body"></div>
     </aside>
+    <dialog id="goal-dialog" aria-labelledby="goal-dialog-title">
+      <form id="goal-form" class="connect-form">
+        <h2 id="goal-dialog-title">Create an engineering goal</h2>
+        <p>Set the outcome and mandatory criteria. Creating a goal does not start workers or authorize code changes.</p>
+        <label>Objective<textarea id="goal-objective" rows="3" maxlength="2000" required placeholder="What should improve, and why?"></textarea></label>
+        <label>Acceptance criteria<textarea id="goal-requirements" rows="4" required placeholder="One verifiable criterion per line"></textarea></label>
+        <label>Workspace<input id="goal-workspace" value="." required placeholder="Path relative to the configured workspace" /></label>
+        <label class="checkbox-label"><input id="goal-implementation" type="checkbox" checked /> Require independently verified implementation before completion</label>
+        <p id="goal-error" role="status"></p>
+        <div class="connect-actions"><button type="button" id="goal-close">Cancel</button><button type="submit" id="goal-submit">Create goal</button></div>
+      </form>
+    </dialog>
+    <dialog id="proposal-dialog" aria-labelledby="proposal-title">
+      <div class="connect-form approval-review">
+        <h2 id="proposal-title">Review instruction change</h2>
+        <div id="proposal-review"></div>
+        <label class="checkbox-label"><input id="proposal-confirm" type="checkbox" /> I reviewed the change and its impact.</label>
+        <p id="proposal-error" role="status"></p>
+        <div class="connect-actions"><button type="button" id="proposal-close">Keep pending</button><button type="button" id="proposal-apply" disabled>Accept change</button></div>
+      </div>
+    </dialog>
+    <dialog id="login-dialog" aria-labelledby="login-title">
+      <form id="login-form" class="connect-form">
+        <h2 id="login-title">Sign in to your workspace</h2>
+        <p id="session-description">Use your manager account. Your session is stored in a protected cookie.</p>
+        <div id="login-fields">
+          <label>Username<input id="login-username" autocomplete="username" required /></label>
+          <label>Password<input id="login-password" type="password" autocomplete="current-password" required /></label>
+        </div>
+        <p id="login-error" role="status"></p>
+        <div class="connect-actions"><button type="button" id="login-close">Close</button><button type="button" id="login-token">Use backend token</button><button type="button" id="logout" hidden>Sign out</button><button type="submit" id="login-submit">Sign in</button></div>
+      </form>
+    </dialog>
     <dialog id="connect-dialog">
       <form id="connect-form" class="connect-form">
         <h2>Connect to your manager</h2>

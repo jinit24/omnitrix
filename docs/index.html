@@ -35,7 +35,7 @@
             ><span>05</span>Experiments &amp; results</a
           ><a class="" href="status.html"
             ><span>06</span>Status &amp; limitations</a
-          >
+          ><a href="deployment.html">Deployment</a>
         </nav>
         <div class="nav-footer">
           Local HTML. No external services.<br />HTML guides · README is
@@ -207,14 +207,16 @@ record workload and measurement-window context alongside them. See the
 <a href="campaigns.html">campaign and tracking guide</a> for pricing, recovery, explicit
 continuation after a pause, and the limits of the current Kafka experiment.</p>
 <h2>UI control</h2>
-<p>Set <code>OMNITRIX_DASHBOARD_TOKEN</code> securely to 32+ random characters, then run:</p>
-<pre><code class="language-sh">omnitrix --db .omnitrix/state.db dashboard --allow-control \
-  --allowed-origin https://jinit24.github.io
-omnitrix --db .omnitrix/state.db run GOAL_ID --steps 0 --hours 4
+<pre><code class="language-sh">omnitrix dashboard-user operator --users .omnitrix/auth/users.json
+omnitrix --db .omnitrix/state.db dashboard --allow-control \
+  --auth-users .omnitrix/auth/users.json --workspace-root .
 </code></pre>
-<p>Use <strong>Connect manager</strong> → <strong>Manager chat</strong>. Messages and controls queue to the existing
-owner; permanent changes require explicit acceptance. GitHub Pages requires your own
-HTTPS backend URL. Tokens stay in the browser tab, never in published files or storage.</p>
+<p>Sign in locally. The UI shows manager liveness, delivery stages, task evidence, approval
+changes and the requirement checklist. Create goals inside the configured workspace root;
+start their single manager owner separately. Code permission remains explicit.</p>
+<p><a href="deployment.html">Deployment</a> provides systemd and Caddy templates for a persistent
+HTTPS host. No host is configured here; Pages remains a recorded experiment view.</p>
+<p>Browser checks: <code>pip install -e '.[browser]'</code>, then <code>python scripts/check_ui.py</code>.</p>
 <h2>Learn more</h2>
 <p>The app's <strong>Documentation</strong> section includes searchable HTML guides, flowcharts, tables,
 and raw experiment records. README is the only Markdown documentation page; edit other guides directly as HTML.</p>

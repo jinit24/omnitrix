@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Deployment · Omnitrix docs</title>
+  <link rel="stylesheet" href="docs.css"><script defer src="docs.js"></script>
+</head>
+<body>
+<header><a class="logo" href="/">◈ &nbsp; omnitrix<span> / documentation</span></a><a class="back" href="/">← Mission control</a></header>
+<div class="docs-layout">
+  <aside class="docs-nav">
+    <div class="nav-caption">THE FIELD GUIDE</div>
+    <label class="search-wrap"><span>⌕</span><input id="docs-search" type="search" placeholder="Search all guides…" aria-label="Search documentation"></label>
+    <div id="search-results" hidden role="status"></div>
+    <nav aria-label="Documentation"><a href="index.html">Get started</a><a href="architecture.html">Architecture</a><a href="dashboard.html">Mission control</a><a href="recovery.html">Recovery</a><a href="experiments.html">Experiments</a><a href="status.html">Status</a><a class="selected" href="deployment.html">Deployment</a></nav>
+  </aside>
+  <main>
+    <div class="kicker">OPERATIONS</div><h1 class="page-title">One host. Persistent control.</h1>
+    <p class="lede">Linux services, password login and HTTPS. SQLite and worker sessions stay on the host.</p>
+    <div class="callout"><strong>Prepared, not deployed.</strong> A host and DNS name are still required. These commands describe installation; no host configuration has been changed.</div>
+    <article>
+      <figure class="flow" aria-label="Deployment components"><figcaption>Request and execution paths</figcaption><ol><li><strong>Browser</strong><span>HTTPS and secure session cookie</span></li><li><strong>Caddy</strong><span>Automatic TLS → loopback port 8765</span></li><li><strong>Dashboard</strong><span>Authenticated state and durable commands</span></li><li><strong>Manager owner</strong><span>Bounded agents; retained SQLite and sessions</span></li></ol></figure>
+      <h2 id="prepare">Prepare the host</h2>
+      <p>Use a supported Linux host with systemd, Python 3.11+, Node, Git and Caddy. Point your domain at it and allow inbound TCP 80/443. Keep port 8765 on loopback.</p>
+      <pre><code>sudo useradd --system --home-dir /var/lib/omnitrix --shell /usr/sbin/nologin omnitrix
+sudo git clone https://github.com/jinit24/omnitrix.git /opt/omnitrix
+sudo python3 -m venv /opt/omnitrix/.venv
+sudo /opt/omnitrix/.venv/bin/pip install -e /opt/omnitrix
+sudo npm --prefix /opt/omnitrix ci
+sudo install -d -o omnitrix -g omnitrix -m 0700 /var/lib/omnitrix/{auth,workspaces,codex}
+sudo install -m 0600 /opt/omnitrix/deploy/omnitrix.env.example /etc/omnitrix.env
+sudoedit /etc/omnitrix.env</code></pre>
+      <p>Set <code>OPENAI_API_KEY</code> in that root-readable environment file. Paths may be configured there; writable state must remain under <code>/var/lib/omnitrix</code> unless the service's <code>ReadWritePaths</code> is updated too. Source code and dependencies remain outside worker workspaces.</p>
+      <h2 id="login">Create a login and configure HTTPS</h2>
+      <pre><code>sudo -u omnitrix /opt/omnitrix/.venv/bin/python -m omnitrix.cli dashboard-user operator --users /var/lib/omnitrix/auth/users.json
+sudo install -m 0644 /opt/omnitrix/deploy/Caddyfile /etc/caddy/Caddyfile
+sudo install -d /etc/systemd/system/caddy.service.d
+sudo install -m 0644 /opt/omnitrix/deploy/caddy.service.d/omnitrix.conf /etc/systemd/system/caddy.service.d/omnitrix.conf
+sudo install -m 0600 /opt/omnitrix/deploy/caddy.env.example /etc/caddy/omnitrix.env
+sudoedit /etc/caddy/omnitrix.env</code></pre>
+      <p>Set <code>OMNITRIX_DOMAIN</code> to your DNS name without a scheme or path. The proxy receives only this domain setting; the dashboard service removes provider credentials from its environment. Reuse an existing Caddy configuration instead of overwriting it when the host serves other sites.</p>
+      <h2 id="start">Validate and start</h2>
+      <pre><code>cd /opt/omnitrix
+./deploy/check.sh
+sudo install -m 0644 deploy/omnitrix-dashboard.service deploy/omnitrix-manager@.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo sh -c '. /etc/caddy/omnitrix.env; export OMNITRIX_DOMAIN; caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile'
+sudo systemctl enable --now omnitrix-dashboard
+sudo systemctl restart caddy</code></pre>
+      <p>Open your HTTPS domain and sign in. Create a goal whose workspace is an existing directory under the configured root. A code goal requires a committed Git repository root. Creating a goal does not authorize code changes or start a manager.</p>
+      <pre><code>sudo systemctl enable --now omnitrix-manager@GOAL_ID
+sudo journalctl -u omnitrix-dashboard -u omnitrix-manager@GOAL_ID -f</code></pre>
+      <p>Replace <code>GOAL_ID</code> with the created ID. Run only one manager service for this database. An exclusive lock rejects a second owner. The manager starts in standby with zero decisions; use the dashboard's bounded Continue control when ready.</p>
+      <h2 id="restore">Restart and restore</h2>
+      <table><thead><tr><th>Event</th><th>Behavior</th></tr></thead><tbody>
+        <tr><td>Process failure</td><td>systemd restarts it after five seconds; repeated startup failures stop after three attempts.</td></tr>
+        <tr><td>Manager restart</td><td>Starts in standby. Running work and ambiguous sends require reconciliation before another autonomous action.</td></tr>
+        <tr><td>Service shutdown</td><td>SIGINT allows manager cleanup; systemd terminates remaining processes after 45 seconds.</td></tr>
+        <tr><td>Disk persistence</td><td>Retains state DB, adjacent conversation DB, worktrees, artifacts, auth sessions and Codex home.</td></tr>
+      </tbody></table>
+      <p>Back up <code>/var/lib/omnitrix</code>, the environment files and source revisions. Stop both application services for a consistent full-directory backup; copying an active SQLite file without its WAL is insufficient. Follow <a href="recovery.html">recovery</a> before replacing uncertain work. No template merges code or deploys applications.</p>
+      <p>Validated here: systemd unit syntax, CLI flags, and Caddy 2.11.7 configuration. The official Caddy download matched its published SHA-512 checksum. A local HTTPS test verified secure login, CSRF-protected goal creation and logout using a temporary CA trusted only by the test client:</p>
+      <pre><code>.venv/bin/python deploy/check_https.py --caddy /path/to/verified/caddy</code></pre>
+      <p>Public DNS, certificate issuance, host-specific Codex sandbox execution and restart recovery still need validation on the selected host. No public deployment is claimed.</p>
+    </article>
+    <div class="article-footer">Source: docs/deployment.html</div>
+  </main>
+  <aside class="outline"><div class="nav-caption">ON THIS PAGE</div><a href="#prepare">Prepare</a><a href="#login">Login and HTTPS</a><a href="#start">Validate and start</a><a href="#restore">Restart and restore</a></aside>
+</div>
+</body>
+</html>

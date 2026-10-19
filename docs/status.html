@@ -35,7 +35,7 @@
           ><a class="selected" href="status.html"
             ><span>06</span>Status &amp; limitations</a
           >
-        </nav>
+        <a href="deployment.html">Deployment</a></nav>
         <div class="nav-footer">
           Local HTML. No external services.<br />HTML guides · README is
           Markdown.
@@ -54,155 +54,40 @@
           separately. A verified test is not a universal reliability claim.
         </div>
         <article>
+
           <h2 id="implemented">Implemented</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Area</th>
-                <th>Behavior</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Manager</td>
-                <td>
-                  Conversational Agents SDK session, durable
-                  objective/criteria/policy and decisions
-                </td>
-              </tr>
-              <tr>
-                <td>Interaction</td>
-                <td>
-                  Nonblocking CLI, durable inbox, explicit instruction
-                  acceptance, native Codex steering/questions
-                </td>
-              </tr>
-              <tr>
-                <td>Research</td>
-                <td>
-                  Bounded discovery → hypothesis → independent evaluation;
-                  shared, revision-aware knowledge
-                </td>
-              </tr>
-              <tr>
-                <td>Implementation</td>
-                <td>
-                  Explicit authorization, isolated Codex worktrees, executable
-                  checks, repairs and final audit
-                </td>
-              </tr>
-              <tr>
-                <td>Reliability</td>
-                <td>
-                  Restart reconciliation, stale-result fences, uncertain
-                  delivery, progress deadlines, durable budgets
-                </td>
-              </tr>
-              <tr>
-                <td>UI</td>
-                <td>
-                  Status/tasks/hierarchy/knowledge/activity with optional authenticated inbox controls;
-                  searchable local HTML docs
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <p>
-            No deployment, automatic merge, broker or distributed scheduler.
-          </p>
+          <table><thead><tr><th>Area</th><th>Current behavior</th></tr></thead><tbody>
+            <tr><td>Manager</td><td>Durable conversational session, original criteria, versioned policy and serialized decisions.</td></tr>
+            <tr><td>Workers</td><td>Real Codex sessions, nonblocking interaction, native steering, durable delivery and restart reconciliation.</td></tr>
+            <tr><td>Research</td><td>Bounded discovery → falsifiable hypothesis → independent evaluation; reusable evidence and atomic revision-fenced publication.</td></tr>
+            <tr><td>Implementation</td><td>Explicit authorization, isolated worktrees, independent executable checks, bounded repair and goal audit.</td></tr>
+            <tr><td>UI</td><td>Password login, persistent sessions, scoped goal creation, heartbeat, task evidence, delivery state, approval diffs and exact-revision criterion coverage.</td></tr>
+            <tr><td>Hosting</td><td>Tested systemd/Caddy templates. No public live backend; existing Pages site serves recorded experiments.</td></tr>
+          </tbody></table>
           <h2 id="evidence">Evidence</h2>
-          <p>Authenticated-control update: <strong>89 tests passed, 1 live test skipped</strong>.
-          Browser checks cover connection, message submission, explicit proposal acceptance and disconnection.</p>
-          <p>UI update: <strong>60 tests passed, 1 live test skipped</strong>.
-          Chromium checks passed for desktop/mobile layout, navigation, task filtering,
-          details, docs search and disconnected-state retention. No browser errors.</p>
-          <p>
-            Before the UI change:
-            <strong>55 deterministic tests passed</strong>;
-            <strong>56 with opt-in live Codex</strong>. Tests use real SQLite,
-            SDK sessions, Git worktrees, test subprocesses, process kills and
-            cross-process messages with mocked model decisions. These are not
-            live recovery rates.
-          </p>
+          <p id="current-validation"><strong>139 tests passed, 1 opt-in live test skipped; ten browser checks passed.</strong> Tests use real SQLite, SDK sessions, Git worktrees and subprocesses with deterministic model decisions. The opt-in Codex test requires live credentials.</p>
           <ul>
-            <li>
-              <code>scripts/demo.py</code>: accepted research → authorization →
-              failed check → repair → audit.
-            </li>
-            <li>
-              <code>scripts/faults.py</code>: nine fault scenarios, including
-              stale results, misleading research, process termination, repeated
-              failures and lost acknowledgments.
-            </li>
-            <li>
-              Live: SDK start/resume, native commands, a manager reply in 2.52s
-              during a delayed worker, policy delivery/interruption,
-              conversation/message restoration and turn reconciliation.
-            </li>
-            <li>
-              Live v2: manager completed 2/3 tasks and 4/6 criteria in 176.2s;
-              single Codex completed 3/3 and 6/6 in 59.0s. No false completion
-              claims. <strong>No measured architecture advantage.</strong>
-            </li>
+            <li>Browser checks cover login, bounded goal creation, approval review, task evidence, delivery recovery, keyboard use, mobile layout and offline snapshot retention. Local validation also restored a password session and displayed an online manager over saved experiment state.</li>
+            <li>Backend regressions cover independent heartbeat during slow replies, stale proposals, concurrent revision changes, exact candidate coverage, duplicate commands and scoped idempotent goal creation.</li>
+            <li>Systemd templates and official Caddy 2.11.7 configuration validated. Local HTTPS verified secure login, CSRF-protected creation and logout with an explicitly trusted temporary CA.</li>
+            <li><code>scripts/demo.py</code> demonstrates research → authorization → failed check → repair → audit. <code>scripts/faults.py</code> retains nine recovery/fault scenarios.</li>
           </ul>
-          <p>
-            <a href="experiments.html">Experiments</a> separates fixture/model
-            profiles and retained failures. No multi-hour run, statistical
-            superiority, production benefit or new-machine restoration is
-            claimed. Environment publication is separate.
-          </p>
+          <table><caption>Latest complete development trial · unchanged executable criteria</caption><thead><tr><th>System</th><th>Criteria</th><th>Time</th></tr></thead><tbody><tr><td>Single Codex</td><td>6/6</td><td>58.217s</td></tr><tr><td>Manager</td><td>4/6</td><td>206.375s</td></tr></tbody></table>
+          <p><strong>No measured architecture advantage.</strong> A separate retry follow-up scored Codex 2/2 in 11.600s versus manager 0/2 in 26.003s; the manager incorrectly treated code authorization as a research blocker. These reused development fixtures do not establish statistical superiority or production value. The <a href="experiments/research-judgment-20261019.html">research-judgment report</a> retains failures and follow-ups separately.</p>
           <h2 id="known-limits">Known limits</h2>
           <ul>
-            <li>
-              Single owner, local filesystem, POSIX locks/process groups and
-              source/editable install.
-            </li>
-            <li>
-              Unknown native outcomes can require manual reconciliation; no
-              exactly-once guarantee.
-            </li>
-            <li>
-              Local bounded research exports only; no remote collectors or
-              semantic duplicate detection.
-            </li>
-            <li>
-              Citation integrity does not prove truth; content hashes do not
-              prove metric freshness.
-            </li>
-            <li>
-              Trusted executable oracles determine coverage; verification is not
-              a hostile-code sandbox.
-            </li>
-            <li>
-              Manager over-investigation can block useful work. The retry trial
-              stopped over extra edge-case evidence; its explanation confused
-              evaluator refusal with user authorization.
-            </li>
-            <li>
-              Native APIs are version-sensitive; failed provider calls may omit
-              usage.
-            </li>
-            <li>
-              Dashboard is read-only by default, with opt-in bearer-authenticated inbox control, and bounded to recent
-              state. Status is not liveness; recorded classifications are not
-              live source revalidation.
-            </li>
+            <li>Single trusted host, local filesystem and POSIX locks; no distributed ownership or exactly-once guarantee.</li>
+            <li>Uncertain native outcomes may require manual reconciliation. Restarts start in standby rather than blindly repeating actions.</li>
+            <li>Research uses bounded local sources. Exact repeat detection misses paraphrases; citations and hashes do not prove semantic truth or metric freshness.</li>
+            <li>Over-investigation, compound hypotheses and confusing code authorization with permission to research can hide useful narrower defects. Prompt improvements have not eliminated these failures.</li>
+            <li>Verification covers authorized executable criteria; it is not a hostile-code sandbox or proof of unspecified behavior.</li>
+            <li>Provider usage can be incomplete after failed/interrupted calls. Observed tokens across models and caches are not dollar costs.</li>
+            <li>No public host/domain is configured. Target-host TLS issuance, Codex sandbox execution and recovery still require validation.</li>
           </ul>
           <h2 id="next-work">Next work</h2>
-          <p>
-            Reduce unnecessary research without weakening evidence gates. Then
-            run repeated multi-hour paired trials with held-out oracles and
-            equal-resolution telemetry. Add semantic retrieval, source adapters
-            or infrastructure only when measurements justify them.
-          </p>
+          <p>Validate on the selected host. Run repeated held-out project tasks and multi-hour interruption experiments. Reduce unnecessary research without weakening citation, authorization or verification gates.</p>
           <h2 id="api-versions">API versions</h2>
-          <p>
-            Inspected: <code>openai-agents==0.24.0</code>,
-            <code>@openai/codex-sdk==0.163.0</code>, Codex CLI 0.159.2 App
-            Server schemas. Both Codex paths use <code>OPENAI_API_KEY</code>; no
-            key value is persisted. Nested sandbox execution needs the approved
-            route described in <a href="recovery.html">recovery</a>.
-          </p>
+          <p><code>openai-agents==0.24.0</code>, <code>@openai/codex-sdk==0.163.0</code>, inspected Codex App Server 0.159.2 schemas. Both Codex paths use <code>OPENAI_API_KEY</code>. See <a href="recovery.html">recovery</a> for nested-sandbox constraints and <a href="deployment.html">deployment</a> for tested templates.</p>
         </article>
         <div class="article-footer">Source: docs/status.html</div>
       </main>
