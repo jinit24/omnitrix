@@ -10,6 +10,7 @@ dependencies = ["openai-agents==0.24.0"]
 
 [project.optional-dependencies]
 docs = ["markdown-it-py==4.0.0"]
+browser = ["playwright==1.58.0"]
 test = ["pytest==9.1.1", "pytest-asyncio==1.4.0"]
 
 [project.scripts]

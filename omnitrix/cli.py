@@ -68,16 +68,37 @@ def main():
     dashboard.add_argument('--port', type=int, default=8765)
     dashboard.add_argument('--allow-control', action='store_true')
     dashboard.add_argument('--allowed-origin', action='append', default=[])
+    dashboard.add_argument('--workspace-root', type=Path, default=Path.cwd())
+    dashboard.add_argument('--auth-users', type=Path)
+    dashboard.add_argument('--auth-sessions', type=Path)
+    dashboard.add_argument('--secure-cookies', action='store_true', help='Required behind HTTPS')
+    user = commands.add_parser('dashboard-user', help='Create/reset a local dashboard account')
+    user.add_argument('username')
+    user.add_argument('--users', type=Path, default=Path('.omnitrix/auth/users.json'))
     args = parser.parse_args()
+    if args.command == 'dashboard-user':
+        import getpass
+        from .web_auth import create_user
+        password = getpass.getpass('Password (12+ characters): ')
+        if password != getpass.getpass('Confirm password: '):
+            parser.exit(1, 'Passwords differ\n')
+        try:
+            create_user(args.users, args.username, password)
+        except (ValueError, OSError) as exc:
+            parser.exit(1, f'{exc}\n')
+        print('Dashboard account saved')
+        return
     if args.command == 'dashboard':
         from .dashboard import serve
         import os
         token = os.getenv('OMNITRIX_DASHBOARD_TOKEN') if args.allow_control else None
-        if args.allow_control and not token:
-            parser.exit(1, 'Set OMNITRIX_DASHBOARD_TOKEN securely before enabling control\n')
+        if args.allow_control and not token and not args.auth_users:
+            parser.exit(1, 'Configure --auth-users or OMNITRIX_DASHBOARD_TOKEN before enabling control\n')
         try:
-            serve(args.db, args.host, args.port, control_token=token, allowed_origins=args.allowed_origin)
-        except ValueError as exc:
+            serve(args.db, args.host, args.port, control_token=token, allowed_origins=args.allowed_origin, workspace_root=args.workspace_root,
+                  auth_users=args.auth_users, auth_sessions=args.auth_sessions, secure_cookies=args.secure_cookies,
+                  allow_control=args.allow_control)
+        except (ValueError, OSError) as exc:
             parser.exit(1, f'{exc}\n')
         return
     store = Store(args.db)

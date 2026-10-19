@@ -35,7 +35,7 @@
             ><span>05</span>Experiments &amp; results</a
           ><a class="" href="status.html"
             ><span>06</span>Status &amp; limitations</a
-          >
+          ><a href="deployment.html">Deployment</a>
         </nav>
         <div class="nav-footer">
           Local HTML. No external services.<br />HTML guides · README is
@@ -46,11 +46,11 @@
         <div class="kicker">FIELD GUIDE / 03</div>
         <h1 class="page-title">Mission control</h1>
         <p class="lede">
-          Observe the work without changing it. See what is running, why, and
-          what the evidence says.
+          Inspect goals and evidence, talk to the manager, and review changes
+          before they affect active work.
         </p>
-        <figure class="flow" aria-label="A separate observation plane">
-          <figcaption>A separate observation plane</figcaption>
+        <figure class="flow" aria-label="Observation and explicit control">
+          <figcaption>Observation and explicit control</figcaption>
           <ol>
             <li>
               <span class="step-number">01</span><strong>Running manager</strong
@@ -63,137 +63,68 @@
             </li>
             <li>
               <span class="step-number">03</span><strong>Mission control</strong
-              ><span>Refresh, filter and inspect without mutating work</span>
+              ><span>Inspect evidence and send authenticated instructions</span>
             </li>
           </ol>
         </figure>
         <article>
-          <pre><code class="language-sh">omnitrix --db .omnitrix/state.db dashboard
-# Trusted remote access only:
-omnitrix --db /absolute/path/state.db dashboard --host 0.0.0.0 --port 8765
-</code></pre>
-          <p>
-            Default: loopback, port 8765, read-only. Use trusted access
-            or an authenticated proxy. Goals, paths, findings and messages may
-            be sensitive. No API key is required. The manager runs separately.
-          </p>
-          <table>
-            <thead>
-              <tr>
-                <th>View</th>
-                <th>Contents</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Overview</td>
-                <td>
-                  Objective, criteria, latest decision, budgets and check totals
-                </td>
-              </tr>
-              <tr>
-                <td>Tasks</td>
-                <td>
-                  Search/filter assignments, outcomes and runtime/session
-                  metadata
-                </td>
-              </tr>
-              <tr>
-                <td>Hierarchy</td>
-                <td>
-                  Manager and linked assignments; no invented child agents
-                </td>
-              </tr>
-              <tr>
-                <td>Knowledge</td>
-                <td>
-                  Findings, recorded classifications, citations and
-                  opportunities
-                </td>
-              </tr>
-              <tr>
-                <td>Activity</td>
-                <td>
-                  Decisions, progress, questions, handoffs and delivery states
-                </td>
-              </tr>
-              <tr>
-                <td>Documentation</td>
-                <td>
-                  Searchable HTML guides, diagrams, tables and raw experiment
-                  JSON
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <p>
-            Click a record for details. Status is persisted state, not a
-            process-liveness probe. Recorded knowledge classification does not
-            guarantee freshness; revalidate before reuse. A passing check is not
-            goal completion. Use CLI chat for steering and authorization.
-          </p>
-          <h2 id="authenticated-control">Authenticated control</h2>
-          <p>Set <code>OMNITRIX_DASHBOARD_TOKEN</code> securely to 32+ random characters, then start:</p>
-          <pre><code>omnitrix --db .omnitrix/state.db dashboard --allow-control \
-  --allowed-origin https://jinit24.github.io
-# Separate owner process; wait for UI commands without initial autonomous decisions:
+<h2 id="start">Start locally</h2>
+<pre><code>omnitrix dashboard-user operator --users .omnitrix/auth/users.json
+omnitrix --db .omnitrix/state.db dashboard --allow-control \
+  --auth-users .omnitrix/auth/users.json --workspace-root .
+# Separate owner process, initially waiting for commands:
 omnitrix --db .omnitrix/state.db run GOAL_ID --steps 0 --hours 4</code></pre>
-          <p>Choose <strong>Connect manager</strong>, enter the backend URL and token, then use
-          <strong>Manager chat</strong>. Supports messages, steering, pause/cancel, bounded decisions,
-          reconciliation and policy/requirement proposals. Review and explicitly accept permanent changes.
-          Code authorization remains in the CLI; no deployment or arbitrary database writes are exposed.</p>
-          <p>Commands enter the existing durable inbox. A queued receipt is not success: the manager replies
-          and acknowledges separately. Stable request IDs prevent duplicate sends; stale revisions and
-          cross-goal task references are rejected. If no owner is running, commands remain pending.</p>
-          <p>Enabled control protects state and commands with a bearer token. Browser tokens stay in memory;
-          disconnect or close the tab to clear them. Cross-origin requests require an explicit allowed origin.
-          GitHub Pages needs a reachable HTTPS backend (a trusted TLS proxy in front of this HTTP server).
-          No public backend is provisioned by the static site. Localhost HTTP is supported for local use.</p>
-          <h2 id="github-pages">GitHub Pages</h2>
-          <p>Pages shows recorded experiments until you connect an authenticated backend.
-          Enable <strong>Settings → Pages → GitHub Actions</strong>; the Publish experiment snapshot
-          workflow deploys on changes to main. Build locally with
-          <code>python scripts/build_pages.py</code>. The export omits sessions, local paths and message bodies. No credentials or databases are published.</p>
-          <h2 id="data-boundaries">Data boundaries</h2>
-          <ul>
-            <li>
-              Read-only/query-only SQLite transaction per request; no ownership,
-              schema creation or writes.
-            </li>
-            <li>
-              Five-second visible-page refresh; failures retain the last
-              snapshot and timestamp.
-            </li>
-            <li>
-              Missing DB stays absent. No fake/sample data or model calls.
-            </li>
-            <li>
-              Latest 200 goals and 200 records per category per goal; use CLI
-              export for full history.
-            </li>
-            <li>
-              Read-only by default; opt-in authenticated commands, allowlisted assets, escaped content and
-              local-only Content Security Policy.
-            </li>
-          </ul>
-          <h2 id="rebuild-html-docs">Rebuild HTML docs</h2>
-          <pre><code class="language-sh">pip install -e '.[docs]'
-python scripts/build_docs.py
-python scripts/build_docs.py --check
-</code></pre>
-          <p>
-            HTML ships with the app and needs no external services. Only README
-            remains Markdown. Edit the HTML guides directly; rebuild the bundled
-            site after edits. Machine-consumed role instructions remain
-            Markdown. <code>--check</code> detects generated-page drift.
-          </p>
-        </article>
+<p>The default bind is loopback port 8765. Sign in with the account you created. Passwords are hashed;
+browser sessions use revocable HttpOnly cookies and CSRF protection. Resetting a password invalidates
+its sessions. Public HTTPS needs the <a href="deployment.html">single-host deployment</a>.</p>
+<h2 id="views">What to inspect</h2>
+<table><thead><tr><th>View</th><th>Meaning</th></tr></thead><tbody>
+<tr><td>Overview</td><td>Current objective, manager heartbeat, original and added criteria, exact-revision verification and final audit.</td></tr>
+<tr><td>Manager chat</td><td>Send messages, steer/pause/cancel tasks, run bounded decisions and review instruction changes.</td></tr>
+<tr><td>Tasks</td><td>Inspect hypothesis, scope, budget, findings, contradictions, blockers, source evidence and checks.</td></tr>
+<tr><td>Hierarchy</td><td>Actual manager assignments. Evaluators and test processes are identified separately.</td></tr>
+<tr><td>Knowledge</td><td>Recorded findings and classifications. Revalidate sources before reusing them.</td></tr>
+<tr><td>Activity</td><td>Decisions, progress and durable message receipts.</td></tr>
+</tbody></table>
+<h2 id="control">Control and approval</h2>
+<p>Create goals with mandatory criteria and an existing workspace inside the configured root.
+Code goals require a committed repository; creation grants no coding permission and starts no owner.
+One manager owns each database. The UI marks goals without an owner offline.</p>
+<p>Policy replaces the complete instruction text; requirements add constraints and mandatory criteria.
+Review old/new text, affected tasks, evidence and approvals before accepting. A stale proposal requires
+new review. Code authorization stays explicit in the CLI; no deployment command is exposed.</p>
+<h2 id="delivery">Delivery and liveness</h2>
+<table><thead><tr><th>State</th><th>Interpretation</th></tr></thead><tbody>
+<tr><td>Queued / processing</td><td>Durable request awaiting or being handled by the manager.</td></tr>
+<tr><td>Acknowledged</td><td>Receipt handled; this does not mean the engineering goal succeeded.</td></tr>
+<tr><td>Answered / failed</td><td>Recorded response or error, linked to the request.</td></tr>
+<tr><td>Uncertain</td><td>Inspect state before resending. An unchanged retry reuses its request ID.</td></tr>
+<tr><td>Online / stale / offline</td><td>Owner lock plus recent heartbeat, an old heartbeat, or no current owner.</td></tr>
+</tbody></table>
+<p>State refreshes every five seconds. Disconnection retains the last snapshot and disables writes.
+A heartbeat proves responsiveness, not worker progress. Snapshots are read-only; their timestamps and
+experiment origin stay visible.</p>
+<h2 id="pages">GitHub Pages</h2>
+<p>Pages shows three recorded real-model experiment runs. It cannot run the manager. Connect an
+explicitly allowed HTTPS backend using the optional bearer-token flow; same-origin password login is
+preferred on the actual backend site. Tokens are never stored in browser storage or published files.</p>
+<h2 id="boundaries">Boundaries and checks</h2>
+<p>Recent-state reads are bounded to 200 goals and 200 records per category. Use CLI export for history.
+Reads use one read-only transaction; writes use the durable inbox. Source changes, goal/policy revisions
+and exact candidate SHAs constrain evidence. Executable checks and goal audit remain distinct.</p>
+<pre><code>pip install -e '.[test,docs,browser]'
+python scripts/check_ui.py --chromium /usr/bin/chromium
+python scripts/build_docs.py --check</code></pre>
+<p>Browser checks call no models. Rebuild README HTML and search with <code>python scripts/build_docs.py</code>.
+Only README is Markdown; other guides are maintained as HTML.</p>
+</article>
         <div class="article-footer">Source: docs/dashboard.html</div>
       </main>
       <aside class="outline">
         <div class="nav-caption">ON THIS PAGE</div>
-        <a class="" href="#data-boundaries">Data boundaries</a
-        ><a class="" href="#rebuild-html-docs">Rebuild HTML docs</a>
+        <a href="#start">Start locally</a><a href="#views">Views</a>
+        <a href="#control">Control and approval</a><a href="#delivery">Delivery and liveness</a>
+        <a href="#pages">GitHub Pages</a><a href="#boundaries">Boundaries and checks</a>
         <div class="outline-note">
           Need to steer the manager?<br />Use Manager chat with an authenticated backend.
         </div>

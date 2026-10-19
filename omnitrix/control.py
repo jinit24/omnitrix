@@ -34,6 +34,14 @@ CREATE TABLE IF NOT EXISTS activity (
 CREATE TABLE IF NOT EXISTS completion_audits (
  id TEXT PRIMARY KEY, goal_id TEXT NOT NULL REFERENCES goals(id), revision INTEGER NOT NULL,
  candidate TEXT NOT NULL, requirements TEXT NOT NULL, passed INTEGER NOT NULL, created REAL NOT NULL);
+CREATE TABLE IF NOT EXISTS manager_presence (
+ id INTEGER PRIMARY KEY CHECK(id=1), owner TEXT NOT NULL, goal_id TEXT NOT NULL REFERENCES goals(id),
+ started_at REAL NOT NULL, heartbeat_at REAL NOT NULL, stopped_at REAL);
+CREATE TABLE IF NOT EXISTS proposal_revisions (
+ proposal_id TEXT PRIMARY KEY REFERENCES proposals(id), goal_revision INTEGER NOT NULL,
+ policy_revision INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS goal_requests (
+ request_id TEXT PRIMARY KEY, body TEXT NOT NULL, goal_id TEXT NOT NULL REFERENCES goals(id));
 '''
 
 
@@ -43,11 +51,10 @@ class Control:
 
     def initialize(self, goal_id):
         goal = self.store.snapshot(goal_id)['goal']
-        with self.db:
-            self.db.execute('INSERT OR IGNORE INTO goal_versions VALUES(?,?,?,?,?,?,?)',
-                (goal_id, 1, goal['objective'], json.dumps(goal['requirements']), '[]', 'Original goal', time.time()))
-            self.db.execute('INSERT OR IGNORE INTO policy_versions VALUES(?,?,?,?,?)',
-                (goal_id, 1, '', 'initial', time.time()))
+        self.store.execute('INSERT OR IGNORE INTO goal_versions VALUES(?,?,?,?,?,?,?)',
+            (goal_id, 1, goal['objective'], json.dumps(goal['original_requirements']), '[]', 'Original goal', time.time()))
+        self.store.execute('INSERT OR IGNORE INTO policy_versions VALUES(?,?,?,?,?)',
+            (goal_id, 1, '', 'initial', time.time()))
 
     def current(self, goal_id):
         self.initialize(goal_id)
@@ -84,12 +91,34 @@ class Control:
         self.store.execute('INSERT INTO activity(goal_id,task_id,kind,detail,created) VALUES(?,?,?,?,?)',
                            (goal_id, task_id, kind, json.dumps(detail), time.time()))
 
+    def heartbeat(self, goal_id, owner, *, start=False, stopped=False):
+        now = time.time()
+        if start:
+            self.store.execute('INSERT OR REPLACE INTO manager_presence VALUES(1,?,?,?,?,NULL)',
+                               (owner, goal_id, now, now))
+        else:
+            self.store.execute('UPDATE manager_presence SET heartbeat_at=?,stopped_at=? WHERE id=1 AND owner=?',
+                               (now, now if stopped else None, owner))
+
     def propose(self, goal_id, kind, body):
         if kind not in ('policy', 'requirements'):
             raise ValueError('Only explicit policy or requirements proposals are supported')
+        if not isinstance(body, dict):
+            raise ValueError('Proposal must be an object')
+        if kind == 'policy' and (not isinstance(body.get('instructions'), str) or not body['instructions'].strip()):
+            raise ValueError('Policy needs nonempty instructions')
+        if kind == 'requirements' and (not isinstance(body.get('constraint'), str) or not body['constraint'].strip() or not isinstance(body.get('add_requirements', []), list) or any(not isinstance(c, str) or not c.strip() for c in body.get('add_requirements', []))):
+            raise ValueError('Requirements need a constraint and a list of nonempty criteria')
+        affected = body.get('affected_tasks')
+        if affected is not None and (not isinstance(affected, list) or any(not isinstance(t, str) or not self.db.execute('SELECT 1 FROM tasks WHERE id=? AND goal_id=?', (t, goal_id)).fetchone() for t in affected)):
+            raise ValueError('Affected tasks must belong to this goal')
         proposal_id = uuid.uuid4().hex
-        self.store.execute('INSERT INTO proposals VALUES(?,?,?,?,?,?)',
-                           (proposal_id, goal_id, kind, json.dumps(body), 'pending', time.time()))
+        current = self.current(goal_id)
+        with self.db:
+            self.db.execute('INSERT INTO proposals VALUES(?,?,?,?,?,?)',
+                            (proposal_id, goal_id, kind, json.dumps(body), 'pending', time.time()))
+            self.db.execute('INSERT INTO proposal_revisions VALUES(?,?,?)',
+                            (proposal_id, current['goal']['revision'], current['policy']['version']))
         return proposal_id
 
     def accept(self, goal_id, proposal_id):
@@ -99,6 +128,9 @@ class Control:
             raise ValueError('Unknown or already applied proposal')
         body = json.loads(proposal['body'])
         current = self.current(goal_id)
+        base = self.db.execute('SELECT * FROM proposal_revisions WHERE proposal_id=?', (proposal_id,)).fetchone()
+        if base and (base['goal_revision'] != current['goal']['revision'] or base['policy_revision'] != current['policy']['version']):
+            raise ValueError('Proposal is stale after an instruction change; create and review a new proposal')
         if not isinstance(body,dict):
             raise ValueError('Proposal must be an object')
         if proposal['kind']=='requirements' and (not isinstance(body.get('constraint'),str) or not body['constraint'].strip() or not isinstance(body.get('add_requirements',[]),list) or any(not isinstance(c,str) or not c.strip() for c in body.get('add_requirements',[]))):

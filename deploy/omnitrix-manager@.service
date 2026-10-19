@@ -1,0 +1,29 @@
+[Unit]
+Description=Omnitrix manager for goal %i
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+[Service]
+Type=simple
+User=omnitrix
+Group=omnitrix
+WorkingDirectory=/opt/omnitrix
+EnvironmentFile=/etc/omnitrix.env
+ExecStart=/opt/omnitrix/.venv/bin/python -m omnitrix.cli --db ${OMNITRIX_DB} run %i --steps 0 --hours 8760
+Restart=on-failure
+RestartSec=5
+KillSignal=SIGINT
+KillMode=mixed
+TimeoutStopSec=45
+StateDirectory=omnitrix
+StateDirectoryMode=0700
+UMask=0077
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/omnitrix
+
+[Install]
+WantedBy=multi-user.target

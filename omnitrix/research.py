@@ -173,6 +173,17 @@ class Research:
                 'evaluation': evaluation.model_dump() if evaluation else None,
                 'report': report.model_dump() if report else None}
 
+    def _lock_current_revision(self, job, revision):
+        # Hold the writer lock through evidence publication. Control.current()
+        # initializes state and commits, so compare durable versions directly.
+        self.db.execute('BEGIN IMMEDIATE')
+        goal = self.db.execute('SELECT max(revision) FROM goal_versions WHERE goal_id=?',
+                               (job['goal_id'],)).fetchone()[0]
+        policy = self.db.execute('SELECT max(version) FROM policy_versions WHERE goal_id=?',
+                                 (job['goal_id'],)).fetchone()[0]
+        return (goal == revision['goal']['revision'] and policy == revision['policy']['version']
+                and self.job(job['id'])['status'] != 'invalidated')
+
     async def attempt(self, job_id, feedback=''):
         job = self.job(job_id)
         spec = ResearchPlan.model_validate_json(job['spec'])
@@ -211,15 +222,19 @@ class Research:
                 report = DiscoveryReport.model_validate(report)
                 if not any(not source['stale'] for source in tools.evidence()):
                     raise ValueError('Discovery inspected no current evidence. Read scoped sources before returning a map; filename assumptions alone do not complete discovery.')
-                self.save_discovery(job, report, tools)
-                return self.finish(job, run_id, 'discovered', report)
+                with self.db:
+                    if not self._lock_current_revision(job, revision):
+                        return self.finish(job, run_id, 'stale', report, feedback='Revision changed before discovery publication')
+                    self.save_discovery(job, report, tools)
+                    return self.finish(job, run_id, 'discovered', report)
             report = ResearchReport.model_validate(report)
             # Evaluation has a fresh agent context, captured excerpts, and its own bounded reads.
             self.charge(job['goal_id'])
             review_tools = ResearchTools(self.store, run_id, workspace, spec.scope, spec.budget.tool_calls)
             evidence = tools.evidence()
             evaluation = await asyncio.wait_for(self.agents.run('evaluation',
-                {'plan': spec.model_dump(), 'report': report.model_dump(), 'evidence': evidence}, review_tools),
+                {'plan': spec.model_dump(), 'goal': context['goal'],
+                 'report': report.model_dump(), 'evidence': evidence}, review_tools),
                 spec.budget.seconds)
             evaluation = Evaluation.model_validate(evaluation)
             if Control(self.store).current(job['goal_id']) != revision or self.job(job_id)['status'] == 'invalidated':
@@ -235,7 +250,7 @@ class Research:
                 self.charge(job['goal_id'])
                 review_tools=ResearchTools(self.store,run_id,workspace,spec.scope,spec.budget.tool_calls)
                 corrected=await asyncio.wait_for(self.agents.run('evaluation',
-                    {'plan':spec.model_dump(),'report':report.model_dump(),'evidence':review_tools.evidence(),
+                    {'plan':spec.model_dump(),'goal':context['goal'],'report':report.model_dump(),'evidence':review_tools.evidence(),
                      'gate_feedback':evaluation.feedback,'instruction':'Make a fresh, internally consistent judgment. Do not change the verdict merely to pass a gate; use insufficient if evidence is inadequate.'},review_tools),spec.budget.seconds)
                 corrected=Evaluation.model_validate(corrected)
                 evaluation=self.gate(report,corrected,review_tools.evidence(),spec,review_tools.coverage(corrected.test_evidence_ids))
@@ -246,8 +261,11 @@ class Research:
             status = evaluation.verdict
             if status in ('insufficient', 'blocked') and job['attempts'] + 1 >= spec.budget.attempts:
                 status = 'escalated'
-            self.save_findings(job, report, evaluation)
-            return self.finish(job, run_id, status, report, evaluation, evaluation.feedback)
+            with self.db:
+                if not self._lock_current_revision(job, revision):
+                    return self.finish(job, run_id, 'stale', report, feedback='Revision changed before findings publication')
+                self.save_findings(job, report, evaluation)
+                return self.finish(job, run_id, status, report, evaluation, evaluation.feedback)
         except asyncio.CancelledError:
             self.finish(job, run_id, 'interrupted', feedback='Cancelled; reconcile captured observations before retry')
             raise
@@ -271,7 +289,9 @@ class Research:
         if evaluation.verdict in ('supported', 'falsified') and not evaluation.evidence_ids:
             errors.append('Evaluator must cite independently available evidence')
         if evaluation.verdict == 'supported' and (not claims or any(not f.evidence_ids for f in claims)):
-            errors.append('Every asserted claim needs observed evidence; assumptions are not verified facts')
+            missing = [f.statement[:180] for f in claims if not f.evidence_ids]
+            errors.append('Every asserted claim needs observed evidence; uncited claims: ' +
+                          json.dumps(missing) + '. Cite captured sources or move unexamined gaps to uncertainties/assumptions')
         if evaluation.verdict=='supported' and evaluation.claim_reviews:
             expected={index for index,finding in enumerate(report.findings) if finding.classification=='claim'}
             reviewed={review.finding_index for review in evaluation.claim_reviews}
