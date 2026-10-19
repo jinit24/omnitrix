@@ -1,0 +1,20 @@
+diff --git a/service.py b/service.py
+index ff1ed84..0641478 100644
+--- a/service.py
++++ b/service.py
+@@ -1,2 +1,14 @@
+ def process(call, attempts=3):
+-    return call()
++    if attempts < 1:
++        raise ValueError('attempts must be >= 1')
++
++    last_timeout = None
++
++    for _ in range(attempts):
++        try:
++            return call()
++        except TimeoutError as err:
++            last_timeout = err
++
++    if last_timeout is not None:
++        raise last_timeout

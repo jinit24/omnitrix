@@ -1,0 +1,12 @@
+diff --git a/service.py b/service.py
+index 4e8c090..e54c905 100644
+--- a/service.py
++++ b/service.py
+@@ -1,2 +1,6 @@
+ def process(keys, fetch_many):
+-    return [fetch_many([key]).get(key) for key in keys]
++    if not keys:
++        return []
++
++    fetched = fetch_many(list(dict.fromkeys(keys)))
++    return [fetched.get(key) for key in keys]

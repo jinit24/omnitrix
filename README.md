@@ -94,6 +94,8 @@ automatic semantic grader or a production monitoring service. Old stored handoff
 still load; an absent quality report is unreviewed. New/resumed model invocations load
 current prompts; an already-running turn is not retroactively changed. See
 [role contracts and review examples](docs/QUALITY_GATES.md).
+See the [measured comparison and candidate/check artifacts](docs/experiments/adaptive-comparison.md)
+and [execution design, monitoring and rollback](docs/ADAPTIVE_EXECUTION.md).
 
 ## Authorize an implementation
 

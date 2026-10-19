@@ -1,0 +1,16 @@
+diff --git a/service.py b/service.py
+index ff1ed84..e7fc532 100644
+--- a/service.py
++++ b/service.py
+@@ -1,2 +1,10 @@
+ def process(call, attempts=3):
+-    return call()
++    if attempts < 1:
++        raise ValueError("attempts must be >= 1")
++
++    for attempt_index in range(attempts):
++        try:
++            return call()
++        except TimeoutError:
++            if attempt_index == attempts - 1:
++                raise

@@ -1,0 +1,185 @@
+{
+  "purpose": "Retain the initial unavailable-action failure before the action-schema fix; excluded from the final paired comparison.",
+  "completed_runs": [
+    {
+      "task": "deduplication",
+      "fixture_version": 2,
+      "arm": "single",
+      "goal_id": "77534b60a3f84046810a72afd14d0d94",
+      "database": "/workspace/omnitrix/.omnitrix/adaptive-comparison-v1/trial-0/deduplication/single/state.db",
+      "initial_tree": "1ac60a6b8bf5913bab613db1cf122783ec9f71ca",
+      "arm_seconds": 600,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "1751d0c531a6d39ddea3e02b842e5d4095082f65",
+      "source_revision": "fe9bcd65b49cf8fabcbb4a5447ad8bed9afbe2fe",
+      "source_dirty": false,
+      "stage_timings": {
+        "manager_turn": [],
+        "research_role": [],
+        "implementation_turn": [
+          {
+            "seconds": 33.62818762899997,
+            "status": "completed"
+          }
+        ],
+        "candidate_verification": []
+      },
+      "manager_decisions": 0,
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "checks": [
+        {
+          "requirement": "Preserve first occurrence order without mutating input",
+          "passed": true,
+          "artifact": "/workspace/omnitrix/.omnitrix/adaptive-comparison-v1/trial-0/deduplication/single/score-0.log",
+          "candidate": "1751d0c531a6d39ddea3e02b842e5d4095082f65"
+        },
+        {
+          "requirement": "Deduplication uses a linear number of equality checks",
+          "passed": true,
+          "artifact": "/workspace/omnitrix/.omnitrix/adaptive-comparison-v1/trial-0/deduplication/single/score-1.log",
+          "candidate": "1751d0c531a6d39ddea3e02b842e5d4095082f65"
+        }
+      ],
+      "wall_seconds": 33.96421179700019,
+      "tokens": {
+        "input": 81050,
+        "output": 2944
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": null,
+      "corrections": null,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 1,
+      "verified_outcome_gain": 1,
+      "selected_opportunities": [],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ]
+    },
+    {
+      "task": "deduplication",
+      "fixture_version": 2,
+      "arm": "manager",
+      "goal_id": "6323dff4e5314bfa937aea8ff554685b",
+      "database": "/workspace/omnitrix/.omnitrix/adaptive-comparison-v1/trial-0/deduplication/manager/state.db",
+      "initial_tree": "1ac60a6b8bf5913bab613db1cf122783ec9f71ca",
+      "arm_seconds": 600,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "b0105e612c9338255e1bb7304a793352902496ea",
+      "source_revision": "fe9bcd65b49cf8fabcbb4a5447ad8bed9afbe2fe",
+      "source_dirty": false,
+      "stage_timings": {
+        "manager_turn": [
+          {
+            "seconds": 9.181043477999992,
+            "context_bytes": 2603,
+            "action": "implement"
+          },
+          {
+            "seconds": 8.87299327699975,
+            "context_bytes": 5041,
+            "action": "follow_up"
+          },
+          {
+            "seconds": 6.0677929290000066,
+            "context_bytes": 7502,
+            "action": "pause"
+          }
+        ],
+        "research_role": [],
+        "implementation_turn": [],
+        "candidate_verification": []
+      },
+      "manager_decisions": 3,
+      "requirements_satisfied": 1,
+      "requirements_total": 2,
+      "checks": [
+        {
+          "requirement": "Preserve first occurrence order without mutating input",
+          "passed": true,
+          "artifact": "/workspace/omnitrix/.omnitrix/adaptive-comparison-v1/trial-0/deduplication/manager/score-0.log",
+          "candidate": "b0105e612c9338255e1bb7304a793352902496ea"
+        },
+        {
+          "requirement": "Deduplication uses a linear number of equality checks",
+          "passed": false,
+          "artifact": "/workspace/omnitrix/.omnitrix/adaptive-comparison-v1/trial-0/deduplication/manager/score-1.log",
+          "candidate": "b0105e612c9338255e1bb7304a793352902496ea"
+        }
+      ],
+      "wall_seconds": 24.6435130939999,
+      "tokens": {
+        "input": 32957,
+        "output": 1318
+      },
+      "token_measurement_complete": false,
+      "repeated_research_queries": 0,
+      "corrections": 0,
+      "interventions": 0,
+      "incorrect_completion_claim": null,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 0.5,
+      "baseline_requirements_satisfied": 1,
+      "verified_outcome_gain": 0,
+      "selected_opportunities": [],
+      "verified_outcome": false,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ]
+    }
+  ],
+  "manager_decisions": [
+    {
+      "action": "implement",
+      "rationale": "Goal is a code change with explicit requirements and verified implementation required. Observed repository scope is tiny and concrete: service.py plus system.md. No prior tasks, decisions, research, or implementations exist in history/knowledge. The smallest route to outcome is direct implementation against the ready local contract, then exact-revision audit/verification. Main material risk is hidden behavior in service.py/system.md; that is addressed by reading those scoped files and adding executable checks for order preservation, non-mutation, and linear equality-check behavior.",
+      "instructions": "Implement a deduplication improvement in the observed scoped file(s) under /workspace/omnitrix/.omnitrix/adaptive-comparison-v1/trial-0/deduplication/manager/repo, preserving public behavior while meeting both requirements: (1) preserve first-occurrence order without mutating input and (2) use a linear number of equality checks. Read and use only the observed repository files as contract/context, especially service.py and system.md. Add or update deterministic local tests/verification that demonstrate: repeated events dedupe in first-seen order, input sequence is unchanged after call, and equality checks scale linearly with input size under the provided fixture/harness. Return a verified candidate with exact modified paths, test commands/results, limitations, and any benchmark/measurement evidence available locally. Stop once the candidate is locally verified and ready for independent audit; do not claim merge, deploy, or production impact.",
+      "task_id": null,
+      "priority": 1,
+      "research_plan": null,
+      "research_id": null,
+      "implementation_id": null,
+      "research_plans": [],
+      "independence_reason": ""
+    },
+    {
+      "action": "follow_up",
+      "rationale": "The prior implement decision was rejected because it referenced no valid implementation ID, and the available tools in this manager context are read-only. I verified the actual repository scope from resource inventory: only service.py and system.md are present. There is no existing implementation artifact to audit or continue, and no tool here can create or modify code directly. The concrete blocker is therefore execution capability/implementation handle, not lack of problem clarity. The smallest bounded next step is to request or provision a valid implementation worker/thread for this explicit code goal, scoped to the observed files and required local verification.",
+      "instructions": "Blocked on missing implementation capability/ID. Observed repo scope is limited to `service.py` and `system.md`; requirements are clear and implementation-ready, but no existing implementation artifact is available and this context exposes only read-only manager tools. Next step: create or attach a valid implementation worker for this goal, scoped to those files, then implement and locally verify order preservation, non-mutation, and linear equality-check behavior before audit.",
+      "task_id": null,
+      "priority": 1,
+      "research_plan": null,
+      "research_id": null,
+      "implementation_id": null,
+      "research_plans": [],
+      "independence_reason": "Implementation work is the correct route, but cannot proceed until a valid implementation thread/ID exists."
+    },
+    {
+      "action": "pause",
+      "rationale": "The goal explicitly requires a verified implementation, but current observed state has no authorized implementation artifact or active implementation worker to attach to, and the only available manager tools in this context are read-only. Prior attempts to choose implement/follow_up were rejected: one for unknown implementation, one for not using the required typed implementation path. Repository inventory is already confirmed (`service.py`, `system.md`), so the remaining blocker is execution authorization/capability, not scope discovery or research uncertainty.",
+      "instructions": "BLOCKED pending creation or attachment of an authorized typed implementation for goal `6323dff4e5314bfa937aea8ff554685b`, scoped to `service.py` and any needed local verification in the same workspace. Once provisioned, execute the bounded implementation already defined: preserve first-occurrence order without mutating input, ensure linear equality checks, and add deterministic local verification for order, non-mutation, and equality-check scaling before exact-revision audit. Evidence table:\n\n| Gate | Status | Evidence |\n|---|---|---|\n| Scope identified | PASS | resource_inventory shows only `service.py` and `system.md` |\n| Requirements clear | PASS | goal requirements explicitly state order/non-mutation and linear equality checks |\n| Material uncertainty requiring research | N/A | no unresolved defect-mechanism question; this is implementation-ready |\n| Authorized implementation handle exists | BLOCKED | `implementations: []`; prior decision rejected with `Unknown implementation` |\n| Manager can modify code directly | BLOCKED | available tools here are read-only manager tools only |\n\nNext action owner: orchestration/system to provision a valid implementation ID or attach an implementation worker. Success signal: implementation artifact appears in state and can be referenced by ID. Revisit immediately when that prerequisite is satisfied.",
+      "task_id": null,
+      "priority": 1,
+      "research_plan": null,
+      "research_id": null,
+      "implementation_id": null,
+      "research_plans": [],
+      "independence_reason": "A code change is required, but no valid implementation thread/ID exists to carry it out from this manager context."
+    }
+  ],
+  "interrupted_arm": "Third arm was intentionally interrupted to correct routing; no scored result is claimed."
+}

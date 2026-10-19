@@ -1,0 +1,30 @@
+diff --git a/service.py b/service.py
+index 99152ec..a8a4700 100644
+--- a/service.py
++++ b/service.py
+@@ -1,6 +1,23 @@
+ def process(items):
++    seen_hashable = set()
++    seen_unhashable = []
+     result = []
++
+     for item in items:
+-        if item not in result:
+-            result.append(item)
++        try:
++            if item in seen_hashable:
++                continue
++        except TypeError:
++            if item in seen_unhashable:
++                continue
++            if any(item == seen_item for seen_item in seen_hashable):
++                continue
++            seen_unhashable.append(item)
++        else:
++            if any(item == seen_item for seen_item in seen_unhashable):
++                continue
++            seen_hashable.add(item)
++
++        result.append(item)
++
+     return result

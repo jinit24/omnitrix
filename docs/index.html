@@ -172,7 +172,9 @@ source, scope, authorization, revision and executable-check gates. They are not 
 automatic semantic grader or a production monitoring service. Old stored handoffs
 still load; an absent quality report is unreviewed. New/resumed model invocations load
 current prompts; an already-running turn is not retroactively changed. See
-<a href="QUALITY_GATES.md">role contracts and review examples</a>.</p>
+<a href="QUALITY_GATES.md">role contracts and review examples</a>.
+See the <a href="experiments/adaptive-comparison.md">measured comparison and candidate/check artifacts</a>
+and <a href="ADAPTIVE_EXECUTION.md">execution design, monitoring and rollback</a>.</p>
 <h2>Authorize an implementation</h2>
 <p>A committed Git workspace, explicit authorization and executable checks for every
 mandatory criterion are required. Unknown defects/designs use accepted research;

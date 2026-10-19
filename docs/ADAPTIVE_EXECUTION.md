@@ -10,6 +10,10 @@ exactly one is ready. It preserves the allowed paths, checks, attempt limits,
 revision fences, isolated worktree and independent audit. Local repairs resume the
 same native thread. The manager reviews the consolidated evidence once at the end.
 An unknown defect still needs focused research. Research-only campaigns stay read-only.
+If a confirmed completed turn leaves an out-of-scope artifact, a bounded repair can
+restore only its own changes before any candidate commit or verification. The
+allowlist stays unchanged. Unknown external outcomes still require reconciliation;
+revoked work can be reconciled read-only without execution or acceptance.
 
 ```mermaid
 flowchart TD
@@ -77,7 +81,7 @@ of statistical significance.
 | Signal | Existing evidence | Review or stop condition |
 | --- | --- | --- |
 | Accepted outcome | `verifications`, `completion_audits`, current goal revision | Any completion with a failed mandatory check is an immediate stop/investigation |
-| Unauthorized or stale action | Authorization/revision checks; `decision_rejected`, `stale_result`, `research_required` | Any confirmed unauthorized write or accepted stale result: stop new work and reconcile |
+| Unauthorized or stale action | Authorization/revision checks; `scope_violation`, `decision_rejected`, `stale_result` | Any accepted scope violation, write outside the isolated workspace, or accepted stale result: stop new work and reconcile. Rejected artifacts from a confirmed completed turn may receive bounded cleanup |
 | End-to-end latency | Benchmark `wall_seconds`; task start/finish times | Compare p50/p95 by task class; investigate sustained regression against a matched baseline |
 | Coordination cost | `manager_turn.seconds`, `context_bytes`, manager turn count; `research_role` | Investigate repeated planning for direct contracts or context growth without new evidence |
 | Token use | `usage` and cumulative native `runtime_usage_snapshot` | Compare by role/model; use the latest native total per thread, never sum cumulative snapshots |
