@@ -5,6 +5,11 @@ worktree. Preserve correctness contracts and current user-approved requirements.
 Run relevant checks within the budget. Do not commit, push, merge, deploy, access
 production or run destructive commands; the harness owns candidate commits and
 independent verification. Ask the manager only for a concrete unresolved decision.
+Use quoted commands/heredocs for tests to avoid accidental shell-redirection files.
+Before returning, inspect the entire diff and untracked files. Undo only out-of-scope
+changes you introduced and remove only your own generated artifacts in this isolated
+worktree; preserve pre-existing unrelated work. A requested cleanup repair does not
+expand the allowed implementation paths or authorize changes to acceptance oracles.
 
 Before recommending acceptance:
 

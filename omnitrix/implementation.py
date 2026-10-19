@@ -156,6 +156,21 @@ class Implementations:
             raise ValueError('Unknown implementation')
         return dict(row)
 
+    def scope_repair(self, row, spec, paths):
+        """A confirmed completed turn can repair scope; unknown turns cannot."""
+        violations = sorted(set(p for p in paths if p and not any(
+            p == allowed or p.startswith(allowed.rstrip('/')+'/') for allowed in spec.allowed_paths)))
+        if not violations:
+            return None
+        status = 'repair' if row['attempts'] < spec.max_attempts else 'escalated'
+        feedback = {'failure_kind':'local', 'unauthorized_paths':violations[:30],
+            'unauthorized_path_count':len(violations),
+            'correction':'The confirmed completed turn left changes outside explicit authorization. Restore only unauthorized changes you introduced and remove only your newly created artifacts in this isolated worktree. Preserve pre-existing unrelated work. Do not expand allowed_paths. Independent verification remains blocked until the entire diff is within scope.'}
+        self.store.execute('UPDATE implementations SET status=?,feedback=? WHERE id=?',
+                           (status,json.dumps(feedback),row['id']))
+        self.control.event(row['goal_id'],'scope_violation',{'implementation':row['id'],'status':status,**feedback})
+        return self.get(row['id'])
+
     def prepare(self, row):
         repo = self.store.snapshot(row['goal_id'])['goal']['workspace']
         path = Path(row['worktree'])
@@ -234,8 +249,10 @@ class Implementations:
                 # Use NUL-delimited path listing to avoid quoting and rename ambiguities.
                 tracked = subprocess.check_output(['git','-C',str(workspace),'diff',row['base_revision'],'--no-renames','--name-only','-z']).decode().split('\0')
                 untracked = subprocess.check_output(['git','-C',str(workspace),'ls-files','--others','--exclude-standard','-z']).decode().split('\0')
-                if any(p and not any(p == a or p.startswith(a.rstrip('/')+'/') for a in spec.allowed_paths) for p in tracked+untracked):
-                    raise ValueError('Implementation changed paths outside explicit authorization')
+                repair = self.scope_repair(self.get(implementation_id), spec, tracked+untracked)
+                if repair:
+                    row = repair
+                    continue
                 if changed:
                     git(workspace, 'add', '--all')
                     git(workspace, '-c', 'user.name=Omnitrix', '-c', 'user.email=omnitrix@localhost',
@@ -264,7 +281,13 @@ class Implementations:
 
     async def reconcile(self, implementation_id, thread_result=None):
         row=self.get(implementation_id)
-        auth,spec=self.auth(row['authorization'])
+        authorization_error = None
+        try:
+            auth,spec=self.auth(row['authorization'])
+        except ValueError as exc:
+            # Reading a terminal external outcome is still necessary after a
+            # revocation. It grants no permission to commit, verify or execute.
+            authorization_error = str(exc)
         references=[json.loads(m[0]) for m in self.db.execute("SELECT body FROM messages WHERE goal_id=? AND kind='implementation_session' ORDER BY created DESC",(row['goal_id'],))]
         reference=next((r for r in references if r.get('implementation_id')==implementation_id),None)
         if reference is None:
@@ -279,6 +302,12 @@ class Implementations:
         turn=next((t for t in turns if reference and t['id']==reference['turn_id']),None)
         if turn is None:
             return {'blocked':'Exact external turn outcome is not available; no coding action was replayed'}
+        if authorization_error and turn['status'] in ('completed','failed','interrupted'):
+            self.store.execute("UPDATE implementations SET status='invalidated',feedback=? WHERE id=?",
+                ('Terminal external turn reconciled without execution or acceptance: '+authorization_error,implementation_id))
+            self.control.event(row['goal_id'],'implementation_reconciled',{'implementation':implementation_id,
+                'status':'invalidated','authorization_error':authorization_error})
+            return self.get(implementation_id)
         if turn['status'] in ('failed','interrupted'):
             status='repair' if row['attempts']<spec.max_attempts else 'escalated'
             self.store.execute('UPDATE implementations SET status=?,feedback=? WHERE id=?',
@@ -289,8 +318,9 @@ class Implementations:
         workspace=Path(row['worktree'])
         changed=subprocess.check_output(['git','-C',str(workspace),'diff',row['base_revision'],'--no-renames','--name-only','-z']).decode().split('\0')
         changed+=subprocess.check_output(['git','-C',str(workspace),'ls-files','--others','--exclude-standard','-z']).decode().split('\0')
-        if any(p and not any(p==a or p.startswith(a.rstrip('/')+'/') for a in spec.allowed_paths) for p in changed):
-            raise ValueError('Reconciled candidate changed unauthorized paths')
+        repair = self.scope_repair(row, spec, changed)
+        if repair:
+            return repair
         if git(workspace,'status','--porcelain'):
             git(workspace,'add','--all')
             git(workspace,'-c','user.name=Omnitrix','-c','user.email=omnitrix@localhost','commit','-m',f'Reconciled candidate {implementation_id}')

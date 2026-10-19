@@ -127,8 +127,9 @@ async def test_direct_still_rejects_changed_oracle_and_out_of_scope_edits(projec
             return await super().start(workspace,instructions,**kwargs)
     service=Implementations(store,OutOfScope())
     iid=service.create(service.authorize(goal,spec,explicit=True))
-    assert (await service.run(iid))['status']=='uncertain'
+    assert (await service.run(iid))['status']=='escalated'
     assert 'outside explicit' in service.get(iid)['feedback']
+    assert service.get(iid)['candidate'] is None
     checker.write_text('assert False\n')
     with pytest.raises(ValueError,match='oracle changed'):
         service.auth(service.get(iid)['authorization'])
@@ -325,3 +326,75 @@ async def test_uncertain_standalone_implementation_blocks_another_direct_action(
         assert not runtime.sessions
     finally:
         await owner.close()
+
+
+async def test_completed_scope_violation_repairs_in_same_thread_before_any_verification(project):
+    store,goal,repo,spec=project
+    class Cleanup(Runtime):
+        async def start(self,workspace,instructions,**kwargs):
+            result=await super().start(workspace,instructions,**kwargs)
+            accidental=Path(workspace)/'='
+            if len(self.sessions)==1:
+                accidental.write_text('Own test redirection artifact')
+            else:
+                assert not store.db.execute('SELECT 1 FROM verifications').fetchone()
+                assert 'unauthorized_paths' in json.loads(instructions)['feedback']
+                accidental.unlink()
+            return result
+    runtime=Cleanup();service=Implementations(store,runtime)
+    iid=service.create(service.authorize(goal,spec,explicit=True))
+    result=await service.run(iid)
+    assert result['status']=='ready_for_audit' and result['attempts']==2
+    assert runtime.sessions==[None,'native-thread']
+    assert service.audit(iid)['passed']
+    assert not (Path(result['worktree'])/'=').exists()
+
+
+async def test_single_benchmark_enforces_same_write_scope(tmp_path):
+    from scripts.benchmark import ROOT,MockCoding,run_arm
+    task=json.loads((ROOT/'benchmarks/tasks.json').read_text())[1]
+    class ExtraArtifact(MockCoding):
+        async def start(self,workspace,instructions,**kwargs):
+            result=await super().start(workspace,instructions,**kwargs)
+            (Path(workspace)/'=').write_text('Unexpected output')
+            return result
+    report=await run_arm(task,'single',tmp_path/'single',False,True,6,runtime_override=ExtraArtifact(task['solution']))
+    assert not report['verified_outcome']
+    assert 'outside explicit authorization' in report['errors'][0]
+
+
+async def test_revoked_completed_turn_can_be_reconciled_without_execution_or_acceptance(project):
+    store,goal,repo,spec=project
+    class LostResponse(Runtime):
+        async def wait(self,*args): raise RuntimeError('Lost response after write')
+        async def reconcile(self,thread):
+            return {'thread':{'id':thread,'turns':[{'id':'turn-1','status':'completed','items':[]}]}}
+    runtime=LostResponse();service=Implementations(store,runtime)
+    iid=service.create(service.authorize(goal,spec,explicit=True))
+    assert (await service.run(iid))['status']=='uncertain'
+    control=Control(store)
+    proposal=control.propose(goal,'requirements',{'constraint':'Change the numeric contract','add_requirements':['Handle fractions']})
+    control.accept(goal,proposal)
+    assert (await service.reconcile(iid))['status']=='invalidated'
+    assert len(runtime.sessions)==1
+    assert not store.db.execute('SELECT 1 FROM verifications').fetchone()
+    assert not store.db.execute('SELECT 1 FROM completion_audits').fetchone()
+
+
+async def test_resumed_native_turn_belongs_to_latest_live_task_not_finished_history(project):
+    from omnitrix.execution import Execution
+    store,goal,repo,spec=project
+    Control(store).current(goal)
+    tasks=[]
+    for index,state in enumerate(('reconciled','running'),start=1):
+        task=Execution(store,type('Adapter',(),{'name':'implementation'})()).assign(goal,'Bounded repair',1)
+        store.execute('''INSERT INTO task_runtime(task_id,goal_revision,policy_revision,state,spec,session_id,turn_id,started,last_progress,deadline)
+            VALUES(?,1,1,?,'{}','shared-thread',?,?,0,9999999999)''',(task,state,f'old-{index}',index))
+        tasks.append(task)
+    owner=Supervisor(store,goal,runtime=Runtime())
+    await owner.on_runtime_event({'method':'turn/started','params':{'threadId':'shared-thread','turn':{'id':'new-turn'}}})
+    assert store.db.execute('SELECT turn_id FROM task_runtime WHERE task_id=?',(tasks[0],)).fetchone()[0]=='old-1'
+    await owner.on_runtime_event({'method':'item/completed','params':{'threadId':'shared-thread','turnId':'new-turn',
+        'item':{'id':'verified-change','type':'fileChange','path':'service.py'}}})
+    assert store.db.execute('SELECT progress_count FROM task_runtime WHERE task_id=?',(tasks[0],)).fetchone()[0]==0
+    assert store.db.execute('SELECT progress_count FROM task_runtime WHERE task_id=?',(tasks[1],)).fetchone()[0]==1

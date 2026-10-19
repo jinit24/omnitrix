@@ -319,7 +319,9 @@ class Supervisor:
         params = data.get('params', {})
         method = data.get('method','')
         if method == 'turn/started':
-            self.store.execute('UPDATE task_runtime SET turn_id=? WHERE session_id=?',
+            self.store.execute('''UPDATE task_runtime SET turn_id=? WHERE task_id=(
+                SELECT task_id FROM task_runtime WHERE session_id=? AND state IN ('running','waiting')
+                ORDER BY started DESC,rowid DESC LIMIT 1)''',
                 (params.get('turn',{}).get('id'),params.get('threadId')))
         row = self.db.execute('SELECT * FROM task_runtime WHERE session_id=? AND turn_id=?',
                               (params.get('threadId'),params.get('turnId') or params.get('turn',{}).get('id'))).fetchone()

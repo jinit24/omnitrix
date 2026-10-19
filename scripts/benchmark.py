@@ -170,6 +170,10 @@ async def run_arm(task,arm,directory,live,allow,steps,runtime_override=None,arm_
                         claims=Handoff.model_validate_json(item['text']).status=='completed'
                     except (ValueError,KeyError):
                         pass
+            changed=subprocess.check_output(['git','-C',str(repo),'diff',initial_tree,'--no-renames','--name-only','-z']).decode().split('\0')
+            changed+=subprocess.check_output(['git','-C',str(repo),'ls-files','--others','--exclude-standard','-z']).decode().split('\0')
+            if any(path and path!='service.py' for path in changed):
+                raise ValueError('Single worker changed paths outside explicit authorization')
             git(repo,'add','service.py')
             if git(repo,'diff','--cached','--name-only'):
                 git(repo,'-c','user.name=Benchmark','-c','user.email=benchmark@localhost','commit','-m','Baseline candidate')

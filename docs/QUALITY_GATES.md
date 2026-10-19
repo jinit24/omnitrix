@@ -7,6 +7,7 @@ is `instructions/QUALITY_GATES.md`; `omnitrix/prompts.py` composes it with these
 | Role | Prompt | Required outcome | Follow-through |
 | --- | --- | --- | --- |
 | Master manager | `MANAGER.md` | Assign a bounded finish line; independently accept or return evidence against current criteria | Owner, remaining gate, next action; distinguish candidate, deployment and measured benefit |
+| Research campaign manager | `CAMPAIGN.md` + brain/knowledge | Review independent findings across the saved scope without exceeding persistent budgets | Read-only investigation, remaining coverage and refresh trigger |
 | Agent brain | `BRAIN.md` + `KNOWLEDGE.md` | Traceable decisions using current facts, uncertainty, rejected hypotheses and valid IDs | Refresh stale evidence; preserve contradictions and decision history |
 | Conversational manager | `CHAT.md` + brain/knowledge | Accurate, concise status and explicit policy proposals | Existing proposal/acceptance workflow; no implied completion |
 | Discovery | `DISCOVERY.md` | Sourced map, coverage gaps, ranked bounded opportunities | Next discriminating question and map refresh trigger |
@@ -29,18 +30,24 @@ flowchart TD
     G --> W[Repository worker]
     G --> I[Implementation worker]
     M --> D
+    M -->|Explicit direct contract and checks| I
     D --> R
     R --> E
+    M -->|2..3 independent questions| R
     E -->|Accepted evidence and explicit authorization| I
     I --> V[Independent executable checks at candidate revision]
-    V --> M
-    M -->|Review explanation and evidence| A[Revision audit and handoff]
+    V --> A[Deterministic revision audit]
+    A --> M
+    M -->|Review explanation and evidence| H[Accepted handoff]
     M -->|Missing evidence| R
 ```
 
 This diagram shows responsibilities and review flow, not an automatically executed
 task graph. The manager chooses the next authorized bounded action. Deployment and
 production observation are separate actions; this system does not perform them.
+The direct route runs verification and audit before the single final manager review.
+The research route can request its audit separately. Missing authorization, stale
+evidence, failed checks and uncertain external outcomes still block execution.
 
 ## Review contract
 
@@ -98,6 +105,13 @@ judge them. Deterministic code still checks source IDs/freshness, scopes, author
 budgets, candidate revisions and executable criteria. Text presence or a PASS label
 alone cannot mechanically prove a chart accurate or a monitoring plan sufficient.
 The audit does not inspect prose, configure alerts, deploy, or watch production.
+
+One final evidence package is assembled from focused specialist reports. The HTML
+`omnitrix report` export exposes quality reviews ahead of expandable raw provenance;
+the optional `docs` extra renders safe Markdown tables. Source/model HTML remains
+escaped. Wheel distributions include every role prompt. Manager context contains
+one current snapshot, complete criteria, compact recent results and recall tools;
+older snapshots are not replayed as dialogue. See [execution and monitoring](ADAPTIVE_EXECUTION.md).
 
 Existing persisted reports without `quality_report` deserialize as empty and must be
 treated as unreviewed by the manager. New Codex output schemas require the field;
