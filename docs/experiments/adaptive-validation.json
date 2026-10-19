@@ -220,5 +220,197 @@
     "incorrect_completion_claims": 0,
     "source_revision": "94dabcd4e451d2631a58d00eecde8eaeeb5167fa",
     "scope_check": "All arms enforce the same allowed_paths gate"
+  },
+  "upstream_integration_validation": {
+    "source_revision": "7a1be2d3d0f16b2a8b533b1cd509100145db05c4",
+    "upstream_revision": "988837d89b186fe88fac2469cdeacedd9f74c415",
+    "offline_suite": {
+      "passed": 204,
+      "failed": 0,
+      "skipped": 1,
+      "seconds": 33.734,
+      "command": "python -m pytest -q --junitxml=/workspace/work/adaptive-integrated-final.xml",
+      "note": "Includes all nine recorded fault-injection scenarios, integrated upstream tests, and prompt delivery/export tests for the new investigator and completion-review roles."
+    },
+    "wheel": {
+      "roles_loaded": 10,
+      "instruction_files_compared_byte_for_byte": 13,
+      "isolated_import": true,
+      "sha256": "1e2a02ffa99c74c4e5d437fbaf70691bb078d8974466fba55f747ee63d934cd5"
+    },
+    "live_smoke": {
+      "source_revision": "7a1be2d3d0f16b2a8b533b1cd509100145db05c4",
+      "source_dirty": false,
+      "direct": {
+        "task": "bounded-retries",
+        "fixture_version": 2,
+        "arm": "adaptive",
+        "goal_id": "2a392f588e1742b698c2291005d1e3ff",
+        "initial_tree": "afff2f36cfbf9fc4bac3b16432e87328fa8d5188",
+        "arm_seconds": 300,
+        "manager_model": "gpt-5.4",
+        "codex_model": "gpt-5.3-codex",
+        "mode": "live",
+        "candidate": "23891089d16edbcb8661aec22ede9ac7338e5fb4",
+        "source_revision": "7a1be2d3d0f16b2a8b533b1cd509100145db05c4",
+        "source_dirty": true,
+        "stage_timings": {
+          "manager_turn": [
+            {
+              "seconds": 7.448773391999566,
+              "context_bytes": 9996,
+              "action": "complete"
+            }
+          ],
+          "research_role": [],
+          "implementation_turn": [
+            {
+              "implementation": "ae6df28fb5c849018caf3702be5aa796",
+              "attempt": 1,
+              "seconds": 38.02326144700055,
+              "resumed": false,
+              "status": "completed"
+            },
+            {
+              "implementation": "ae6df28fb5c849018caf3702be5aa796",
+              "attempt": 2,
+              "seconds": 21.094162773999415,
+              "resumed": true,
+              "status": "completed"
+            }
+          ],
+          "candidate_verification": [
+            {
+              "implementation": "ae6df28fb5c849018caf3702be5aa796",
+              "candidate": "23891089d16edbcb8661aec22ede9ac7338e5fb4",
+              "seconds": 0.09276571200007311,
+              "passed": true
+            }
+          ]
+        },
+        "manager_decisions": 2,
+        "goal_status": "completed",
+        "requirements_satisfied": 2,
+        "requirements_total": 2,
+        "checks": [
+          {
+            "requirement": "Retry transient timeouts and return the eventual result",
+            "passed": true,
+            "candidate": "23891089d16edbcb8661aec22ede9ac7338e5fb4",
+            "log": "criterion passed\n"
+          },
+          {
+            "requirement": "Bound retry attempts and do not retry permanent errors",
+            "passed": true,
+            "candidate": "23891089d16edbcb8661aec22ede9ac7338e5fb4",
+            "log": "criterion passed\n"
+          }
+        ],
+        "wall_seconds": 66.9692866360001,
+        "tokens": {
+          "input": 274227,
+          "output": 4885
+        },
+        "token_measurement_complete": true,
+        "repeated_research_queries": 0,
+        "corrections": 1,
+        "interventions": 0,
+        "incorrect_completion_claim": false,
+        "recovery_after_interruption": null,
+        "selected_improvement_quality": 1.0,
+        "baseline_requirements_satisfied": 0,
+        "verified_outcome_gain": 2,
+        "selected_opportunities": [],
+        "verified_outcome": true,
+        "errors": [],
+        "limitations": [
+          "Small fixture suite; not production evidence.",
+          "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+          "Unmeasured token totals and recovery are null, never imputed as zero."
+        ],
+        "quality_reports": [
+          {
+            "role": "Master review",
+            "artifact_id": "complete",
+            "report": "Completed: `service.py` now retries transient `TimeoutError` failures up to the configured attempt bound, returns the eventual successful result, and propagates permanent errors without retry. Verified against the fixture checks:\n\n| Requirement | Result | Evidence |\n|---|---|---|\n| Retry transient timeouts and return the eventual result | PASS | verification artifact `cfc432bb3b0f4e78b09121890beac08c.log` |\n| Bound retry attempts and do not retry permanent errors | PASS | verification artifact `0396306ee9be413497ba90e542de0e65.log` |\n\nMechanism / evidence table:\n\n```text\nprocess(call, attempts)\n \u251c\u2500 attempts < 1 -> raise ValueError   [bounded/invalid input guard]\n \u251c\u2500 call() succeeds -> return result   [eventual success path]\n \u251c\u2500 call() raises TimeoutError\n \u2502   \u251c\u2500 attempts remain -> retry\n \u2502   \u2514\u2500 exhausted -> re-raise timeout  [bounded retries]\n \u2514\u2500 call() raises other exception -> propagate immediately [no permanent-error retry]\n```\n\nBefore/after example: previously a first `TimeoutError` failed the job immediately; now a timeout on attempt 1 and success on attempt 2 returns the successful value. A non-timeout exception still fails on the first occurrence.\n\nPractice/tradeoffs: This matches the fixture contract in `system.md` plus the supplied executable checks. The explicit `attempts < 1` guard chooses clear bounded behavior over ambiguous looping semantics.\n\nValidation and limitations: Verified only within the supplied local fixture scope and checks; no production telemetry or broader test suite was provided, so no production impact claim is made.\n\nFollow-through: For this non-deployed task, monitoring is N/A. Rollback, if needed, is reverting `service.py` to the base revision `ed3e17c339535cbe073cd16e323fd260d45813a4`.\n\nGate outcomes: G1 PASS, G2 PASS, G3 PASS (text diagram/evidence table), G4 PASS, G5 PASS, G6 PASS (non-deployed scope), G7 PASS."
+          },
+          {
+            "role": "Implementation worker",
+            "artifact_id": "ae6df28fb5c849018caf3702be5aa796:01a15283-40f4-7802-ae6a-646ff665211c",
+            "report": "### Outcome\nUpdated `process` in `service.py:1` to retry only `TimeoutError` up to a hard attempt bound, return the eventual success result, and immediately propagate non-timeout exceptions.\n\n### Why it works\nBefore: `process` called `call()` once and never retried.  \nAfter: `process` loops up to `attempts`, catches only `TimeoutError`, and retries until success or final attempt; permanent errors (e.g., `ValueError`) are not retried and bubble on first call.\n\n### Evidence\n| Requirement | Evidence | Result |\n|---|---|---|\n| Retry transient timeouts and return eventual result | `check_0.py` run (3rd attempt succeeds) | PASS |\n| Bound retry attempts, do not retry permanent errors | `check_1.py` run (timeout stops at bound; value error once) | PASS |\n\nFlow diagram (implemented behavior):\n```mermaid\nflowchart TD\nA[Start process(call, attempts)] --> B{attempts < 1?}\nB -- yes --> C[Raise ValueError]\nB -- no --> D[Call call()]\nD --> E{Success?}\nE -- yes --> F[Return result]\nE -- no TimeoutError --> G{Attempts left?}\nG -- yes --> D\nG -- no --> H[Re-raise TimeoutError]\nE -- no other Exception --> I[Propagate immediately]\n```\nTakeaway: retries are limited and type-filtered, so reliability improves for transient timeouts without masking permanent failures.\n\n### Practice and tradeoffs\nImplementation matches the fixture contract in `system.md` and executable checks. Tradeoff: explicit `ValueError` for invalid `attempts` is stricter than prior implicit behavior but avoids silent failure paths.\n\n### Validation and limitations\nValidated with both required acceptance checks against current working tree; both passed. No broader suite exists in scope. Hidden caller expectations for `attempts <= 0` remain the only compatibility risk.\n\n### Follow-through\nNon-deployed local change: production monitoring/rollback is N/A. Adoption check: run the same two acceptance checks in CI on merge candidate; rollback path is reverting `service.py` if integration regressions appear.\n\n### Gate outcomes\n- G1 Finish line/evidence: **PASS**\n- G2 Mechanism/tradeoffs: **PASS**\n- G3 Readable evidence visual: **PASS**\n- G4 Established practice/contract fit: **PASS**\n- G5 Validation/uncertainty: **PASS**\n- G6 Follow-through/rollback: **PASS** (N/A to live deployment; CI adoption path provided)\n- G7 Explicit gate verdicts: **PASS**"
+          },
+          {
+            "role": "Implementation worker",
+            "artifact_id": "ae6df28fb5c849018caf3702be5aa796:01a15283-d4a0-7e62-8f9c-123313708e31",
+            "report": "### Outcome\n`process` in `service.py:1` now retries only transient `TimeoutError` failures, caps retries at `attempts`, returns successful results when eventually available, and does not retry permanent exceptions.\n\n### Why this fixes the failure\nOriginal behavior called `call()` once and failed immediately on any exception, so transient timeouts were not recoverable. New behavior loops up to `attempts`, catching only `TimeoutError`; on success it returns immediately, on final timeout it re-raises, and on non-timeout exceptions it propagates immediately (no retry). This directly enforces reliability + bounded cost + preserved failure semantics.\n\n### Evidence / visual\n```mermaid\nflowchart TD\nS[process(call, attempts)] --> V{attempts < 1}\nV -- yes --> E1[raise ValueError]\nV -- no --> C[call()]\nC --> OK{success?}\nOK -- yes --> R[return result]\nOK -- TimeoutError --> L{attempts left?}\nL -- yes --> C\nL -- no --> E2[re-raise TimeoutError]\nOK -- other exception --> E3[propagate immediately]\n```\nTakeaway: only transient timeout path retries; all other failure paths remain immediate.\n\n### Practice and tradeoffs\nImplementation follows the fixture contract in `system.md` and acceptance checks. Tradeoff: explicit guard for `attempts < 1` raises `ValueError` rather than allowing ambiguous behavior; this is safer and bounded.\n\n### Validation and limitations\nBoth required executable acceptance checks passed in this worktree. No additional suite was provided in scope.\n\n### Follow-through\nFor this non-deployed fixture task, production monitoring/rollback is N/A. Adoption check remains re-running the two contract checks in independent verification; rollback is reverting `service.py`.\n\n### Gate outcomes\n- G1 Finish line + evidence: **PASS**\n- G2 Mechanism + before/after: **PASS**\n- G3 Readable evidence visual: **PASS**\n- G4 Contract/practice alignment: **PASS**\n- G5 Validation + uncertainty: **PASS**\n- G6 Follow-through/rollback: **PASS** (non-deployed scope)\n- G7 Explicit gate verdicts: **PASS**"
+          }
+        ],
+        "scope_events": [
+          {
+            "implementation": "ae6df28fb5c849018caf3702be5aa796",
+            "status": "repair",
+            "failure_kind": "local",
+            "unauthorized_paths": [
+              "="
+            ],
+            "unauthorized_path_count": 1,
+            "correction": "The confirmed completed turn left changes outside explicit authorization. Restore only unauthorized changes you introduced and remove only your newly created artifacts in this isolated worktree. Preserve pre-existing unrelated work. Do not expand allowed_paths. Independent verification remains blocked until the entire diff is within scope."
+          }
+        ]
+      },
+      "research_wave": {
+        "jobs": [
+          {
+            "id": "f97e43d5bccd4da780fdd63668d32c02",
+            "status": "supported"
+          },
+          {
+            "id": "95ec6ce8bbd3405494776b31e7b20906",
+            "status": "supported"
+          }
+        ],
+        "role_runs_spent": 4,
+        "spans": [
+          {
+            "task_id": "8060304c36444581bde88663a36b081e",
+            "start": 1792385762.6764297,
+            "finish": 1792385786.154316
+          },
+          {
+            "task_id": "2fd87f0235734ea38be70a3b110aba14",
+            "start": 1792385762.67962,
+            "finish": 1792385785.060417
+          }
+        ],
+        "overlap": true,
+        "seconds": 23.48884723900028,
+        "passed": true,
+        "quality_reports": [
+          {
+            "role": "research",
+            "artifact_id": "9fe4cdd3aeca48c4acfa8de13a79113d",
+            "report": "### Outcome\n**Hypothesis:** The scoped authoritative fixture states `poll_seconds = 30`.\n\n**Result:** PASS. The only scoped source reviewed, `polling.txt` at revision `73fd5c2c886e1399d695846f2d7a3ac22c893d8ac857a4eb5a42185b959ce0ea`, explicitly says: `poll_seconds = 30` and labels it a configuration fact, not a measured latency claim. Evidence: `d5c32e46342e48779176be6dea75d15b`.\n\n### Why it works\nThis is a direct textual verification task. The falsification test was simple: if the file omitted `poll_seconds` or gave a different value, the hypothesis would fail. Instead, the source states the exact literal value.\n\n**Concrete example:**\nBefore review: value unknown.\nAfter review: `poll_seconds` is explicitly documented as `30`.\n\n### Evidence / visual\n| Source | Revision | Observed line | Takeaway | Evidence |\n|---|---|---:|---|---|\n| `polling.txt` | `73fd5c2c886e1399d695846f2d7a3ac22c893d8ac857a4eb5a42185b959ce0ea` | 1 | Authoritative fixture says `poll_seconds = 30`; also says this is not a latency measurement | `d5c32e46342e48779176be6dea75d15b` |\n\nHypothesis map:\n```text\nHypothesis\n  -> polling.txt contains key/value `poll_seconds = 30`\n     -> observed directly in line 1 [d5c32e46342e48779176be6dea75d15b]\n  X would fail if file had different value or no key\n```\n\n### Practice and tradeoffs\nThis approach follows the requirement to cite the actual configured value and avoid inferring production impact. It is strong for the scoped literal fact, but not for override analysis outside this file.\n\n### Validation and limitations\nChecked: one scoped file, full content needed for this question, no truncation. No contradictory evidence found within scope. Limitation: no cross-file override search and no runtime measurement.\n\n### Follow-through\nNext useful check: inspect the other planned fixture source if the companion configuration fact also needs independent verification. Owner: unassigned. Success signal: explicit cited value in that scoped file.\n\n### Gate outcomes\n- Finish line: **PASS** \u2014 literal fact answered with citation.\n- Why/mechanism: **PASS** \u2014 direct text verification explained.\n- Evidence readability: **PASS** \u2014 evidence table and hypothesis map included.\n- Practice comparison: **N/A** \u2014 no broader standard needed for a one-file literal fact check.\n- Validation/uncertainty: **PASS** \u2014 scope and limits stated.\n- Follow-through: **PASS** \u2014 bounded next check identified."
+          },
+          {
+            "role": "Independent evaluation",
+            "artifact_id": "9fe4cdd3aeca48c4acfa8de13a79113d",
+            "report": "### Outcome\n**Supported** for the stated hypothesis: the scoped file `polling.txt` literally says `poll_seconds = 30`.\n\n### Why it works\nThis is a direct text check against the falsification criterion. The source would falsify the hypothesis if it omitted the key or gave a different value. Instead, line 1 explicitly provides the exact key/value and clarifies it is configuration text rather than a performance measurement.\n\n### Evidence / visuals\n| Claim checked | Source evidence | Result | Scope/freshness limits |\n|---|---|---|---|\n| `polling.txt` states `poll_seconds = 30` | `d5c32e46342e48779176be6dea75d15b` | Supported | Full scoped file read; same current revision cited |\n| Text frames this as configuration, not measured latency | `d5c32e46342e48779176be6dea75d15b` | Supported | Limited to wording in this file |\n\nText evidence: `Authoritative fixture configuration: poll_seconds = 30. This is a configuration fact, not a measured latency claim.`\n\n### Practice and tradeoffs\nThe report matches the acceptance criterion to cite the configured value and not infer production impact. No broader standard/practice evidence is needed for a one-file literal verification.\n\n### Validation and limitations\nI independently read the scoped source and found no contradiction. Scope is intentionally narrow: this supports only the literal fact in `polling.txt`, not override behavior elsewhere and not runtime timing.\n\n### Follow-through\nIf the parent objective still requires the second configuration fact, inspect that separate scoped file and cite its exact value. Success signal: a direct source excerpt at current revision.\n\n### Gate outcomes\n- Finish line: **PASS**\n- Why/mechanism: **PASS**\n- Evidence readability: **PASS**\n- Practice comparison: **N/A**\n- Validation/limitations: **PASS**\n- Follow-through: **PASS**"
+          },
+          {
+            "role": "research",
+            "artifact_id": "bee3b2d2ed5e4505944e9773fba3cbcd",
+            "report": "### Outcome\n**Hypothesis:** the scoped authoritative fixture states `max_attempts = 3`.\n\n**Result:** PASS within scope. The only scoped source examined, `retry.txt` at revision `483f1b2b211c649bf421e9ea6126f1f729bb6776a5320b5b15d4762502a24c11`, explicitly says: \"Authoritative fixture configuration: max_attempts = 3\" ([ddfe0b90fcc84270bfe3cb9560743516]).\n\n### Why it works\nThis is a direct textual verification, not an inference. The falsification test was simple: if the file named a different value or lacked the key, the hypothesis would fail. It did neither.\n\n**Concrete example**\nBefore: unverified claim that the fixture might set `max_attempts` to 3.\nAfter: direct citation from the scoped file confirms the exact configured value.\n\n### Evidence / visual\n| Source | Revision | Observation time | Extract | Evidence |\n|---|---|---:|---|---|\n| `retry.txt` | `483f1b2b211c649bf421e9ea6126f1f729bb6776a5320b5b15d4762502a24c11` | 1792385763.9047885 | `max_attempts = 3` | `ddfe0b90fcc84270bfe3cb9560743516` |\n\n```mermaid\nflowchart LR\n  H[Hypothesis: retry.txt states max_attempts = 3]\n  E[Direct file excerpt\\nretry.txt line 1\\nmax_attempts = 3]\n  F[Falsification test\\nDifferent value or missing key]\n  H --> E\n  F -. not observed .-> H\n```\n\nTakeaway: the scoped fixture text directly supports the literal fact.\n\n### Practice and tradeoffs\nThis follows the required practice of citing the actual configured value and not inferring production impact. No broader behavior or runtime effect was claimed.\n\n### Validation and limitations\nChecked: one scoped file, full visible contents returned in one read. No contradictory evidence found in scope.\n\nLimitations: this does **not** prove runtime usage, effective retries in production, or reliability outcomes.\n\n### Follow-through\nIf needed, next bounded check is to inspect the consuming config path or the other planned source for consistency. Success signal: the same value is referenced or consumed unchanged.\n\n### Gate outcomes\n- **Finish line:** PASS\n- **Why/mechanism:** PASS\n- **Evidence readability:** PASS\n- **Practice comparison:** PASS\n- **Validation/uncertainty:** PASS\n- **Follow-through:** PASS"
+          },
+          {
+            "role": "Independent evaluation",
+            "artifact_id": "bee3b2d2ed5e4505944e9773fba3cbcd",
+            "report": "### Outcome\nPASS within stated scope: the hypothesis is supported by a direct read of `retry.txt` at revision `483f1b2b211c649bf421e9ea6126f1f729bb6776a5320b5b15d4762502a24c11`.\n\n### Why it works\nThis is a literal configuration-fact check. The file text explicitly includes `max_attempts = 3`, so the falsifier ('different value or missing key') was not observed.\n\n### Evidence / visuals\n| Check | Evidence | Result | Scope/freshness |\n|---|---|---|---|\n| Read scoped file contents | `ddfe0b90fcc84270bfe3cb9560743516` | Supports exact literal value `max_attempts = 3` | Single scoped file; fresh, non-stale excerpt |\n| Contradiction check against falsifier | `ddfe0b90fcc84270bfe3cb9560743516` | No different value and key is present | Limited to `retry.txt` only |\n\nTakeaway: the actual configured value is cited directly from the source, satisfying the acceptance criterion.\n\n### Practice and tradeoffs\nThis matches the requirement to cite the actual configured value and avoid inferring production impact. No unsupported operational claims were added.\n\n### Validation and limitations\nChecked independently by reading the complete scoped file excerpt returned in one page. No counterevidence exists in scope. Limitation: this does not prove runtime use, override precedence, or production behavior.\n\n### Follow-through\nIf broader consistency matters, next check is the consumer/config-loading path for the same value. Success signal: the consumer reads or preserves `max_attempts = 3`; failure signal: override or translation changes it.\n\n### Gate outcomes\n- Finish line: PASS\n- Evidence readability: PASS\n- Validation: PASS\n- Practice claim: PASS\n- Broader runtime effect: N/A for this scoped question"
+          }
+        ],
+        "scope_events": []
+      },
+      "passed": true,
+      "command": "OMNITRIX_MODEL=gpt-5.4 OMNITRIX_CODEX_MODEL=gpt-5.3-codex python scripts/validate_adaptive_live.py --allow-code-modifications --output .omnitrix/adaptive-integrated-live-v1"
+    }
   }
 }

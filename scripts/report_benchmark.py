@@ -153,6 +153,9 @@ comparison. The runs shown here use the corrected harness with the same write-sc
 check on all arms and a bounded repair path for confirmed completed worker turns.
 
 The frozen comparison checkpoint is `'''+metadata['source_revisions'][0]+'''`.
+These timings precede the subsequent integration of upstream research recovery and
+completion-review changes. They remain measurements of this frozen checkpoint; the
+integrated runtime has separate regression, package and live smoke results below.
 The runtime, native recovery, live parallel research and package delivery are validated separately in
 [validation evidence](adaptive-validation.json). See the readable [native recovery review](adaptive-recovery.html) and [parallel research evidence](adaptive-wave.html). The initial failed routing run is
 preserved in [calibration evidence](adaptive-calibration.json); it is excluded from
