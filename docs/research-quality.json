@@ -1266,9 +1266,19 @@
             "live": ".omnitrix/review-eval-07: 6/6 pass, including genuine static quadratic-waste acceptance and ordinary benchmark-definition acceptance without inefficiency credit.",
             "limits": "Earlier passing small suites failed on real Kafka; this result validates these probes only. The false completion remains preserved."
           }
+        },
+        {
+          "at": "2026-10-19T04:50:16.396429+00:00",
+          "status": "guards verified; real useful-discovery outcome remains open",
+          "event": "release verification",
+          "details": {
+            "tests": "170 passed, 1 skipped; generated docs current; Pages build passes. Latest reviewer suite 6/6 controlled probes.",
+            "pull_request": "https://github.com/jinit24/omnitrix/pull/5",
+            "research_boundary": "Kafka now explores runtime implementations after explicit goal clarification, but no actual avoidable-work mechanism is independently established yet. This is not a successful autonomous performance investigation."
+          }
         }
       ],
-      "status": "proof and distinct-identity regressions pass; fresh six live probes pass; Kafka continuation pending"
+      "status": "guards verified; real useful-discovery outcome remains open"
     }
   ],
   "runs": [
@@ -6657,64 +6667,6 @@
       "decisions": []
     },
     {
-      "name": "kafka-campaign/latest",
-      "mode": "live-capped-public-repository",
-      "status": "running",
-      "spending": {
-        "goal_id": "c849afa7ebea434ea01d292996c10a77",
-        "limit_nanos": 25000000000,
-        "spent_nanos": 17234689000,
-        "reserved_nanos": 81900000,
-        "model": "gpt-4.1-2025-04-14",
-        "limit_usd": 25.0,
-        "spent_usd": 17.234689,
-        "reserved_usd": 0.0819,
-        "available_usd": 7.683411,
-        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
-      },
-      "frontier": {
-        "goal_id": "c849afa7ebea434ea01d292996c10a77",
-        "head": "cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282",
-        "complete": 1,
-        "skipped": 64,
-        "files": 7551,
-        "by_kind": {
-          "code": 6760,
-          "document": 785,
-          "logs": 4,
-          "metrics": 2
-        },
-        "by_origin": {
-          "export": 6,
-          "git": 7545
-        },
-        "observed_files": 82,
-        "basis": "Git-tracked UTF-8 files and explicitly registered local exports <=32 MiB; binaries, unavailable files and oversized files counted as skipped. Excerpts do not establish full coverage."
-      },
-      "quality": {
-        "required": {
-          "sources": 20,
-          "branches": 4,
-          "hypotheses": 6,
-          "mechanisms": 2
-        },
-        "actual": {
-          "sources": 82,
-          "branches": 13,
-          "hypotheses": 11,
-          "mechanisms": 1
-        },
-        "met": false,
-        "note": "Minimum breadth and evidence gates, not proof of exhaustive coverage or production impact."
-      },
-      "artifacts": {
-        "local_report": "/workspace/omnitrix/.omnitrix/kafka-campaign/campaign.html",
-        "database": "/workspace/omnitrix/.omnitrix/kafka-campaign/state.db",
-        "note": "Local fixture/build evidence is not production telemetry. False mechanism categories were challenged; original reports/evaluations remain. Current code-supported findings require fresh review."
-      },
-      "decisions": []
-    },
-    {
       "name": "review-eval-07/missing-measurement",
       "mode": "live-reviewer-challenge",
       "status": "passed",
@@ -6827,6 +6779,67 @@
       },
       "model": "gpt-5.3-codex",
       "decisions": []
+    },
+    {
+      "name": "kafka-campaign/latest",
+      "mode": "live-capped-public-repository",
+      "status": "running",
+      "reason": "Assisted continuation at goal revision 2 after a preserved false completion; current stricter proof contract.",
+      "spending": {
+        "goal_id": "c849afa7ebea434ea01d292996c10a77",
+        "limit_nanos": 25000000000,
+        "spent_nanos": 17825934550,
+        "reserved_nanos": 87496500,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 25.0,
+        "spent_usd": 17.82593455,
+        "reserved_usd": 0.0874965,
+        "available_usd": 7.08656895,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "frontier": {
+        "goal_id": "c849afa7ebea434ea01d292996c10a77",
+        "head": "cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282",
+        "complete": 1,
+        "skipped": 64,
+        "files": 7551,
+        "by_kind": {
+          "code": 6760,
+          "document": 785,
+          "logs": 4,
+          "metrics": 2
+        },
+        "by_origin": {
+          "export": 6,
+          "git": 7545
+        },
+        "observed_files": 87,
+        "basis": "Git-tracked UTF-8 files and explicitly registered local exports <=32 MiB; binaries, unavailable files and oversized files counted as skipped. Excerpts do not establish full coverage."
+      },
+      "quality": {
+        "required": {
+          "sources": 20,
+          "branches": 4,
+          "hypotheses": 6,
+          "mechanisms": 2
+        },
+        "actual": {
+          "sources": 87,
+          "branches": 14,
+          "hypotheses": 13,
+          "mechanisms": 0
+        },
+        "met": false,
+        "note": "Minimum breadth and evidence gates, not proof of exhaustive coverage or production impact."
+      },
+      "artifacts": {
+        "goal_revision": 2,
+        "local_report": "/workspace/omnitrix/.omnitrix/kafka-campaign/campaign.html",
+        "database": "/workspace/omnitrix/.omnitrix/kafka-campaign/state.db",
+        "note": "Local fixture/build evidence is not production telemetry. Candidate categories are not verified inefficiencies; original false completion, reports and reviews remain."
+      },
+      "head": "f5a6644",
+      "decisions": []
     }
   ],
   "limitations": [
@@ -6853,6 +6866,16 @@
       "scope": "Research evaluation, self-audit and HTML tracking",
       "base": "PR #2",
       "validation": "76 passed, 1 skipped in a clean final-source archive"
+    },
+    {
+      "url": "https://github.com/jinit24/omnitrix/pull/4",
+      "scope": "Durable campaigns, source frontier and immutable $25 reservation ledger",
+      "validation": "114 passed, 1 skipped at merge"
+    },
+    {
+      "url": "https://github.com/jinit24/omnitrix/pull/5",
+      "scope": "Research proof acceptance, recovery, bounded content navigation and retained live comparisons",
+      "validation": "170 passed, 1 skipped; docs/Pages build verified"
     }
   ],
   "retained_evidence_reports": {
@@ -13475,6 +13498,71 @@
           "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
         },
         "model": "gpt-5.3-codex",
+        "decisions": []
+      }
+    },
+    {
+      "id": "9d3b7fcb175449ffab9ba126f88e5cf9",
+      "at": "2026-10-19T04:50:16.366609+00:00",
+      "result": {
+        "name": "kafka-campaign/latest",
+        "mode": "live-capped-public-repository",
+        "status": "running",
+        "reason": "Assisted continuation at goal revision 2 after a preserved false completion; current stricter proof contract.",
+        "spending": {
+          "goal_id": "c849afa7ebea434ea01d292996c10a77",
+          "limit_nanos": 25000000000,
+          "spent_nanos": 17825934550,
+          "reserved_nanos": 87496500,
+          "model": "gpt-4.1-2025-04-14",
+          "limit_usd": 25.0,
+          "spent_usd": 17.82593455,
+          "reserved_usd": 0.0874965,
+          "available_usd": 7.08656895,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "frontier": {
+          "goal_id": "c849afa7ebea434ea01d292996c10a77",
+          "head": "cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282",
+          "complete": 1,
+          "skipped": 64,
+          "files": 7551,
+          "by_kind": {
+            "code": 6760,
+            "document": 785,
+            "logs": 4,
+            "metrics": 2
+          },
+          "by_origin": {
+            "export": 6,
+            "git": 7545
+          },
+          "observed_files": 87,
+          "basis": "Git-tracked UTF-8 files and explicitly registered local exports <=32 MiB; binaries, unavailable files and oversized files counted as skipped. Excerpts do not establish full coverage."
+        },
+        "quality": {
+          "required": {
+            "sources": 20,
+            "branches": 4,
+            "hypotheses": 6,
+            "mechanisms": 2
+          },
+          "actual": {
+            "sources": 87,
+            "branches": 14,
+            "hypotheses": 13,
+            "mechanisms": 0
+          },
+          "met": false,
+          "note": "Minimum breadth and evidence gates, not proof of exhaustive coverage or production impact."
+        },
+        "artifacts": {
+          "goal_revision": 2,
+          "local_report": "/workspace/omnitrix/.omnitrix/kafka-campaign/campaign.html",
+          "database": "/workspace/omnitrix/.omnitrix/kafka-campaign/state.db",
+          "note": "Local fixture/build evidence is not production telemetry. Candidate categories are not verified inefficiencies; original false completion, reports and reviews remain."
+        },
+        "head": "f5a6644",
         "decisions": []
       }
     }
