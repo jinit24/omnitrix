@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-19",
+  "prior_testing_estimate_and_reserve_usd": 8.92636375,
+  "cumulative_budget_usd": 25,
+  "reserved_future_campaign_usd": 3,
+  "planned_runs": [
+    {
+      "case": "django",
+      "repeat": 1,
+      "fault": null
+    },
+    {
+      "case": "flask",
+      "repeat": 1,
+      "fault": null
+    },
+    {
+      "case": "jinja",
+      "repeat": 1,
+      "fault": null
+    },
+    {
+      "case": "django",
+      "repeat": 2,
+      "fault": null
+    },
+    {
+      "case": "flask",
+      "repeat": 2,
+      "fault": "lost_completion"
+    },
+    {
+      "case": "jinja",
+      "repeat": 2,
+      "fault": "lost_completion"
+    }
+  ],
+  "acceptance": {
+    "completed_runs": 6,
+    "all_mandatory_checks": true,
+    "false_completions": 0,
+    "process_restart_each_run": true,
+    "lost_completion_recovery_runs": 2,
+    "no_replayed_implementation_on_recovery": true
+  },
+  "performance_targets": {
+    "median_wall_seconds_below": 180,
+    "each_wall_seconds_below": 300
+  },
+  "per_run_observed_cost_stop_usd": 1.75,
+  "cumulative_observed_stop_including_prior_usd": 22,
+  "limitations": [
+    "Seeded regressions with observed failing tests and source paths, not newly discovered upstream defects.",
+    "A process restart occurs after accepted research, before coding.",
+    "Lost completion is injected after a real native worker completes, before the manager receives its result; this is controlled delivery loss, not a random network fault.",
+    "No multi-hour or single-agent-superiority claim."
+  ]
+}

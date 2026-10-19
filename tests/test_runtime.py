@@ -35,3 +35,34 @@ for line in sys.stdin:
         assert (await runtime.reconcile('thread'))['thread']['id']=='thread'
     finally:
         await runtime.close()
+
+
+async def test_execution_probe_is_bounded_cached_and_does_not_relax_sandbox():
+    runtime = CodexRuntime()
+    calls = []
+    async def call(method, params, timeout=30):
+        calls.append((method, params, timeout))
+        return {'exitCode': 124, 'stdout': '', 'stderr': ''}
+    runtime.call = call
+    assert (await runtime.probe_execution('/tmp'))['async_thread_bridge'] == 'timed_out'
+    await runtime.probe_execution('/tmp')
+    assert len(calls) == 1
+    assert calls[0][1]['timeoutMs'] == 2000
+    assert calls[0][1]['sandboxPolicy'] == {'type': 'workspaceWrite', 'networkAccess': False}
+
+
+async def test_failed_probe_hands_off_checks_without_waiving_them():
+    runtime = CodexRuntime()
+    requests = []
+    async def connect(): pass
+    async def call(method, params, timeout=30):
+        requests.append((method, params))
+        if method == 'command/exec': return {'exitCode': 124}
+        if method == 'thread/start': return {'thread': {'id': 'thread'}}
+        if method == 'turn/start': return {'turn': {'id': 'turn'}}
+    runtime.connect, runtime.call = connect, call
+    await runtime.start('/tmp', 'Repair the contract. All supplied checks are mandatory.', write=True)
+    assert requests[1][1]['sandbox'] == 'workspace-write'
+    prompt = requests[2][1]['input'][0]['text']
+    assert 'independent verifier' in prompt and 'does not waive any acceptance check' in prompt
+    assert 'All supplied checks are mandatory' in prompt

@@ -136,3 +136,17 @@ async def test_pause_and_persisted_deadline_block_new_paid_requests(tmp_path,sta
         await model._fetch_response()
     assert not client.created
     assert budget.status()['reserved_nanos']==0
+
+
+def test_gpt54_campaign_reserves_full_rates_and_rejects_unpriced_long_context(tmp_path):
+    store=Store(tmp_path/'priced.db')
+    goal=store.create_goal('Continuous investigation',['Observe evidence'],tmp_path)
+    budget=Spending(store,goal);budget.configure(1,model='gpt-5.4')
+    request=budget.reserve(1000,1000,'research')
+    assert budget.status()['reserved_nanos']==17500000
+    budget.settle(request,usage(inputs=1000,cached=500,outputs=100))
+    assert budget.status()['spent_nanos']==4000000  # Cached input counted conservatively at full rate.
+    with pytest.raises(SpendingLimitReached,match='long-context'):
+        budget.reserve(272001,100,'research')
+    with pytest.raises(ValueError,match='reset'):
+        budget.configure(1,model='gpt-4.1')

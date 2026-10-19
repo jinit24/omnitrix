@@ -1,0 +1,122 @@
+{
+  "django": {
+    "upstream": "https://github.com/django/django",
+    "revision": "cae7247962de54a94023d28d84f05fc9842e9646",
+    "package": "django",
+    "source_root": ".",
+    "seeds": [
+      [
+        "django/utils/datastructures.py",
+        "return reversed(self.dict)",
+        "return iter(self.dict)"
+      ],
+      [
+        "django/utils/datastructures.py",
+        "return self._getlist(key, default, force_list=True)",
+        "return self._getlist(key, default, force_list=False)"
+      ]
+    ],
+    "sources": [
+      "django/utils/datastructures.py",
+      "tests/utils_tests/test_datastructures.py",
+      "tests/httpwrappers/tests.py"
+    ],
+    "requirements": [
+      "OrderedSet reversal preserves reverse insertion order",
+      "MultiValueDict.getlist returns independent lists and preserves defaults",
+      "All 129 data-structure and HTTP-wrapper regression tests pass"
+    ],
+    "labels": [
+      [
+        "utils_tests.test_datastructures.OrderedSetTests"
+      ],
+      [
+        "utils_tests.test_datastructures.MultiValueDictTests"
+      ],
+      [
+        "utils_tests.test_datastructures",
+        "httpwrappers"
+      ]
+    ]
+  },
+  "flask": {
+    "upstream": "https://github.com/pallets/flask",
+    "revision": "2c1b30d0503cfb064f1cb252e6614a06915a362a",
+    "package": "flask",
+    "source_root": "src",
+    "seeds": [
+      [
+        "src/flask/wrappers.py",
+        "return current_app.config[\"MAX_CONTENT_LENGTH\"]",
+        "return None"
+      ],
+      [
+        "src/flask/sessions.py",
+        "session.permanent and app.config[\"SESSION_REFRESH_EACH_REQUEST\"]",
+        "session.permanent or app.config[\"SESSION_REFRESH_EACH_REQUEST\"]"
+      ]
+    ],
+    "sources": [
+      "src/flask/wrappers.py",
+      "src/flask/sessions.py",
+      "tests/test_request.py",
+      "tests/test_basic.py"
+    ],
+    "requirements": [
+      "Request size limits respect app configuration and per-request overrides",
+      "Session cookie refresh respects permanence and SESSION_REFRESH_EACH_REQUEST",
+      "The entire unchanged Flask test suite passes with only its baseline skips"
+    ],
+    "labels": [
+      [
+        "tests/test_request.py"
+      ],
+      [
+        "tests/test_basic.py::test_session_cookie_setting"
+      ],
+      [
+        "tests"
+      ]
+    ]
+  },
+  "jinja": {
+    "upstream": "https://github.com/pallets/jinja",
+    "revision": "15206881c006c79667fe5154fe80c01c65410679",
+    "package": "jinja2",
+    "source_root": "src",
+    "seeds": [
+      [
+        "src/jinja2/filters.py",
+        "return soft_str(value).strip(chars)",
+        "return soft_str(value).lstrip(chars)"
+      ],
+      [
+        "src/jinja2/utils.py",
+        "template_name = template_name.lower()",
+        "template_name = template_name"
+      ]
+    ],
+    "sources": [
+      "src/jinja2/filters.py",
+      "src/jinja2/utils.py",
+      "tests/test_filters.py",
+      "tests/test_utils.py"
+    ],
+    "requirements": [
+      "The trim filter removes configured characters from both ends",
+      "Autoescape extension selection is case-insensitive and preserves defaults",
+      "All 909 unchanged Jinja tests pass"
+    ],
+    "labels": [
+      [
+        "tests/test_filters.py::TestFilter::test_trim"
+      ],
+      [
+        "tests/test_utils.py::TestHelpers::test_autoescape_select"
+      ],
+      [
+        "tests"
+      ]
+    ]
+  }
+}

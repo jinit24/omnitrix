@@ -5,6 +5,8 @@ import uuid
 from agents import SQLiteSession
 
 SCHEMA = '''
+CREATE TABLE IF NOT EXISTS supervisor_budgets (
+ goal_id TEXT PRIMARY KEY REFERENCES goals(id), remaining INTEGER NOT NULL CHECK(remaining >= 0));
 CREATE TABLE IF NOT EXISTS goal_completion_gates (
  goal_id TEXT PRIMARY KEY REFERENCES goals(id), require_implementation INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS goal_versions (

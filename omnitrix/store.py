@@ -38,11 +38,17 @@ class Store:
         self.db.executescript(CONTROL_SCHEMA)
         self.db.executescript(IMPLEMENTATION_SCHEMA)
         self.db.executescript(SPENDING_SCHEMA)
+        if 'model' not in {r[1] for r in self.db.execute('PRAGMA table_info(spending_limits)')}:
+            self.db.execute("ALTER TABLE spending_limits ADD COLUMN model TEXT NOT NULL DEFAULT 'gpt-4.1-2025-04-14'")
         self.db.executescript(FRONTIER_SCHEMA)
         if 'origin' not in {r[1] for r in self.db.execute('PRAGMA table_info(frontier_files)')}:
             self.db.execute("ALTER TABLE frontier_files ADD COLUMN origin TEXT NOT NULL DEFAULT 'git'")
         from .campaign import SCHEMA as CAMPAIGN_SCHEMA
         self.db.executescript(CAMPAIGN_SCHEMA)
+        from .cadence import SCHEMA as CADENCE_SCHEMA
+        self.db.executescript(CADENCE_SCHEMA)
+        if 'last_review_decision' not in {r[1] for r in self.db.execute('PRAGMA table_info(campaign_cadence)')}:
+            self.db.execute('ALTER TABLE campaign_cadence ADD COLUMN last_review_decision INTEGER NOT NULL DEFAULT 0')
         if 'quality_spec' not in {r[1] for r in self.db.execute('PRAGMA table_info(campaigns)')}:
             self.db.execute('''ALTER TABLE campaigns ADD COLUMN quality_spec TEXT NOT NULL
                 DEFAULT '{"sources":20,"branches":4,"hypotheses":6,"mechanisms":2}' ''')
@@ -129,6 +135,7 @@ class Store:
         goal['requires_verified_implementation']=bool(gate and gate[0])
         research = [dict(r) for r in self.db.execute('SELECT * FROM research_jobs WHERE goal_id=? ORDER BY updated DESC, rowid DESC LIMIT 20', (goal_id,))]
         from .knowledge import Knowledge
+        from .cadence import Cadence
         return {'goal': goal, 'tasks': tasks, 'decisions': decisions,
                 'research': research, 'opportunities': Knowledge(self).backlog(goal_id, limit=history_limit),
                 'research_progress': Knowledge(self).progress(goal_id, limit=40 if history_limit is not None else None),
@@ -136,7 +143,9 @@ class Store:
                                    'decisions': self.db.execute('SELECT count(*) FROM decisions WHERE goal_id=?',(goal_id,)).fetchone()[0],
                                    'returned_limit': history_limit},
                 'campaign': dict(r) if (r := self.db.execute('SELECT * FROM campaigns WHERE goal_id=?',(goal_id,)).fetchone()) else None,
+                'campaign_cadence': Cadence(self, goal_id).status(),
                 'spending': Spending(self,goal_id).status(),
+                'remaining_decisions': r[0] if (r := self.db.execute('SELECT remaining FROM supervisor_budgets WHERE goal_id=?', (goal_id,)).fetchone()) else 0,
                 'research_state': self.research_state(goal_id),
                 'verification_results': [dict(r) for r in self.db.execute('''SELECT v.implementation_id,
                     v.candidate, v.goal_revision, v.requirement, v.passed, v.exit_code, v.artifact

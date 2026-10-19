@@ -41,3 +41,9 @@ For implementation goals, establish a concrete current defect and the relevant
 contract. Separate proposed remedies from observed facts: executable verification
 will establish the candidate's behavior. Avoid claims that no other requirements
 exist or that an unimplemented remedy already satisfies every possible edge case.
+
+Your blocked flag concerns this scoped hypothesis, not completion of the whole
+engineering goal. Once this hypothesis is answered with current evidence, other
+independent defects and post-implementation test runs remain later work. Record
+those limits without declaring an answered investigation blocked. Never expand a
+claim beyond the evidence just to cover every goal criterion in one report.

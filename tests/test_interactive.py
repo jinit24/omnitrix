@@ -26,6 +26,22 @@ def state(tmp_path):
     return store,goal
 
 
+async def test_decision_budget_survives_checkpoint_and_cannot_refill_on_open(state):
+    store, goal = state
+    supervisor = await Supervisor(store, goal, runtime=Runtime()).open()
+    supervisor.autonomy = 7
+    supervisor.autonomy -= 1
+    await supervisor.close(preserve_autonomy=True)
+    store.db.close()
+    fresh = Store(store.path)
+    restored = await Supervisor(fresh, goal, runtime=Runtime()).open()
+    assert restored.autonomy == restored.status()['remaining_decisions'] == 6
+    await restored.close()
+    again = await Supervisor(fresh, goal, runtime=Runtime()).open()
+    assert again.autonomy == 0  # An intentional stop is not a restart authorization.
+    await again.close()
+
+
 async def long_worker(supervisor,started,release,ignore_cancel=False):
     async def operation(task_id):
         supervisor.store.execute('UPDATE task_runtime SET session_id=?,turn_id=? WHERE task_id=?',('thread','turn',task_id))
@@ -295,5 +311,34 @@ async def test_malformed_decisions_get_a_bounded_correction_without_dispatch(sta
         assert supervisor.autonomy == 0
         assert not store.db.execute('SELECT 1 FROM tasks').fetchone()
         assert not store.db.execute('SELECT 1 FROM decisions').fetchone()
+    finally:
+        await supervisor.close()
+
+
+async def test_retryable_research_is_not_a_missing_manager_tool(state):
+    from pathlib import Path
+    from omnitrix.models import Decision
+    from omnitrix.research import Research
+    from omnitrix.research_models import ResearchPlan
+    from tests_helpers import FixtureAgents
+    store, goal = state
+    Path(store.snapshot(goal)['goal']['workspace'], 'system.md').write_text('Queue polling interval=30 seconds\n')
+    Control(store).require_implementation(goal)
+    research = Research(store, FixtureAgents(misleading=True))
+    job = research.plan(goal, 'research', ResearchPlan(scope=['system.md'], question='Check interval',
+        hypothesis='Queue interval is 30 seconds', falsification='Source gives a different interval'))['job_id']
+    assert (await research.attempt(job))['status'] == 'insufficient'
+    supervisor = await Supervisor(store, goal, runtime=Runtime()).open()
+    try:
+        pause = Decision(action='pause', rationale='Manager has no source read tool',
+            instructions='Wait for research', task_id=None, priority=1, pause_reason='research')
+        with pytest.raises(ValueError, match='Research is still executable'):
+            await supervisor.dispatch(pause)
+        assert supervisor.status()['goal']['status'] == 'active'
+        assert research.job(job)['attempts'] == 1
+        pause.pause_reason = 'external_input'
+        pause.instructions = 'Credentials for a required external service are unavailable'
+        await supervisor.dispatch(pause)
+        assert supervisor.status()['goal']['status'] == 'paused'
     finally:
         await supervisor.close()

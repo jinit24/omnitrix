@@ -20,12 +20,16 @@ def brief_result(value):
             return value[:1500]
     if not isinstance(value,dict):
         return value
-    output={key:value[key] for key in ('job_id','run_id','status','feedback','error') if key in value}
+    output={key:value[key] for key in ('id','implementation_id','job_id','run_id','status','candidate','feedback','error') if key in value}
     if isinstance(value.get('evaluation'),dict):
         output['evaluation']={key:val[:1200] if isinstance(val,str) else val for key,val in value['evaluation'].items()}
     report=value.get('report')
     if isinstance(report,dict):
         output['report_summary']={key:report[key] for key in ('blocked','uncertainties','gaps') if key in report}
+        for key in ('summary', 'unresolved_concerns', 'questions', 'tests_run', 'artifacts'):
+            if key in report:
+                value = report[key]
+                output['report_summary'][key] = value[:1200] if isinstance(value, str) else value[:8]
         output['report_summary']['finding_count']=len(report.get('findings',[]))
         output['report_summary']['findings']=[{key:val[:700] if isinstance(val,str) else val for key,val in finding.items()}
             for finding in report.get('findings',[])[:6]]
@@ -81,10 +85,9 @@ class AgentBrain:
             goal_id = snapshot['goal']['id']
             current = control.current(goal_id)
             policy = '\nDurable manager policy:\n' + current['policy']['instructions']
-            # Campaign prompts already contain a durable bounded state snapshot.
-            # Replaying whole prior snapshots through an SDK session duplicates
-            # tens of thousands of input tokens without adding new evidence.
-            session = None if snapshot.get('campaign') else control.session(goal_id)
+            # Every decision is rebuilt from durable state. Replaying prior
+            # snapshots duplicates reports and hides current feedback in history.
+            # Interactive chat keeps its own SDK session; decisions use recall.
             @function_tool(is_enabled=tools_available)
             async def search_knowledge(query: str = '', offset: int = 0) -> str:
                 """Retrieve shared verified facts, system maps, assumptions and rejected hypotheses."""
@@ -126,7 +129,14 @@ class AgentBrain:
         # Stable objective + concise outcomes, never worker event streams.
         context = {**snapshot, 'tasks': snapshot['tasks'][-20:],
                    'decisions': snapshot['decisions'][-20:], 'manager_tool_budget': remaining_calls}
-        if snapshot.get('campaign'):
+        if snapshot['goal'].get('requires_verified_implementation') and not snapshot.get('research_state', {}).get('accepted_job_ids'):
+            context['implementation_research_contract'] = {
+                'next': 'Establish one concrete current defect against one mandatory criterion in a focused research job. '
+                        'Separate independent defects; do not combine their proof obligations in one hypothesis. '
+                        'Use the first unresolved criterion as the default starting point.',
+                'boundary': 'Research acceptance establishes a defect, not completion. The authorized implementation '
+                            'and independent executable checks still have to satisfy every mandatory criterion.'}
+        if self.store:
             context['tasks']=[task | {'result':brief_result(task['result'])} for task in snapshot['tasks'][-6:]]
             context['decisions']=snapshot['decisions'][-8:]
             context['research']=snapshot['research'][:8]
@@ -136,6 +146,9 @@ class AgentBrain:
             context['pending_messages']=[message | {'body':brief_result(message['body'])}
                 for message in snapshot['pending_messages'][-10:]]
             context['manager_feedback']=snapshot['manager_feedback'][:5]
+            context['recent_user_messages']=[dict(row) for row in self.store.db.execute(
+                "SELECT kind,body,created FROM messages WHERE goal_id=? AND direction='user_to_manager' ORDER BY created DESC LIMIT 10",
+                (goal_id,))]
             context['context_window']='Recent 6 tasks, 8 decisions/jobs/opportunities, compact worker handoffs. Full original reports and older decisions remain in recall_history and search_knowledge; these excerpts are not complete coverage.'
         if self.store:
             from .resources import list_resources as inventory
@@ -150,7 +163,8 @@ class AgentBrain:
             if snapshot.get('campaign'):
                 from .frontier import Frontier
                 context['frontier'] = Frontier(self.store, goal_id).summary()
-                context['unexamined_branches'] = Frontier(self.store, goal_id).suggestions()
+                review = snapshot.get('campaign_cadence') or {}
+                context['unexamined_branches'] = Frontier(self.store, goal_id).suggestions(offset=review.get('strategy',0)*12)
                 from .campaign import Campaign
                 context['campaign_evidence_requirements'] = Campaign(self.store,goal_id).quality()
         try:

@@ -3,6 +3,7 @@ import asyncio
 import json
 import os
 import shutil
+import sys
 from pathlib import Path
 import uuid
 from .codex_config import cli_config_args, codex_environment
@@ -23,6 +24,7 @@ class CodexRuntime:
         self.questions = set()
         self.items = {}
         self.reader = self.stderr = None
+        self.execution_capabilities = None
 
     async def connect(self):
         if self.proc is not None:
@@ -99,8 +101,38 @@ class CodexRuntime:
                 if not future.done():
                     future.set_exception(RuntimeError('Codex connection lost; outcome uncertain, reconcile thread before retry'))
 
+    async def probe_execution(self, workspace):
+        """Check a local async/thread primitive under the worker's actual sandbox.
+
+        No model or network call; do not relax sandbox permissions to make it pass.
+        Cache only a confirmed outcome for this connection/workspace policy.
+        """
+        if self.execution_capabilities is not None:
+            return self.execution_capabilities
+        code = 'import asyncio; asyncio.run(asyncio.to_thread(lambda: None)); print("async-thread-ok")'
+        try:
+            result = await self.call('command/exec', {
+                'command': [sys.executable, '-c', code], 'cwd': workspace,
+                'sandboxPolicy': {'type': 'workspaceWrite', 'networkAccess': False},
+                'timeoutMs': 2000, 'outputBytesCap': 1000}, timeout=8)
+            status = ('available' if result.get('exitCode') == 0 and 'async-thread-ok' in result.get('stdout', '')
+                      else 'timed_out' if result.get('exitCode') == 124 else 'unavailable')
+        except (RuntimeError, asyncio.TimeoutError):
+            status = 'unknown'
+        self.execution_capabilities = {'async_thread_bridge': status, 'probe_timeout_ms': 2000}
+        return self.execution_capabilities
+
     async def start(self, workspace, instructions, session_id=None, write=False, schema=None, on_thread=None):
         await self.connect()
+        if write:
+            capabilities = await self.probe_execution(workspace)
+            instructions += '\nObserved execution preflight: ' + json.dumps(capabilities)
+            if capabilities['async_thread_bridge'] in ('timed_out', 'unavailable'):
+                instructions += ('\nA local asyncio/thread probe failed inside this sandbox. '
+                    'Leave the supplied acceptance-check commands to the independent verifier; '
+                    'do not repeatedly run them here. Focus on the authorized repair and any '
+                    'small synchronous diagnostics. Report this execution limitation in the handoff. '
+                    'It does not waive any acceptance check or permit changing sandbox/network policy.')
         params = {**({'model':os.environ['OMNITRIX_CODEX_MODEL']} if os.getenv('OMNITRIX_CODEX_MODEL') else {}), 'cwd': workspace, 'sandbox': 'workspace-write' if write else 'read-only',
                   'approvalPolicy': 'never', 'config': {'sandbox_workspace_write.network_access': False},
                   'developerInstructions': 'Bounded engineering task. No deployments or destructive commands. Ask for decisions when blocked.'}
@@ -112,6 +144,9 @@ class CodexRuntime:
         self.session_ids.add(thread_id)
         if on_thread:
             on_thread(thread_id)
+        if write and self.on_event:
+            await self.on_event({'method': 'omnitrix/executionCapabilities',
+                'params': {'threadId': thread_id, 'capabilities': self.execution_capabilities}})
         turn = await self.call('turn/start', {'threadId': thread_id,
             'input': [{'type': 'text', 'text': instructions}], **({'outputSchema': schema} if schema else {})})
         return thread_id, turn['turn']['id']

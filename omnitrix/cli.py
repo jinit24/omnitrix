@@ -39,6 +39,10 @@ def main():
     campaign.add_argument('--research-runs', type=int)
     campaign.add_argument('--dollars', type=float)
     campaign.add_argument('--report', type=Path)
+    campaign.add_argument('--continuous', action='store_const', const=True, default=None,
+                          help='Save milestones and schedule autonomous self-review until a durable limit or operator stop')
+    campaign.add_argument('--review-seconds', type=int, help='Initial self-review interval, 1..86400 seconds (default 300)')
+    campaign.add_argument('--model', choices=['gpt-4.1','gpt-5.4'], help='Pin model and pricing when creating a new campaign')
     campaign.add_argument('--prepare-only', action='store_true')
     campaign.add_argument('--continue-paused', action='store_true')
     campaign.add_argument('--pause', action='store_true')
@@ -129,7 +133,8 @@ def main():
                 service.stop('paused', 'Operator paused the campaign')
                 print(json.dumps(service.status(),indent=2))
             else:
-                service.configure(args.days,args.decisions,args.research_runs,args.dollars,args.report)
+                service.configure(args.days,args.decisions,args.research_runs,args.dollars,args.report,
+                                  continuous=args.continuous, review_seconds=args.review_seconds, model=args.model)
                 if args.evidence:
                     from .frontier import Frontier
                     frontier=Frontier(store,args.goal_id)

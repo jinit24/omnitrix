@@ -27,12 +27,13 @@ async def test_authorized_but_unstarted_candidate_is_scored_without_crashing(tmp
     import json
     from scripts import benchmark
     task=json.loads((benchmark.ROOT/'benchmarks/tasks.json').read_text())[0]
-    class PauseBeforeCoding(benchmark.MockBrain):
-        async def decide(self,state):
-            if state['implementations']:
-                return self.decision('pause')
-            return await super().decide(state)
-    monkeypatch.setattr(benchmark,'MockBrain',PauseBeforeCoding)
+    original = benchmark.Supervisor.advance
+    async def operator_stop_before_coding(self, *args, **kwargs):
+        if self.status()['implementations']:
+            self.autonomy = 0
+            return {'paused': 'Simulated operator stop before the authorized worktree is created'}
+        return await original(self, *args, **kwargs)
+    monkeypatch.setattr(benchmark.Supervisor, 'advance', operator_stop_before_coding)
     report=await benchmark.run_arm(task,'manager',tmp_path/'arm',False,True,12)
     assert not report['errors']
     assert report['candidate']

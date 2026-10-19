@@ -178,7 +178,7 @@ class Implementations:
                     'checks': [c.model_dump() for c in spec.checks], 'feedback': row['feedback'],
                     'instructions': 'Implement only this objective in this worktree. Run tests with an OS-enforced timeout '
                         f'of at most {min(60, max(1, spec.seconds // 2))} seconds per command (for example timeout or subprocess.run(timeout=...)). '
-                        'Do not keep polling an idle test indefinitely. If a test hangs or the sandbox prevents it, '
+                        'Do not keep polling an idle test indefinitely or repeat a timed-out command unchanged. If a test hangs or the sandbox prevents it, '
                         'terminate that command and report the exact limitation in the handoff; the independent verifier '
                         'will still run all authorized acceptance checks. Do not commit, deploy, access production, '
                         'or run destructive commands. Ask manager if a decision is needed. Return artifacts and unresolved concerns.'})

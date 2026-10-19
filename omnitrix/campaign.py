@@ -9,6 +9,7 @@ from .frontier import Frontier
 from .research import Research
 from .spending import Spending, SpendingLimitReached
 from .supervisor import Supervisor
+from .cadence import Cadence
 
 SCHEMA = '''
 CREATE TABLE IF NOT EXISTS campaigns (
@@ -44,6 +45,9 @@ class Campaign:
             supported = self.store.db.execute("SELECT 1 FROM research_jobs WHERE goal_id=? AND status='supported' LIMIT 1", (self.goal_id,)).fetchone()
             if not supported:
                 raise ValueError('Completion needs an independently supported finding. Falsification alone does not establish the replacement explanation.')
+            cadence = Cadence(self.store,self.goal_id).status()
+            if cadence and quality['actual']['hypotheses'] <= cadence['last_milestone_hypotheses']:
+                raise ValueError('A continuous milestone requires a newly tested hypothesis. Select another useful question; do not repeat the prior completion.')
         if decision.action == 'pause':
             observed = self.store.db.execute('''SELECT 1 FROM research_access a JOIN research_runs r ON r.id=a.run_id
                 JOIN research_jobs j ON j.id=r.job_id WHERE j.goal_id=? LIMIT 1''', (self.goal_id,)).fetchone()
@@ -60,10 +64,10 @@ class Campaign:
         row = self.store.db.execute('SELECT * FROM campaigns WHERE goal_id=?', (self.goal_id,)).fetchone()
         return dict(row) | {'spending':Spending(self.store,self.goal_id).status()} if row else None
 
-    def configure(self, days=None, decisions=None, research_runs=None, dollars=None, report=None, quality=None):
+    def configure(self, days=None, decisions=None, research_runs=None, dollars=None, report=None, quality=None, continuous=None, review_seconds=None, model=None):
         existing = self.status()
         if existing:
-            if any(v is not None for v in (days, decisions, research_runs, dollars, report, quality)):
+            if any(v is not None for v in (days, decisions, research_runs, dollars, report, quality, continuous, review_seconds, model)):
                 raise ValueError('Resume the saved campaign without new limits; limits cannot be reset by rerunning it')
             return existing
         if days is None or decisions is None or research_runs is None or dollars is None:
@@ -80,7 +84,7 @@ class Campaign:
         now = time.time()
         with self.store.db:
             self.store.db.execute('BEGIN IMMEDIATE')
-            Spending(self.store, self.goal_id).configure(dollars)
+            Spending(self.store, self.goal_id).configure(dollars, model or ('gpt-5.4' if continuous else 'gpt-4.1'))
             Research(self.store).configure(self.goal_id, research_runs)
             self.store.db.execute('''INSERT INTO campaigns(goal_id,created,deadline,max_decisions,decisions_spent,max_research_runs,state,reason,report_path,last_progress,stagnant_decisions)
                 VALUES(?,?,?,?,0,?,?,NULL,?,0,0)''',
@@ -90,6 +94,10 @@ class Campaign:
                 if set(quality) != {'sources','branches','hypotheses','mechanisms'} or any(not isinstance(v,int) or v<0 for v in quality.values()):
                     raise ValueError('Invalid campaign quality requirements')
                 self.store.db.execute('UPDATE campaigns SET quality_spec=? WHERE goal_id=?',(json.dumps(quality),self.goal_id))
+            if continuous:
+                Cadence(self.store,self.goal_id).configure(review_seconds if review_seconds is not None else 300)
+            elif review_seconds is not None:
+                raise ValueError('Review interval requires --continuous')
         return self.status()
 
     def quality(self):
@@ -124,6 +132,9 @@ class Campaign:
             if row['deadline'] <= now:
                 self.stop('deadline', 'Saved wall-clock deadline reached')
                 return False
+            cadence = Cadence(self.store,self.goal_id).status()
+            if cadence and cadence['wake_at'] > now:
+                return False
             changed = self.store.db.execute("UPDATE campaigns SET decisions_spent=decisions_spent+1 WHERE goal_id=? AND state='running' AND decisions_spent<max_decisions", (self.goal_id,))
             if changed.rowcount != 1:
                 if row['state'] == 'running':
@@ -151,6 +162,7 @@ class Campaign:
         state=self.status()
         frontier=Frontier(self.store,self.goal_id).summary()
         summary={'state':state['state'],'reason':state['reason'],'decisions_spent':state['decisions_spent'],
+            'cadence':Cadence(self.store,self.goal_id).status(),
             'spending':state['spending'],'quality':self.quality(),
             'observed_files':frontier['observed_files'] if frontier else 0,
             'role_runs_spent':self.store.db.execute('SELECT spent FROM research_limits WHERE goal_id=?',(self.goal_id,)).fetchone()[0]}
@@ -168,8 +180,9 @@ class Campaign:
         if supervisor is None:
             from .manager import AgentBrain
             from .research import ResearchAgents
+            model = saved['spending']['model']
             supervisor = CampaignSupervisor(self.store, self.goal_id, runtime=ReadOnlyRuntime(),
-                brain=AgentBrain('gpt-4.1', store=self.store), research=Research(self.store, ResearchAgents('gpt-4.1')))
+                brain=AgentBrain(model, store=self.store), research=Research(self.store, ResearchAgents(model)))
         await supervisor.open()
         try:
             if continue_paused:
@@ -186,23 +199,59 @@ class Campaign:
                 if time.time() >= saved['deadline']:
                     self.stop('deadline', 'Saved wall-clock deadline reached')
                     break
+                remaining = self.store.db.execute('SELECT max_runs-spent FROM research_limits WHERE goal_id=?', (self.goal_id,)).fetchone()[0]
+                if remaining <= 0:
+                    self.stop('research_budget', 'Saved research role-run budget exhausted')
+                    break
+                cadence = Cadence(self.store,self.goal_id)
+                review = cadence.status()
+                if review and review['wake_at'] > time.time():
+                    if time.time() - last_report >= 60:
+                        self.checkpoint()
+                        last_report = time.time()
+                    await asyncio.sleep(min(30, review['wake_at']-time.time()))
+                    continue
                 goal = self.store.db.execute('SELECT status FROM goals WHERE id=?', (self.goal_id,)).fetchone()[0]
                 if goal in ('completed', 'paused'):
+                    if review:
+                        cadence.defer('Previous manager cycle stopped; select a new component and review retained feedback')
+                        continue
                     self.stop(goal, 'Manager completed or paused the investigation; no automatic restart')
                     break
                 await supervisor.monitor()
                 if not supervisor.work:
-                    count = self.store.db.execute('''SELECT count(*) FROM research_access a JOIN research_runs r ON r.id=a.run_id
-                        JOIN research_jobs j ON j.id=r.job_id WHERE j.goal_id=?''', (self.goal_id,)).fetchone()[0]
+                    # Local read-only roles can be reconciled once their task is
+                    # gone. Their evidence, attempts and cost reservations remain.
+                    # Native actions are excluded by recover_reads' adapter check.
+                    self.recover_reads()
+                    if review and cadence.pace():
+                        continue
+                    count = cadence.progress()
                     current = self.status()
                     stagnant = 0 if count != current['last_progress'] else current['stagnant_decisions']
                     self.store.execute('UPDATE campaigns SET last_progress=?,stagnant_decisions=? WHERE goal_id=?', (count,stagnant,self.goal_id))
+                    if review and current['decisions_spent'] - review['last_review_decision'] >= 4:
+                        cadence.defer('Scheduled review of evidence, rejected hypotheses and remaining opportunities', failed=stagnant >= 4)
+                        continue
                     if stagnant >= 8:
+                        if review:
+                            cadence.defer('Eight decisions without new evidence or tested hypotheses; rotate the investigation approach')
+                            continue
                         self.stop('paused', 'Eight decisions without new source access; revise the approach instead of burning the budget')
                         break
-                    result = await supervisor.advance(steps=1)
+                    try:
+                        result = await supervisor.advance(steps=1)
+                    except Exception as exc:
+                        from openai import APIConnectionError, APITimeoutError, RateLimitError
+                        if review and isinstance(exc, (APIConnectionError, APITimeoutError, RateLimitError)):
+                            cadence.defer('Transient provider error: '+type(exc).__name__)
+                            continue
+                        raise
                     if result.get('blocked') and not supervisor.work:
                         if self.status()['state']=='running':
+                            if review:
+                                cadence.defer('Recoverable manager stop: '+str(result['blocked']))
+                                continue
                             self.stop('paused', str(result['blocked']))
                         break
                     self.store.execute('UPDATE campaigns SET stagnant_decisions=stagnant_decisions+1 WHERE goal_id=?',(self.goal_id,))

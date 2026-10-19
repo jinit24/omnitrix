@@ -1,6 +1,10 @@
 """Typed contracts for bounded research, rather than an autonomous task graph."""
-from typing import Literal
+from typing import Annotated, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+
+EvidenceID = Annotated[str, Field(min_length=1, max_length=64, pattern=r'^[A-Za-z0-9_-]+$',
+    description='One exact captured evidence ID from a tool result. No prose, brackets, paths or comma-separated IDs.')]
 
 
 class Contract(BaseModel):
@@ -36,7 +40,7 @@ class MapEntry(Contract):
     kind: Literal['service', 'dependency', 'job', 'repository', 'observability', 'document']
     description: str = Field(max_length=1500)
     depends_on: list[str] = Field(max_length=20)
-    evidence_ids: list[str] = Field(max_length=10)
+    evidence_ids: list[EvidenceID] = Field(max_length=10)
     assumption: bool
 
 
@@ -49,7 +53,7 @@ class Opportunity(Contract):
     confidence: int = Field(ge=0, le=5)
     risk: int = Field(ge=1, le=5)
     effort: int = Field(ge=1, le=5)
-    evidence_ids: list[str] = Field(max_length=10)
+    evidence_ids: list[EvidenceID] = Field(max_length=10)
     rationale: str = Field(max_length=2000)
 
 
@@ -62,7 +66,7 @@ class DiscoveryReport(Contract):
 class Finding(Contract):
     statement: str = Field(min_length=1, max_length=3000)
     classification: Literal['claim', 'assumption']
-    evidence_ids: list[str] = Field(max_length=10)
+    evidence_ids: list[EvidenceID] = Field(max_length=10)
     category: Literal['mechanism', 'measurement', 'evidence_gap', 'observation'] = 'observation'
     workload: str | None = Field(default=None, max_length=1500)
     falsification: str | None = Field(default=None, max_length=1500)
@@ -76,23 +80,23 @@ class Finding(Contract):
 
 class ResearchReport(Contract):
     findings: list[Finding] = Field(max_length=15)
-    supporting_evidence: list[str] = Field(max_length=20)
-    contradictory_evidence: list[str] = Field(max_length=20)
+    supporting_evidence: list[EvidenceID] = Field(max_length=20, description='Exact evidence IDs only; explain support in findings.')
+    contradictory_evidence: list[EvidenceID] = Field(max_length=20, description='Exact evidence IDs only; explain contradictions in findings.')
     uncertainties: list[str] = Field(max_length=15)
     recommendation: str = Field(min_length=1, max_length=2000)
-    blocked: bool
+    blocked: bool = Field(description='Whether this scoped hypothesis cannot be answered. Unrelated goal criteria and future implementation checks do not block an otherwise answered hypothesis.')
 
 
 class EvaluationGap(Contract):
     basis: Literal['requirement', 'constraint', 'policy', 'hypothesis', 'claim', 'source']
-    reference: str = Field(min_length=1, max_length=6000)
+    reference: str = Field(min_length=1, max_length=6000, description='Copy an exact current requirement, constraint, policy, hypothesis, finding statement, or existing workspace-relative source path. Never paraphrase it.')
     missing_evidence: str = Field(min_length=1, max_length=3000)
     next_action: str = Field(min_length=1, max_length=2000)
 
 
 class Evaluation(Contract):
     verdict: Literal['supported', 'insufficient', 'falsified', 'blocked']
-    evidence_ids: list[str] = Field(max_length=20)
+    evidence_ids: list[EvidenceID] = Field(max_length=20)
     reason: str = Field(min_length=1, max_length=3000)
     feedback: str = Field(min_length=1, max_length=3000)
     blocking_gaps: list[EvaluationGap] = Field(default_factory=list, max_length=15)

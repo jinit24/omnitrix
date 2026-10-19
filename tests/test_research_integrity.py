@@ -23,3 +23,20 @@ def test_duplicate_investigation_does_not_return_another_goals_job(tmp_path):
     planned = service.plan(other, 'discovery', spec)
     assert not planned['duplicate']
     assert service.job(planned['job_id'])['goal_id'] == other
+
+
+def test_citation_contract_rejects_prose_instead_of_silently_accepting_embedded_ids():
+    import pytest
+    from pydantic import ValidationError
+    from omnitrix.research_models import ResearchReport
+    base=dict(findings=[],contradictory_evidence=[],uncertainties=[],recommendation='Inspect source',blocked=False)
+    with pytest.raises(ValidationError):
+        ResearchReport(**base,supporting_evidence=['The trim filter calls lstrip [abc123]'])
+    report=ResearchReport(**base,supporting_evidence=['abc123'])
+    assert report.supporting_evidence==['abc123']
+    # Identifier shape does not establish provenance; the independent gate still
+    # rejects an unknown, correctly-shaped identifier.
+    from omnitrix.research import Research
+    from omnitrix.research_models import Evaluation
+    verdict=Research.gate(report,Evaluation(verdict='supported',evidence_ids=['abc123'],reason='Example',feedback='Check'),[])
+    assert verdict.verdict=='insufficient' and 'abc123' in verdict.feedback

@@ -65,6 +65,28 @@ async def test_explicit_authorization_required(project):
         service.authorize(goal,incomplete,explicit=True)
 
 
+async def test_authorized_workflow_and_audit_do_not_depend_on_model_tool_beliefs(project):
+    import asyncio
+    from omnitrix.supervisor import Supervisor
+    runtime = CodingRuntime()
+    async def close(): pass
+    runtime.close = close
+    service, implementation = await create(project, runtime)
+    class Brain:
+        async def decide(self, state):
+            raise AssertionError('An authorized executable workflow must not ask the model whether tools exist')
+    supervisor = await Supervisor(project[0], project[1], brain=Brain(), runtime=runtime).open()
+    try:
+        await supervisor.advance(steps=2)
+        await asyncio.gather(*list(supervisor.work.values()))
+        assert service.get(implementation)['status'] == 'ready_for_audit'
+        assert (await supervisor.advance())['passed']
+        assert supervisor.status()['goal']['status'] == 'completed'
+        assert runtime.calls == 1
+    finally:
+        await supervisor.close()
+
+
 async def test_independent_test_failure_repairs_then_exact_revision_audit(project):
     runtime=CodingRuntime(fail_first=True)
     service,implementation=await create(project,runtime)

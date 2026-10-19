@@ -244,8 +244,9 @@ class Research:
         claims = [f for f in report.findings if f.classification == 'claim']
         cited.update(s for finding in report.findings for s in finding.evidence_ids)
         errors = []
-        if any(s not in available or available[s]['stale'] for s in cited):
-            errors.append('Unknown or stale evidence IDs; read current scoped sources')
+        invalid = sorted(s for s in cited if s not in available or available[s]['stale'])
+        if invalid:
+            errors.append('Unknown or stale evidence IDs; read current scoped sources: ' + repr(invalid[:4])[:600])
         if evaluation.verdict in ('supported', 'falsified') and not evaluation.evidence_ids:
             errors.append('Evaluator must cite independently available evidence')
         if evaluation.verdict == 'supported' and (not claims or any(not f.evidence_ids for f in claims)):

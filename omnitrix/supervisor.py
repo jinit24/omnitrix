@@ -30,10 +30,20 @@ class Supervisor:
         self.actor = asyncio.Lock()
         self.work = {}
         self.owner = uuid.uuid4().hex
-        self.autonomy = 0
+        self.store.execute('INSERT OR IGNORE INTO supervisor_budgets VALUES(?,0)', (goal_id,))
         self._lock = None
         self.closed = False
         self.housekeeper = None
+
+    @property
+    def autonomy(self):
+        return self.db.execute('SELECT remaining FROM supervisor_budgets WHERE goal_id=?', (self.goal_id,)).fetchone()[0]
+
+    @autonomy.setter
+    def autonomy(self, value):
+        if not isinstance(value, int) or not 0 <= value <= 1000:
+            raise ValueError('Autonomy budget must be 0..1000 decisions')
+        self.store.execute('UPDATE supervisor_budgets SET remaining=? WHERE goal_id=?', (value, self.goal_id))
 
     async def open(self):
         self._lock = open(str(self.store.path)+'.lock', 'a')
@@ -165,7 +175,27 @@ class Supervisor:
                     return {'blocked':'Saved campaign decision/state/deadline limit reached'}
             self.autonomy -= 1
             try:
-                decision = await asyncio.wait_for(self.brain.decide(self.status()),120)
+                # An explicit, still-valid implementation authorization is already
+                # a concrete execution decision. Do not ask an LLM whether the
+                # dispatcher exists, or whether an independently verified audit ran.
+                ready = []
+                if not self.db.execute('SELECT 1 FROM campaigns WHERE goal_id=?', (self.goal_id,)).fetchone():
+                    service = Implementations(self.store, self.runtime)
+                    for row in self.db.execute("SELECT * FROM implementations WHERE goal_id=? AND status IN ('authorized','repair','ready_for_audit')", (self.goal_id,)):
+                        try:
+                            service.auth(row['authorization'])
+                        except ValueError:
+                            continue
+                        ready.append(row)
+                if len(ready) == 1:
+                    from .models import Decision
+                    row = ready[0]
+                    decision = Decision(action='audit' if row['status']=='ready_for_audit' else 'implement',
+                        rationale='Execute the sole valid explicit authorization and independently verify its mandatory criteria',
+                        instructions='Continue the authorized implementation workflow', task_id=None, priority=1,
+                        implementation_id=row['id'])
+                else:
+                    decision = await asyncio.wait_for(self.brain.decide(self.status()),120)
             except ModelBehaviorError as exc:
                 # No decision was dispatched, so a bounded correction cannot replay work.
                 feedback = {'error': type(exc).__name__, 'reason': str(exc),
@@ -220,6 +250,11 @@ class Supervisor:
         if self.db.execute('SELECT 1 FROM campaigns WHERE goal_id=?',(self.goal_id,)).fetchone():
             from .campaign import Campaign
             Campaign(self.store,self.goal_id).validate_decision(decision)
+            from .cadence import Cadence
+            cadence = Cadence(self.store,self.goal_id)
+            if action == 'complete' and cadence.status():
+                self.autonomy = 0
+                return {'milestone': cadence.defer(decision.rationale, milestone=True)}
         if self.db.execute('SELECT 1 FROM spending_limits WHERE goal_id=?',(self.goal_id,)).fetchone() and action in ('delegate','follow_up','implement','audit'):
             raise ValueError('Budgeted campaigns are read-only; unmetered native workers and code actions are disabled')
         if self.status()['goal']['requires_verified_implementation'] and action in ('delegate','follow_up'):
@@ -232,6 +267,11 @@ class Supervisor:
                     raise ValueError('Research acceptance is the unmet prerequisite. Read research_state.latest_job feedback; retry with targeted feedback if retryable, otherwise report the research gap or exhausted budget. No implementation authorization can be created yet.')
                 research_state = self.store.research_state(self.goal_id)
                 latest = research_state['latest_job']
+                if decision.pause_reason == 'research' and latest and latest['retryable']:
+                    raise ValueError('Research is still executable within the saved attempt and role budgets. '
+                        'Return retry_research with research_id=' + latest['id'] + ' and targeted feedback from the evaluation. '
+                        'Research actions are dispatched after this Decision; they do not require manager source-reading tools. '
+                        'If further work truly has no value, explain that with low_value; name a genuine external blocker with external_input.')
                 if decision.pause_reason in ('research', 'reconciliation', 'external_input') and latest and latest['needs_scope_expansion'] and research_state['remaining_role_runs'] >= 2:
                     raise ValueError('The required local files exist but were excluded from the immutable research scope. '
                         'Choose research with a new explicit research_plan including the needed files; this is not an external blocker: '
@@ -331,12 +371,14 @@ class Supervisor:
                 (params.get('turn',{}).get('id'),params.get('threadId')))
         row = self.db.execute('SELECT * FROM task_runtime WHERE session_id=? AND turn_id=?',
                               (params.get('threadId'),params.get('turnId') or params.get('turn',{}).get('id'))).fetchone()
-        if row is None and params.get('threadId') and method=='thread/tokenUsage/updated':
+        if row is None and params.get('threadId') and method in ('thread/tokenUsage/updated', 'omnitrix/executionCapabilities'):
             row=self.db.execute('SELECT * FROM task_runtime WHERE session_id=? ORDER BY started DESC LIMIT 1',(params['threadId'],)).fetchone()
         if row is None:
             return
         task_id = row['task_id']
-        if method == 'item/tool/requestUserInput':
+        if method == 'omnitrix/executionCapabilities':
+            self.control.event(self.goal_id, 'execution_capabilities', params['capabilities'], task_id)
+        elif method == 'item/tool/requestUserInput':
             params=dict(params,runtime_connection=getattr(self.runtime,'connection_id',self.owner))
             self.control.message(self.goal_id, 'question', params, task_id, 'worker_to_manager',
                 message_id=f"rpc:{params['runtime_connection']}:{row['session_id']}:{data['id']}", runtime_id=str(data['id']))
@@ -536,7 +578,8 @@ class Supervisor:
             await asyncio.sleep(.2)
         return self.status()
 
-    async def close(self):
+    async def close(self, preserve_autonomy=False):
+        remaining = self.autonomy
         self.closed = True
         self.autonomy = 0
         if self.housekeeper:
@@ -545,5 +588,7 @@ class Supervisor:
         for task_id in list(self.work):
             await self.stop(task_id,pause=True)
         await self.runtime.close()
+        if preserve_autonomy:
+            self.autonomy = remaining
         if self._lock:
             self._lock.close()

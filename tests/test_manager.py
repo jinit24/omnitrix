@@ -195,3 +195,28 @@ async def test_usage_is_retained_when_manager_exhausts_turns(tmp_path, monkeypat
     usage = [json.loads(row[0]) for row in store.db.execute("SELECT detail FROM activity WHERE kind='usage'")]
     assert sum(row['input_tokens'] for row in usage) == 200
     assert sum(row['output_tokens'] for row in usage) == 40
+
+
+async def test_ordinary_decisions_use_bounded_state_and_preserve_handoffs_after_restart(tmp_path, monkeypatch):
+    from omnitrix.control import Control
+    store, goal = setup(tmp_path)
+    control = Control(store)
+    control.message(goal, 'chat', {'text': 'Preserve the public API'}, state='acknowledged')
+    control.message(goal, 'implementation_handoff', {'implementation_id': 'candidate-id',
+        'report': {'summary': 'Repair prepared', 'unresolved_concerns': ['Async check timed out'],
+                   'tests_run': ['Focused check passed'], 'questions': []}}, direction='worker_to_manager')
+    for index in range(1000):
+        store.execute('INSERT INTO decisions(goal_id,body) VALUES(?,?)',
+            (goal, json.dumps({'index': index, 'rationale': 'x' * 1000})))
+    store.db.close()
+    store = Store(tmp_path / 'state.db')
+    async def fake_run(agent, prompt, **kwargs):
+        state = json.loads(prompt)
+        assert kwargs['session'] is None
+        assert len(state['decisions']) == 8
+        assert len(prompt) < 20000
+        assert 'Preserve the public API' in prompt and 'Async check timed out' in prompt
+        return type('Result', (), {'final_output': decision('pause')})()
+    monkeypatch.setattr('omnitrix.manager.Runner.run', fake_run)
+    await AgentBrain(store=store).decide(store.snapshot(goal))
+    assert store.db.execute('SELECT count(*) FROM decisions').fetchone()[0] == 1000
