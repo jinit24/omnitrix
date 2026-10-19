@@ -111,7 +111,7 @@ class ScriptedAgents:
     async def run(self, role, context, tools):
         if role == 'evaluation':
             ids = context['report']['supporting_evidence']
-            return Evaluation(verdict='supported', evidence_ids=ids, reason='Scripted evaluator for harness plumbing', feedback='Not a model-quality result')
+            return Evaluation(verdict='supported', evidence_ids=ids, reason='Scripted evaluator for harness plumbing', feedback='Not a model-quality result',test_kind='direct',test_evidence_ids=ids)
         evidence = [tools.read('src/batch_loader.py'), tools.read('src/upstream.py')]
         totals = {}
         row = 1

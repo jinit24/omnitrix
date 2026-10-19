@@ -42,6 +42,7 @@ def main():
     campaign.add_argument('--prepare-only', action='store_true')
     campaign.add_argument('--continue-paused', action='store_true')
     campaign.add_argument('--pause', action='store_true')
+    campaign.add_argument('--strategy',choices=('manager','investigator'))
     campaign.add_argument('--evidence', action='append', default=[], metavar='PATH', help='Index an exported UTF-8 log/measurement inside the goal workspace; repeat for multiple files')
     search = commands.add_parser('knowledge')
     search.add_argument('goal_id')
@@ -129,7 +130,7 @@ def main():
                 service.stop('paused', 'Operator paused the campaign')
                 print(json.dumps(service.status(),indent=2))
             else:
-                service.configure(args.days,args.decisions,args.research_runs,args.dollars,args.report)
+                service.configure(args.days,args.decisions,args.research_runs,args.dollars,args.report,strategy=args.strategy)
                 if args.evidence:
                     from .frontier import Frontier
                     frontier=Frontier(store,args.goal_id)

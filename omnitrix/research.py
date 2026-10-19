@@ -34,6 +34,11 @@ class ResearchAgents:
             return json.dumps(tools.read(locator, start_line, line_count))
 
         @function_tool(failure_error_function=research_tool_error)
+        async def tail_source(locator:str,line_count:Annotated[int,Field(ge=1,le=100)]=80,before_line:Annotated[int,Field(ge=1)]|None=None)->str:
+            """Read the last 1..100 lines of a scoped source. Useful for end-of-run log summaries; follow next_before backwards. Evidence includes actual line numbers."""
+            return json.dumps(tools.tail(locator,line_count,before_line))
+
+        @function_tool(failure_error_function=research_tool_error)
         async def search_knowledge(query: str = '', offset: int = 0) -> str:
             """Reuse earlier system maps, rejected hypotheses and evaluated findings."""
             return json.dumps(tools.search(query, offset))
@@ -74,7 +79,7 @@ class ResearchAgents:
         goal_id = tools.store.db.execute('SELECT goal_id FROM research_jobs WHERE id=(SELECT job_id FROM research_runs WHERE id=?)',(tools.run_id,)).fetchone()[0]
         agent = Agent(name=f'Independent {role} agent', model=metered_model(tools.store, goal_id, role, self.model),
             instructions=(ROOT / f'instructions/{role.upper()}.md').read_text(),
-            tools=[read_source, search_knowledge, search_source, summarize_csv], output_type=output,
+            tools=[read_source, search_knowledge, search_source, summarize_csv,tail_source], output_type=output,
             model_settings=ModelSettings(max_tokens=3500,
                 tool_choice=choice))
         result = await Runner.run(agent, json.dumps(context), max_turns=max(8, min(28, tools.remaining + 2)),
@@ -134,7 +139,7 @@ class Research:
                 raise ValueError('Opportunity must belong to this goal')
         from .control import Control
         revisions = Control(self.store).current(goal_id)
-        signature = hashlib.sha256(json.dumps([goal_id, workspace, stage, revisions['goal']['revision'], revisions['policy']['version'],
+        signature = hashlib.sha256(json.dumps(['hypothesis-proof-v2',goal_id, workspace, stage, revisions['goal']['revision'], revisions['policy']['version'],
             ' '.join((spec.hypothesis or spec.question).casefold().split()), scope,
             [source_revision(workspace,s)[1] for s in scope]], sort_keys=True).encode()).hexdigest()
         prior = self.db.execute('SELECT id,status FROM research_jobs WHERE goal_id=? AND signature=? ORDER BY created DESC LIMIT 1',
@@ -191,6 +196,7 @@ class Research:
         workspace = self.store.snapshot(job['goal_id'])['goal']['workspace']
         from .control import Control
         revision = Control(self.store).current(job['goal_id'])
+        report=None
         try:
             tools = ResearchTools(self.store, run_id, workspace, spec.scope, spec.budget.tool_calls)
             # Mandatory retrieval happens before any new investigation, even if the model omits it.
@@ -218,7 +224,25 @@ class Research:
             evaluation = Evaluation.model_validate(evaluation)
             if Control(self.store).current(job['goal_id']) != revision or self.job(job_id)['status'] == 'invalidated':
                 return self.finish(job, run_id, 'stale', report, feedback='Revision changed during evaluation')
-            evaluation = self.gate(report, evaluation, review_tools.evidence())
+            original=evaluation
+            evaluation = self.gate(report, evaluation, review_tools.evidence(), spec,
+                                   review_tools.coverage(evaluation.test_evidence_ids))
+            if original.verdict in ('supported','falsified') and evaluation.verdict!=original.verdict:
+                # Repair a rejected review once, without rerunning valid research.
+                # A genuinely insufficient scientific result is not auto-retried.
+                Control(self.store).event(job['goal_id'],'review_gate_rejected',
+                    {'job_id':job_id,'review':original.model_dump(),'gate_feedback':evaluation.feedback})
+                self.charge(job['goal_id'])
+                review_tools=ResearchTools(self.store,run_id,workspace,spec.scope,spec.budget.tool_calls)
+                corrected=await asyncio.wait_for(self.agents.run('evaluation',
+                    {'plan':spec.model_dump(),'report':report.model_dump(),'evidence':review_tools.evidence(),
+                     'gate_feedback':evaluation.feedback,'instruction':'Make a fresh, internally consistent judgment. Do not change the verdict merely to pass a gate; use insufficient if evidence is inadequate.'},review_tools),spec.budget.seconds)
+                corrected=Evaluation.model_validate(corrected)
+                evaluation=self.gate(report,corrected,review_tools.evidence(),spec,review_tools.coverage(corrected.test_evidence_ids))
+                Control(self.store).event(job['goal_id'],'review_gate_correction',
+                    {'job_id':job_id,'review':corrected.model_dump(),'accepted_verdict':evaluation.verdict})
+            if Control(self.store).current(job['goal_id'])!=revision or self.job(job_id)['status']=='invalidated':
+                return self.finish(job,run_id,'stale',report,feedback='Revision changed during review correction')
             status = evaluation.verdict
             if status in ('insufficient', 'blocked') and job['attempts'] + 1 >= spec.budget.attempts:
                 status = 'escalated'
@@ -231,12 +255,14 @@ class Research:
             status = 'escalated' if job['attempts'] + 1 >= spec.budget.attempts else 'blocked'
             if 'budget exhausted' in str(exc):
                 status = 'escalated'
-            return self.finish(job, run_id, status, feedback=f'{type(exc).__name__}: {exc}')
+            return self.finish(job, run_id, status, report if isinstance(report,ResearchReport) else None,
+                               feedback=f'{type(exc).__name__}: {exc}')
 
     @staticmethod
-    def gate(report, evaluation, evidence):
+    def gate(report, evaluation, evidence, plan=None, coverage=None):
         available = {e['id']: e for e in evidence}
-        cited = set(report.supporting_evidence + report.contradictory_evidence + evaluation.evidence_ids)
+        cited = set(report.supporting_evidence + report.contradictory_evidence + evaluation.evidence_ids + evaluation.test_evidence_ids + evaluation.counterevidence_ids)
+        cited.update(source for review in evaluation.claim_reviews for source in review.evidence_ids)
         claims = [f for f in report.findings if f.classification == 'claim']
         cited.update(s for finding in report.findings for s in finding.evidence_ids)
         errors = []
@@ -246,10 +272,42 @@ class Research:
             errors.append('Evaluator must cite independently available evidence')
         if evaluation.verdict == 'supported' and (not claims or any(not f.evidence_ids for f in claims)):
             errors.append('Every asserted claim needs observed evidence; assumptions are not verified facts')
-        if evaluation.verdict == 'supported' and any(not set(f.evidence_ids).issubset(evaluation.evidence_ids) for f in claims):
+        if evaluation.verdict=='supported' and evaluation.claim_reviews:
+            expected={index for index,finding in enumerate(report.findings) if finding.classification=='claim'}
+            reviewed={review.finding_index for review in evaluation.claim_reviews}
+            if reviewed!=expected or len(evaluation.claim_reviews)!=len(expected):
+                errors.append('Every factual finding needs exactly one explicit claim review')
+            for review in evaluation.claim_reviews:
+                if review.finding_index>=len(report.findings):continue
+                original=report.findings[review.finding_index]
+                def binds(candidate,prior):
+                    if candidate==prior:return True
+                    a,b=available.get(candidate,{}),available.get(prior,{})
+                    return bool(a.get('locator') and a.get('locator')==b.get('locator') and a.get('revision')==b.get('revision')
+                        and b.get('excerpt') and b['excerpt'] in a.get('excerpt',''))
+                if not review.supported or not any(binds(source,prior) for source in review.evidence_ids for prior in original.evidence_ids):
+                    errors.append('Claim review is unsupported or bound to unrelated evidence')
+        elif evaluation.verdict == 'supported' and any(not set(f.evidence_ids).issubset(evaluation.evidence_ids) for f in claims):
             errors.append('Evaluator evidence must cover every factual claim, not unrelated observations')
         if report.blocked and evaluation.verdict == 'supported':
             errors.append('Blocked research cannot establish support')
+        if plan and evaluation.verdict in ('supported','falsified'):
+            proof=set(evaluation.test_evidence_ids)
+            if not proof or not proof.issubset(evaluation.evidence_ids) or evaluation.test_kind=='not_tested':
+                errors.append('A terminal verdict needs explicit evidence testing the hypothesis itself, not just individual report claims')
+            if evaluation.verdict=='falsified' and (evaluation.test_kind not in ('counterexample','measurement') or not proof.intersection(report.contradictory_evidence+evaluation.counterevidence_ids)):
+                errors.append('Falsification needs observed counterevidence. Missing measurements or absent support is insufficient')
+            if evaluation.verdict=='supported' and evaluation.test_kind in ('absence','literal_absence'):
+                coverage=coverage or {}
+                if evaluation.test_kind=='absence':
+                    missing=[s for s in plan.scope if not coverage.get(s,{}).get('read_complete')]
+                else:
+                    query=(evaluation.literal_query or '').strip().casefold()
+                    missing=[s for s in plan.scope if not query or query not in coverage.get(s,{}).get('literal_absence',[])]
+                if missing:
+                    errors.append('Absence claim lacks complete cited scope coverage: '+', '.join(missing))
+                if any(f.category=='mechanism' for f in claims):
+                    errors.append('An absence search alone cannot verify an inefficiency mechanism')
         if errors:
             return Evaluation(verdict='insufficient', evidence_ids=[], reason='; '.join(errors),
                               feedback='; '.join(errors))
@@ -282,8 +340,13 @@ class Research:
                            report.gaps, 'assumption', [])
 
     def save_findings(self, job, report, evaluation):
-        for finding in report.findings:
-            classification = 'verified' if evaluation.verdict == 'supported' and set(finding.evidence_ids).issubset(evaluation.evidence_ids) and finding.classification == 'claim' else 'assumption'
+        reviews={review.finding_index:review for review in evaluation.claim_reviews}
+        for index,finding in enumerate(report.findings):
+            review=reviews.get(index)
+            approved=(review and review.supported) or set(finding.evidence_ids).issubset(evaluation.evidence_ids)
+            classification = 'verified' if evaluation.verdict == 'supported' and approved and finding.classification == 'claim' else 'assumption'
+            if classification=='verified' and review:
+                finding=finding.model_copy(update={'evidence_ids':review.evidence_ids})
             self.knowledge.put(job['goal_id'], job['id'], 'finding', finding.statement,
                 {'finding': finding.model_dump(), 'evaluation': evaluation.model_dump(),
                  'uncertainties': report.uncertainties}, classification,

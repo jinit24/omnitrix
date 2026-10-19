@@ -35,3 +35,11 @@ Frameworks, callers and harnesses may supply instrumentation or behavior outside
 a leaf file. Before claiming that measurements or behavior are absent, inspect
 the relevant execution contract. If the plan excludes it, state the scope gap;
 do not generalize a local absence into a system-wide conclusion.
+
+Use tail_source for scoped log endings and backward pagination; do not conclude
+that a long log contains only warnings after reading its first hundred lines.
+When the task asks which measured cost dominates, report the actual per-component
+totals, units, workload window and source IDs. "X dominates" without the numerical
+comparison is an incomplete quantitative answer. CSV partial=false only means no
+later rows remain in that page; whole_file=true establishes complete aggregation
+starting at row one. A tail page is not a whole-export total.

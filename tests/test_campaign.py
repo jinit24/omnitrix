@@ -52,6 +52,19 @@ def test_campaign_cannot_exceed_users_25_dollar_limit(tmp_path):
         Campaign(store,other).configure(3,1000,2000,26)
 
 
+def test_rereading_and_recalling_the_same_excerpt_is_not_new_exploration(tmp_path):
+    store,goal,campaign,workspace=setup(tmp_path)
+    (workspace/'system.md').write_text('first\nsecond\n')
+    job=Research(store).plan(goal,'discovery',ResearchPlan(scope=['system.md'],question='Which lines provide evidence?'))['job_id']
+    for run in ('first','repeat'):
+        store.execute('INSERT INTO research_runs(id,job_id,status,created) VALUES(?,?,?,0)',(run,job,'running'))
+        tools=ResearchTools(store,run,str(workspace),['system.md'],2)
+        tools.read('system.md',1,1)
+    assert campaign.source_progress()==1
+    tools.read('system.md',2,1)
+    assert campaign.source_progress()==2
+
+
 def test_frontier_is_durable_paginated_and_classifies_metric_code_correctly(tmp_path):
     store,goal,_,workspace=setup(tmp_path)
     for bucket in ('clients','storage','streams'):
@@ -235,3 +248,61 @@ async def test_legacy_manager_cannot_bypass_campaign_read_only_contract(tmp_path
     store,goal,_,_=setup(tmp_path)
     with pytest.raises(ValueError,match='campaign owner'):
         await Manager(store,None,None).resume(goal)
+
+
+async def test_invalid_model_json_recovers_without_replaying_a_worker_or_resetting_limits(tmp_path):
+    from agents.exceptions import ModelBehaviorError
+    store,goal,service,_=setup(tmp_path)
+    class Brain:
+        def __init__(self):self.calls=0
+        async def decide(self,state):
+            self.calls+=1
+            if self.calls==1:raise ModelBehaviorError('Invalid JSON when parsing model output')
+            action=['discover','research','complete'][self.calls-2]
+            spec=None if action=='complete' else ResearchPlan(scope=['system.md'],question='Which latency uncertainty should be resolved?',
+                hypothesis='Queue polling interval is 30 seconds' if action=='research' else None,
+                falsification='The registry gives another interval' if action=='research' else None)
+            return Decision(action=action,rationale='Correct the rejected output',instructions='Read registry',task_id=None,priority=1,research_plan=spec)
+    supervisor=CampaignSupervisor(store,goal,brain=Brain(),runtime=ReadOnlyRuntime(),research=Research(store,FixtureAgents()))
+    result=await service.drive(supervisor=supervisor,poll_seconds=.001)
+    assert result['state']=='completed' and result['decisions_spent']==4
+    assert store.db.execute('SELECT count(*) FROM tasks').fetchone()[0]==2
+    assert store.db.execute("SELECT count(*) FROM activity WHERE kind='manager_protocol_failure'").fetchone()[0]==1
+
+
+async def test_three_protocol_failures_pause_across_owner_restart(tmp_path):
+    from agents.exceptions import ModelBehaviorError
+    store,goal,service,_=setup(tmp_path)
+    store.execute("UPDATE campaigns SET state='running' WHERE goal_id=?",(goal,))
+    class Brain:
+        async def decide(self,state):raise ModelBehaviorError('Invalid JSON')
+    supervisor=CampaignSupervisor(store,goal,brain=Brain(),runtime=ReadOnlyRuntime())
+    assert (await supervisor.advance(steps=1))['recoverable']
+    assert (await supervisor.advance(steps=1))['recoverable']
+    store.db.close();store=Store(tmp_path/'state.db')
+    supervisor=CampaignSupervisor(store,goal,brain=Brain(),runtime=ReadOnlyRuntime())
+    assert (await supervisor.advance(steps=1))['blocked']
+    assert store.snapshot(goal)['goal']['status']=='paused'
+    assert Campaign(store,goal).status()['decisions_spent']==3
+
+
+async def test_transient_provider_failure_recovers_before_any_action(tmp_path,monkeypatch):
+    from openai import InternalServerError
+    from types import SimpleNamespace
+    store,goal,service,_=setup(tmp_path)
+    store.execute("UPDATE campaigns SET state='running' WHERE goal_id=?",(goal,))
+    class Brain:
+        calls=0
+        async def decide(self,state):
+            self.calls+=1
+            if self.calls==1:
+                raise InternalServerError('Temporary provider failure',response=SimpleNamespace(status_code=500,headers={},request=None),body=None)
+            return Decision(action='discover',rationale='Continue fresh planning',instructions='Inspect registry',task_id=None,priority=1,
+                research_plan=ResearchPlan(scope=['system.md'],question='Which mechanism warrants a test?'))
+    supervisor=CampaignSupervisor(store,goal,brain=Brain(),runtime=ReadOnlyRuntime(),research=Research(store,FixtureAgents()))
+    assert (await supervisor.advance(steps=1))['recoverable']
+    assert not store.db.execute('SELECT 1 FROM tasks').fetchone()
+    assert (await supervisor.advance(steps=1))['task_id']
+    await __import__('asyncio').gather(*list(supervisor.work.values()))
+    assert service.status()['decisions_spent']==2
+    assert store.db.execute('SELECT count(*) FROM tasks').fetchone()[0]==1

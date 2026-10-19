@@ -130,6 +130,16 @@ class AgentBrain:
                 context['unexamined_branches'] = Frontier(self.store, goal_id).suggestions()
                 from .campaign import Campaign
                 context['campaign_evidence_requirements'] = Campaign(self.store,goal_id).quality()
+                from .allocation import allocation
+                context['research_allocation']=allocation(self.store,goal_id)
+                if context['research_allocation']['ready_leads']:
+                    context['opportunities']=context['research_allocation']['ready_leads']
+                # Recover a failed structured output with its already captured
+                # file catalog instead of paying to repeat the same inventory.
+                latest=self.store.db.execute("SELECT kind FROM activity WHERE goal_id=? AND kind IN ('decision','manager_protocol_failure','manager_provider_failure') ORDER BY id DESC LIMIT 1",(goal_id,)).fetchone()
+                if latest and latest[0] in ('manager_protocol_failure','manager_provider_failure'):
+                    context['recent_catalog_results']=[json.loads(row[0]) for row in self.store.db.execute("SELECT detail FROM activity WHERE goal_id=? AND kind='manager_frontier_query' ORDER BY id DESC LIMIT 3",(goal_id,))]
+                    agent.model_settings.tool_choice='auto'
         try:
             result = await Runner.run(agent, json.dumps(context), max_turns=24 if snapshot.get('campaign') else 8, session=session,
                                       run_config=RunConfig(tracing_disabled=True))
