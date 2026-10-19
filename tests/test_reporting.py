@@ -49,6 +49,24 @@ def test_issue_diagnosis_and_regression_history_is_append_only(tmp_path):
     assert [h['event'] for h in issue['history']]==['observed','changed','live result']
 
 
+def test_quality_reports_are_readable_escaped_and_goal_scoped(tmp_path):
+    from omnitrix.control import Control
+    from omnitrix.reporting import goal_report
+    store=Store(tmp_path/'quality.db')
+    goal=store.create_goal('Explain a candidate',['Evidence'],tmp_path)
+    other=store.create_goal('Unrelated goal',['Other evidence'],tmp_path)
+    for gid,report in ((goal,'## Mechanism\n\n| Gate | Evidence |\n| --- | --- |\n| Tests | Passed |\n<script>bad()</script>'),
+                       (other,'PRIVATE OTHER GOAL')):
+        Control(store).message(gid,'implementation_handoff',{'implementation_id':'candidate-id',
+            'turn_id':'turn-id','report':{'quality_report':report}},direction='worker_to_manager',state='acknowledged')
+    data=goal_report(store,goal)
+    assert len(data['quality_reports'])==1
+    output=render_report(data)
+    assert 'Evidence and quality reviews' in output and 'Mechanism' in output
+    assert '<script>bad()' not in output and 'PRIVATE OTHER GOAL' not in output
+    assert output.count('## Mechanism')<=1
+    assert 'candidate-id:turn-id' in output
+
 def test_parallel_log_writers_preserve_all_issue_events(tmp_path):
     from concurrent.futures import ThreadPoolExecutor
     from omnitrix.reporting import record_issue

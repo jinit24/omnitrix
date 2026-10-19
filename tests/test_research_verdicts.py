@@ -79,6 +79,9 @@ async def test_inconsistent_review_is_corrected_once_without_repeating_research(
             if role=='research':self.research_calls+=1
             if role=='evaluation':
                 self.reviews+=1
+                assert context['acceptance_criteria']==['Use real evidence']
+                assert context['review_stage']=='research_evidence_before_candidate_verification'
+                assert 'candidate correctness' in context['decision_contract']
                 if self.reviews==1:
                     ids=context['report']['supporting_evidence']
                     return Evaluation(verdict='falsified',evidence_ids=ids,test_kind='measurement',test_evidence_ids=ids,

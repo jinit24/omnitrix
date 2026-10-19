@@ -13,6 +13,7 @@ from omnitrix.research import Research
 from omnitrix.research_models import ResearchPlan,ResearchReport,Finding
 from tests.test_campaign import setup
 from tests_helpers import FixtureAgents
+from omnitrix.prompts import load_instructions
 
 
 @pytest.mark.asyncio
@@ -22,6 +23,7 @@ async def test_investigator_handoff_retains_actual_sources_and_independent_revie
     store.execute("INSERT INTO knowledge VALUES('prior',?,?,?,'finding','Previous queue hypothesis','{}','rejected','[]',0)",
         (str(workspace.resolve()),goal,Research(store).plan(goal,'discovery',ResearchPlan(scope=['system.md'],question='What prior knowledge is available?'))['job_id']))
     async def run(agent,prompt,**kwargs):
+        assert agent.instructions.startswith(load_instructions('investigator'))
         assert json.loads(prompt)['prior_knowledge_index'][0]['classification']=='rejected'
         assert any(tool.name=='search_knowledge' for tool in agent.tools)
         tool=next(t for t in agent.tools if t.name=='read_source')
@@ -65,13 +67,18 @@ async def test_completion_audit_rejects_invented_findings_and_does_not_repeat_un
     calls=[]
     async def run(agent,prompt,**kwargs):
         calls.append(prompt)
+        assert agent.instructions==load_instructions('goal_review')
         return type('Result',(),{'final_output':GoalReview(reason='Counts are high',objective_met=True,
+            quality_report='| Criterion | Gate |\n| --- | --- |\n| Original objective | RETURN: supplied finding is unknown |',
             criteria=[CriterionReview(index=0,met=True,finding_ids=['invented-id'],reason='Assume completion')])})()
     monkeypatch.setattr('omnitrix.investigator.Runner.run',run)
     brain=InvestigatorBrain(store)
     assert not (await brain.completion_review(store.snapshot(goal)))['passed']
     assert not (await brain.completion_review(store.snapshot(goal)))['passed']
     assert len(calls)==1
+    from omnitrix.reporting import goal_report
+    reviews=goal_report(store,goal)['quality_reports']
+    assert any('RETURN: supplied finding is unknown' in r['report'] for r in reviews)
     if hasattr(store,'_campaign_client'):await store._campaign_client.close()
 
 

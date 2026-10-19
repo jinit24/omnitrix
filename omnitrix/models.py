@@ -9,10 +9,12 @@ class Handoff(BaseModel):
     summary: str = Field(max_length=6000)
     evidence: list[str] = Field(max_length=20)
     next_steps: list[str] = Field(max_length=10)
+    quality_report: str = Field(default='', max_length=12000,
+        description='Markdown evidence, explanation, visuals, limitations, follow-through and role gate outcomes. Required for new substantive handoffs; empty legacy values are unreviewed.')
 
 
 class Decision(BaseModel):
-    action: Literal['delegate', 'follow_up', 'complete', 'pause', 'discover', 'research', 'retry_research', 'implement', 'audit']
+    action: Literal['delegate', 'follow_up', 'complete', 'pause', 'discover', 'research', 'research_batch', 'retry_research', 'implement', 'audit']
     rationale: str = Field(max_length=3000)
     instructions: str = Field(max_length=6000)
     task_id: str | None
@@ -21,6 +23,8 @@ class Decision(BaseModel):
     research_plan: ResearchPlan | None = None
     research_id: str | None = None
     implementation_id: str | None = None
+    research_plans: list[ResearchPlan] = Field(default_factory=list, max_length=3)
+    independence_reason: str = Field(default='', max_length=1000)
 
 
 class ChatReply(BaseModel):

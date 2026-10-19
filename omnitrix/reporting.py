@@ -17,6 +17,21 @@ def render_report(data):
     def detail(value):
         return '<pre>' + text(json.dumps(value, indent=2, ensure_ascii=False)) + '</pre>'
 
+    def quality_body(value):
+        # Model/source HTML is never executable. Markdown tables are readable
+        # with the docs extra; plain text remains usable without that dependency.
+        try:
+            from markdown_it import MarkdownIt
+        except ImportError:
+            return '<pre>' + text(value) + '</pre>'
+        return MarkdownIt('commonmark', {'html':False}).enable('table').render(value)
+
+    quality = ''.join('<details class="quality"><summary>' + text(r['role']) + ' · ' +
+        text(r['artifact_id']) + '</summary>' + quality_body(r['report']) + '</details>'
+        for r in data.get('quality_reports', []))
+    if quality:
+        quality = '<h2>Evidence and quality reviews</h2><p>Worker claims remain subject to the independent checks and acceptance decision below.</p>' + quality
+
     def history(issue):
         return ''.join('<details><summary>' + text(h['at']) + ' · ' + text(h['event']) +
                        ' · ' + text(h.get('status', '')) + '</summary>' + detail(h['details']) + '</details>'
@@ -44,7 +59,7 @@ def render_report(data):
     events = ''.join('<details><summary>' + text(e['at']) + ' · ' + text(e['result'].get('name', 'Run')) +
                      ' · ' + text(e['result'].get('status', '')) + '</summary>' + detail(e['result']) + '</details>'
                      for e in data.get('experiment_events', []))
-    extra = {k: v for k, v in data.items() if k not in ('title', 'issues', 'runs', 'experiment_events')}
+    extra = {k: v for k, v in data.items() if k not in ('title', 'issues', 'runs', 'experiment_events','quality_reports')}
     return '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width">' + \
         '<title>' + text(data.get('title', 'Research quality log')) + '</title><style>' + \
         'body{font:16px/1.6 system-ui,sans-serif;max-width:1100px;margin:40px auto;padding:0 24px;color:#1b2938;background:#f5f7fa}' + \
@@ -52,7 +67,8 @@ def render_report(data):
         'h1,h2{line-height:1.25}h2{font-size:20px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px}' + \
         'table{border-collapse:collapse;width:100%;font-size:14px}td,th{text-align:left;border-bottom:1px solid #ccd6e3;padding:8px;overflow-wrap:anywhere}' + \
         '.status{font-weight:700;color:#245aa0}summary{cursor:pointer;font-weight:700}</style><body><h1>' + \
-        text(data.get('title', 'Research quality log')) + '</h1>' + detail(extra) + issue_table + issues + \
+        text(data.get('title', 'Research quality log')) + '</h1>' + quality + \
+        '<details><summary>Full provenance and raw records</summary>' + detail(extra) + '</details>' + issue_table + issues + \
         '<h2>Latest experiment results</h2>' + table + runs + '<h2>Dated experiment history</h2>' + events + '</body></html>\n'
 
 
@@ -132,8 +148,30 @@ def goal_report(store, goal_id):
     from .campaign import Campaign
     from .frontier import Frontier
     snapshot = store.snapshot(goal_id, history_limit=None)
+    quality_reports = []
+    for row in store.db.execute("SELECT id,detail FROM activity WHERE goal_id=? AND kind='research_goal_audit' ORDER BY id",(goal_id,)):
+        review=json.loads(row['detail']).get('review',{})
+        if review.get('quality_report'):
+            quality_reports.append({'role':'Independent research completion review','artifact_id':str(row['id']),
+                                    'report':review['quality_report']})
+    for d in reversed(snapshot['decisions']):
+        if d.get('action') in ('complete','pause') and d.get('instructions'):
+            quality_reports.append({'role':'Master review','artifact_id':d['action'],'report':d['instructions']})
+            break
+    for row in store.db.execute('''SELECT r.id,r.report,r.evaluation,j.stage FROM research_runs r
+        JOIN research_jobs j ON j.id=r.job_id WHERE j.goal_id=? ORDER BY r.created''',(goal_id,)):
+        for field,role in (('report',row['stage']),('evaluation','Independent evaluation')):
+            report = json.loads(row[field]) if row[field] else {}
+            if report.get('quality_report'):
+                quality_reports.append({'role':role,'artifact_id':row['id'],'report':report['quality_report']})
+    for row in store.db.execute("SELECT body FROM messages WHERE goal_id=? AND kind='implementation_handoff' ORDER BY created",(goal_id,)):
+        handoff = json.loads(row['body'])
+        if handoff.get('report',{}).get('quality_report'):
+            quality_reports.append({'role':'Implementation worker','artifact_id':handoff['implementation_id'] + ':' + handoff.get('turn_id','unknown-turn'),
+                                    'report':handoff['report']['quality_report']})
     return {'title': 'Omnitrix research evidence log', 'generated_at': datetime.now(timezone.utc).isoformat(),
             'goal': snapshot['goal'], 'research_progress': snapshot.get('research_progress', {}),
+            'quality_reports':quality_reports,
             'campaign': snapshot.get('campaign'), 'spending': snapshot.get('spending'),
             'frontier': Frontier(store,goal_id).summary(),
             'quality': Campaign(store,goal_id).quality() if snapshot.get('campaign') else None,

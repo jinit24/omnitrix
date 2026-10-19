@@ -1,0 +1,573 @@
+{
+  "generated_at": "2026-10-19T04:45:10.503039+00:00",
+  "source_results_sha256": "aa80909ce2b71eacff809fa6e54e79d21e916f7c31cd249c942b0ba7e9fd8ad3",
+  "source_revisions": [
+    "94dabcd4e451d2631a58d00eecde8eaeeb5167fa"
+  ],
+  "measurement": "Two repeated trials of 1 fixed fixture(s); descriptive results, not production or statistical superiority evidence.",
+  "runs": [
+    {
+      "task": "bounded-retries",
+      "fixture_version": 2,
+      "arm": "single",
+      "goal_id": "d27b1dc44e9942e9af6eba1d1e483546",
+      "initial_tree": "afff2f36cfbf9fc4bac3b16432e87328fa8d5188",
+      "arm_seconds": 300,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "addb9e3f76c07d841b7647b0a3ed48e46ad7ad03",
+      "source_revision": "94dabcd4e451d2631a58d00eecde8eaeeb5167fa",
+      "source_dirty": false,
+      "stage_timings": {
+        "manager_turn": [],
+        "research_role": [],
+        "implementation_turn": [
+          {
+            "seconds": 40.76378089100035,
+            "status": "completed"
+          }
+        ],
+        "candidate_verification": []
+      },
+      "manager_decisions": 0,
+      "goal_status": "active",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "checks": [
+        {
+          "requirement": "Retry transient timeouts and return the eventual result",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-0/bounded-retries/single/check-0.log",
+          "candidate": "addb9e3f76c07d841b7647b0a3ed48e46ad7ad03"
+        },
+        {
+          "requirement": "Bound retry attempts and do not retry permanent errors",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-0/bounded-retries/single/check-1.log",
+          "candidate": "addb9e3f76c07d841b7647b0a3ed48e46ad7ad03"
+        }
+      ],
+      "wall_seconds": 40.955108017000384,
+      "tokens": {
+        "input": 164569,
+        "output": 2859
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": null,
+      "corrections": null,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 0,
+      "verified_outcome_gain": 2,
+      "selected_opportunities": [],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "trial": "trial-0",
+      "candidate_patch": "adaptive-evidence/trial-0/bounded-retries/single/candidate.patch",
+      "implementation_diagnostics": []
+    },
+    {
+      "task": "bounded-retries",
+      "fixture_version": 2,
+      "arm": "manager",
+      "goal_id": "b553e1cf6049444faeb058f27bce6e57",
+      "initial_tree": "afff2f36cfbf9fc4bac3b16432e87328fa8d5188",
+      "arm_seconds": 300,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "74ee110ebbb97cb575905fae2342daacb82482de",
+      "source_revision": "94dabcd4e451d2631a58d00eecde8eaeeb5167fa",
+      "source_dirty": false,
+      "stage_timings": {
+        "manager_turn": [
+          {
+            "seconds": 6.02093899800002,
+            "context_bytes": 2690,
+            "action": "research"
+          },
+          {
+            "seconds": 4.738358309999967,
+            "context_bytes": 14929,
+            "action": "implement"
+          },
+          {
+            "seconds": 4.672288634999859,
+            "context_bytes": 21458,
+            "action": "audit"
+          },
+          {
+            "seconds": 5.767836445999819,
+            "context_bytes": 22780,
+            "action": "complete"
+          }
+        ],
+        "research_role": [
+          {
+            "role": "research",
+            "run_id": "724d209dc6ba48ce934668fab9dd2e35",
+            "seconds": 22.852890699000454,
+            "context_bytes": 2286
+          },
+          {
+            "role": "evaluation",
+            "run_id": "724d209dc6ba48ce934668fab9dd2e35",
+            "seconds": 13.249939311999697,
+            "context_bytes": 11332
+          }
+        ],
+        "implementation_turn": [
+          {
+            "implementation": "31f686c1c5d241be96cb43dc06cb9b4d",
+            "attempt": 1,
+            "seconds": 40.52722817600079,
+            "resumed": false,
+            "status": "completed"
+          },
+          {
+            "implementation": "31f686c1c5d241be96cb43dc06cb9b4d",
+            "attempt": 2,
+            "seconds": 21.734652728999208,
+            "resumed": true,
+            "status": "completed"
+          }
+        ],
+        "candidate_verification": [
+          {
+            "implementation": "31f686c1c5d241be96cb43dc06cb9b4d",
+            "candidate": "74ee110ebbb97cb575905fae2342daacb82482de",
+            "seconds": 0.11063439099962125,
+            "passed": true
+          }
+        ]
+      },
+      "manager_decisions": 4,
+      "goal_status": "completed",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "checks": [
+        {
+          "requirement": "Retry transient timeouts and return the eventual result",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-0/bounded-retries/manager/check-0.log",
+          "candidate": "74ee110ebbb97cb575905fae2342daacb82482de"
+        },
+        {
+          "requirement": "Bound retry attempts and do not retry permanent errors",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-0/bounded-retries/manager/check-1.log",
+          "candidate": "74ee110ebbb97cb575905fae2342daacb82482de"
+        }
+      ],
+      "wall_seconds": 120.62481077199936,
+      "tokens": {
+        "input": 475096,
+        "output": 8937
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": 0,
+      "corrections": 1,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 0,
+      "verified_outcome_gain": 2,
+      "selected_opportunities": [],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "trial": "trial-0",
+      "candidate_patch": "adaptive-evidence/trial-0/bounded-retries/manager/candidate.patch",
+      "implementation_diagnostics": [
+        {
+          "status": "completed",
+          "attempts": 2,
+          "feedback": "{\"failure_kind\": \"local\", \"unauthorized_paths\": [\"=\"], \"unauthorized_path_count\": 1, \"correction\": \"The confirmed completed turn left changes outside explicit authorization. Restore only unauthorized changes you introduced and remove only your newly created artifacts in this isolated worktree. Preserve pre-existing unrelated work. Do not expand allowed_paths. Independent verification remains blocked until the entire diff is within scope.\"}"
+        }
+      ],
+      "quality_review": "adaptive-evidence/trial-0/bounded-retries/manager/quality-review.md"
+    },
+    {
+      "task": "bounded-retries",
+      "fixture_version": 2,
+      "arm": "adaptive",
+      "goal_id": "ddc02af101b4436a87f1ca8ebfe42d8d",
+      "initial_tree": "afff2f36cfbf9fc4bac3b16432e87328fa8d5188",
+      "arm_seconds": 300,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "e068de890f9da8226167bab55e6b4b0c9a151918",
+      "source_revision": "94dabcd4e451d2631a58d00eecde8eaeeb5167fa",
+      "source_dirty": false,
+      "stage_timings": {
+        "manager_turn": [
+          {
+            "seconds": 8.8410754180004,
+            "context_bytes": 10055,
+            "action": "complete"
+          }
+        ],
+        "research_role": [],
+        "implementation_turn": [
+          {
+            "implementation": "a4fe91a4bd064f9ab80c9816e5c6a607",
+            "attempt": 1,
+            "seconds": 24.280809390000286,
+            "resumed": false,
+            "status": "completed"
+          }
+        ],
+        "candidate_verification": [
+          {
+            "implementation": "a4fe91a4bd064f9ab80c9816e5c6a607",
+            "candidate": "e068de890f9da8226167bab55e6b4b0c9a151918",
+            "seconds": 0.13165604899950267,
+            "passed": true
+          }
+        ]
+      },
+      "manager_decisions": 2,
+      "goal_status": "completed",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "checks": [
+        {
+          "requirement": "Retry transient timeouts and return the eventual result",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-0/bounded-retries/adaptive/check-0.log",
+          "candidate": "e068de890f9da8226167bab55e6b4b0c9a151918"
+        },
+        {
+          "requirement": "Bound retry attempts and do not retry permanent errors",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-0/bounded-retries/adaptive/check-1.log",
+          "candidate": "e068de890f9da8226167bab55e6b4b0c9a151918"
+        }
+      ],
+      "wall_seconds": 33.5523032910005,
+      "tokens": {
+        "input": 118401,
+        "output": 2663
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": 0,
+      "corrections": 0,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 0,
+      "verified_outcome_gain": 2,
+      "selected_opportunities": [],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "trial": "trial-0",
+      "candidate_patch": "adaptive-evidence/trial-0/bounded-retries/adaptive/candidate.patch",
+      "implementation_diagnostics": [
+        {
+          "status": "completed",
+          "attempts": 1,
+          "feedback": ""
+        }
+      ],
+      "quality_review": "adaptive-evidence/trial-0/bounded-retries/adaptive/quality-review.md"
+    },
+    {
+      "task": "bounded-retries",
+      "fixture_version": 2,
+      "arm": "manager",
+      "goal_id": "0a70dcc9118c4057a9ab36361440c6c6",
+      "initial_tree": "afff2f36cfbf9fc4bac3b16432e87328fa8d5188",
+      "arm_seconds": 300,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "6d4294a47fcdd4ecf4e04da9e28dac741e916104",
+      "source_revision": "94dabcd4e451d2631a58d00eecde8eaeeb5167fa",
+      "source_dirty": false,
+      "stage_timings": {
+        "manager_turn": [
+          {
+            "seconds": 7.783641504000116,
+            "context_bytes": 2690,
+            "action": "research"
+          },
+          {
+            "seconds": 5.184785204999571,
+            "context_bytes": 15403,
+            "action": "implement"
+          },
+          {
+            "seconds": 5.557761810000557,
+            "context_bytes": 21427,
+            "action": "audit"
+          },
+          {
+            "seconds": 11.127513763000024,
+            "context_bytes": 22972,
+            "action": "complete"
+          }
+        ],
+        "research_role": [
+          {
+            "role": "research",
+            "run_id": "0afa42ec7b76463fa5a30dbe145f8864",
+            "seconds": 21.175947209000697,
+            "context_bytes": 2322
+          },
+          {
+            "role": "evaluation",
+            "run_id": "0afa42ec7b76463fa5a30dbe145f8864",
+            "seconds": 13.52047417599988,
+            "context_bytes": 11441
+          }
+        ],
+        "implementation_turn": [
+          {
+            "implementation": "bf43e165818c438ab1e4c4da86b58e10",
+            "attempt": 1,
+            "seconds": 31.321679581999888,
+            "resumed": false,
+            "status": "completed"
+          }
+        ],
+        "candidate_verification": [
+          {
+            "implementation": "bf43e165818c438ab1e4c4da86b58e10",
+            "candidate": "6d4294a47fcdd4ecf4e04da9e28dac741e916104",
+            "seconds": 0.1018776720002279,
+            "passed": true
+          }
+        ]
+      },
+      "manager_decisions": 4,
+      "goal_status": "completed",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "checks": [
+        {
+          "requirement": "Retry transient timeouts and return the eventual result",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-1/bounded-retries/manager/check-0.log",
+          "candidate": "6d4294a47fcdd4ecf4e04da9e28dac741e916104"
+        },
+        {
+          "requirement": "Bound retry attempts and do not retry permanent errors",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-1/bounded-retries/manager/check-1.log",
+          "candidate": "6d4294a47fcdd4ecf4e04da9e28dac741e916104"
+        }
+      ],
+      "wall_seconds": 96.38424419300009,
+      "tokens": {
+        "input": 253288,
+        "output": 7386
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": 0,
+      "corrections": 0,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 0,
+      "verified_outcome_gain": 2,
+      "selected_opportunities": [],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "trial": "trial-1",
+      "candidate_patch": "adaptive-evidence/trial-1/bounded-retries/manager/candidate.patch",
+      "implementation_diagnostics": [
+        {
+          "status": "completed",
+          "attempts": 1,
+          "feedback": ""
+        }
+      ],
+      "quality_review": "adaptive-evidence/trial-1/bounded-retries/manager/quality-review.md"
+    },
+    {
+      "task": "bounded-retries",
+      "fixture_version": 2,
+      "arm": "adaptive",
+      "goal_id": "33049b8180af490a8f4066a8f7ec19c8",
+      "initial_tree": "afff2f36cfbf9fc4bac3b16432e87328fa8d5188",
+      "arm_seconds": 300,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "8408c2a196226673ad9a23de7db1f6ed69ec1014",
+      "source_revision": "94dabcd4e451d2631a58d00eecde8eaeeb5167fa",
+      "source_dirty": false,
+      "stage_timings": {
+        "manager_turn": [
+          {
+            "seconds": 10.326373386999876,
+            "context_bytes": 10168,
+            "action": "complete"
+          }
+        ],
+        "research_role": [],
+        "implementation_turn": [
+          {
+            "implementation": "0f7bb2e9846045d8a9f537e90d5c86b6",
+            "attempt": 1,
+            "seconds": 34.55060716599928,
+            "resumed": false,
+            "status": "completed"
+          }
+        ],
+        "candidate_verification": [
+          {
+            "implementation": "0f7bb2e9846045d8a9f537e90d5c86b6",
+            "candidate": "8408c2a196226673ad9a23de7db1f6ed69ec1014",
+            "seconds": 0.12263548499959143,
+            "passed": true
+          }
+        ]
+      },
+      "manager_decisions": 2,
+      "goal_status": "completed",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "checks": [
+        {
+          "requirement": "Retry transient timeouts and return the eventual result",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-1/bounded-retries/adaptive/check-0.log",
+          "candidate": "8408c2a196226673ad9a23de7db1f6ed69ec1014"
+        },
+        {
+          "requirement": "Bound retry attempts and do not retry permanent errors",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-1/bounded-retries/adaptive/check-1.log",
+          "candidate": "8408c2a196226673ad9a23de7db1f6ed69ec1014"
+        }
+      ],
+      "wall_seconds": 45.27616679200037,
+      "tokens": {
+        "input": 165627,
+        "output": 3346
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": 0,
+      "corrections": 0,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 0,
+      "verified_outcome_gain": 2,
+      "selected_opportunities": [],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "trial": "trial-1",
+      "candidate_patch": "adaptive-evidence/trial-1/bounded-retries/adaptive/candidate.patch",
+      "implementation_diagnostics": [
+        {
+          "status": "completed",
+          "attempts": 1,
+          "feedback": ""
+        }
+      ],
+      "quality_review": "adaptive-evidence/trial-1/bounded-retries/adaptive/quality-review.md"
+    },
+    {
+      "task": "bounded-retries",
+      "fixture_version": 2,
+      "arm": "single",
+      "goal_id": "7a4d4484355943b2819bdc4625c2485c",
+      "initial_tree": "afff2f36cfbf9fc4bac3b16432e87328fa8d5188",
+      "arm_seconds": 300,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "1dde47ad8560f748af0545c3e6312607493ccab8",
+      "source_revision": "94dabcd4e451d2631a58d00eecde8eaeeb5167fa",
+      "source_dirty": false,
+      "stage_timings": {
+        "manager_turn": [],
+        "research_role": [],
+        "implementation_turn": [
+          {
+            "seconds": 24.185321601000396,
+            "status": "completed"
+          }
+        ],
+        "candidate_verification": []
+      },
+      "manager_decisions": 0,
+      "goal_status": "active",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "checks": [
+        {
+          "requirement": "Retry transient timeouts and return the eventual result",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-1/bounded-retries/single/check-0.log",
+          "candidate": "1dde47ad8560f748af0545c3e6312607493ccab8"
+        },
+        {
+          "requirement": "Bound retry attempts and do not retry permanent errors",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-1/bounded-retries/single/check-1.log",
+          "candidate": "1dde47ad8560f748af0545c3e6312607493ccab8"
+        }
+      ],
+      "wall_seconds": 24.409594585000377,
+      "tokens": {
+        "input": 91976,
+        "output": 1881
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": null,
+      "corrections": null,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 0,
+      "verified_outcome_gain": 2,
+      "selected_opportunities": [],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "trial": "trial-1",
+      "candidate_patch": "adaptive-evidence/trial-1/bounded-retries/single/candidate.patch",
+      "implementation_diagnostics": []
+    }
+  ]
+}

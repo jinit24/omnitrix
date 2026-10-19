@@ -1,0 +1,14 @@
+diff --git a/service.py b/service.py
+index 99152ec..6170218 100644
+--- a/service.py
++++ b/service.py
+@@ -1,6 +1,8 @@
+ def process(items):
++    seen = set()
+     result = []
+     for item in items:
+-        if item not in result:
++        if item not in seen:
++            seen.add(item)
+             result.append(item)
+     return result

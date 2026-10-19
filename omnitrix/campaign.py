@@ -36,7 +36,7 @@ class Campaign:
         self.store, self.goal_id = store, goal_id
 
     def validate_decision(self, decision):
-        if decision.action not in ('discover', 'research', 'retry_research', 'pause', 'complete'):
+        if decision.action not in ('discover', 'research', 'research_batch', 'retry_research', 'pause', 'complete'):
             raise ValueError('This campaign is read-only. Use discovery/research; external edits, PRs and unmetered native workers are disabled.')
         if decision.action == 'complete':
             quality = Campaign(self.store,self.goal_id).quality()

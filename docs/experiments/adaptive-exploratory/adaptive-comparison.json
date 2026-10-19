@@ -1,0 +1,1692 @@
+{
+  "generated_at": "2026-10-19T04:35:17.120583+00:00",
+  "source_results_sha256": "4403f35610724e8ee60e0cc0504e9b4158da233f8647432abc9c673c3ed4139d",
+  "source_revisions": [
+    "c674313c072eb68c7699fd73aaa0686ad9a42974"
+  ],
+  "measurement": "Two repeated trials of three small fixed fixtures; descriptive results, not production or statistical superiority evidence.",
+  "runs": [
+    {
+      "task": "deduplication",
+      "fixture_version": 2,
+      "arm": "adaptive",
+      "goal_id": "4b4431c64a6d42b29cb4332726618e7e",
+      "initial_tree": "1ac60a6b8bf5913bab613db1cf122783ec9f71ca",
+      "arm_seconds": 600,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "a1abb4105bcba6fe351597339eeb69597bbff8f8",
+      "source_revision": "c674313c072eb68c7699fd73aaa0686ad9a42974",
+      "source_dirty": false,
+      "stage_timings": {
+        "manager_turn": [
+          {
+            "seconds": 4.468757188999916,
+            "context_bytes": 9924,
+            "action": "complete"
+          }
+        ],
+        "research_role": [],
+        "implementation_turn": [
+          {
+            "implementation": "81fc9601c9774166837eefaf12548630",
+            "attempt": 1,
+            "seconds": 25.419197275999977,
+            "resumed": false,
+            "status": "completed"
+          }
+        ],
+        "candidate_verification": [
+          {
+            "implementation": "81fc9601c9774166837eefaf12548630",
+            "candidate": "a1abb4105bcba6fe351597339eeb69597bbff8f8",
+            "seconds": 0.10107305600013206,
+            "passed": true
+          }
+        ]
+      },
+      "manager_decisions": 2,
+      "goal_status": "completed",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "checks": [
+        {
+          "requirement": "Preserve first occurrence order without mutating input",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-0/deduplication/adaptive/check-0.log",
+          "candidate": "a1abb4105bcba6fe351597339eeb69597bbff8f8"
+        },
+        {
+          "requirement": "Deduplication uses a linear number of equality checks",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-0/deduplication/adaptive/check-1.log",
+          "candidate": "a1abb4105bcba6fe351597339eeb69597bbff8f8"
+        }
+      ],
+      "wall_seconds": 30.27221213299981,
+      "tokens": {
+        "input": 115635,
+        "output": 2201
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": 0,
+      "corrections": 0,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 1,
+      "verified_outcome_gain": 1,
+      "selected_opportunities": [],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "trial": "trial-0",
+      "candidate_patch": "adaptive-evidence/trial-0/deduplication/adaptive/candidate.patch",
+      "implementation_diagnostics": [
+        {
+          "status": "completed",
+          "attempts": 1,
+          "feedback": ""
+        }
+      ],
+      "quality_review": "adaptive-evidence/trial-0/deduplication/adaptive/quality-review.md"
+    },
+    {
+      "task": "deduplication",
+      "fixture_version": 2,
+      "arm": "single",
+      "goal_id": "9e90de38ea58447cb3f7d043b00b1f71",
+      "initial_tree": "1ac60a6b8bf5913bab613db1cf122783ec9f71ca",
+      "arm_seconds": 600,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "6d41a74d0e16004831b2ef4897036f2315356f96",
+      "source_revision": "c674313c072eb68c7699fd73aaa0686ad9a42974",
+      "source_dirty": false,
+      "stage_timings": {
+        "manager_turn": [],
+        "research_role": [],
+        "implementation_turn": [
+          {
+            "seconds": 33.506812313999944,
+            "status": "completed"
+          }
+        ],
+        "candidate_verification": []
+      },
+      "manager_decisions": 0,
+      "goal_status": "active",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "checks": [
+        {
+          "requirement": "Preserve first occurrence order without mutating input",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-0/deduplication/single/check-0.log",
+          "candidate": "6d41a74d0e16004831b2ef4897036f2315356f96"
+        },
+        {
+          "requirement": "Deduplication uses a linear number of equality checks",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-0/deduplication/single/check-1.log",
+          "candidate": "6d41a74d0e16004831b2ef4897036f2315356f96"
+        }
+      ],
+      "wall_seconds": 33.70574976299986,
+      "tokens": {
+        "input": 107355,
+        "output": 2671
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": null,
+      "corrections": null,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 1,
+      "verified_outcome_gain": 1,
+      "selected_opportunities": [],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "trial": "trial-0",
+      "candidate_patch": "adaptive-evidence/trial-0/deduplication/single/candidate.patch",
+      "implementation_diagnostics": [],
+      "post_run_scope_audit": {
+        "passed": true,
+        "status_porcelain": "",
+        "note": "Audit performed after the recorded run; recorded criterion scores are unchanged."
+      }
+    },
+    {
+      "task": "deduplication",
+      "fixture_version": 2,
+      "arm": "manager",
+      "goal_id": "4ff1064635fd4f789caa323fad6e4856",
+      "initial_tree": "1ac60a6b8bf5913bab613db1cf122783ec9f71ca",
+      "arm_seconds": 600,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "ad97562eb3ee13ee3e4fdcf27f4a5ec9beb841aa",
+      "source_revision": "c674313c072eb68c7699fd73aaa0686ad9a42974",
+      "source_dirty": false,
+      "stage_timings": {
+        "manager_turn": [
+          {
+            "seconds": 6.5809745670003394,
+            "context_bytes": 2677,
+            "action": "research"
+          },
+          {
+            "seconds": 3.944696436000413,
+            "context_bytes": 14799,
+            "action": "implement"
+          },
+          {
+            "seconds": 4.7764105679998465,
+            "context_bytes": 20360,
+            "action": "audit"
+          },
+          {
+            "seconds": 4.094359161000284,
+            "context_bytes": 21667,
+            "action": "complete"
+          }
+        ],
+        "research_role": [
+          {
+            "role": "research",
+            "run_id": "f0e81ae92cf146a583b65bb8f196293e",
+            "seconds": 20.268834669999706,
+            "context_bytes": 2412
+          },
+          {
+            "role": "evaluation",
+            "run_id": "f0e81ae92cf146a583b65bb8f196293e",
+            "seconds": 15.469899021999936,
+            "context_bytes": 10778
+          }
+        ],
+        "implementation_turn": [
+          {
+            "implementation": "8a2adecf8bbe4c299833cf1644e3ded3",
+            "attempt": 1,
+            "seconds": 40.341615643000296,
+            "resumed": false,
+            "status": "completed"
+          }
+        ],
+        "candidate_verification": [
+          {
+            "implementation": "8a2adecf8bbe4c299833cf1644e3ded3",
+            "candidate": "ad97562eb3ee13ee3e4fdcf27f4a5ec9beb841aa",
+            "seconds": 0.2734691460000249,
+            "passed": true
+          }
+        ]
+      },
+      "manager_decisions": 4,
+      "goal_status": "completed",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "checks": [
+        {
+          "requirement": "Preserve first occurrence order without mutating input",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-0/deduplication/manager/check-0.log",
+          "candidate": "ad97562eb3ee13ee3e4fdcf27f4a5ec9beb841aa"
+        },
+        {
+          "requirement": "Deduplication uses a linear number of equality checks",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-0/deduplication/manager/check-1.log",
+          "candidate": "ad97562eb3ee13ee3e4fdcf27f4a5ec9beb841aa"
+        }
+      ],
+      "wall_seconds": 96.50683793500002,
+      "tokens": {
+        "input": 179083,
+        "output": 6863
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": 0,
+      "corrections": 0,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 1,
+      "verified_outcome_gain": 1,
+      "selected_opportunities": [],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "trial": "trial-0",
+      "candidate_patch": "adaptive-evidence/trial-0/deduplication/manager/candidate.patch",
+      "implementation_diagnostics": [
+        {
+          "status": "completed",
+          "attempts": 1,
+          "feedback": ""
+        }
+      ],
+      "quality_review": "adaptive-evidence/trial-0/deduplication/manager/quality-review.md"
+    },
+    {
+      "task": "bounded-retries",
+      "fixture_version": 2,
+      "arm": "adaptive",
+      "goal_id": "7023e72775fe4952842b2b26f4ed1ac2",
+      "initial_tree": "afff2f36cfbf9fc4bac3b16432e87328fa8d5188",
+      "arm_seconds": 600,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "3f0fafd0eb9b0d9679dcb0552749124deba289e4",
+      "source_revision": "c674313c072eb68c7699fd73aaa0686ad9a42974",
+      "source_dirty": false,
+      "stage_timings": {
+        "manager_turn": [
+          {
+            "seconds": 8.13384813499988,
+            "context_bytes": 9802,
+            "action": "complete"
+          }
+        ],
+        "research_role": [],
+        "implementation_turn": [
+          {
+            "implementation": "1adab8c7364b4ff3818a6000bd05e0af",
+            "attempt": 1,
+            "seconds": 24.260817565999787,
+            "resumed": false,
+            "status": "completed"
+          }
+        ],
+        "candidate_verification": [
+          {
+            "implementation": "1adab8c7364b4ff3818a6000bd05e0af",
+            "candidate": "3f0fafd0eb9b0d9679dcb0552749124deba289e4",
+            "seconds": 0.10510604899991449,
+            "passed": true
+          }
+        ]
+      },
+      "manager_decisions": 2,
+      "goal_status": "completed",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "checks": [
+        {
+          "requirement": "Retry transient timeouts and return the eventual result",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-0/bounded-retries/adaptive/check-0.log",
+          "candidate": "3f0fafd0eb9b0d9679dcb0552749124deba289e4"
+        },
+        {
+          "requirement": "Bound retry attempts and do not retry permanent errors",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-0/bounded-retries/adaptive/check-1.log",
+          "candidate": "3f0fafd0eb9b0d9679dcb0552749124deba289e4"
+        }
+      ],
+      "wall_seconds": 32.8960563290002,
+      "tokens": {
+        "input": 102581,
+        "output": 2476
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": 0,
+      "corrections": 0,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 0,
+      "verified_outcome_gain": 2,
+      "selected_opportunities": [],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "trial": "trial-0",
+      "candidate_patch": "adaptive-evidence/trial-0/bounded-retries/adaptive/candidate.patch",
+      "implementation_diagnostics": [
+        {
+          "status": "completed",
+          "attempts": 1,
+          "feedback": ""
+        }
+      ],
+      "quality_review": "adaptive-evidence/trial-0/bounded-retries/adaptive/quality-review.md"
+    },
+    {
+      "task": "bounded-retries",
+      "fixture_version": 2,
+      "arm": "single",
+      "goal_id": "a5ff881b375f436093b226a75cc0acde",
+      "initial_tree": "afff2f36cfbf9fc4bac3b16432e87328fa8d5188",
+      "arm_seconds": 600,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "f484db2d17742f5e82d8898e9dbf58fb7749780e",
+      "source_revision": "c674313c072eb68c7699fd73aaa0686ad9a42974",
+      "source_dirty": false,
+      "stage_timings": {
+        "manager_turn": [],
+        "research_role": [],
+        "implementation_turn": [
+          {
+            "seconds": 19.898654061999878,
+            "status": "completed"
+          }
+        ],
+        "candidate_verification": []
+      },
+      "manager_decisions": 0,
+      "goal_status": "active",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "checks": [
+        {
+          "requirement": "Retry transient timeouts and return the eventual result",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-0/bounded-retries/single/check-0.log",
+          "candidate": "f484db2d17742f5e82d8898e9dbf58fb7749780e"
+        },
+        {
+          "requirement": "Bound retry attempts and do not retry permanent errors",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-0/bounded-retries/single/check-1.log",
+          "candidate": "f484db2d17742f5e82d8898e9dbf58fb7749780e"
+        }
+      ],
+      "wall_seconds": 20.12156026599996,
+      "tokens": {
+        "input": 64377,
+        "output": 1741
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": null,
+      "corrections": null,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 0,
+      "verified_outcome_gain": 2,
+      "selected_opportunities": [],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "trial": "trial-0",
+      "candidate_patch": "adaptive-evidence/trial-0/bounded-retries/single/candidate.patch",
+      "implementation_diagnostics": [],
+      "post_run_scope_audit": {
+        "passed": true,
+        "status_porcelain": "",
+        "note": "Audit performed after the recorded run; recorded criterion scores are unchanged."
+      }
+    },
+    {
+      "task": "bounded-retries",
+      "fixture_version": 2,
+      "arm": "manager",
+      "goal_id": "b15d1e5fb9a347038e483cc25eea67a1",
+      "initial_tree": "afff2f36cfbf9fc4bac3b16432e87328fa8d5188",
+      "arm_seconds": 600,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "516e34b10be3598a712f6d90980ca2654f52c225",
+      "source_revision": "c674313c072eb68c7699fd73aaa0686ad9a42974",
+      "source_dirty": false,
+      "stage_timings": {
+        "manager_turn": [
+          {
+            "seconds": 8.661594333000266,
+            "context_bytes": 2676,
+            "action": "research"
+          },
+          {
+            "seconds": 7.0690570510000725,
+            "context_bytes": 15427,
+            "action": "implement"
+          },
+          {
+            "seconds": 6.943687707999743,
+            "context_bytes": 21952,
+            "action": "audit"
+          },
+          {
+            "seconds": 8.459874065999884,
+            "context_bytes": 23904,
+            "action": "complete"
+          }
+        ],
+        "research_role": [
+          {
+            "role": "research",
+            "run_id": "1ccfb9588d20456785b90cd2eb3b5f61",
+            "seconds": 21.66972261500041,
+            "context_bytes": 2357
+          },
+          {
+            "role": "evaluation",
+            "run_id": "1ccfb9588d20456785b90cd2eb3b5f61",
+            "seconds": 17.45385240099995,
+            "context_bytes": 11515
+          }
+        ],
+        "implementation_turn": [
+          {
+            "implementation": "86e6a104c9f746808483f4e49083716c",
+            "attempt": 1,
+            "seconds": 38.37602351100031,
+            "resumed": false,
+            "status": "completed"
+          }
+        ],
+        "candidate_verification": [
+          {
+            "implementation": "86e6a104c9f746808483f4e49083716c",
+            "candidate": "516e34b10be3598a712f6d90980ca2654f52c225",
+            "seconds": 0.12946536699973876,
+            "passed": true
+          }
+        ]
+      },
+      "manager_decisions": 4,
+      "goal_status": "completed",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "checks": [
+        {
+          "requirement": "Retry transient timeouts and return the eventual result",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-0/bounded-retries/manager/check-0.log",
+          "candidate": "516e34b10be3598a712f6d90980ca2654f52c225"
+        },
+        {
+          "requirement": "Bound retry attempts and do not retry permanent errors",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-0/bounded-retries/manager/check-1.log",
+          "candidate": "516e34b10be3598a712f6d90980ca2654f52c225"
+        }
+      ],
+      "wall_seconds": 109.42737117299976,
+      "tokens": {
+        "input": 291553,
+        "output": 7639
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": 0,
+      "corrections": 0,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 0,
+      "verified_outcome_gain": 2,
+      "selected_opportunities": [],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "trial": "trial-0",
+      "candidate_patch": "adaptive-evidence/trial-0/bounded-retries/manager/candidate.patch",
+      "implementation_diagnostics": [
+        {
+          "status": "completed",
+          "attempts": 1,
+          "feedback": ""
+        }
+      ],
+      "quality_review": "adaptive-evidence/trial-0/bounded-retries/manager/quality-review.md"
+    },
+    {
+      "task": "batch-cost",
+      "fixture_version": 2,
+      "arm": "adaptive",
+      "goal_id": "0084c43212e74a33b88a27796e781ab7",
+      "initial_tree": "7b8e2e8b0e6cf72a51fdc9bbae9c353545f3a7c8",
+      "arm_seconds": 600,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "c38d62bdc2612887dbd716276c9ec56b6017dd4e",
+      "source_revision": "c674313c072eb68c7699fd73aaa0686ad9a42974",
+      "source_dirty": false,
+      "stage_timings": {
+        "manager_turn": [
+          {
+            "seconds": 4.666817050999725,
+            "context_bytes": 9699,
+            "action": "complete"
+          }
+        ],
+        "research_role": [],
+        "implementation_turn": [
+          {
+            "implementation": "b7b3857b7a294367abe13f1d34a15507",
+            "attempt": 1,
+            "seconds": 19.946823485000095,
+            "resumed": false,
+            "status": "completed"
+          }
+        ],
+        "candidate_verification": [
+          {
+            "implementation": "b7b3857b7a294367abe13f1d34a15507",
+            "candidate": "c38d62bdc2612887dbd716276c9ec56b6017dd4e",
+            "seconds": 0.17025042699970072,
+            "passed": true
+          }
+        ]
+      },
+      "manager_decisions": 2,
+      "goal_status": "completed",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "checks": [
+        {
+          "requirement": "Preserve duplicate keys, order, and missing values",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-0/batch-cost/adaptive/check-0.log",
+          "candidate": "c38d62bdc2612887dbd716276c9ec56b6017dd4e"
+        },
+        {
+          "requirement": "Use one database request per nonempty batch and none for empty input",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-0/batch-cost/adaptive/check-1.log",
+          "candidate": "c38d62bdc2612887dbd716276c9ec56b6017dd4e"
+        }
+      ],
+      "wall_seconds": 26.571928842000034,
+      "tokens": {
+        "input": 74145,
+        "output": 2032
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": 0,
+      "corrections": 0,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 1,
+      "verified_outcome_gain": 1,
+      "selected_opportunities": [],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "trial": "trial-0",
+      "candidate_patch": "adaptive-evidence/trial-0/batch-cost/adaptive/candidate.patch",
+      "implementation_diagnostics": [
+        {
+          "status": "completed",
+          "attempts": 1,
+          "feedback": ""
+        }
+      ],
+      "quality_review": "adaptive-evidence/trial-0/batch-cost/adaptive/quality-review.md"
+    },
+    {
+      "task": "batch-cost",
+      "fixture_version": 2,
+      "arm": "single",
+      "goal_id": "c84875fbbb8e4307a55bb99027a1ef1e",
+      "initial_tree": "7b8e2e8b0e6cf72a51fdc9bbae9c353545f3a7c8",
+      "arm_seconds": 600,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "fd8c466e240faebb154d2edf17ad213c4defc624",
+      "source_revision": "c674313c072eb68c7699fd73aaa0686ad9a42974",
+      "source_dirty": false,
+      "stage_timings": {
+        "manager_turn": [],
+        "research_role": [],
+        "implementation_turn": [
+          {
+            "seconds": 19.753240280000227,
+            "status": "completed"
+          }
+        ],
+        "candidate_verification": []
+      },
+      "manager_decisions": 0,
+      "goal_status": "active",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "checks": [
+        {
+          "requirement": "Preserve duplicate keys, order, and missing values",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-0/batch-cost/single/check-0.log",
+          "candidate": "fd8c466e240faebb154d2edf17ad213c4defc624"
+        },
+        {
+          "requirement": "Use one database request per nonempty batch and none for empty input",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-0/batch-cost/single/check-1.log",
+          "candidate": "fd8c466e240faebb154d2edf17ad213c4defc624"
+        }
+      ],
+      "wall_seconds": 19.94708192600001,
+      "tokens": {
+        "input": 76983,
+        "output": 1796
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": null,
+      "corrections": null,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 1,
+      "verified_outcome_gain": 1,
+      "selected_opportunities": [],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "trial": "trial-0",
+      "candidate_patch": "adaptive-evidence/trial-0/batch-cost/single/candidate.patch",
+      "implementation_diagnostics": [],
+      "post_run_scope_audit": {
+        "passed": true,
+        "status_porcelain": "",
+        "note": "Audit performed after the recorded run; recorded criterion scores are unchanged."
+      }
+    },
+    {
+      "task": "batch-cost",
+      "fixture_version": 2,
+      "arm": "manager",
+      "goal_id": "9b6d404a712846cd8f93b846b8b5aef3",
+      "initial_tree": "7b8e2e8b0e6cf72a51fdc9bbae9c353545f3a7c8",
+      "arm_seconds": 600,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "d66e8f4f41266fe5287de3729d12be7b59df65e7",
+      "source_revision": "c674313c072eb68c7699fd73aaa0686ad9a42974",
+      "source_dirty": false,
+      "stage_timings": {
+        "manager_turn": [
+          {
+            "seconds": 6.885473320000074,
+            "context_bytes": 2714,
+            "action": "research"
+          },
+          {
+            "seconds": 4.200494492999951,
+            "context_bytes": 15713,
+            "action": "implement"
+          },
+          {
+            "seconds": 5.663708292000138,
+            "context_bytes": 21335,
+            "action": "audit"
+          },
+          {
+            "seconds": 15.164263421000214,
+            "context_bytes": 22972,
+            "action": "complete"
+          }
+        ],
+        "research_role": [
+          {
+            "role": "research",
+            "run_id": "55ae8cca28b44ef48eed59783f88e356",
+            "seconds": 19.765501804999985,
+            "context_bytes": 2385
+          },
+          {
+            "role": "evaluation",
+            "run_id": "55ae8cca28b44ef48eed59783f88e356",
+            "seconds": 13.036003246999826,
+            "context_bytes": 10731
+          }
+        ],
+        "implementation_turn": [
+          {
+            "implementation": "0386883844c7452397e0357f54067274",
+            "attempt": 1,
+            "seconds": 24.654339613999582,
+            "resumed": false,
+            "status": "completed"
+          }
+        ],
+        "candidate_verification": [
+          {
+            "implementation": "0386883844c7452397e0357f54067274",
+            "candidate": "d66e8f4f41266fe5287de3729d12be7b59df65e7",
+            "seconds": 0.1098499970003104,
+            "passed": true
+          }
+        ]
+      },
+      "manager_decisions": 4,
+      "goal_status": "completed",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "checks": [
+        {
+          "requirement": "Preserve duplicate keys, order, and missing values",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-0/batch-cost/manager/check-0.log",
+          "candidate": "d66e8f4f41266fe5287de3729d12be7b59df65e7"
+        },
+        {
+          "requirement": "Use one database request per nonempty batch and none for empty input",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-0/batch-cost/manager/check-1.log",
+          "candidate": "d66e8f4f41266fe5287de3729d12be7b59df65e7"
+        }
+      ],
+      "wall_seconds": 90.43303594999998,
+      "tokens": {
+        "input": 232138,
+        "output": 6632
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": 0,
+      "corrections": 0,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 1,
+      "verified_outcome_gain": 1,
+      "selected_opportunities": [],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "trial": "trial-0",
+      "candidate_patch": "adaptive-evidence/trial-0/batch-cost/manager/candidate.patch",
+      "implementation_diagnostics": [
+        {
+          "status": "completed",
+          "attempts": 1,
+          "feedback": ""
+        }
+      ],
+      "quality_review": "adaptive-evidence/trial-0/batch-cost/manager/quality-review.md"
+    },
+    {
+      "task": "deduplication",
+      "fixture_version": 2,
+      "arm": "single",
+      "goal_id": "2db8e03ceefc492f85fcde63ce1f3dea",
+      "initial_tree": "1ac60a6b8bf5913bab613db1cf122783ec9f71ca",
+      "arm_seconds": 600,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "dcf7715bc2200a3c159edfe96e9583357f8cf912",
+      "source_revision": "c674313c072eb68c7699fd73aaa0686ad9a42974",
+      "source_dirty": false,
+      "stage_timings": {
+        "manager_turn": [],
+        "research_role": [],
+        "implementation_turn": [
+          {
+            "seconds": 31.651473433999854,
+            "status": "completed"
+          }
+        ],
+        "candidate_verification": []
+      },
+      "manager_decisions": 0,
+      "goal_status": "active",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "checks": [
+        {
+          "requirement": "Preserve first occurrence order without mutating input",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-1/deduplication/single/check-0.log",
+          "candidate": "dcf7715bc2200a3c159edfe96e9583357f8cf912"
+        },
+        {
+          "requirement": "Deduplication uses a linear number of equality checks",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-1/deduplication/single/check-1.log",
+          "candidate": "dcf7715bc2200a3c159edfe96e9583357f8cf912"
+        }
+      ],
+      "wall_seconds": 32.203372344999934,
+      "tokens": {
+        "input": 78566,
+        "output": 1959
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": null,
+      "corrections": null,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 1,
+      "verified_outcome_gain": 1,
+      "selected_opportunities": [],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "trial": "trial-1",
+      "candidate_patch": "adaptive-evidence/trial-1/deduplication/single/candidate.patch",
+      "implementation_diagnostics": [],
+      "post_run_scope_audit": {
+        "passed": true,
+        "status_porcelain": "",
+        "note": "Audit performed after the recorded run; recorded criterion scores are unchanged."
+      }
+    },
+    {
+      "task": "deduplication",
+      "fixture_version": 2,
+      "arm": "manager",
+      "goal_id": "07fa4f9970e34f2687a705138c81c310",
+      "initial_tree": "1ac60a6b8bf5913bab613db1cf122783ec9f71ca",
+      "arm_seconds": 600,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "aba2afc3cea9587aa848f6197a58c365e8d5ef71",
+      "source_revision": "c674313c072eb68c7699fd73aaa0686ad9a42974",
+      "source_dirty": false,
+      "stage_timings": {
+        "manager_turn": [
+          {
+            "seconds": 10.474856903999807,
+            "context_bytes": 2677,
+            "action": "research"
+          },
+          {
+            "seconds": 5.2158683309999105,
+            "context_bytes": 15151,
+            "action": "implement"
+          },
+          {
+            "seconds": 12.098477873999855,
+            "context_bytes": 21412,
+            "action": "audit"
+          },
+          {
+            "seconds": 9.33062074999998,
+            "context_bytes": 24983,
+            "action": "complete"
+          }
+        ],
+        "research_role": [
+          {
+            "role": "research",
+            "run_id": "dfccbc55c8bd4fc4a0663b4172a13667",
+            "seconds": 21.662753633000193,
+            "context_bytes": 2336
+          },
+          {
+            "role": "evaluation",
+            "run_id": "dfccbc55c8bd4fc4a0663b4172a13667",
+            "seconds": 13.887323115000072,
+            "context_bytes": 10645
+          }
+        ],
+        "implementation_turn": [
+          {
+            "implementation": "9b4671f1b77e4e4da5b5e7bd401ec262",
+            "attempt": 1,
+            "seconds": 33.10291037600018,
+            "resumed": false,
+            "status": "completed"
+          }
+        ],
+        "candidate_verification": [
+          {
+            "implementation": "9b4671f1b77e4e4da5b5e7bd401ec262",
+            "candidate": "aba2afc3cea9587aa848f6197a58c365e8d5ef71",
+            "seconds": 0.10852168099972914,
+            "passed": true
+          }
+        ]
+      },
+      "manager_decisions": 4,
+      "goal_status": "completed",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "checks": [
+        {
+          "requirement": "Preserve first occurrence order without mutating input",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-1/deduplication/manager/check-0.log",
+          "candidate": "aba2afc3cea9587aa848f6197a58c365e8d5ef71"
+        },
+        {
+          "requirement": "Deduplication uses a linear number of equality checks",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-1/deduplication/manager/check-1.log",
+          "candidate": "aba2afc3cea9587aa848f6197a58c365e8d5ef71"
+        }
+      ],
+      "wall_seconds": 106.68872904299997,
+      "tokens": {
+        "input": 222620,
+        "output": 8300
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": 0,
+      "corrections": 0,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 1,
+      "verified_outcome_gain": 1,
+      "selected_opportunities": [],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "trial": "trial-1",
+      "candidate_patch": "adaptive-evidence/trial-1/deduplication/manager/candidate.patch",
+      "implementation_diagnostics": [
+        {
+          "status": "completed",
+          "attempts": 1,
+          "feedback": ""
+        }
+      ],
+      "quality_review": "adaptive-evidence/trial-1/deduplication/manager/quality-review.md"
+    },
+    {
+      "task": "deduplication",
+      "fixture_version": 2,
+      "arm": "adaptive",
+      "goal_id": "31a913f58787452ea35f9526a3683adf",
+      "initial_tree": "1ac60a6b8bf5913bab613db1cf122783ec9f71ca",
+      "arm_seconds": 600,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "afecb5d62e6406b43e91aca5d3e04ac9228afa81",
+      "source_revision": "c674313c072eb68c7699fd73aaa0686ad9a42974",
+      "source_dirty": false,
+      "stage_timings": {
+        "manager_turn": [
+          {
+            "seconds": 8.921470103000047,
+            "context_bytes": 9895,
+            "action": "complete"
+          }
+        ],
+        "research_role": [],
+        "implementation_turn": [
+          {
+            "implementation": "5c03c625064b4d1e9848e165bef2e8df",
+            "attempt": 1,
+            "seconds": 56.66302174600014,
+            "resumed": false,
+            "status": "completed"
+          }
+        ],
+        "candidate_verification": [
+          {
+            "implementation": "5c03c625064b4d1e9848e165bef2e8df",
+            "candidate": "afecb5d62e6406b43e91aca5d3e04ac9228afa81",
+            "seconds": 0.18636324499993862,
+            "passed": true
+          }
+        ]
+      },
+      "manager_decisions": 2,
+      "goal_status": "completed",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "checks": [
+        {
+          "requirement": "Preserve first occurrence order without mutating input",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-1/deduplication/adaptive/check-0.log",
+          "candidate": "afecb5d62e6406b43e91aca5d3e04ac9228afa81"
+        },
+        {
+          "requirement": "Deduplication uses a linear number of equality checks",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-1/deduplication/adaptive/check-1.log",
+          "candidate": "afecb5d62e6406b43e91aca5d3e04ac9228afa81"
+        }
+      ],
+      "wall_seconds": 66.05543792399976,
+      "tokens": {
+        "input": 243442,
+        "output": 5314
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": 0,
+      "corrections": 0,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 1,
+      "verified_outcome_gain": 1,
+      "selected_opportunities": [],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "trial": "trial-1",
+      "candidate_patch": "adaptive-evidence/trial-1/deduplication/adaptive/candidate.patch",
+      "implementation_diagnostics": [
+        {
+          "status": "completed",
+          "attempts": 1,
+          "feedback": ""
+        }
+      ],
+      "quality_review": "adaptive-evidence/trial-1/deduplication/adaptive/quality-review.md"
+    },
+    {
+      "task": "bounded-retries",
+      "fixture_version": 2,
+      "arm": "single",
+      "goal_id": "d79e61d64eca4d928197d9f00dc1ec7c",
+      "initial_tree": "afff2f36cfbf9fc4bac3b16432e87328fa8d5188",
+      "arm_seconds": 600,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "f9dbd46162b345d352ef7631073ad8099e498e56",
+      "source_revision": "c674313c072eb68c7699fd73aaa0686ad9a42974",
+      "source_dirty": false,
+      "stage_timings": {
+        "manager_turn": [],
+        "research_role": [],
+        "implementation_turn": [
+          {
+            "seconds": 34.36673620700003,
+            "status": "completed"
+          }
+        ],
+        "candidate_verification": []
+      },
+      "manager_decisions": 0,
+      "goal_status": "active",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "checks": [
+        {
+          "requirement": "Retry transient timeouts and return the eventual result",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-1/bounded-retries/single/check-0.log",
+          "candidate": "f9dbd46162b345d352ef7631073ad8099e498e56"
+        },
+        {
+          "requirement": "Bound retry attempts and do not retry permanent errors",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-1/bounded-retries/single/check-1.log",
+          "candidate": "f9dbd46162b345d352ef7631073ad8099e498e56"
+        }
+      ],
+      "wall_seconds": 34.556362978999914,
+      "tokens": {
+        "input": 150806,
+        "output": 2596
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": null,
+      "corrections": null,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 0,
+      "verified_outcome_gain": 2,
+      "selected_opportunities": [],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "trial": "trial-1",
+      "candidate_patch": "adaptive-evidence/trial-1/bounded-retries/single/candidate.patch",
+      "implementation_diagnostics": [],
+      "post_run_scope_audit": {
+        "passed": false,
+        "status_porcelain": "?? =\n",
+        "note": "Audit performed after the recorded run; recorded criterion scores are unchanged."
+      }
+    },
+    {
+      "task": "bounded-retries",
+      "fixture_version": 2,
+      "arm": "manager",
+      "goal_id": "f3b3a2bdb632454c8f6bc66adb4d0aa3",
+      "initial_tree": "afff2f36cfbf9fc4bac3b16432e87328fa8d5188",
+      "arm_seconds": 600,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "011c12851fdede0950933c6409a447a46649704c",
+      "source_revision": "c674313c072eb68c7699fd73aaa0686ad9a42974",
+      "source_dirty": false,
+      "stage_timings": {
+        "manager_turn": [
+          {
+            "seconds": 5.835143636000339,
+            "context_bytes": 2676,
+            "action": "research"
+          },
+          {
+            "seconds": 5.017508966999685,
+            "context_bytes": 14520,
+            "action": "implement"
+          }
+        ],
+        "research_role": [
+          {
+            "role": "research",
+            "run_id": "e801f8d227cb43c1a75daa7351e2430c",
+            "seconds": 20.029548773999977,
+            "context_bytes": 2265
+          },
+          {
+            "role": "evaluation",
+            "run_id": "e801f8d227cb43c1a75daa7351e2430c",
+            "seconds": 13.50169940800015,
+            "context_bytes": 10575
+          }
+        ],
+        "implementation_turn": [
+          {
+            "implementation": "6ccb733650f54483887461bbcc2157be",
+            "attempt": 1,
+            "seconds": 28.3767951130003,
+            "resumed": false,
+            "status": "completed"
+          }
+        ],
+        "candidate_verification": []
+      },
+      "manager_decisions": 2,
+      "goal_status": "active",
+      "requirements_satisfied": 0,
+      "requirements_total": 2,
+      "checks": [
+        {
+          "requirement": "Retry transient timeouts and return the eventual result",
+          "passed": false,
+          "artifact": "adaptive-evidence/trial-1/bounded-retries/manager/check-0.log",
+          "candidate": "011c12851fdede0950933c6409a447a46649704c"
+        },
+        {
+          "requirement": "Bound retry attempts and do not retry permanent errors",
+          "passed": false,
+          "artifact": "adaptive-evidence/trial-1/bounded-retries/manager/check-1.log",
+          "candidate": "011c12851fdede0950933c6409a447a46649704c"
+        }
+      ],
+      "wall_seconds": 73.27966825700014,
+      "tokens": {
+        "input": 209467,
+        "output": 5407
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": 0,
+      "corrections": 0,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 0.0,
+      "baseline_requirements_satisfied": 0,
+      "verified_outcome_gain": 0,
+      "selected_opportunities": [],
+      "verified_outcome": false,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "trial": "trial-1",
+      "candidate_patch": "adaptive-evidence/trial-1/bounded-retries/manager/candidate.patch",
+      "implementation_diagnostics": [
+        {
+          "status": "uncertain",
+          "attempts": 1,
+          "feedback": "Implementation changed paths outside explicit authorization"
+        }
+      ],
+      "quality_review": "adaptive-evidence/trial-1/bounded-retries/manager/quality-review.md"
+    },
+    {
+      "task": "bounded-retries",
+      "fixture_version": 2,
+      "arm": "adaptive",
+      "goal_id": "60ee2ab15679452fac756423a3af23e2",
+      "initial_tree": "afff2f36cfbf9fc4bac3b16432e87328fa8d5188",
+      "arm_seconds": 600,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "59b427ce497661e7f91826292009ea641e30db71",
+      "source_revision": "c674313c072eb68c7699fd73aaa0686ad9a42974",
+      "source_dirty": false,
+      "stage_timings": {
+        "manager_turn": [
+          {
+            "seconds": 6.251078905999748,
+            "context_bytes": 9986,
+            "action": "complete"
+          }
+        ],
+        "research_role": [],
+        "implementation_turn": [
+          {
+            "implementation": "baaa2d187e51452cb9fc590800574aa3",
+            "attempt": 1,
+            "seconds": 25.518229162999887,
+            "resumed": false,
+            "status": "completed"
+          }
+        ],
+        "candidate_verification": [
+          {
+            "implementation": "baaa2d187e51452cb9fc590800574aa3",
+            "candidate": "59b427ce497661e7f91826292009ea641e30db71",
+            "seconds": 0.11211519800008318,
+            "passed": true
+          }
+        ]
+      },
+      "manager_decisions": 2,
+      "goal_status": "completed",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "checks": [
+        {
+          "requirement": "Retry transient timeouts and return the eventual result",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-1/bounded-retries/adaptive/check-0.log",
+          "candidate": "59b427ce497661e7f91826292009ea641e30db71"
+        },
+        {
+          "requirement": "Bound retry attempts and do not retry permanent errors",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-1/bounded-retries/adaptive/check-1.log",
+          "candidate": "59b427ce497661e7f91826292009ea641e30db71"
+        }
+      ],
+      "wall_seconds": 32.14116133200014,
+      "tokens": {
+        "input": 102695,
+        "output": 2660
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": 0,
+      "corrections": 0,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 0,
+      "verified_outcome_gain": 2,
+      "selected_opportunities": [],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "trial": "trial-1",
+      "candidate_patch": "adaptive-evidence/trial-1/bounded-retries/adaptive/candidate.patch",
+      "implementation_diagnostics": [
+        {
+          "status": "completed",
+          "attempts": 1,
+          "feedback": ""
+        }
+      ],
+      "quality_review": "adaptive-evidence/trial-1/bounded-retries/adaptive/quality-review.md"
+    },
+    {
+      "task": "batch-cost",
+      "fixture_version": 2,
+      "arm": "single",
+      "goal_id": "30330615fcb04535a56afaba53866260",
+      "initial_tree": "7b8e2e8b0e6cf72a51fdc9bbae9c353545f3a7c8",
+      "arm_seconds": 600,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "ac23a2b561437de0d2f3a968b2f1850aaac50212",
+      "source_revision": "c674313c072eb68c7699fd73aaa0686ad9a42974",
+      "source_dirty": false,
+      "stage_timings": {
+        "manager_turn": [],
+        "research_role": [],
+        "implementation_turn": [
+          {
+            "seconds": 21.69471133099978,
+            "status": "completed"
+          }
+        ],
+        "candidate_verification": []
+      },
+      "manager_decisions": 0,
+      "goal_status": "active",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "checks": [
+        {
+          "requirement": "Preserve duplicate keys, order, and missing values",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-1/batch-cost/single/check-0.log",
+          "candidate": "ac23a2b561437de0d2f3a968b2f1850aaac50212"
+        },
+        {
+          "requirement": "Use one database request per nonempty batch and none for empty input",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-1/batch-cost/single/check-1.log",
+          "candidate": "ac23a2b561437de0d2f3a968b2f1850aaac50212"
+        }
+      ],
+      "wall_seconds": 21.863109248,
+      "tokens": {
+        "input": 90997,
+        "output": 1708
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": null,
+      "corrections": null,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 1,
+      "verified_outcome_gain": 1,
+      "selected_opportunities": [],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "trial": "trial-1",
+      "candidate_patch": "adaptive-evidence/trial-1/batch-cost/single/candidate.patch",
+      "implementation_diagnostics": [],
+      "post_run_scope_audit": {
+        "passed": true,
+        "status_porcelain": "",
+        "note": "Audit performed after the recorded run; recorded criterion scores are unchanged."
+      }
+    },
+    {
+      "task": "batch-cost",
+      "fixture_version": 2,
+      "arm": "manager",
+      "goal_id": "b600ba1aeb704fe9b4bcfed3e83606ac",
+      "initial_tree": "7b8e2e8b0e6cf72a51fdc9bbae9c353545f3a7c8",
+      "arm_seconds": 600,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "f5333f2c6ae8a70803d150331c5c2175adcb8720",
+      "source_revision": "c674313c072eb68c7699fd73aaa0686ad9a42974",
+      "source_dirty": false,
+      "stage_timings": {
+        "manager_turn": [
+          {
+            "seconds": 6.980559797000296,
+            "context_bytes": 2714,
+            "action": "research"
+          },
+          {
+            "seconds": 4.099383057000068,
+            "context_bytes": 15263,
+            "action": "implement"
+          },
+          {
+            "seconds": 6.509210790999987,
+            "context_bytes": 21586,
+            "action": "audit"
+          },
+          {
+            "seconds": 8.219412134999857,
+            "context_bytes": 23340,
+            "action": "complete"
+          }
+        ],
+        "research_role": [
+          {
+            "role": "research",
+            "run_id": "008978f8c2e646a1ac844b0810f09af7",
+            "seconds": 22.53050435399973,
+            "context_bytes": 2460
+          },
+          {
+            "role": "evaluation",
+            "run_id": "008978f8c2e646a1ac844b0810f09af7",
+            "seconds": 12.923893388000124,
+            "context_bytes": 11371
+          }
+        ],
+        "implementation_turn": [
+          {
+            "implementation": "bc47d2e877f04d5bac13afc12a1cf067",
+            "attempt": 1,
+            "seconds": 26.633396604000154,
+            "resumed": false,
+            "status": "completed"
+          }
+        ],
+        "candidate_verification": [
+          {
+            "implementation": "bc47d2e877f04d5bac13afc12a1cf067",
+            "candidate": "f5333f2c6ae8a70803d150331c5c2175adcb8720",
+            "seconds": 0.09846009900002173,
+            "passed": true
+          }
+        ]
+      },
+      "manager_decisions": 4,
+      "goal_status": "completed",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "checks": [
+        {
+          "requirement": "Preserve duplicate keys, order, and missing values",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-1/batch-cost/manager/check-0.log",
+          "candidate": "f5333f2c6ae8a70803d150331c5c2175adcb8720"
+        },
+        {
+          "requirement": "Use one database request per nonempty batch and none for empty input",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-1/batch-cost/manager/check-1.log",
+          "candidate": "f5333f2c6ae8a70803d150331c5c2175adcb8720"
+        }
+      ],
+      "wall_seconds": 88.61348657000008,
+      "tokens": {
+        "input": 189734,
+        "output": 6875
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": 0,
+      "corrections": 0,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 1,
+      "verified_outcome_gain": 1,
+      "selected_opportunities": [],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "trial": "trial-1",
+      "candidate_patch": "adaptive-evidence/trial-1/batch-cost/manager/candidate.patch",
+      "implementation_diagnostics": [
+        {
+          "status": "completed",
+          "attempts": 1,
+          "feedback": ""
+        }
+      ],
+      "quality_review": "adaptive-evidence/trial-1/batch-cost/manager/quality-review.md"
+    },
+    {
+      "task": "batch-cost",
+      "fixture_version": 2,
+      "arm": "adaptive",
+      "goal_id": "3d777104251f4134b4ae0eb7cb3b4129",
+      "initial_tree": "7b8e2e8b0e6cf72a51fdc9bbae9c353545f3a7c8",
+      "arm_seconds": 600,
+      "manager_model": "gpt-5.4",
+      "codex_model": "gpt-5.3-codex",
+      "mode": "live",
+      "candidate": "2694ff6140dc1032058dd70c290ddd6c7734d94b",
+      "source_revision": "c674313c072eb68c7699fd73aaa0686ad9a42974",
+      "source_dirty": false,
+      "stage_timings": {
+        "manager_turn": [
+          {
+            "seconds": 4.404462705000242,
+            "context_bytes": 9489,
+            "action": "complete"
+          }
+        ],
+        "research_role": [],
+        "implementation_turn": [
+          {
+            "implementation": "a6d8ed167dee4e4daa6768e166fb6914",
+            "attempt": 1,
+            "seconds": 20.803837307999856,
+            "resumed": false,
+            "status": "completed"
+          }
+        ],
+        "candidate_verification": [
+          {
+            "implementation": "a6d8ed167dee4e4daa6768e166fb6914",
+            "candidate": "2694ff6140dc1032058dd70c290ddd6c7734d94b",
+            "seconds": 0.10595205499976146,
+            "passed": true
+          }
+        ]
+      },
+      "manager_decisions": 2,
+      "goal_status": "completed",
+      "requirements_satisfied": 2,
+      "requirements_total": 2,
+      "checks": [
+        {
+          "requirement": "Preserve duplicate keys, order, and missing values",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-1/batch-cost/adaptive/check-0.log",
+          "candidate": "2694ff6140dc1032058dd70c290ddd6c7734d94b"
+        },
+        {
+          "requirement": "Use one database request per nonempty batch and none for empty input",
+          "passed": true,
+          "artifact": "adaptive-evidence/trial-1/batch-cost/adaptive/check-1.log",
+          "candidate": "2694ff6140dc1032058dd70c290ddd6c7734d94b"
+        }
+      ],
+      "wall_seconds": 25.584745114999805,
+      "tokens": {
+        "input": 87685,
+        "output": 2079
+      },
+      "token_measurement_complete": true,
+      "repeated_research_queries": 0,
+      "corrections": 0,
+      "interventions": 0,
+      "incorrect_completion_claim": false,
+      "recovery_after_interruption": null,
+      "selected_improvement_quality": 1.0,
+      "baseline_requirements_satisfied": 1,
+      "verified_outcome_gain": 1,
+      "selected_opportunities": [],
+      "verified_outcome": true,
+      "errors": [],
+      "limitations": [
+        "Small fixture suite; not production evidence.",
+        "Internal worker research/corrections are unobservable in baseline unless explicitly reported.",
+        "Unmeasured token totals and recovery are null, never imputed as zero."
+      ],
+      "trial": "trial-1",
+      "candidate_patch": "adaptive-evidence/trial-1/batch-cost/adaptive/candidate.patch",
+      "implementation_diagnostics": [
+        {
+          "status": "completed",
+          "attempts": 1,
+          "feedback": ""
+        }
+      ],
+      "quality_review": "adaptive-evidence/trial-1/batch-cost/adaptive/quality-review.md"
+    }
+  ],
+  "comparability_warning": "Original single arm did not enforce the same write scope. Original recorded outcomes are retained; see post_run_scope_audit. Do not use these runs as a final fair comparison."
+}

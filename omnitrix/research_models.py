@@ -59,6 +59,8 @@ class DiscoveryReport(Contract):
     system_map: list[MapEntry] = Field(max_length=40)
     opportunities: list[Opportunity] = Field(max_length=12)
     gaps: list[str] = Field(max_length=20)
+    quality_report: str = Field(default='', max_length=12000,
+        description='Markdown scope coverage, evidence map/visual, ranking rationale, uncertainty and next investigation gates. Empty legacy reports are unreviewed.')
 
 
 class Finding(Contract):
@@ -83,6 +85,8 @@ class ResearchReport(Contract):
     uncertainties: list[str] = Field(max_length=15)
     recommendation: str = Field(min_length=1, max_length=2000)
     blocked: bool
+    quality_report: str = Field(default='', max_length=12000,
+        description='Markdown hypothesis, method, evidence visuals, practice comparison, uncertainty, validation/invalidation plan and research gate outcomes. Empty legacy reports are unreviewed.')
 
 
 class ClaimReview(Contract):
@@ -101,6 +105,13 @@ class ClaimReview(Contract):
 class Evaluation(Contract):
     reason: str = Field(min_length=1, max_length=3000)
     feedback: str = Field(min_length=1, max_length=3000)
+    blocking_questions: list[str] = Field(default_factory=list, max_length=8,
+        description='Only missing evidence necessary for the stated hypothesis/criterion or a concrete material correctness risk. State criterion or risk, consequence and next bounded check.')
+    nonblocking_uncertainties: list[str] = Field(default_factory=list, max_length=8,
+        description='Out-of-scope or candidate-test questions that do not negate the supported current finding. Never require proof that no hidden contract exists.')
+    quality_report: str = Field(default='', max_length=12000,
+        description='Independent claim-to-evidence gate assessment, checked visual/data consistency, limitations and precise return conditions. Empty legacy reviews are unreviewed.')
+
     test_kind: Literal['direct', 'counterexample', 'measurement', 'absence', 'literal_absence', 'not_tested'] = 'not_tested'
     test_evidence_ids: list[str] = Field(default_factory=list, max_length=20)
     counterevidence_ids: list[str] = Field(default_factory=list, max_length=20)

@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/workspace/omnitrix/.omnitrix/adaptive-comparison-v2/trial-1/bounded-retries/manager/check_0.py", line 10, in <module>
+    assert process(call,3)==7 and count==3
+           ^^^^^^^^^^^^^^^
+  File "/workspace/omnitrix/.omnitrix/adaptive-comparison-v2/trial-1/bounded-retries/manager/score-worktree/service.py", line 2, in process
+    return call()
+           ^^^^^^
+  File "/workspace/omnitrix/.omnitrix/adaptive-comparison-v2/trial-1/bounded-retries/manager/check_0.py", line 8, in call
+    if count<3: raise TimeoutError()
+                ^^^^^^^^^^^^^^^^^^^^
+TimeoutError

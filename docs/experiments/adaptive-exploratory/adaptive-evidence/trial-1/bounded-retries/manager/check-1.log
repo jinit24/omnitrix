@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/omnitrix/.omnitrix/adaptive-comparison-v2/trial-1/bounded-retries/manager/check_1.py", line 12, in <module>
+    assert count==2
+           ^^^^^^^^
+AssertionError

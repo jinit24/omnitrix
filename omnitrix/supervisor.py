@@ -8,15 +8,16 @@ import uuid
 from agents import Agent, Runner, RunConfig
 from agents.exceptions import MaxTurnsExceeded, ModelBehaviorError
 from openai import APIConnectionError, APITimeoutError, InternalServerError, RateLimitError
+from agents.strict_schema import ensure_strict_json_schema
 from .control import Control
 from .execution import Execution
 from .implementation import Implementations
 from .knowledge import Knowledge
-from .manager import AgentBrain
-from .models import ChatReply,Handoff
+from .manager import AgentBrain, compact_snapshot
+from .models import ChatReply,Handoff,Decision
 from .research import Research
 from .runtime import CodexRuntime
-from .workers import ROOT
+from .prompts import load_instructions
 
 
 class Supervisor:
@@ -169,6 +170,7 @@ class Supervisor:
                 return {'waiting': bool(self.work)}
             # Unknown external outcomes are a reconciliation requirement, not a retry signal.
             unresolved = self.db.execute("SELECT 1 FROM task_runtime WHERE state='uncertain' AND task_id IN (SELECT id FROM tasks WHERE goal_id=?)", (self.goal_id,)).fetchone()
+            unresolved = unresolved or self.db.execute("SELECT 1 FROM implementations WHERE goal_id=? AND status='uncertain'", (self.goal_id,)).fetchone()
             uncertain_delivery = self.db.execute("SELECT 1 FROM messages WHERE goal_id=? AND direction='manager_to_worker' AND state IN ('uncertain','sending')",(self.goal_id,)).fetchone()
             if unresolved or uncertain_delivery:
                 self.autonomy = 0
@@ -180,7 +182,18 @@ class Supervisor:
                     return {'blocked':'Saved campaign decision/state/deadline limit reached'}
             self.autonomy -= 1
             try:
-                decision = await asyncio.wait_for(self.brain.decide(self.status()),getattr(self.brain,'seconds',120))
+                # Direct contracts were explicitly authorized by the user; do not
+                # spend a manager turn asking a researcher to restate them.
+                direct = [r for r in self.status()['implementations'] if r['status']=='authorized'
+                          and r['spec'].get('basis')=='direct' and not r['authorization_revoked']]
+                if len(direct) == 1 and not self.status().get('campaign') and not self.status().get('spending'):
+                    decision = Decision(action='implement', implementation_id=direct[0]['id'],
+                        rationale='Explicit bounded contract and executable acceptance checks authorize direct implementation',
+                        instructions='Implement and independently verify the authorized contract, then return for final review',
+                        task_id=None, priority=1)
+                    self.control.event(self.goal_id,'execution_route',{'route':'direct','implementation':direct[0]['id']})
+                else:
+                    decision = await asyncio.wait_for(self.brain.decide(self.status()),getattr(self.brain,'seconds',120))
             except (APIConnectionError,APITimeoutError,InternalServerError,RateLimitError) as exc:
                 prior=self.db.execute("SELECT id FROM activity WHERE goal_id=? AND kind='decision' ORDER BY id DESC LIMIT 1",(self.goal_id,)).fetchone()
                 failures=self.db.execute("SELECT count(*) FROM activity WHERE goal_id=? AND kind='manager_provider_failure' AND id>?",(self.goal_id,prior[0] if prior else 0)).fetchone()[0]+1
@@ -240,7 +253,7 @@ class Supervisor:
         if self.db.execute('SELECT 1 FROM spending_limits WHERE goal_id=?',(self.goal_id,)).fetchone() and action in ('delegate','follow_up','implement','audit'):
             raise ValueError('Budgeted campaigns are read-only; unmetered native workers and code actions are disabled')
         if self.status()['goal']['requires_verified_implementation'] and action in ('delegate','follow_up'):
-            raise ValueError('This code goal requires typed discover/research agents before authorized implementation; use list_resources directly for inventory, not legacy delegation')
+            raise ValueError('This code goal requires an authorized typed implementation with executable checks; use research only for material uncertainties, and list_resources directly for inventory')
         if action in ('pause','complete'):
             if action == 'complete':
                 # Implementation goals cannot complete on an agent's assertion alone.
@@ -255,6 +268,20 @@ class Supervisor:
             self.autonomy=0
             self.store.execute('UPDATE goals SET status=? WHERE id=?', ('completed' if action=='complete' else 'paused', self.goal_id))
             return decision.model_dump()
+        if action == 'research_batch':
+            plans = self.research.plan_batch(self.goal_id, decision.research_plans, decision.independence_reason)
+            task_ids = []
+            for plan in plans:
+                if plan['duplicate']:
+                    self.control.message(self.goal_id,'duplicate_research',plan,direction='worker_to_manager')
+                    continue
+                job_id = plan['job_id']
+                async def investigate(task_id, job_id=job_id):
+                    return await self.research.attempt(job_id)
+                task_ids.append(await self.submit('research', {'job_id':job_id}, investigate,
+                    json.loads(self.research.job(job_id)['spec'])['budget']['seconds'] * 3 + 10))
+            self.control.event(self.goal_id,'research_wave',{'task_ids':task_ids,'independence_reason':decision.independence_reason})
+            return {'task_ids':task_ids,'plans':plans}
         if action in ('discover','research','retry_research'):
             if action == 'retry_research':
                 job = self.research.job(decision.research_id)
@@ -281,7 +308,12 @@ class Supervisor:
             if action == 'audit':
                 return service.audit(row['id'])
             async def implement(task_id):
-                return await service.run(row['id'], task_id)
+                result = await service.run(row['id'], task_id)
+                _, spec = service.auth(row['authorization'])
+                if spec.basis == 'direct' and result['status'] == 'ready_for_audit':
+                    audit = service.audit(row['id'])
+                    result = service.get(row['id']) | {'audit':audit}
+                return result
             return {'task_id': await self.submit('implementation', {'implementation_id': row['id']}, implement, 1800)}
         if action in ('delegate', 'follow_up'):
             session_id = None
@@ -292,7 +324,7 @@ class Supervisor:
                 session_id = previous['session_id']
             async def run(task_id):
                 thread_id, turn_id = await self.runtime.start(self.status()['goal']['workspace'], decision.instructions, session_id,
-                    on_thread=lambda sid: self.store.execute('UPDATE task_runtime SET session_id=? WHERE task_id=?',(sid,task_id)),schema=Handoff.model_json_schema())
+                    on_thread=lambda sid: self.store.execute('UPDATE task_runtime SET session_id=? WHERE task_id=?',(sid,task_id)),schema=ensure_strict_json_schema(Handoff.model_json_schema()))
                 self.store.execute('UPDATE task_runtime SET session_id=?,turn_id=? WHERE task_id=?', (thread_id,turn_id,task_id))
                 self.store.execute('UPDATE tasks SET session_id=? WHERE id=?', (thread_id, task_id))
                 result = await self.runtime.wait(thread_id, turn_id, 300)
@@ -317,7 +349,9 @@ class Supervisor:
         params = data.get('params', {})
         method = data.get('method','')
         if method == 'turn/started':
-            self.store.execute('UPDATE task_runtime SET turn_id=? WHERE session_id=?',
+            self.store.execute('''UPDATE task_runtime SET turn_id=? WHERE task_id=(
+                SELECT task_id FROM task_runtime WHERE session_id=? AND state IN ('running','waiting')
+                ORDER BY started DESC,rowid DESC LIMIT 1)''',
                 (params.get('turn',{}).get('id'),params.get('threadId')))
         row = self.db.execute('SELECT * FROM task_runtime WHERE session_id=? AND turn_id=?',
                               (params.get('threadId'),params.get('turnId') or params.get('turn',{}).get('id'))).fetchone()
@@ -435,18 +469,20 @@ class Supervisor:
         async with self.actor:
             self._check_control_revision(expected or {})
             message_id = self.control.message(self.goal_id, 'chat', {'text': text})
-            session = self.control.session(self.goal_id)
+            session = None
             current = self.control.current(self.goal_id)
             from .spending import metered_model
             agent = Agent(name='Engineering manager', model=metered_model(self.store,self.goal_id,'manager_chat',self.brain.model if hasattr(self.brain,'model') else 'gpt-4.1'),
-                instructions=(ROOT / 'instructions/CHAT.md').read_text()+'\n'+current['policy']['instructions'], output_type=ChatReply)
+                instructions=load_instructions('chat', current['policy']['instructions']), output_type=ChatReply)
             try:
                 result = await asyncio.wait_for(Runner.run(agent, json.dumps({'user_message':text,
-                    'state':self.status(),'policy':current['policy']}), session=session,
+                    'state':compact_snapshot(self.status(), self.store),'policy':current['policy']}), session=session,
                     max_turns=4, run_config=RunConfig(tracing_disabled=True)),120)
                 from .telemetry import record_usage
                 record_usage(self.store,self.goal_id,result,'manager_chat')
                 reply = result.final_output
+                self.control.message(self.goal_id,'chat_reply',{'response':reply.response},
+                    direction='manager_to_user',state='acknowledged')
                 self.control.ack(message_id)
                 if reply.proposal_kind in ('policy','requirements'):
                     body = {'instructions':reply.proposal_text} if reply.proposal_kind=='policy' else {
@@ -467,7 +503,8 @@ class Supervisor:
                     return {'response':reply.response,'delivery':results}
                 return {'response':reply.response}
             finally:
-                session.close()
+                if session:
+                    session.close()
 
     async def accept(self, proposal_id, expected=None):
         async with self.actor:

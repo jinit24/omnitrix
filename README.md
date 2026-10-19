@@ -73,14 +73,42 @@ omnitrix report GOAL_ID --output research.html
 One manager owns each DB. `send` queues to that owner; it never starts another manager.
 `resume GOAL_ID --steps 5 --message TEXT` restarts bounded work when no owner is running.
 
-## Authorize code changes
+## Agent quality gates
 
-Accepted research and a committed Git workspace are required. Review `implementation.json`:
+Every model entry point receives `instructions/QUALITY_GATES.md` plus its own role
+prompt through `omnitrix/prompts.py`. The master manager reviews acceptance; the
+`AgentBrain` layer maintains evidence and decision quality; discovery maps scope;
+research tests hypotheses; evaluation challenges findings; repository workers inspect;
+implementation workers explain, validate and prepare operational handoff. Chat reports
+these distinctions without turning status questions into new work.
+
+New worker/research/evaluation handoffs include a Markdown `quality_report`: why the
+answer works, sourced charts/diagrams or evidence tables, established-practice fit,
+validation and limitations, role-appropriate follow-through, and PASS/RETURN/BLOCKED/N/A
+gate outcomes. Research uses validation/invalidation triggers; implementation uses
+rollout, monitoring and rollback plans. A PR alone never satisfies acceptance.
+
+These are model instructions and review gates, backed by the existing deterministic
+source, scope, authorization, revision and executable-check gates. They are not an
+automatic semantic grader or a production monitoring service. Old stored handoffs
+still load; an absent quality report is unreviewed. New/resumed model invocations load
+current prompts; an already-running turn is not retroactively changed. See
+[role contracts and review examples](docs/QUALITY_GATES.md).
+See the [measured comparison and candidate/check artifacts](docs/experiments/adaptive-comparison.md)
+and [execution design, monitoring and rollback](docs/ADAPTIVE_EXECUTION.md).
+
+## Authorize an implementation
+
+A committed Git workspace, explicit authorization and executable checks for every
+mandatory criterion are required. Unknown defects/designs use accepted research;
+a well-specified bounded change can use the direct contract below. Review
+`implementation.json`:
 
 ```json
 {
   "objective": "Fix the bounded retry contract",
-  "research_job": "ACCEPTED_RESEARCH_JOB_ID",
+  "basis": "direct",
+  "contract": "Retry only the documented transient error up to the supplied positive attempt limit; preserve all executable acceptance contracts.",
   "allowed_paths": ["src/retry.py"],
   "checks": [{
     "requirement": "EXACT CURRENT MANDATORY CRITERION TEXT",
@@ -98,11 +126,34 @@ omnitrix authorize GOAL_ID implementation.json --allow-code-modifications
 omnitrix resume GOAL_ID --steps 5
 ```
 
+For research-backed changes, use `"basis": "research"` (the backward-compatible
+default) and `"research_job": "ACCEPTED_RESEARCH_JOB_ID"` instead of `contract`.
+The supervisor starts a ready direct authorization without a planning round trip,
+resumes the native thread for bounded local repairs, independently verifies the
+candidate, runs the deterministic audit, and returns once to the manager for the
+final evidence review. This route also serves as a bounded, explicitly authorized
+implementation experiment; research-only campaigns cannot use it.
+
+Manager decisions receive one current snapshot with complete criteria, recent
+history and durable dialogue. Older original reports remain available through
+`recall_history`/`recall_artifact`; state snapshots are not replayed as conversation.
+Research/evaluation receives the current acceptance criteria and separates blocking
+questions from nonblocking uncertainties. Independent read-only investigations can
+use `research_batch` with 2..3 plans and an `independence_reason`; all saved scope,
+revision, role-run, dollar and cancellation limits still apply.
+
 Every mandatory criterion needs an executable check. `failure_kind: "assumption"`
 returns failures to research. External oracles are hashed; `OMNITRIX_CANDIDATE` identifies
 the clean candidate worktree. Commands are trusted local processes, not a hostile-code
 sandbox; provider credentials are removed. Authorization permits bounded worktree edits,
 never deployments, destructive operations, merges or pushes.
+
+Compare the single worker, research-first manager and adaptive route on identical
+fixture contracts with `python scripts/benchmark.py --trials 2 --arms single manager
+adaptive --output .omnitrix/comparison-NEW`. Add `--live --allow-code-modifications`
+for real model usage. Reports separate coordinator, research, coding and verification
+timings, model/token metadata and independently scored outcomes. These small fixtures
+test orchestration; they cannot establish production or architecture superiority.
 
 ## GitHub Pages
 

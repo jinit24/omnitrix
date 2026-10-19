@@ -1,14 +1,18 @@
+import asyncio
 import fcntl
 import json
 import os
+import time
 from agents import Agent, Runner, RunConfig, ModelSettings, function_tool
+from pydantic import create_model
+from typing import Literal
 from .control import Control
 from .knowledge import Knowledge
 from .research import Research
 from .implementation import Implementations
 from .execution import Execution
 from .models import Decision
-from .workers import ROOT
+from .prompts import load_instructions
 
 
 def brief_result(value):
@@ -31,7 +35,101 @@ def brief_result(value):
             for finding in report.get('findings',[])[:6]]
         output['report_summary']['system_map_names']=[entry['name'] for entry in report.get('system_map',[])[:12]]
         output['report_summary']['opportunity_titles']=[entry['title'] for entry in report.get('opportunities',[])[:12]]
-    return output or value
+    return output or {key:value[key] for key in ('summary','status','candidate','id','unresolved_concerns') if key in value}
+
+
+def compact_snapshot(snapshot, store=None):
+    """One current state, with complete criteria and recallable bounded history."""
+    context = {**snapshot}
+    context['tasks'] = [{k: t[k] for k in ('id','adapter','status','error','session_id') if k in t}
+                        | {'result': brief_result(t.get('result'))} for t in snapshot['tasks'][-6:]]
+    context['decisions'] = snapshot['decisions'][-8:]
+    context['research'] = snapshot['research'][:8]
+    context['opportunities'] = snapshot['opportunities'][:8]
+    context['manager_feedback'] = snapshot.get('manager_feedback', [])[:5]
+    # Findings already occur in task results. Keep questions/blockers, and exactly
+    # one full implementation handoff for the final review (not every past attempt).
+    messages = snapshot.get('worker_messages', [])
+    represented_jobs = {t['result'].get('job_id') for t in context['tasks'] if isinstance(t['result'],dict)}
+    unique_findings = []
+    for message in messages:
+        if message['kind'] != 'findings':
+            continue
+        body = json.loads(message['body']) if isinstance(message['body'],str) else message['body']
+        job_id = body.get('job_id') if isinstance(body,dict) else None
+        if not job_id or job_id in represented_jobs:
+            continue
+        summary = brief_result(body)
+        if 'report_summary' in summary:
+            summary['report'] = summary.pop('report_summary')
+        unique_findings.append(message | {'body':json.dumps(summary),'compacted':True})
+        represented_jobs.add(job_id)
+        if len(unique_findings)==3:
+            break
+    latest = next((m for m in messages if m['kind'] == 'implementation_handoff'), None)
+    context['worker_messages'] = ([latest] if latest else []) + unique_findings + [
+        m for m in messages if m['kind'] in ('question','blocker')][:5]
+    context['pending_messages'] = [m for m in snapshot.get('pending_messages', [])
+                                    if m['kind'] != 'findings'][-10:]
+    context['active'] = [{k: r[k] for k in ('task_id','state','deadline','goal_revision','policy_revision')}
+                         for r in snapshot.get('active', [])]
+    context['implementations'] = snapshot.get('implementations', [])[-8:]
+    context['context_window'] = ('Recent 6 tasks, 8 decisions/jobs/opportunities/implementations; '
+        'one latest implementation report. History is incomplete: recall_history and recall_artifact '
+        'retrieve original records. Mandatory goal criteria and policy are never summarized away.')
+    if store:
+        goal_id = snapshot['goal']['id']
+        current = Control(store).current(goal_id)
+        context['policy_revision'] = current['policy']['version']
+        context['dialogue'] = [dict(r) for r in store.db.execute(
+            "SELECT kind,body FROM messages WHERE goal_id=? AND kind IN ('chat','chat_reply') ORDER BY created DESC LIMIT 12",
+            (goal_id,))][::-1]
+        # Explain readiness from actual authorization checks rather than making
+        # the model infer missing permission from an unrelated research verdict.
+        service = Implementations(store)
+        context['implementation_readiness'] = []
+        for row in context['implementations']:
+            try:
+                _, spec = service.auth(row['authorization'])
+                readiness = {'authorized': True, 'basis': spec.basis}
+            except ValueError as exc:
+                readiness = {'authorized': False, 'blocker': str(exc)}
+            context['implementation_readiness'].append({'id': row['id'], 'status': row['status'], **readiness})
+        ids = [row['id'] for row in context['implementations']]
+        latest_handoff = store.db.execute("SELECT kind,body,task_id,created FROM messages WHERE goal_id=? AND kind='implementation_handoff' ORDER BY created DESC LIMIT 1", (goal_id,)).fetchone()
+        context['worker_messages'] = ([dict(latest_handoff)] if latest_handoff else []) + unique_findings + [
+            m for m in messages if m['kind'] in ('question','blocker')][:5]
+        context['verification'] = [dict(r) for r in store.db.execute(
+            '''SELECT v.implementation_id,v.candidate,v.requirement,v.passed,v.exit_code,v.artifact,v.failure_kind
+               FROM verifications v JOIN implementations i ON i.id=v.implementation_id
+               WHERE i.goal_id=? AND v.candidate=i.candidate AND v.goal_revision=? ORDER BY v.created DESC LIMIT 60''',
+            (goal_id, current['goal']['revision'])) if r['implementation_id'] in ids]
+    return context
+
+
+def available_actions(snapshot):
+    """Constrain the model's action enum before it can invent an executable ID."""
+    actions = ['discover','research','research_batch','pause']
+    if any(r['status'] in ('pending','insufficient','blocked','interrupted') for r in snapshot['research']):
+        actions.append('retry_research')
+    campaign = snapshot.get('campaign') or snapshot.get('spending')
+    code_goal = snapshot['goal'].get('requires_verified_implementation') or snapshot.get('implementations')
+    if not campaign:
+        ready = snapshot.get('implementation_readiness', [])
+        if any(r['authorized'] and r['status'] in ('authorized','repair') for r in ready):
+            actions.append('implement')
+        if any(r['authorized'] and r['status']=='ready_for_audit' for r in ready):
+            actions.append('audit')
+        if not code_goal:
+            actions.append('delegate')
+            if any(t.get('session_id') for t in snapshot['tasks']):
+                actions.append('follow_up')
+        if not code_goal or any(r['authorized'] and r['status']=='completed' for r in ready):
+            actions.append('complete')
+    else:
+        # Campaign completion is still checked against its durable breadth gates.
+        actions.append('complete')
+    return actions
 
 
 class AgentBrain:
@@ -63,11 +161,11 @@ class AgentBrain:
             control = Control(self.store)
             goal_id = snapshot['goal']['id']
             current = control.current(goal_id)
-            policy = '\nDurable manager policy:\n' + current['policy']['instructions']
+            policy = current['policy']['instructions']
             # Campaign prompts already contain a durable bounded state snapshot.
             # Replaying whole prior snapshots through an SDK session duplicates
             # tens of thousands of input tokens without adding new evidence.
-            session = None if snapshot.get('campaign') else control.session(goal_id)
+            session = None  # State is supplied once; durable dialogue is retrieved separately.
             @function_tool
             async def search_knowledge(query: str = '', offset: int = 0) -> str:
                 """Retrieve shared verified facts, system maps, assumptions and rejected hypotheses."""
@@ -83,6 +181,24 @@ class AgentBrain:
                 control.event(goal_id,'manager_inventory',{'directory':directory,'offset':offset,'result':result})
                 return json.dumps(result)
             tools += [search_knowledge, list_resources]
+            @function_tool
+            async def recall_artifact(kind: str, artifact_id: str) -> str:
+                """Read a full task, research report/evaluation, or implementation with verification by ID. Goal scoped."""
+                if kind == 'task':
+                    row = self.store.db.execute('SELECT * FROM tasks WHERE id=? AND goal_id=?', (artifact_id,goal_id)).fetchone()
+                    return json.dumps(dict(row) if row else {'error':'Unknown task for this goal'})
+                if kind == 'research':
+                    rows = self.store.db.execute('SELECT r.* FROM research_runs r JOIN research_jobs j ON j.id=r.job_id WHERE j.id=? AND j.goal_id=? ORDER BY r.created DESC LIMIT 3', (artifact_id,goal_id)).fetchall()
+                    return json.dumps([dict(r) for r in rows])
+                if kind == 'implementation':
+                    row = self.store.db.execute('SELECT * FROM implementations WHERE id=? AND goal_id=?', (artifact_id,goal_id)).fetchone()
+                    if not row:
+                        return json.dumps({'error':'Unknown implementation for this goal'})
+                    reports = [json.loads(r[0]) for r in self.store.db.execute("SELECT body FROM messages WHERE goal_id=? AND kind='implementation_handoff' AND json_extract(body,'$.implementation_id')=? ORDER BY created DESC LIMIT 3", (goal_id,artifact_id))]
+                    return json.dumps({'implementation':dict(row), 'reports':reports,
+                        'verification':[dict(r) for r in self.store.db.execute('SELECT * FROM verifications WHERE implementation_id=?', (artifact_id,))]})
+                return 'Use task, research, or implementation.'
+            tools.append(recall_artifact)
             if snapshot.get('campaign'):
                 from .frontier import Frontier
                 @function_tool
@@ -92,32 +208,22 @@ class AgentBrain:
                     control.event(goal_id,'manager_frontier_query',{'query':query,'kind':kind,'after':after,'directory':directory,'result':result})
                     return json.dumps(result)
                 tools.append(search_frontier)
+        context = compact_snapshot(snapshot, self.store)
+        context['available_actions'] = available_actions(context)
+        output_type = create_model('AvailableDecision', __base__=Decision,
+            action=(Literal[tuple(context['available_actions'])], ...)) if self.store else Decision
         from .spending import metered_model
         agent = Agent(
             name='Engineering manager', model=metered_model(self.store, snapshot['goal']['id'], 'manager', self.model),
-            instructions=(ROOT / ('instructions/CAMPAIGN.md' if snapshot.get('campaign') else 'instructions/MANAGER.md')).read_text() + '\n' +
-                         (ROOT / 'instructions/KNOWLEDGE.md').read_text() + policy,
-            tools=tools, output_type=Decision,
+            instructions=load_instructions('campaign' if snapshot.get('campaign') else 'manager', policy),
+            tools=tools, output_type=output_type,
             model_settings=ModelSettings(tool_choice='search_frontier' if self.store and snapshot.get('campaign')
-                else 'list_resources' if self.store and not snapshot['research'] else 'auto'))
+                else 'auto'))
         # Stable objective + concise outcomes, never worker event streams.
-        context = {**snapshot, 'tasks': snapshot['tasks'][-20:],
-                   'decisions': snapshot['decisions'][-20:]}
-        if snapshot.get('campaign'):
-            context['tasks']=[task | {'result':brief_result(task['result'])} for task in snapshot['tasks'][-6:]]
-            context['decisions']=snapshot['decisions'][-8:]
-            context['research']=snapshot['research'][:8]
-            context['opportunities']=snapshot['opportunities'][:8]
-            context['worker_messages']=[message | {'body':brief_result(message['body'])}
-                for message in snapshot['worker_messages'][:8]]
-            context['pending_messages']=[message | {'body':brief_result(message['body'])}
-                for message in snapshot['pending_messages'][-10:]]
-            context['manager_feedback']=snapshot['manager_feedback'][:5]
-            context['context_window']='Recent 6 tasks, 8 decisions/jobs/opportunities, compact worker handoffs. Full original reports and older decisions remain in recall_history and search_knowledge; these excerpts are not complete coverage.'
         if self.store:
             from .resources import list_resources as inventory
             context['resource_inventory'] = inventory(snapshot['goal']['workspace'])
-            if not snapshot.get('research_progress', {}).get('observed_sources'):
+            if not snapshot.get('implementations') and not snapshot.get('research_progress', {}).get('observed_sources'):
                 # Bootstrap only metadata, one level deep. This prevents a worker
                 # task merely to discover valid source paths and remains bounded.
                 directories = context['resource_inventory']['subdirectories']
@@ -141,11 +247,14 @@ class AgentBrain:
                     context['recent_catalog_results']=[json.loads(row[0]) for row in self.store.db.execute("SELECT detail FROM activity WHERE goal_id=? AND kind='manager_frontier_query' ORDER BY id DESC LIMIT 3",(goal_id,))]
                     agent.model_settings.tool_choice='auto'
         try:
+            started = time.monotonic()
             result = await Runner.run(agent, json.dumps(context), max_turns=24 if snapshot.get('campaign') else 8, session=session,
                                       run_config=RunConfig(tracing_disabled=True))
             if self.store:
                 from .telemetry import record_usage
                 record_usage(self.store,snapshot['goal']['id'],result,'manager')
+                control.event(goal_id,'manager_turn',{'seconds':time.monotonic()-started,
+                    'context_bytes':len(json.dumps(context).encode()),'action':result.final_output.action})
             return result.final_output
         finally:
             if session:
@@ -182,6 +291,13 @@ class Manager:
         self.store.execute("UPDATE goals SET status='active' WHERE id=?", (goal_id,))
         for _ in range(steps):
             decision = await self.brain.decide(self.store.snapshot(goal_id))
+            if decision.action == 'research_batch':
+                research = Research(self.store)
+                plans = research.plan_batch(goal_id, decision.research_plans, decision.independence_reason)
+                outcomes = await asyncio.gather(*(research.attempt(p['job_id']) for p in plans if not p['duplicate']))
+                self.store.execute('INSERT INTO decisions(goal_id,body) VALUES(?,?)',
+                    (goal_id,json.dumps({'decision':decision.model_dump(),'research_outcomes':outcomes})))
+                continue
             if decision.action in ('discover', 'research', 'retry_research'):
                 research = Research(self.store)
                 if decision.action == 'retry_research':
