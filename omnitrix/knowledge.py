@@ -5,6 +5,8 @@ import json
 import math
 import time
 import uuid
+import subprocess
+from collections import deque
 from pathlib import Path
 from .resources import EXCLUDED, resource_kind
 
@@ -34,6 +36,10 @@ CREATE TABLE IF NOT EXISTS research_access (
 CREATE TABLE IF NOT EXISTS research_queries (
  id INTEGER PRIMARY KEY, run_id TEXT NOT NULL REFERENCES research_runs(id),
  operation TEXT NOT NULL, query TEXT NOT NULL, created REAL NOT NULL);
+CREATE TABLE IF NOT EXISTS source_coverage (
+ source_id TEXT PRIMARY KEY REFERENCES research_sources(id), operation TEXT NOT NULL,
+ start_line INTEGER NOT NULL, end_line INTEGER NOT NULL, complete_tail INTEGER NOT NULL,
+ query TEXT, matches INTEGER);
 CREATE TABLE IF NOT EXISTS knowledge (
  id TEXT PRIMARY KEY, workspace TEXT NOT NULL, goal_id TEXT NOT NULL REFERENCES goals(id),
  job_id TEXT NOT NULL REFERENCES research_jobs(id), kind TEXT NOT NULL,
@@ -97,6 +103,12 @@ class Knowledge:
         # Captured observation age is explicit; not a claim about metric measurement age.
         result['age_seconds'] = max(0, time.time() - result['observed'])
         result['stale'] = result['stale'] or (resource_kind(result['locator']) in ('metrics','logs') and result['age_seconds'] > 86400)
+        try:observation=json.loads(result['excerpt'])
+        except (ValueError,TypeError):observation={}
+        if isinstance(observation,dict) and observation.get('operation')=='csv_summary':
+            result['observation_scope']={'kind':'csv_summary','start_row':observation['start_row'],
+                'scanned_rows':observation['scanned_rows'],'whole_file':observation.get('whole_file',observation['start_row']==1 and not observation['partial']),
+                'next_row':observation['next_row'],'warning':'A final tail page is not a whole-export total unless it starts at row 1 or is an explicitly combined aggregate.'}
         return result
 
     def put(self, goal_id, job_id, kind, title, body, classification, citations):
@@ -208,6 +220,43 @@ class ResearchTools:
             self.store.db.execute('INSERT INTO research_queries(run_id,operation,query,created) VALUES(?,?,?,?)',
                                  (self.run_id, operation, query, time.time()))
 
+    def search_scope(self,query,after='',directory=''):
+        """Literal content navigation over explicit scope, with bounded file batches."""
+        if not query.strip() or len(query)>500 or any(c in query for c in ('\n','\0')):
+            raise ValueError('Use one nonempty literal query of at most 500 characters')
+        self.charge('search_scope',json.dumps([query,after,directory]))
+        prefix=directory.rstrip('/')+'/' if directory and directory!='.' else ''
+        paths=sorted(path for path in self.scope if path>after and path.startswith(prefix))
+        batch=[];size=0;argument_bytes=0
+        for path in paths:
+            source=source_path(self.workspace,path);length=source.stat().st_size
+            if length>32*1024*1024:raise ValueError('Indexed source now exceeds 32 MiB; partition or narrow the scope')
+            encoded=len(path.encode('utf-8'))+1
+            if batch and (len(batch)>=500 or size+length>16*1024*1024 or argument_bytes+encoded>65536):break
+            batch.append(path);size+=length;argument_bytes+=encoded
+        if not batch:return {'matches':[],'next_after':None,'searched_files':0}
+        options=['rg','--fixed-strings','--ignore-case','--no-ignore','--no-messages']
+        result=subprocess.run(options+['--files-with-matches','--null','--',query,*batch],
+            cwd=self.workspace,capture_output=True,timeout=10)
+        if result.returncode not in (0,1):raise ValueError('Literal content search did not complete; no absence conclusion is available')
+        matched=sorted(p.decode('utf-8') for p in result.stdout.split(b'\0') if p)
+        # Only return a bounded page of hits; resume after its last filename,
+        # rather than skipping unreturned matches in the scanned batch.
+        page=matched[:min(8,self.remaining)];hits=[]
+        for path in page:
+            first=subprocess.run(options+['--no-filename','--line-number','--max-count','1','--max-columns','200','--',query,path],
+                cwd=self.workspace,capture_output=True,timeout=5)
+            if first.returncode!=0:raise ValueError('Source changed during navigation; search again before citing')
+            line=int(first.stdout.split(b':',1)[0])
+            observation=self.read(path,line,8)
+            hits.append({'locator':path,'line':line,'evidence':observation,
+                         'matching_excerpt_captured':query.casefold() in observation['excerpt'].casefold()})
+        cursor=page[-1] if len(page)<len(matched) and page else batch[-1]
+        if matched and not page:cursor=after
+        return {'matches':hits,'next_after':cursor if len(page)<len(matched) or len(batch)<len(paths) else None,
+                'searched_files':len(batch),'searched_bytes':size,
+                'note':'One match per file in this bounded batch, not all occurrences or whole-repository absence proof. Follow next_after. Read/search individual files for complete evidence; long matching lines may be clipped.'}
+
     def read(self, locator, start_line=1, line_count=80):
         self.charge('read_source', json.dumps([locator, start_line, line_count]))
         if start_line < 1 or not 1 <= line_count <= 100:
@@ -232,7 +281,10 @@ class ResearchTools:
                 break
             selected.append(text)
             size += len(text) + 1
-        return self._capture(canonical, path, revision, '\n'.join(selected)) | {
+        result = self._capture(canonical, path, revision, '\n'.join(selected))
+        self._coverage(result['id'], 'read', start_line, start_line+(0 if truncated else len(selected))-1,
+                       next_line is None and not truncated)
+        return result | {
             'next_line': next_line, 'truncated': truncated, 'start_line': start_line}
 
     def _source(self, locator):
@@ -241,6 +293,58 @@ class ResearchTools:
             raise ValueError('Source is outside the explicit research scope')
         path, revision = source_revision(self.workspace, canonical)
         return canonical, path, revision
+
+    def tail(self,locator,line_count=80,before_line=None):
+        """Bounded-memory tail with backward pagination and actual line numbers."""
+        self.charge('tail_source',json.dumps([locator,line_count,before_line]))
+        if not 1<=line_count<=100 or (before_line is not None and before_line<1):
+            raise ValueError('Use 1..100 lines and a positive before_line cursor')
+        canonical,path,revision=self._source(locator)
+        rows=deque(maxlen=line_count)
+        reached_end=True
+        for number,line in enumerate(source_lines(path),1):
+            if before_line is not None and number>=before_line:
+                reached_end=False;break
+            rows.append((number,line.rstrip('\r\n')))
+        truncated=False
+        while len(rows)>1 and sum(len(line)+20 for _,line in rows)>12000:
+            rows.popleft();truncated=True
+        selected=[]
+        for number,line in rows:
+            if len(line)>8000:line=line[:8000]+' [line clipped]';truncated=True
+            selected.append(f'{number}: {line}')
+        start=rows[0][0] if rows else 1;end=rows[-1][0] if rows else 0
+        result=self._capture(canonical,path,revision,'\n'.join(selected))
+        self._coverage(result['id'],'read',start,end if not truncated else start-1,reached_end and not truncated)
+        return result|{'start_line':start,'end_line':end,'next_before':start if start>1 else None,
+                       'truncated':truncated,'reached_file_end':reached_end}
+
+    def _coverage(self, source_id, operation, start, end, tail, query=None, matches=None):
+        self.store.execute('INSERT OR REPLACE INTO source_coverage VALUES(?,?,?,?,?,?,?)',
+            (source_id,operation,start,end,int(tail),query,matches))
+
+    def coverage(self, source_ids):
+        """Actual cited read/search intervals, not a reviewer's coverage assertion."""
+        grouped={}
+        for source_id in set(source_ids):
+            try:source=self.knowledge.source(source_id)
+            except ValueError:continue
+            if source['stale']:continue
+            row=self.store.db.execute('SELECT * FROM source_coverage WHERE source_id=?',(source_id,)).fetchone()
+            if row:
+                key=(source['locator'],row['operation'],row['query'])
+                grouped.setdefault(key,[]).append(dict(row))
+        result={}
+        for (locator,operation,query), intervals in grouped.items():
+            end=0;complete=False
+            for interval in sorted(intervals,key=lambda r:r['start_line']):
+                if interval['start_line']>end+1:break
+                end=max(end,interval['end_line'])
+                if interval['complete_tail']:complete=True
+            entry=result.setdefault(locator,{'read_complete':False,'literal_absence':[]})
+            if operation=='read':entry['read_complete']=complete
+            elif complete and not any(r['matches'] for r in intervals):entry['literal_absence'].append(query)
+        return result
 
     def _capture(self, canonical, path, revision, excerpt):
         if source_revision(self.workspace, canonical)[1] != revision:
@@ -293,7 +397,9 @@ class ResearchTools:
         summary = {'operation': 'literal_search', 'query': query, 'start_line': start_line,
                    'scanned_lines': scanned, 'next_line': next_line, 'partial': next_line is not None,
                    'matches': matches}
-        return self._capture(canonical, path, revision, json.dumps(summary)) | summary
+        result=self._capture(canonical, path, revision, json.dumps(summary))
+        self._coverage(result['id'],'search',start_line,start_line+scanned-1,next_line is None,query.casefold(),len(matches))
+        return result | summary
 
     def summarize_csv(self, locator, value_column, group_by=None, start_row=1, complete=False):
         """Aggregate up to 5000 CSV data rows/512 KiB, keeping totals separate by group."""
@@ -331,7 +437,8 @@ class ResearchTools:
             if revision != baseline_revision:
                 raise ValueError('Source changed during CSV aggregation; retry against a stable export')
             summary = pages[0] | {'scanned_rows': scanned, 'invalid_values': invalid, 'groups': combined,
-                                  'next_row': cursor, 'partial': cursor is not None, 'pages_aggregated': len(pages)}
+                                  'next_row': cursor, 'partial': cursor is not None, 'pages_aggregated': len(pages),
+                                  'whole_file':start_row==1 and cursor is None}
             return self._capture(canonical, path, revision, json.dumps(summary)) | {'summary': summary}
         self.charge('summarize_csv', json.dumps([locator, value_column, group_by, start_row]))
         if start_row < 1:
@@ -375,6 +482,7 @@ class ResearchTools:
         summary = {'operation': 'csv_summary', 'value_column': value_column, 'group_by': group_by,
                    'start_row': start_row, 'scanned_rows': scanned, 'invalid_values': invalid,
                    'groups': groups, 'next_row': next_row, 'partial': next_row is not None,
+                   'whole_file':start_row==1 and next_row is None,
                    'measurement_window': 'Not inferred; inspect timestamp columns and source context'}
         return self._capture(canonical, path, revision, json.dumps(summary)) | {'summary': summary}
 

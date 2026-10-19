@@ -70,3 +70,10 @@ read-only and each researcher/evaluator charges the saved role-run and dollar
 budgets. A wave does not multiply those budgets or bypass deadline/cancellation.
 Consolidate final visuals and gate outcomes once; specialist reports contain their
 own scoped claims, evidence, counterevidence, uncertainties and next checks.
+
+research_allocation shows eligible cited mechanism/measurement leads. After three
+reconnaissance jobs, the controller schedules a bounded hypothesis test from that
+backlog before another discover action. Select the best test yourself when
+possible. Mechanism leads need a concrete workload, not just missing benchmark
+coverage. A failed/insufficient test can return to discovery; do not invent issues
+or production effects to meet completion counts.

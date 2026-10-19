@@ -1,0 +1,2266 @@
+{
+  "title": "Skeptical research reviewer history",
+  "generated_at": "2026-10-19T04:48:03.441989+00:00",
+  "limitation": "Controlled development probes. A passing small suite did not prevent later real failures.",
+  "runs": [
+    {
+      "name": "review-eval-01/missing-measurement",
+      "mode": "live-reviewer-challenge",
+      "expected_verdicts": [
+        "insufficient"
+      ],
+      "review": {
+        "reason": "The only evidence provided in benchmark.py demonstrates that a benchmarking method is defined, but there are no measurements or metrics for CPU time associated with the queue or the total workload. The excerpt and explicit statement reveal that no runtime results or shares are recorded in the file. Without such data, there is no supporting evidence for either the claim that the queue accounts for more than 50% of CPU time, nor for its falsification criterion. Therefore, it is not possible to justify or falsify the hypothesis with the current evidence.",
+        "feedback": "No measured data is present. To establish or refute the bottleneck hypothesis, actual CPU time measurements for both the queue and the total workload must be collected and evaluated.",
+        "test_kind": "absence",
+        "test_evidence_ids": [
+          "11034599ca7c4c3db1d876bb6651d29c"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "evidence_ids": [
+          "11034599ca7c4c3db1d876bb6651d29c"
+        ],
+        "verdict": "insufficient"
+      },
+      "gated_verdict": {
+        "reason": "The only evidence provided in benchmark.py demonstrates that a benchmarking method is defined, but there are no measurements or metrics for CPU time associated with the queue or the total workload. The excerpt and explicit statement reveal that no runtime results or shares are recorded in the file. Without such data, there is no supporting evidence for either the claim that the queue accounts for more than 50% of CPU time, nor for its falsification criterion. Therefore, it is not possible to justify or falsify the hypothesis with the current evidence.",
+        "feedback": "No measured data is present. To establish or refute the bottleneck hypothesis, actual CPU time measurements for both the queue and the total workload must be collected and evaluated.",
+        "test_kind": "absence",
+        "test_evidence_ids": [
+          "11034599ca7c4c3db1d876bb6651d29c"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "evidence_ids": [
+          "11034599ca7c4c3db1d876bb6651d29c"
+        ],
+        "verdict": "insufficient"
+      },
+      "passed": true,
+      "spending": {
+        "goal_id": "6bb607ea5ddd4d47ac3ff16e4a3a6f69",
+        "limit_nanos": 250000000,
+        "spent_nanos": 5072000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.005072,
+        "reserved_usd": 0.0,
+        "available_usd": 0.244928,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "passed"
+    },
+    {
+      "name": "review-eval-01/partial-scope",
+      "mode": "live-reviewer-challenge",
+      "expected_verdicts": [
+        "falsified",
+        "insufficient"
+      ],
+      "review": {
+        "reason": "The hypothesis claims that none of the eight scoped assignors computes assignment churn. The supporting evidence provides full source excerpts for only two files (assignor0.py and assignor1.py), both of which merely return a list of keys and conduct no churn computation. However, the claim is about all eight files, and there is no evidence presented for assignor2.py through assignor7.py. The report acknowledges this evidence gap but recommends approving the hypothesis as true for all eight files based on these two samples. Extrapolating from a sample of two to all eight is not sufficient to justify a claim of absence for all, since the falsification criterion directly requires checking each file for churn computation. Therefore, there is a clear evidence gap for the remaining six files.",
+        "feedback": "Conduct a literal or semantic search for churn computation code across the remaining six files (assignor2.py through assignor7.py) to conclusively establish whether or not any of them compute assignment churn. All files must be checked for a strong absence claim covering all eight.",
+        "test_kind": "absence",
+        "test_evidence_ids": [
+          "64c1cdd23f204c419f5976f8b9e86620",
+          "1cd5ea75968d40b6aaebf12caba25dd0"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "evidence_ids": [
+          "64c1cdd23f204c419f5976f8b9e86620",
+          "1cd5ea75968d40b6aaebf12caba25dd0"
+        ],
+        "verdict": "insufficient"
+      },
+      "gated_verdict": {
+        "reason": "The hypothesis claims that none of the eight scoped assignors computes assignment churn. The supporting evidence provides full source excerpts for only two files (assignor0.py and assignor1.py), both of which merely return a list of keys and conduct no churn computation. However, the claim is about all eight files, and there is no evidence presented for assignor2.py through assignor7.py. The report acknowledges this evidence gap but recommends approving the hypothesis as true for all eight files based on these two samples. Extrapolating from a sample of two to all eight is not sufficient to justify a claim of absence for all, since the falsification criterion directly requires checking each file for churn computation. Therefore, there is a clear evidence gap for the remaining six files.",
+        "feedback": "Conduct a literal or semantic search for churn computation code across the remaining six files (assignor2.py through assignor7.py) to conclusively establish whether or not any of them compute assignment churn. All files must be checked for a strong absence claim covering all eight.",
+        "test_kind": "absence",
+        "test_evidence_ids": [
+          "64c1cdd23f204c419f5976f8b9e86620",
+          "1cd5ea75968d40b6aaebf12caba25dd0"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "evidence_ids": [
+          "64c1cdd23f204c419f5976f8b9e86620",
+          "1cd5ea75968d40b6aaebf12caba25dd0"
+        ],
+        "verdict": "insufficient"
+      },
+      "passed": true,
+      "spending": {
+        "goal_id": "8ecd1bc6b4114fe9a288a4fea7eae74f",
+        "limit_nanos": 250000000,
+        "spent_nanos": 6650000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.00665,
+        "reserved_usd": 0.0,
+        "available_usd": 0.24335,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "passed"
+    },
+    {
+      "name": "review-eval-01/positive-measurement",
+      "mode": "live-reviewer-challenge",
+      "expected_verdicts": [
+        "supported"
+      ],
+      "review": {
+        "reason": "The hypothesis claims that, in a complete controlled run with additive durations, the worker component sums to 600 ms and \"other\" sums to 10 ms, so worker dominates the total elapsed time. Evidence c89fa32950914cf69406d68981618eda gives a CSV summary showing that \"worker\" has a sum of 600.0 ms and \"other\" a sum of 10.0 ms, with only these two groups present. Evidence 0f6ea7a0a7b84b4c839ce941a206bace confirms that this additive measurement covers the complete controlled run, with no concurrency or overlap, and not production data, matching the scope stated in the hypothesis. There is no contradictory evidence, all findings cite the actual numeric export, and the falsification criterion (another component exceeding or matching the worker) is not met.",
+        "feedback": "The evidence is well-extracted, scoped, and complete for the hypothesis as stated. There are no apparent confounders or missing groups in the CSV; the run is explicitly non-overlapping and restricted in scope.",
+        "test_kind": "measurement",
+        "test_evidence_ids": [
+          "c89fa32950914cf69406d68981618eda",
+          "0f6ea7a0a7b84b4c839ce941a206bace"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "evidence_ids": [
+          "c89fa32950914cf69406d68981618eda",
+          "0f6ea7a0a7b84b4c839ce941a206bace"
+        ],
+        "verdict": "supported"
+      },
+      "gated_verdict": {
+        "reason": "Evaluator evidence must cover every factual claim, not unrelated observations",
+        "feedback": "Evaluator evidence must cover every factual claim, not unrelated observations",
+        "test_kind": "not_tested",
+        "test_evidence_ids": [],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "evidence_ids": [],
+        "verdict": "insufficient"
+      },
+      "passed": false,
+      "spending": {
+        "goal_id": "511e0cdf9e1d474e87ea9041b9f7ce42",
+        "limit_nanos": 250000000,
+        "spent_nanos": 7226000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.007226,
+        "reserved_usd": 0.0,
+        "available_usd": 0.242774,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "failed"
+    },
+    {
+      "name": "review-eval-02/missing-measurement",
+      "mode": "live-reviewer-challenge",
+      "expected_verdicts": [
+        "insufficient"
+      ],
+      "review": {
+        "reason": "The provided evidence (430a5691868f4aee867e506d4b9da883) shows that the benchmark.py source file defines a function for benchmarking a queue but does not contain any results or measurements of CPU time or shares attributable to any part of the workload. There are no empirical measurements or data that compare CPU time spent on the queue versus total workload CPU time. Therefore, there is no basis in evidence to either support or falsify the hypothesis regarding the share of CPU time consumed by the queue. The lack of measurement is correctly identified as an evidence gap: the hypothesis cannot be verified or falsified with the scope as given.",
+        "feedback": "To adjudicate the hypothesis, measured CPU time for both the queue and total workload must be present. Please provide benchmark results or add relevant instrumentation to capture this data.",
+        "test_kind": "absence",
+        "test_evidence_ids": [
+          "430a5691868f4aee867e506d4b9da883"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "evidence_ids": [
+          "430a5691868f4aee867e506d4b9da883"
+        ],
+        "verdict": "insufficient"
+      },
+      "gated_verdict": {
+        "reason": "The provided evidence (430a5691868f4aee867e506d4b9da883) shows that the benchmark.py source file defines a function for benchmarking a queue but does not contain any results or measurements of CPU time or shares attributable to any part of the workload. There are no empirical measurements or data that compare CPU time spent on the queue versus total workload CPU time. Therefore, there is no basis in evidence to either support or falsify the hypothesis regarding the share of CPU time consumed by the queue. The lack of measurement is correctly identified as an evidence gap: the hypothesis cannot be verified or falsified with the scope as given.",
+        "feedback": "To adjudicate the hypothesis, measured CPU time for both the queue and total workload must be present. Please provide benchmark results or add relevant instrumentation to capture this data.",
+        "test_kind": "absence",
+        "test_evidence_ids": [
+          "430a5691868f4aee867e506d4b9da883"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "evidence_ids": [
+          "430a5691868f4aee867e506d4b9da883"
+        ],
+        "verdict": "insufficient"
+      },
+      "passed": true,
+      "spending": {
+        "goal_id": "76578b790fc440a293d62161f65eace3",
+        "limit_nanos": 250000000,
+        "spent_nanos": 5460000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.00546,
+        "reserved_usd": 0.0,
+        "available_usd": 0.24454,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "passed"
+    },
+    {
+      "name": "review-eval-02/partial-scope",
+      "mode": "live-reviewer-challenge",
+      "expected_verdicts": [
+        "falsified",
+        "insufficient"
+      ],
+      "review": {
+        "reason": "The actual evidence only covers the contents of assignor0.py and assignor1.py, each file containing a simple assign function returning list(keys) with no churn computation. No inspection or evidence was provided for assignor2.py through assignor7.py. The hypothesis asserts absence across all eight files, but evidence is only sampled from two. This is an evidence gap: absence in two does not justify absence in all, especially since each file exists and may independently implement logic. Approving the claim on the sampled basis is not justified; full inspection is required for an absence claim over the entire set.",
+        "feedback": "Sampled evidence from only two of eight files cannot establish absence across the full scope. Please review all eight files for churn computation to verify the hypothesis.",
+        "test_kind": "absence",
+        "test_evidence_ids": [
+          "7b32a5c414264d72b1af14c6da056237",
+          "bfcdaac9c9c64854aecab996bb7d39ef"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "evidence_ids": [
+          "7b32a5c414264d72b1af14c6da056237",
+          "bfcdaac9c9c64854aecab996bb7d39ef"
+        ],
+        "verdict": "insufficient"
+      },
+      "gated_verdict": {
+        "reason": "The actual evidence only covers the contents of assignor0.py and assignor1.py, each file containing a simple assign function returning list(keys) with no churn computation. No inspection or evidence was provided for assignor2.py through assignor7.py. The hypothesis asserts absence across all eight files, but evidence is only sampled from two. This is an evidence gap: absence in two does not justify absence in all, especially since each file exists and may independently implement logic. Approving the claim on the sampled basis is not justified; full inspection is required for an absence claim over the entire set.",
+        "feedback": "Sampled evidence from only two of eight files cannot establish absence across the full scope. Please review all eight files for churn computation to verify the hypothesis.",
+        "test_kind": "absence",
+        "test_evidence_ids": [
+          "7b32a5c414264d72b1af14c6da056237",
+          "bfcdaac9c9c64854aecab996bb7d39ef"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "evidence_ids": [
+          "7b32a5c414264d72b1af14c6da056237",
+          "bfcdaac9c9c64854aecab996bb7d39ef"
+        ],
+        "verdict": "insufficient"
+      },
+      "passed": true,
+      "spending": {
+        "goal_id": "79647f32bc674db586d5a84bd4860317",
+        "limit_nanos": 250000000,
+        "spent_nanos": 6338000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.006338,
+        "reserved_usd": 0.0,
+        "available_usd": 0.243662,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "passed"
+    },
+    {
+      "name": "review-eval-02/positive-measurement",
+      "mode": "live-reviewer-challenge",
+      "expected_verdicts": [
+        "supported"
+      ],
+      "review": {
+        "reason": "The evidence from cost.csv (evidence ID: 9fdf606c499440cfb6106bac706bea84) provides a complete additive summary, grouping by 'component' for the entire file, with 'worker' summing to 600 ms and 'other' to 10 ms. The catalog.txt file (2af7f084184c4d0696b98481abc67dcf) confirms the additive measurement context and lack of concurrency, ensuring these totals are directly comparable and representative of the controlled run. No contradictory evidence or other components dominate the sum. The supporting evidence is recent and covers the entire dataset.",
+        "feedback": "All claims are directly and quantitatively supported by a complete data export. The context rules out confounding variables like overlapping durations. The hypothesis is justified.",
+        "test_kind": "measurement",
+        "test_evidence_ids": [
+          "9fdf606c499440cfb6106bac706bea84",
+          "2af7f084184c4d0696b98481abc67dcf"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "evidence_ids": [
+          "9fdf606c499440cfb6106bac706bea84",
+          "2af7f084184c4d0696b98481abc67dcf"
+        ],
+        "verdict": "supported"
+      },
+      "gated_verdict": {
+        "reason": "The evidence from cost.csv (evidence ID: 9fdf606c499440cfb6106bac706bea84) provides a complete additive summary, grouping by 'component' for the entire file, with 'worker' summing to 600 ms and 'other' to 10 ms. The catalog.txt file (2af7f084184c4d0696b98481abc67dcf) confirms the additive measurement context and lack of concurrency, ensuring these totals are directly comparable and representative of the controlled run. No contradictory evidence or other components dominate the sum. The supporting evidence is recent and covers the entire dataset.",
+        "feedback": "All claims are directly and quantitatively supported by a complete data export. The context rules out confounding variables like overlapping durations. The hypothesis is justified.",
+        "test_kind": "measurement",
+        "test_evidence_ids": [
+          "9fdf606c499440cfb6106bac706bea84",
+          "2af7f084184c4d0696b98481abc67dcf"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "evidence_ids": [
+          "9fdf606c499440cfb6106bac706bea84",
+          "2af7f084184c4d0696b98481abc67dcf"
+        ],
+        "verdict": "supported"
+      },
+      "passed": true,
+      "spending": {
+        "goal_id": "3a3474db438048b1824895e6c9d6a8d1",
+        "limit_nanos": 250000000,
+        "spent_nanos": 6932000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.006932,
+        "reserved_usd": 0.0,
+        "available_usd": 0.243068,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "passed"
+    },
+    {
+      "name": "review-eval-03/missing-measurement",
+      "mode": "live-reviewer-challenge",
+      "expected_verdicts": [
+        "insufficient"
+      ],
+      "review": {
+        "reason": "The only evidence is a code listing of 'benchmark.py' showing that the file defines a benchmark function involving a queue, but does not record or report any runtime or CPU share measurements. Thus, there is no measurement of queue CPU time or total workload CPU time provided. Without measured comparative benchmark results, the hypothesis that 'the queue accounts for more than 50 percent of total workload CPU time' is unsupported by the evidence. The absence of any CPU share measurement cannot by itself falsify the bottleneck hypothesis; it establishes an evidence gap rather than evidence of low (<10%) queue CPU. Additionally, the falsification criterion requiring a queue CPU time under 10% of the total cannot be evaluated without measurements.",
+        "feedback": "There are no CPU time measurements of either the queue or total workload in the reported source or evidence. To answer the hypothesis or assess the falsification criterion, add or cite direct comparative benchmark results.",
+        "test_kind": "absence",
+        "test_evidence_ids": [
+          "4ce9fd844cc847658ba36dc2cf1aed52"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": "cpu|time|usage|percent|share|measure|bench",
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The cited evidence does show that 'benchmark.py' defines a queue benchmark but contains no measured CPU shares. This matches the statement and justified classification (evidence gap) for this file.",
+            "evidence_ids": [
+              "4ce9fd844cc847658ba36dc2cf1aed52"
+            ],
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "4ce9fd844cc847658ba36dc2cf1aed52"
+        ],
+        "verdict": "insufficient"
+      },
+      "gated_verdict": {
+        "reason": "The only evidence is a code listing of 'benchmark.py' showing that the file defines a benchmark function involving a queue, but does not record or report any runtime or CPU share measurements. Thus, there is no measurement of queue CPU time or total workload CPU time provided. Without measured comparative benchmark results, the hypothesis that 'the queue accounts for more than 50 percent of total workload CPU time' is unsupported by the evidence. The absence of any CPU share measurement cannot by itself falsify the bottleneck hypothesis; it establishes an evidence gap rather than evidence of low (<10%) queue CPU. Additionally, the falsification criterion requiring a queue CPU time under 10% of the total cannot be evaluated without measurements.",
+        "feedback": "There are no CPU time measurements of either the queue or total workload in the reported source or evidence. To answer the hypothesis or assess the falsification criterion, add or cite direct comparative benchmark results.",
+        "test_kind": "absence",
+        "test_evidence_ids": [
+          "4ce9fd844cc847658ba36dc2cf1aed52"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": "cpu|time|usage|percent|share|measure|bench",
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The cited evidence does show that 'benchmark.py' defines a queue benchmark but contains no measured CPU shares. This matches the statement and justified classification (evidence gap) for this file.",
+            "evidence_ids": [
+              "4ce9fd844cc847658ba36dc2cf1aed52"
+            ],
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "4ce9fd844cc847658ba36dc2cf1aed52"
+        ],
+        "verdict": "insufficient"
+      },
+      "passed": true,
+      "spending": {
+        "goal_id": "7bf7e8719d6d4a88a6da823d7ac62999",
+        "limit_nanos": 250000000,
+        "spent_nanos": 6636000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.006636,
+        "reserved_usd": 0.0,
+        "available_usd": 0.243364,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "passed"
+    },
+    {
+      "name": "review-eval-03/partial-scope",
+      "mode": "live-reviewer-challenge",
+      "expected_verdicts": [
+        "falsified",
+        "insufficient"
+      ],
+      "review": {
+        "reason": "All assignor files except assignor7.py simply define an 'assign' function that returns a list from 'keys', with no evidence of assignment churn computation. However, assignor7.py explicitly computes 'assignment_churn = len(changed_assignments)', which matches an assignment churn computation. This directly falsifies the hypothesis because it requires that none compute churn, but at least one does.",
+        "feedback": "The absence claim for all eight files is not justified; assignment churn is computed in assignor7.py. Please reassess the verdict, and in the future, ensure complete inspection of all relevant files before making an all-encompassing absence claim.",
+        "test_kind": "direct",
+        "test_evidence_ids": [
+          "58da778ea3db4ab3b7c093535677d4b3"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "This claim is partially supported: The two originally inspected files did not compute assignment churn, and the six were not inspected at that time. However, after inspection, assignor7.py does contain churn computation, so the broader claim that none of the eight computes churn is not supported.",
+            "evidence_ids": [
+              "01192730ef204b4a8acfd37c9e718707",
+              "8efeb3a65c4a4096a57d4c55449b2d97",
+              "58da778ea3db4ab3b7c093535677d4b3"
+            ],
+            "supported": false
+          }
+        ],
+        "evidence_ids": [
+          "01192730ef204b4a8acfd37c9e718707",
+          "8efeb3a65c4a4096a57d4c55449b2d97",
+          "87a09b7d10ef419e92df8a5b18bde63c",
+          "768e7b4a8a3d43d48fc519781f2fcad4",
+          "bfab885df3da4c06a4bddf9383f79c06",
+          "2e8c1c524f0e4a5a8c3b80d9bc74d25e",
+          "281b62aa6a044f62a05f86915e3c412a",
+          "58da778ea3db4ab3b7c093535677d4b3"
+        ],
+        "verdict": "falsified"
+      },
+      "gated_verdict": {
+        "reason": "Falsification needs observed counterevidence. Missing measurements or absent support is insufficient",
+        "feedback": "Falsification needs observed counterevidence. Missing measurements or absent support is insufficient",
+        "test_kind": "not_tested",
+        "test_evidence_ids": [],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [],
+        "evidence_ids": [],
+        "verdict": "insufficient"
+      },
+      "passed": true,
+      "spending": {
+        "goal_id": "6d3f91632423444b9950a484f8e0f32d",
+        "limit_nanos": 250000000,
+        "spent_nanos": 13946000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.013946,
+        "reserved_usd": 0.0,
+        "available_usd": 0.236054,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "passed"
+    },
+    {
+      "name": "review-eval-03/positive-measurement",
+      "mode": "live-reviewer-challenge",
+      "expected_verdicts": [
+        "supported"
+      ],
+      "review": {
+        "reason": "The cost.csv evidence shows that in this complete controlled run, the worker component sums to 600 ms in total duration, while the other component sums to 10 ms. The catalog.txt explicitly confirms that these numbers are from a controlled, non-overlapping, additive measurement, not affected by concurrency. There is no evidence that any other component's summed duration equals or exceeds that of worker, satisfying the hypothesis and falsification criterion. Both source claims and operation contract are supported by the exported measurements and the coverage context.",
+        "feedback": "The finding is supported by the CSV summary and explicit documentation of the controlled run; a full-file additive duration export confirms worker's dominance in this context. No contradictory totals are present. Future tests should address impact in production or with different component mixes.",
+        "test_kind": "measurement",
+        "test_evidence_ids": [
+          "8b91fa20fa054f94a83a60f78438db0b",
+          "ff9057f72a0e45d48fab0c9b30456dc5"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The stated sums (worker 600 ms, other 10 ms) are directly confirmed by the cost.csv summary. The context that these are additive durations from a controlled, non-overlapping run is established in catalog.txt. There is no evidence of a third component or of any other component equaling or exceeding worker's total, meeting the required falsification check.",
+            "evidence_ids": [
+              "8b91fa20fa054f94a83a60f78438db0b",
+              "ff9057f72a0e45d48fab0c9b30456dc5"
+            ],
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "8b91fa20fa054f94a83a60f78438db0b",
+          "ff9057f72a0e45d48fab0c9b30456dc5"
+        ],
+        "verdict": "supported"
+      },
+      "gated_verdict": {
+        "reason": "The cost.csv evidence shows that in this complete controlled run, the worker component sums to 600 ms in total duration, while the other component sums to 10 ms. The catalog.txt explicitly confirms that these numbers are from a controlled, non-overlapping, additive measurement, not affected by concurrency. There is no evidence that any other component's summed duration equals or exceeds that of worker, satisfying the hypothesis and falsification criterion. Both source claims and operation contract are supported by the exported measurements and the coverage context.",
+        "feedback": "The finding is supported by the CSV summary and explicit documentation of the controlled run; a full-file additive duration export confirms worker's dominance in this context. No contradictory totals are present. Future tests should address impact in production or with different component mixes.",
+        "test_kind": "measurement",
+        "test_evidence_ids": [
+          "8b91fa20fa054f94a83a60f78438db0b",
+          "ff9057f72a0e45d48fab0c9b30456dc5"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The stated sums (worker 600 ms, other 10 ms) are directly confirmed by the cost.csv summary. The context that these are additive durations from a controlled, non-overlapping run is established in catalog.txt. There is no evidence of a third component or of any other component equaling or exceeding worker's total, meeting the required falsification check.",
+            "evidence_ids": [
+              "8b91fa20fa054f94a83a60f78438db0b",
+              "ff9057f72a0e45d48fab0c9b30456dc5"
+            ],
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "8b91fa20fa054f94a83a60f78438db0b",
+          "ff9057f72a0e45d48fab0c9b30456dc5"
+        ],
+        "verdict": "supported"
+      },
+      "passed": true,
+      "spending": {
+        "goal_id": "cd2ba7f4c45042f1b49eaca79abe076e",
+        "limit_nanos": 250000000,
+        "spent_nanos": 8458000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.008458,
+        "reserved_usd": 0.0,
+        "available_usd": 0.241542,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "passed"
+    },
+    {
+      "name": "review-eval-04/missing-measurement",
+      "mode": "live-reviewer-challenge",
+      "expected_verdicts": [
+        "insufficient"
+      ],
+      "review": {
+        "reason": "The only available evidence is the direct inspection of 'benchmark.py', which defines a benchmark function but contains no code for measuring CPU shares or results of such measurements. There is no benchmark output or data substantiating any claim about the proportion of CPU time the queue accounts for relative to the total workload. Therefore, the hypothesis that 'the queue accounts for more than 50 percent of total workload CPU time' is not supported by any measurement or data in the given material. The falsification criterion is also untestable due to the lack of data. The report's claim correctly identifies an evidence gap; the recommendation to falsify is mistaken because absence of evidence does not constitute evidence of absence.",
+        "feedback": "The entire hypothesis is untestable in this scope because 'benchmark.py' contains no runtime benchmark data or CPU measurements. To resolve this, implement and collect CPU time measurements for both the queue and the total workload, then compare the values as per the hypothesis and its falsifier.",
+        "test_kind": "absence",
+        "test_evidence_ids": [
+          "d6526e56d9e649cb85ecea29fd1d4d99"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": "CPU|time|measure|percent|share",
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The source excerpt confirms that although a queue benchmark function is defined, no runtime or CPU usage measurement is recorded or output. This means no support is provided for any claim about CPU share.",
+            "evidence_ids": [
+              "d6526e56d9e649cb85ecea29fd1d4d99"
+            ],
+            "category": "evidence_gap",
+            "resource_cost": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "d6526e56d9e649cb85ecea29fd1d4d99"
+        ],
+        "verdict": "insufficient"
+      },
+      "gated_verdict": {
+        "reason": "The only available evidence is the direct inspection of 'benchmark.py', which defines a benchmark function but contains no code for measuring CPU shares or results of such measurements. There is no benchmark output or data substantiating any claim about the proportion of CPU time the queue accounts for relative to the total workload. Therefore, the hypothesis that 'the queue accounts for more than 50 percent of total workload CPU time' is not supported by any measurement or data in the given material. The falsification criterion is also untestable due to the lack of data. The report's claim correctly identifies an evidence gap; the recommendation to falsify is mistaken because absence of evidence does not constitute evidence of absence.",
+        "feedback": "The entire hypothesis is untestable in this scope because 'benchmark.py' contains no runtime benchmark data or CPU measurements. To resolve this, implement and collect CPU time measurements for both the queue and the total workload, then compare the values as per the hypothesis and its falsifier.",
+        "test_kind": "absence",
+        "test_evidence_ids": [
+          "d6526e56d9e649cb85ecea29fd1d4d99"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": "CPU|time|measure|percent|share",
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The source excerpt confirms that although a queue benchmark function is defined, no runtime or CPU usage measurement is recorded or output. This means no support is provided for any claim about CPU share.",
+            "evidence_ids": [
+              "d6526e56d9e649cb85ecea29fd1d4d99"
+            ],
+            "category": "evidence_gap",
+            "resource_cost": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "d6526e56d9e649cb85ecea29fd1d4d99"
+        ],
+        "verdict": "insufficient"
+      },
+      "passed": true,
+      "accepted_mechanism": false,
+      "spending": {
+        "goal_id": "1ace4a6830e3493e838292c1a7b889f7",
+        "limit_nanos": 250000000,
+        "spent_nanos": 7592000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.007592,
+        "reserved_usd": 0.0,
+        "available_usd": 0.242408,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "passed"
+    },
+    {
+      "name": "review-eval-04/partial-scope",
+      "mode": "live-reviewer-challenge",
+      "expected_verdicts": [
+        "falsified",
+        "insufficient"
+      ],
+      "review": {
+        "reason": "The only inspected evidence is from assignor0.py and assignor1.py, neither of which compute assignment churn, as directly shown by their very short contents. However, no evidence at all is provided regarding the other six files (assignor2.py through assignor7.py). Thus, the evidence does not justify the hypothesis (\"None of the eight scoped assignors computes assignment churn\") across the full scoped set; absence has not been established in the majority of the files, nor has churn computation been falsified. The claim correctly notes the coverage limitation, but the hypothesis verdict is overbroad for the evidence.",
+        "feedback": "The review must fully inspect all eight assignor files before concluding that churn computation is absent. Currently, only two have been inspected. Please read or search the remaining six files for any computation of assignment churn (such as comparing prior/current assignments, counting assignment changes, etc.), and resubmit the absence claim if none is found.",
+        "test_kind": "not_tested",
+        "test_evidence_ids": [],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The claim accurately states that only two files have been inspected and the other six have not. The claim category 'evidence_gap' is accurate. The supporting evidence IDs reference only assignor0.py and assignor1.py and do not establish anything about the other six assignor files.",
+            "evidence_ids": [
+              "559c9b34881340e495d51b631272f1b0",
+              "294de65a7162445fb4e8549baf20128d"
+            ],
+            "category": "evidence_gap",
+            "resource_cost": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "559c9b34881340e495d51b631272f1b0",
+          "294de65a7162445fb4e8549baf20128d"
+        ],
+        "verdict": "insufficient"
+      },
+      "gated_verdict": {
+        "reason": "The only inspected evidence is from assignor0.py and assignor1.py, neither of which compute assignment churn, as directly shown by their very short contents. However, no evidence at all is provided regarding the other six files (assignor2.py through assignor7.py). Thus, the evidence does not justify the hypothesis (\"None of the eight scoped assignors computes assignment churn\") across the full scoped set; absence has not been established in the majority of the files, nor has churn computation been falsified. The claim correctly notes the coverage limitation, but the hypothesis verdict is overbroad for the evidence.",
+        "feedback": "The review must fully inspect all eight assignor files before concluding that churn computation is absent. Currently, only two have been inspected. Please read or search the remaining six files for any computation of assignment churn (such as comparing prior/current assignments, counting assignment changes, etc.), and resubmit the absence claim if none is found.",
+        "test_kind": "not_tested",
+        "test_evidence_ids": [],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The claim accurately states that only two files have been inspected and the other six have not. The claim category 'evidence_gap' is accurate. The supporting evidence IDs reference only assignor0.py and assignor1.py and do not establish anything about the other six assignor files.",
+            "evidence_ids": [
+              "559c9b34881340e495d51b631272f1b0",
+              "294de65a7162445fb4e8549baf20128d"
+            ],
+            "category": "evidence_gap",
+            "resource_cost": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "559c9b34881340e495d51b631272f1b0",
+          "294de65a7162445fb4e8549baf20128d"
+        ],
+        "verdict": "insufficient"
+      },
+      "passed": true,
+      "accepted_mechanism": false,
+      "spending": {
+        "goal_id": "4272ccf4754143888f5a89c92ebddad6",
+        "limit_nanos": 250000000,
+        "spent_nanos": 8404000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.008404,
+        "reserved_usd": 0.0,
+        "available_usd": 0.241596,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "passed"
+    },
+    {
+      "name": "review-eval-04/positive-measurement",
+      "mode": "live-reviewer-challenge",
+      "expected_verdicts": [
+        "supported"
+      ],
+      "review": {
+        "reason": "The evidence includes an explicit, whole-file numeric summary of the additive \"duration_ms\" grouped by \"component\" in cost.csv. This records worker at 600 ms summed duration, and other at 10 ms. The data is a complete additive measurement under controlled, non-concurrent timing, as described in catalog.txt. No other component has a sum close to or exceeding worker, satisfying the dominance claim. The hypothesis is not falsified because no export shows another component dominating or equaling worker.",
+        "feedback": "The measurement uses a controlled, complete additive dataset. The verdict would change only if additional components with higher sums appeared, or if the run were shown incomplete. To strengthen, clarify that the context is not production and note workload specificity in future claims.",
+        "test_kind": "measurement",
+        "test_evidence_ids": [
+          "910a7329f8b94a22b8232f5f4c08a2ea",
+          "720b1c5bf1e14fd39d0735994d51b436"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The additive sums for 'worker' and 'other' components from the cost.csv summary are 600 ms and 10 ms respectively, and the summary covers all rows. Catalog.txt confirms no concurrency and that the duration is measured per operation. Therefore, the domination claim is fully supported by the evidence for this specific controlled run.",
+            "evidence_ids": [
+              "910a7329f8b94a22b8232f5f4c08a2ea",
+              "720b1c5bf1e14fd39d0735994d51b436"
+            ],
+            "category": "measurement",
+            "resource_cost": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "910a7329f8b94a22b8232f5f4c08a2ea",
+          "720b1c5bf1e14fd39d0735994d51b436"
+        ],
+        "verdict": "supported"
+      },
+      "gated_verdict": {
+        "reason": "The evidence includes an explicit, whole-file numeric summary of the additive \"duration_ms\" grouped by \"component\" in cost.csv. This records worker at 600 ms summed duration, and other at 10 ms. The data is a complete additive measurement under controlled, non-concurrent timing, as described in catalog.txt. No other component has a sum close to or exceeding worker, satisfying the dominance claim. The hypothesis is not falsified because no export shows another component dominating or equaling worker.",
+        "feedback": "The measurement uses a controlled, complete additive dataset. The verdict would change only if additional components with higher sums appeared, or if the run were shown incomplete. To strengthen, clarify that the context is not production and note workload specificity in future claims.",
+        "test_kind": "measurement",
+        "test_evidence_ids": [
+          "910a7329f8b94a22b8232f5f4c08a2ea",
+          "720b1c5bf1e14fd39d0735994d51b436"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The additive sums for 'worker' and 'other' components from the cost.csv summary are 600 ms and 10 ms respectively, and the summary covers all rows. Catalog.txt confirms no concurrency and that the duration is measured per operation. Therefore, the domination claim is fully supported by the evidence for this specific controlled run.",
+            "evidence_ids": [
+              "910a7329f8b94a22b8232f5f4c08a2ea",
+              "720b1c5bf1e14fd39d0735994d51b436"
+            ],
+            "category": "measurement",
+            "resource_cost": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "910a7329f8b94a22b8232f5f4c08a2ea",
+          "720b1c5bf1e14fd39d0735994d51b436"
+        ],
+        "verdict": "supported"
+      },
+      "passed": true,
+      "accepted_mechanism": false,
+      "spending": {
+        "goal_id": "919a9b2518954680a654cf400a2bcec8",
+        "limit_nanos": 250000000,
+        "spent_nanos": 9200000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.0092,
+        "reserved_usd": 0.0,
+        "available_usd": 0.2408,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "passed"
+    },
+    {
+      "name": "review-eval-04/category-trap",
+      "mode": "live-reviewer-challenge",
+      "expected_verdicts": [
+        "insufficient",
+        "supported"
+      ],
+      "review": {
+        "reason": "The scope includes the full content of benchmark.py, which contains a benchmark function that only iterates through records to perform serial queue writes (queue.put(record)) with a comment explicitly confirming that only serial writes are exercised and there are no concurrent readers or timing results. The falsification criterion of finding a concurrent reader or concurrency measurement in scope is not met; there is no such code or comment present.",
+        "feedback": "No concurrent-read workload or concurrency comparison exists in the benchmark.py file. To support efficiency findings about contention under concurrency, you would need a measurable reader interaction or comparative workload, which is currently absent.",
+        "test_kind": "direct",
+        "test_evidence_ids": [
+          "6546bc0d7ece4f3982ed677ae3f5cc09"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The claim is supported by direct inspection of benchmark.py: it only performs serial writes to the queue and states that no concurrent readers or timing are present. No inefficiency or contention can be measured as claimed, only a serial case is exercised.",
+            "evidence_ids": [
+              "6546bc0d7ece4f3982ed677ae3f5cc09"
+            ],
+            "category": "evidence_gap",
+            "resource_cost": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "6546bc0d7ece4f3982ed677ae3f5cc09"
+        ],
+        "verdict": "supported"
+      },
+      "gated_verdict": {
+        "reason": "The scope includes the full content of benchmark.py, which contains a benchmark function that only iterates through records to perform serial queue writes (queue.put(record)) with a comment explicitly confirming that only serial writes are exercised and there are no concurrent readers or timing results. The falsification criterion of finding a concurrent reader or concurrency measurement in scope is not met; there is no such code or comment present.",
+        "feedback": "No concurrent-read workload or concurrency comparison exists in the benchmark.py file. To support efficiency findings about contention under concurrency, you would need a measurable reader interaction or comparative workload, which is currently absent.",
+        "test_kind": "direct",
+        "test_evidence_ids": [
+          "6546bc0d7ece4f3982ed677ae3f5cc09"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The claim is supported by direct inspection of benchmark.py: it only performs serial writes to the queue and states that no concurrent readers or timing are present. No inefficiency or contention can be measured as claimed, only a serial case is exercised.",
+            "evidence_ids": [
+              "6546bc0d7ece4f3982ed677ae3f5cc09"
+            ],
+            "category": "evidence_gap",
+            "resource_cost": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "6546bc0d7ece4f3982ed677ae3f5cc09"
+        ],
+        "verdict": "supported"
+      },
+      "passed": true,
+      "accepted_mechanism": false,
+      "spending": {
+        "goal_id": "9a372370b0e94341944c93ced011a97e",
+        "limit_nanos": 250000000,
+        "spent_nanos": 7006000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.007006,
+        "reserved_usd": 0.0,
+        "available_usd": 0.242994,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "passed"
+    },
+    {
+      "name": "review-eval-05/missing-measurement",
+      "mode": "live-reviewer-challenge",
+      "model": "gpt-4.1",
+      "expected_verdicts": [
+        "insufficient"
+      ],
+      "review": {
+        "reason": "The only finding is that the benchmark defines a queue workload but does not contain any measurement or report about CPU shares attributed to the queue or any other element. The excerpt confirms that there are no measurements of CPU shares or workload division, and thus, there is no actual support for the quantitative hypothesis that the queue accounts for more than 50 percent of total workload CPU time. The falsification criterion also cannot be directly tested, as no measured CPU time data exists for any component. As such, the claimed hypothesis is neither supported nor strictly falsified by any comparative measurement\u2014the evidence is simply missing.",
+        "feedback": "To resolve this, instrument the benchmark to record the measured CPU time attributed to the queue operations and the total CPU time, then provide those comparative results. Without this measurement, the hypothesis cannot be evaluated.",
+        "test_kind": "absence",
+        "test_evidence_ids": [
+          "04bd9d5c31fe49139e7b95157b2c2d66"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The only scoped file defines a queue benchmark but does not report or record CPU share measurements, as confirmed by the full excerpt. Thus, this is an evidence gap without any actual measurement supporting the quantitative claim.",
+            "evidence_ids": [
+              "04bd9d5c31fe49139e7b95157b2c2d66"
+            ],
+            "category": "evidence_gap",
+            "resource_cost": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "04bd9d5c31fe49139e7b95157b2c2d66"
+        ],
+        "verdict": "insufficient"
+      },
+      "gated_verdict": {
+        "reason": "The only finding is that the benchmark defines a queue workload but does not contain any measurement or report about CPU shares attributed to the queue or any other element. The excerpt confirms that there are no measurements of CPU shares or workload division, and thus, there is no actual support for the quantitative hypothesis that the queue accounts for more than 50 percent of total workload CPU time. The falsification criterion also cannot be directly tested, as no measured CPU time data exists for any component. As such, the claimed hypothesis is neither supported nor strictly falsified by any comparative measurement\u2014the evidence is simply missing.",
+        "feedback": "To resolve this, instrument the benchmark to record the measured CPU time attributed to the queue operations and the total CPU time, then provide those comparative results. Without this measurement, the hypothesis cannot be evaluated.",
+        "test_kind": "absence",
+        "test_evidence_ids": [
+          "04bd9d5c31fe49139e7b95157b2c2d66"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The only scoped file defines a queue benchmark but does not report or record CPU share measurements, as confirmed by the full excerpt. Thus, this is an evidence gap without any actual measurement supporting the quantitative claim.",
+            "evidence_ids": [
+              "04bd9d5c31fe49139e7b95157b2c2d66"
+            ],
+            "category": "evidence_gap",
+            "resource_cost": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "04bd9d5c31fe49139e7b95157b2c2d66"
+        ],
+        "verdict": "insufficient"
+      },
+      "passed": true,
+      "accepted_mechanism": false,
+      "spending": {
+        "goal_id": "13f1e104d30a4c8cbdb91bc90e704af1",
+        "limit_nanos": 250000000,
+        "spent_nanos": 7554000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.007554,
+        "reserved_usd": 0.0,
+        "available_usd": 0.242446,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "passed"
+    },
+    {
+      "name": "review-eval-05/partial-scope",
+      "mode": "live-reviewer-challenge",
+      "model": "gpt-4.1",
+      "expected_verdicts": [
+        "falsified",
+        "insufficient"
+      ],
+      "review": {
+        "reason": "The only evidence provided confirms that two out of the eight files (assignor0.py and assignor1.py) do not contain churn computation. However, the files assignor2.py through assignor7.py were not inspected based on the available evidence. Therefore, the hypothesis that \"none of the eight scoped assignors computes assignment churn\" lacks direct evidence for six out of eight files. The report's recommendation to approve absence for all eight based only on two samples overreaches the actual evidence. There is an evidence gap for the remaining uninspected files.",
+        "feedback": "To fully support this absence claim, provide direct evidence for each file (assignor2.py to assignor7.py). Present the actual file content or a verified zero-match search for churn computation in each file.",
+        "test_kind": "not_tested",
+        "test_evidence_ids": [],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "Supported for the claim about the two inspected files, but insufficient for all eight due to lack of inspection data for the remaining six. The factual statement draws a boundary but does not establish absence for the full scope. Correct classification as an evidence gap.",
+            "evidence_ids": [
+              "2848d7131f9242c58cecd226947238b4",
+              "e80c334a953040379a52cf18be2abc48"
+            ],
+            "category": "evidence_gap",
+            "resource_cost": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "2848d7131f9242c58cecd226947238b4",
+          "e80c334a953040379a52cf18be2abc48"
+        ],
+        "verdict": "insufficient"
+      },
+      "gated_verdict": {
+        "reason": "The only evidence provided confirms that two out of the eight files (assignor0.py and assignor1.py) do not contain churn computation. However, the files assignor2.py through assignor7.py were not inspected based on the available evidence. Therefore, the hypothesis that \"none of the eight scoped assignors computes assignment churn\" lacks direct evidence for six out of eight files. The report's recommendation to approve absence for all eight based only on two samples overreaches the actual evidence. There is an evidence gap for the remaining uninspected files.",
+        "feedback": "To fully support this absence claim, provide direct evidence for each file (assignor2.py to assignor7.py). Present the actual file content or a verified zero-match search for churn computation in each file.",
+        "test_kind": "not_tested",
+        "test_evidence_ids": [],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "Supported for the claim about the two inspected files, but insufficient for all eight due to lack of inspection data for the remaining six. The factual statement draws a boundary but does not establish absence for the full scope. Correct classification as an evidence gap.",
+            "evidence_ids": [
+              "2848d7131f9242c58cecd226947238b4",
+              "e80c334a953040379a52cf18be2abc48"
+            ],
+            "category": "evidence_gap",
+            "resource_cost": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "2848d7131f9242c58cecd226947238b4",
+          "e80c334a953040379a52cf18be2abc48"
+        ],
+        "verdict": "insufficient"
+      },
+      "passed": true,
+      "accepted_mechanism": false,
+      "spending": {
+        "goal_id": "b699eecc957d4ed7a11e6b4ccc513ae1",
+        "limit_nanos": 250000000,
+        "spent_nanos": 8268000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.008268,
+        "reserved_usd": 0.0,
+        "available_usd": 0.241732,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "passed"
+    },
+    {
+      "name": "review-eval-05/positive-measurement",
+      "mode": "live-reviewer-challenge",
+      "model": "gpt-4.1",
+      "expected_verdicts": [
+        "supported"
+      ],
+      "review": {
+        "reason": "The evidence includes an explicit structured summary of the CSV export that shows the worker component has a summed duration of 600 ms, whereas the other component has a summed duration of 10 ms. The complete file is summarized from row 1 and includes all rows (3 total). The catalog.txt file clearly states that these durations come from a complete, controlled additive-measurement run of elapsed milliseconds per operation, with no concurrency or overlap, confirming the context. All parts of the finding are directly supported by measurement and metadata, and there is no evidence of any other component meeting or exceeding the worker's summed duration, nor any exclusion of relevant data. The claim is thus justified and bounded to this controlled run.",
+        "feedback": "All parts of the stated finding are supported by complete, directly measured, and contextually explained data. No further evidence is required for the claim as written.",
+        "test_kind": "measurement",
+        "test_evidence_ids": [
+          "92cf94dad42940339e55049d1edf5535",
+          "ab4d4ec17b1a4c15bc8229b816aafd49"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The CSV measurement export shows worker totals 600 ms and other totals 10 ms under controlled additive measurement with no concurrency, as confirmed in both the data and catalog explanation. This supports the claim that worker dominates summed elapsed duration in the measured run.",
+            "evidence_ids": [
+              "92cf94dad42940339e55049d1edf5535",
+              "ab4d4ec17b1a4c15bc8229b816aafd49"
+            ],
+            "category": "measurement",
+            "resource_cost": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "92cf94dad42940339e55049d1edf5535",
+          "ab4d4ec17b1a4c15bc8229b816aafd49"
+        ],
+        "verdict": "supported"
+      },
+      "gated_verdict": {
+        "reason": "The evidence includes an explicit structured summary of the CSV export that shows the worker component has a summed duration of 600 ms, whereas the other component has a summed duration of 10 ms. The complete file is summarized from row 1 and includes all rows (3 total). The catalog.txt file clearly states that these durations come from a complete, controlled additive-measurement run of elapsed milliseconds per operation, with no concurrency or overlap, confirming the context. All parts of the finding are directly supported by measurement and metadata, and there is no evidence of any other component meeting or exceeding the worker's summed duration, nor any exclusion of relevant data. The claim is thus justified and bounded to this controlled run.",
+        "feedback": "All parts of the stated finding are supported by complete, directly measured, and contextually explained data. No further evidence is required for the claim as written.",
+        "test_kind": "measurement",
+        "test_evidence_ids": [
+          "92cf94dad42940339e55049d1edf5535",
+          "ab4d4ec17b1a4c15bc8229b816aafd49"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The CSV measurement export shows worker totals 600 ms and other totals 10 ms under controlled additive measurement with no concurrency, as confirmed in both the data and catalog explanation. This supports the claim that worker dominates summed elapsed duration in the measured run.",
+            "evidence_ids": [
+              "92cf94dad42940339e55049d1edf5535",
+              "ab4d4ec17b1a4c15bc8229b816aafd49"
+            ],
+            "category": "measurement",
+            "resource_cost": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "92cf94dad42940339e55049d1edf5535",
+          "ab4d4ec17b1a4c15bc8229b816aafd49"
+        ],
+        "verdict": "supported"
+      },
+      "passed": true,
+      "accepted_mechanism": false,
+      "spending": {
+        "goal_id": "f81e489c3ff14ec9a25d2a64337915b0",
+        "limit_nanos": 250000000,
+        "spent_nanos": 9330000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.00933,
+        "reserved_usd": 0.0,
+        "available_usd": 0.24067,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "passed"
+    },
+    {
+      "name": "review-eval-05/category-trap",
+      "mode": "live-reviewer-challenge",
+      "model": "gpt-4.1",
+      "expected_verdicts": [
+        "insufficient",
+        "supported"
+      ],
+      "review": {
+        "reason": "The supplied evidence shows that the benchmark iterates over records and writes them to a queue, with an explicit comment stating it exercises serial writes only and has no concurrent readers or timing. There is no observed code or reference to a concurrent-read interaction, nor any concurrency comparison. Therefore, the finding that contention remains unmeasured and no inefficiency is established is accurate, but the category should be evidence_gap, not mechanism, since no explicit waste or resource cost is demonstrated.",
+        "feedback": "The claim is mislabeled as mechanism. The evidence supports only an evidence_gap: it confirms only the lack of a concurrent-read test and unmeasured contention, not any concrete inefficiency. Revise the category and ensure future mechanism claims establish a workload, wasted resource, and a means of falsification.",
+        "test_kind": "direct",
+        "test_evidence_ids": [
+          "4fec5dfd08594a6086ab3d79554eb3cc"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The statement that contention remains unmeasured due to absent concurrent-read interaction is supported by the benchmark code and comment. However, since there is no demonstrated inefficiency or resource cost, this is at most an evidence_gap, not a mechanism finding.",
+            "evidence_ids": [
+              "4fec5dfd08594a6086ab3d79554eb3cc"
+            ],
+            "category": "evidence_gap",
+            "resource_cost": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "4fec5dfd08594a6086ab3d79554eb3cc"
+        ],
+        "verdict": "supported"
+      },
+      "gated_verdict": {
+        "reason": "The supplied evidence shows that the benchmark iterates over records and writes them to a queue, with an explicit comment stating it exercises serial writes only and has no concurrent readers or timing. There is no observed code or reference to a concurrent-read interaction, nor any concurrency comparison. Therefore, the finding that contention remains unmeasured and no inefficiency is established is accurate, but the category should be evidence_gap, not mechanism, since no explicit waste or resource cost is demonstrated.",
+        "feedback": "The claim is mislabeled as mechanism. The evidence supports only an evidence_gap: it confirms only the lack of a concurrent-read test and unmeasured contention, not any concrete inefficiency. Revise the category and ensure future mechanism claims establish a workload, wasted resource, and a means of falsification.",
+        "test_kind": "direct",
+        "test_evidence_ids": [
+          "4fec5dfd08594a6086ab3d79554eb3cc"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The statement that contention remains unmeasured due to absent concurrent-read interaction is supported by the benchmark code and comment. However, since there is no demonstrated inefficiency or resource cost, this is at most an evidence_gap, not a mechanism finding.",
+            "evidence_ids": [
+              "4fec5dfd08594a6086ab3d79554eb3cc"
+            ],
+            "category": "evidence_gap",
+            "resource_cost": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "4fec5dfd08594a6086ab3d79554eb3cc"
+        ],
+        "verdict": "supported"
+      },
+      "passed": true,
+      "accepted_mechanism": false,
+      "spending": {
+        "goal_id": "1b638a5f339b4e56b4f39e16358a8afd",
+        "limit_nanos": 250000000,
+        "spent_nanos": 4846000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.004846,
+        "reserved_usd": 0.0,
+        "available_usd": 0.245154,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "passed"
+    },
+    {
+      "name": "review-eval-05/benchmark-definition-trap",
+      "mode": "live-reviewer-challenge",
+      "model": "gpt-4.1",
+      "expected_verdicts": [
+        "insufficient",
+        "supported"
+      ],
+      "review": {
+        "reason": "The supplied evidence excerpt from 'benchmark.py' directly shows that the benchmark defines a parameterized workload via the list SIZES = [10,100,1000], and iterates over each value of size to perform cache.get on keys[:size]. This establishes both a parameterized workload (by 'size') and repeated cache lookups (by calling cache.get). The mechanism claim is correctly classified, with a concrete code path and explicit workload. No contradictory evidence was found, and the falsification criterion ('no parameterized workload or cache lookups') is not met: both parameterization and cache lookup are present.",
+        "feedback": "Finding 0 is fully supported by the code provided in benchmark.py, which shows parameterized cache lookup workloads as described. No further evidence is needed for definition; however, measuring resource usage or inefficiency for these workloads would require actual benchmark results.",
+        "test_kind": "direct",
+        "test_evidence_ids": [
+          "7e4b41a8635940a39f82e14719a5c920"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The 'benchmark.py' code defines SIZES = [10,100,1000], and uses them to parameterize the number of keys passed to cache.get, thus establishing a parameterized workload of cache lookups. This matches the entire claim for both parameterization and lookup mechanism.",
+            "evidence_ids": [
+              "7e4b41a8635940a39f82e14719a5c920"
+            ],
+            "category": "mechanism",
+            "resource_cost": "Runtime increases with the size used for cache.get operations, as explicitly parameterized.",
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "7e4b41a8635940a39f82e14719a5c920"
+        ],
+        "verdict": "supported"
+      },
+      "gated_verdict": {
+        "reason": "The supplied evidence excerpt from 'benchmark.py' directly shows that the benchmark defines a parameterized workload via the list SIZES = [10,100,1000], and iterates over each value of size to perform cache.get on keys[:size]. This establishes both a parameterized workload (by 'size') and repeated cache lookups (by calling cache.get). The mechanism claim is correctly classified, with a concrete code path and explicit workload. No contradictory evidence was found, and the falsification criterion ('no parameterized workload or cache lookups') is not met: both parameterization and cache lookup are present.",
+        "feedback": "Finding 0 is fully supported by the code provided in benchmark.py, which shows parameterized cache lookup workloads as described. No further evidence is needed for definition; however, measuring resource usage or inefficiency for these workloads would require actual benchmark results.",
+        "test_kind": "direct",
+        "test_evidence_ids": [
+          "7e4b41a8635940a39f82e14719a5c920"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The 'benchmark.py' code defines SIZES = [10,100,1000], and uses them to parameterize the number of keys passed to cache.get, thus establishing a parameterized workload of cache lookups. This matches the entire claim for both parameterization and lookup mechanism.",
+            "evidence_ids": [
+              "7e4b41a8635940a39f82e14719a5c920"
+            ],
+            "category": "mechanism",
+            "resource_cost": "Runtime increases with the size used for cache.get operations, as explicitly parameterized.",
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "7e4b41a8635940a39f82e14719a5c920"
+        ],
+        "verdict": "supported"
+      },
+      "passed": false,
+      "accepted_mechanism": true,
+      "spending": {
+        "goal_id": "67464dfb4f2a4cdfb00393f1b5c8e8ed",
+        "limit_nanos": 250000000,
+        "spent_nanos": 7918000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.007918,
+        "reserved_usd": 0.0,
+        "available_usd": 0.242082,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "failed"
+    },
+    {
+      "name": "review-eval-05/positive-code-mechanism",
+      "mode": "live-reviewer-challenge",
+      "model": "gpt-4.1",
+      "expected_verdicts": [
+        "supported"
+      ],
+      "review": {
+        "reason": "The evidence includes the complete implementation of the `counts` function, which is defined as `return [keys.count(key) for key in keys]`. In Python, `list.count(x)` performs a full scan of the list to count occurrences of `x`. The contract explicitly states that `keys` is an ordinary Python list and that `list.count` performs a full list scan, with no cached index. For N unique keys, this results in N separate full traversals of the list, confirming the quadratic traversal work described in the claim. There is no evidence of a cached index or a single pass counting all frequencies. Thus, the entire mechanism claim is supported by the direct source code and contract evidence.",
+        "feedback": "All elements of the mechanism claim are supported by the code and contract: counts uses list.count for each key, producing repeated list scans; there is no cached index or single-pass mechanism present.",
+        "test_kind": "direct",
+        "test_evidence_ids": [
+          "f10ec625e4444898bf6e00c3d7aaf478",
+          "9faf359768e9431fb488bb77e10c704b"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The code for `counts` clearly shows it uses `keys.count(key)` for every key, and the contract reinforces that `list.count` is a full scan with no caching. This establishes N full list traversals for N unique keys. No evidence contradicts this, and no alternative mechanism is implemented or referenced.",
+            "evidence_ids": [
+              "f10ec625e4444898bf6e00c3d7aaf478",
+              "9faf359768e9431fb488bb77e10c704b"
+            ],
+            "category": "mechanism",
+            "resource_cost": "Quadratic list traversal: N unique keys cause N list.count full scans, rather than a single frequency-counting pass",
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "f10ec625e4444898bf6e00c3d7aaf478",
+          "9faf359768e9431fb488bb77e10c704b"
+        ],
+        "verdict": "supported"
+      },
+      "gated_verdict": {
+        "reason": "The evidence includes the complete implementation of the `counts` function, which is defined as `return [keys.count(key) for key in keys]`. In Python, `list.count(x)` performs a full scan of the list to count occurrences of `x`. The contract explicitly states that `keys` is an ordinary Python list and that `list.count` performs a full list scan, with no cached index. For N unique keys, this results in N separate full traversals of the list, confirming the quadratic traversal work described in the claim. There is no evidence of a cached index or a single pass counting all frequencies. Thus, the entire mechanism claim is supported by the direct source code and contract evidence.",
+        "feedback": "All elements of the mechanism claim are supported by the code and contract: counts uses list.count for each key, producing repeated list scans; there is no cached index or single-pass mechanism present.",
+        "test_kind": "direct",
+        "test_evidence_ids": [
+          "f10ec625e4444898bf6e00c3d7aaf478",
+          "9faf359768e9431fb488bb77e10c704b"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The code for `counts` clearly shows it uses `keys.count(key)` for every key, and the contract reinforces that `list.count` is a full scan with no caching. This establishes N full list traversals for N unique keys. No evidence contradicts this, and no alternative mechanism is implemented or referenced.",
+            "evidence_ids": [
+              "f10ec625e4444898bf6e00c3d7aaf478",
+              "9faf359768e9431fb488bb77e10c704b"
+            ],
+            "category": "mechanism",
+            "resource_cost": "Quadratic list traversal: N unique keys cause N list.count full scans, rather than a single frequency-counting pass",
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "f10ec625e4444898bf6e00c3d7aaf478",
+          "9faf359768e9431fb488bb77e10c704b"
+        ],
+        "verdict": "supported"
+      },
+      "passed": true,
+      "accepted_mechanism": true,
+      "spending": {
+        "goal_id": "83ea84d6468b40e3828e1876c80209d5",
+        "limit_nanos": 250000000,
+        "spent_nanos": 8938000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.008938,
+        "reserved_usd": 0.0,
+        "available_usd": 0.241062,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "passed"
+    },
+    {
+      "name": "review-eval-06/missing-measurement",
+      "mode": "live-reviewer-challenge",
+      "model": "gpt-5.3-codex",
+      "expected_verdicts": [
+        "insufficient"
+      ],
+      "review": {
+        "reason": "The available evidence only shows a tiny benchmark function that enqueues records; it does not provide any CPU-time measurements or queue-vs-total workload share. Without measured shares, the hypothesis (>50%) is untested, and the stated falsification condition (<10%) is also untested. Therefore, the report\u2019s recommendation to falsify based on missing measurements is not justified.",
+        "feedback": "Finding 0 is supported as an evidence gap, but the final hypothesis verdict should be corrected: missing comparative CPU results is insufficient evidence, not falsification. Bounded follow-up: run a workload-representative CPU profiler/benchmark that reports total CPU time and queue-attributable CPU time in the same measurement window, then evaluate against both thresholds (>50% supports; <10% falsifies).",
+        "test_kind": "not_tested",
+        "test_evidence_ids": [
+          "dc884cf3fc274e44870b2ffbbc506040"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The file defines `benchmark(queue, records)` and performs `queue.put(record)` in a loop, and there are no CPU share measurements or recorded runtime percentages in the scoped file.",
+            "evidence_ids": [
+              "dc884cf3fc274e44870b2ffbbc506040"
+            ],
+            "category": "evidence_gap",
+            "resource_cost": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "dc884cf3fc274e44870b2ffbbc506040"
+        ],
+        "verdict": "insufficient"
+      },
+      "gated_verdict": {
+        "reason": "The available evidence only shows a tiny benchmark function that enqueues records; it does not provide any CPU-time measurements or queue-vs-total workload share. Without measured shares, the hypothesis (>50%) is untested, and the stated falsification condition (<10%) is also untested. Therefore, the report\u2019s recommendation to falsify based on missing measurements is not justified.",
+        "feedback": "Finding 0 is supported as an evidence gap, but the final hypothesis verdict should be corrected: missing comparative CPU results is insufficient evidence, not falsification. Bounded follow-up: run a workload-representative CPU profiler/benchmark that reports total CPU time and queue-attributable CPU time in the same measurement window, then evaluate against both thresholds (>50% supports; <10% falsifies).",
+        "test_kind": "not_tested",
+        "test_evidence_ids": [
+          "dc884cf3fc274e44870b2ffbbc506040"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The file defines `benchmark(queue, records)` and performs `queue.put(record)` in a loop, and there are no CPU share measurements or recorded runtime percentages in the scoped file.",
+            "evidence_ids": [
+              "dc884cf3fc274e44870b2ffbbc506040"
+            ],
+            "category": "evidence_gap",
+            "resource_cost": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "dc884cf3fc274e44870b2ffbbc506040"
+        ],
+        "verdict": "insufficient"
+      },
+      "passed": true,
+      "accepted_mechanism": false,
+      "spending": {
+        "goal_id": "f76caf15e23142578c0ea51a00be8cdf",
+        "limit_nanos": 250000000,
+        "spent_nanos": 15140300,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.0151403,
+        "reserved_usd": 0.0,
+        "available_usd": 0.2348597,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "passed"
+    },
+    {
+      "name": "review-eval-06/partial-scope",
+      "mode": "live-reviewer-challenge",
+      "model": "gpt-5.3-codex",
+      "expected_verdicts": [
+        "falsified",
+        "insufficient"
+      ],
+      "review": {
+        "reason": "The hypothesis is contradicted by direct source evidence: `assignor7.py` explicitly computes `assignment_churn = len(changed_assignments)`, which satisfies the falsification criterion (\u201cAny scoped file computes assignment churn\u201d). Therefore \u201cNone of the eight scoped assignors computes assignment churn\u201d is false.",
+        "feedback": "Do not approve the global absence claim from two-file sampling. The scoped set was fully checkable, and one of the previously uninspected files (`assignor7.py`) contains an explicit churn computation. Correct the conclusion to reflect this counterexample.",
+        "test_kind": "counterexample",
+        "test_evidence_ids": [
+          "48c9b69d65a84564bece2f3846aeb9bd"
+        ],
+        "counterevidence_ids": [
+          "48c9b69d65a84564bece2f3846aeb9bd"
+        ],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "Supported as a bounded process/coverage statement: the cited evidence for the finding only covers `assignor0.py` and `assignor1.py`, both showing no churn computation. This does not support a claim about all eight files.",
+            "evidence_ids": [
+              "8423bbf5ba384da0b03dcf5867cbf7a4",
+              "aab802e9d52a4a488f5adbd1a8b6fbac"
+            ],
+            "category": "evidence_gap",
+            "resource_cost": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "48c9b69d65a84564bece2f3846aeb9bd",
+          "8423bbf5ba384da0b03dcf5867cbf7a4",
+          "aab802e9d52a4a488f5adbd1a8b6fbac"
+        ],
+        "verdict": "falsified"
+      },
+      "gated_verdict": {
+        "reason": "The hypothesis is contradicted by direct source evidence: `assignor7.py` explicitly computes `assignment_churn = len(changed_assignments)`, which satisfies the falsification criterion (\u201cAny scoped file computes assignment churn\u201d). Therefore \u201cNone of the eight scoped assignors computes assignment churn\u201d is false.",
+        "feedback": "Do not approve the global absence claim from two-file sampling. The scoped set was fully checkable, and one of the previously uninspected files (`assignor7.py`) contains an explicit churn computation. Correct the conclusion to reflect this counterexample.",
+        "test_kind": "counterexample",
+        "test_evidence_ids": [
+          "48c9b69d65a84564bece2f3846aeb9bd"
+        ],
+        "counterevidence_ids": [
+          "48c9b69d65a84564bece2f3846aeb9bd"
+        ],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "Supported as a bounded process/coverage statement: the cited evidence for the finding only covers `assignor0.py` and `assignor1.py`, both showing no churn computation. This does not support a claim about all eight files.",
+            "evidence_ids": [
+              "8423bbf5ba384da0b03dcf5867cbf7a4",
+              "aab802e9d52a4a488f5adbd1a8b6fbac"
+            ],
+            "category": "evidence_gap",
+            "resource_cost": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "48c9b69d65a84564bece2f3846aeb9bd",
+          "8423bbf5ba384da0b03dcf5867cbf7a4",
+          "aab802e9d52a4a488f5adbd1a8b6fbac"
+        ],
+        "verdict": "falsified"
+      },
+      "passed": true,
+      "accepted_mechanism": false,
+      "spending": {
+        "goal_id": "7893b6b4a4f246a8924bee9bca0f65d0",
+        "limit_nanos": 250000000,
+        "spent_nanos": 21620550,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.02162055,
+        "reserved_usd": 0.0,
+        "available_usd": 0.22837945,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "passed"
+    },
+    {
+      "name": "review-eval-06/positive-measurement",
+      "mode": "live-reviewer-challenge",
+      "model": "gpt-5.3-codex",
+      "expected_verdicts": [
+        "supported"
+      ],
+      "review": {
+        "reason": "The cited CSV aggregate is whole-file (start_row=1, partial=false, whole_file=true) and shows worker=600 ms vs other=10 ms, and the catalog explicitly states this is a complete controlled additive run with no overlap. That directly supports the hypothesis as stated for this run/export.",
+        "feedback": "Conclusion is justified for the bounded scope: this controlled run\u2019s additive duration export. Keep wording constrained to this dataset (not production impact).",
+        "test_kind": "measurement",
+        "test_evidence_ids": [
+          "37079f126255406e812b936954459ae1",
+          "64dacaed3fb949109370a7956ab309ee"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The finding\u2019s full conjunction is supported: (a) worker sum is 600 ms, (b) other sum is 10 ms, and (c) in this controlled additive export that means worker dominates total elapsed duration.",
+            "evidence_ids": [
+              "37079f126255406e812b936954459ae1",
+              "64dacaed3fb949109370a7956ab309ee"
+            ],
+            "category": "measurement",
+            "resource_cost": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "37079f126255406e812b936954459ae1",
+          "64dacaed3fb949109370a7956ab309ee"
+        ],
+        "verdict": "supported"
+      },
+      "gated_verdict": {
+        "reason": "The cited CSV aggregate is whole-file (start_row=1, partial=false, whole_file=true) and shows worker=600 ms vs other=10 ms, and the catalog explicitly states this is a complete controlled additive run with no overlap. That directly supports the hypothesis as stated for this run/export.",
+        "feedback": "Conclusion is justified for the bounded scope: this controlled run\u2019s additive duration export. Keep wording constrained to this dataset (not production impact).",
+        "test_kind": "measurement",
+        "test_evidence_ids": [
+          "37079f126255406e812b936954459ae1",
+          "64dacaed3fb949109370a7956ab309ee"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The finding\u2019s full conjunction is supported: (a) worker sum is 600 ms, (b) other sum is 10 ms, and (c) in this controlled additive export that means worker dominates total elapsed duration.",
+            "evidence_ids": [
+              "37079f126255406e812b936954459ae1",
+              "64dacaed3fb949109370a7956ab309ee"
+            ],
+            "category": "measurement",
+            "resource_cost": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "37079f126255406e812b936954459ae1",
+          "64dacaed3fb949109370a7956ab309ee"
+        ],
+        "verdict": "supported"
+      },
+      "passed": true,
+      "accepted_mechanism": false,
+      "spending": {
+        "goal_id": "27331aba6fcc4f77aa510b1b53d47b04",
+        "limit_nanos": 250000000,
+        "spent_nanos": 11508000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.011508,
+        "reserved_usd": 0.0,
+        "available_usd": 0.238492,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "passed"
+    },
+    {
+      "name": "review-eval-06/category-trap",
+      "mode": "live-reviewer-challenge",
+      "model": "gpt-5.3-codex",
+      "expected_verdicts": [
+        "insufficient",
+        "supported"
+      ],
+      "review": {
+        "reason": "The scoped source (`benchmark.py`) shows a single `benchmark(queue, records)` loop that only performs `queue.put(record)` for each record, with no reader logic, no concurrent execution construct, and no measured comparison between serial vs concurrent-read behavior in scope. That supports the hypothesis as stated. The report\u2019s core factual observation is supported, but its finding category is mislabeled: this is an evidence-coverage gap, not a demonstrated runtime inefficiency mechanism.",
+        "feedback": "Keep the claim bounded to what is demonstrated: the benchmark covers serial writes only and lacks a concurrent-read comparison. Reclassify the finding from `mechanism` to `evidence_gap` (or observation) unless you add workload-linked runtime evidence showing actual wasted resources under contention.",
+        "test_kind": "direct",
+        "test_evidence_ids": [
+          "cbf0f80b9ecf4b57934f4bff4ef605b4"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The statement is supported in scope: code shows serial `queue.put` writes only; no concurrent reader path or concurrency comparison is present, so contention is unmeasured and inefficiency is not established by this benchmark alone.",
+            "evidence_ids": [
+              "cbf0f80b9ecf4b57934f4bff4ef605b4"
+            ],
+            "category": "evidence_gap",
+            "resource_cost": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "cbf0f80b9ecf4b57934f4bff4ef605b4"
+        ],
+        "verdict": "supported"
+      },
+      "gated_verdict": {
+        "reason": "The scoped source (`benchmark.py`) shows a single `benchmark(queue, records)` loop that only performs `queue.put(record)` for each record, with no reader logic, no concurrent execution construct, and no measured comparison between serial vs concurrent-read behavior in scope. That supports the hypothesis as stated. The report\u2019s core factual observation is supported, but its finding category is mislabeled: this is an evidence-coverage gap, not a demonstrated runtime inefficiency mechanism.",
+        "feedback": "Keep the claim bounded to what is demonstrated: the benchmark covers serial writes only and lacks a concurrent-read comparison. Reclassify the finding from `mechanism` to `evidence_gap` (or observation) unless you add workload-linked runtime evidence showing actual wasted resources under contention.",
+        "test_kind": "direct",
+        "test_evidence_ids": [
+          "cbf0f80b9ecf4b57934f4bff4ef605b4"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The statement is supported in scope: code shows serial `queue.put` writes only; no concurrent reader path or concurrency comparison is present, so contention is unmeasured and inefficiency is not established by this benchmark alone.",
+            "evidence_ids": [
+              "cbf0f80b9ecf4b57934f4bff4ef605b4"
+            ],
+            "category": "evidence_gap",
+            "resource_cost": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "cbf0f80b9ecf4b57934f4bff4ef605b4"
+        ],
+        "verdict": "supported"
+      },
+      "passed": true,
+      "accepted_mechanism": false,
+      "spending": {
+        "goal_id": "24583112a8bf44799a8e3abaea5ecd18",
+        "limit_nanos": 250000000,
+        "spent_nanos": 16596300,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.0165963,
+        "reserved_usd": 0.0,
+        "available_usd": 0.2334037,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "passed"
+    },
+    {
+      "name": "review-eval-06/benchmark-definition-trap",
+      "mode": "live-reviewer-challenge",
+      "model": "gpt-5.3-codex",
+      "expected_verdicts": [
+        "insufficient",
+        "supported"
+      ],
+      "review": {
+        "reason": "Direct inspection of the only scoped source (`benchmark.py`) confirms a parameterized workload list (`SIZES = [10,100,1000]`) and cache lookups performed per size (`for size in SIZES` ... `cache.get(key)`). This supports the hypothesis that the benchmark defines parameterized cache lookup workload sizes. However, the finding\u2019s mechanism framing overreaches because no explicit wasted-resource impact is demonstrated or measured.",
+        "feedback": "Keep the hypothesis verdict as supported, but correct the finding wording/category: this is a code-level workload definition observation, not a validated runtime-cost inefficiency mechanism. If you want a mechanism claim, add explicit resource-cost evidence under a stated workload (e.g., excess calls, time, I/O, contention) and a falsifiable measurement comparison.",
+        "test_kind": "direct",
+        "test_evidence_ids": [
+          "e063c1c1e9e14c168dbb5be9e6a3b736"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The code does show parameterized cache lookup sizes 10/100/1000 and lookup execution, but the statement\u2019s 'runtime-cost mechanisms' wording implies a validated inefficiency/resource waste that is not evidenced here.",
+            "evidence_ids": [
+              "e063c1c1e9e14c168dbb5be9e6a3b736"
+            ],
+            "category": "observation",
+            "resource_cost": null,
+            "supported": false
+          }
+        ],
+        "evidence_ids": [
+          "e063c1c1e9e14c168dbb5be9e6a3b736"
+        ],
+        "verdict": "supported"
+      },
+      "gated_verdict": {
+        "reason": "Claim review is unsupported or bound to unrelated evidence",
+        "feedback": "Claim review is unsupported or bound to unrelated evidence",
+        "test_kind": "not_tested",
+        "test_evidence_ids": [],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [],
+        "evidence_ids": [],
+        "verdict": "insufficient"
+      },
+      "passed": true,
+      "accepted_mechanism": false,
+      "spending": {
+        "goal_id": "fad741e2291d4d00b45724047042100d",
+        "limit_nanos": 250000000,
+        "spent_nanos": 17132850,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.01713285,
+        "reserved_usd": 0.0,
+        "available_usd": 0.23286715,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "passed"
+    },
+    {
+      "name": "review-eval-06/positive-code-mechanism",
+      "mode": "live-reviewer-challenge",
+      "model": "gpt-5.3-codex",
+      "expected_verdicts": [
+        "supported"
+      ],
+      "review": {
+        "reason": "The scoped code and contract directly support the hypothesis at the stated bounded level. `counts` iterates over every key and calls `keys.count(key)` each iteration, and the contract specifies the workload (`N` unique keys) plus that `list.count` scans the list with no cached index. Under that workload, this yields `N` full-list scans instead of a single frequency-counting pass.",
+        "feedback": "Assessment is sufficient for the bounded mechanism claim in scope (`count.py` + `contract.txt`). Keep any future optimization/performance benefit claims separate and measurement-backed, since none are asserted here.",
+        "test_kind": "direct",
+        "test_evidence_ids": [
+          "27a5845bc4774b719d2860bba5219f8a",
+          "7e79ec5226364a7798e9aaf07bcbed72"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "Supported as a mechanism claim within the explicit workload: the code performs `keys.count(key)` for each key in `keys`, and the contract states keys are unique and `list.count` scans the list with no cached index. That establishes repeated full scans (N scans for N unique keys), i.e., quadratic traversal work versus a single-pass frequency map approach.",
+            "evidence_ids": [
+              "27a5845bc4774b719d2860bba5219f8a",
+              "7e79ec5226364a7798e9aaf07bcbed72"
+            ],
+            "category": "mechanism",
+            "resource_cost": "Wasted CPU traversal work: repeated O(N) list scans executed N times (O(N^2) element visits) instead of one O(N) counting pass.",
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "27a5845bc4774b719d2860bba5219f8a",
+          "7e79ec5226364a7798e9aaf07bcbed72"
+        ],
+        "verdict": "supported"
+      },
+      "gated_verdict": {
+        "reason": "The scoped code and contract directly support the hypothesis at the stated bounded level. `counts` iterates over every key and calls `keys.count(key)` each iteration, and the contract specifies the workload (`N` unique keys) plus that `list.count` scans the list with no cached index. Under that workload, this yields `N` full-list scans instead of a single frequency-counting pass.",
+        "feedback": "Assessment is sufficient for the bounded mechanism claim in scope (`count.py` + `contract.txt`). Keep any future optimization/performance benefit claims separate and measurement-backed, since none are asserted here.",
+        "test_kind": "direct",
+        "test_evidence_ids": [
+          "27a5845bc4774b719d2860bba5219f8a",
+          "7e79ec5226364a7798e9aaf07bcbed72"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "Supported as a mechanism claim within the explicit workload: the code performs `keys.count(key)` for each key in `keys`, and the contract states keys are unique and `list.count` scans the list with no cached index. That establishes repeated full scans (N scans for N unique keys), i.e., quadratic traversal work versus a single-pass frequency map approach.",
+            "evidence_ids": [
+              "27a5845bc4774b719d2860bba5219f8a",
+              "7e79ec5226364a7798e9aaf07bcbed72"
+            ],
+            "category": "mechanism",
+            "resource_cost": "Wasted CPU traversal work: repeated O(N) list scans executed N times (O(N^2) element visits) instead of one O(N) counting pass.",
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "27a5845bc4774b719d2860bba5219f8a",
+          "7e79ec5226364a7798e9aaf07bcbed72"
+        ],
+        "verdict": "supported"
+      },
+      "passed": true,
+      "accepted_mechanism": true,
+      "spending": {
+        "goal_id": "5ef2987ddc494f1cb7124ca333f4459c",
+        "limit_nanos": 250000000,
+        "spent_nanos": 11211550,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.01121155,
+        "reserved_usd": 0.0,
+        "available_usd": 0.23878845,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "passed"
+    },
+    {
+      "name": "review-eval-07/missing-measurement",
+      "mode": "live-reviewer-challenge",
+      "model": "gpt-5.3-codex",
+      "expected_verdicts": [
+        "insufficient"
+      ],
+      "review": {
+        "reason": "The available evidence only shows benchmark.py defines a simple queue workload loop and does not include any CPU-share measurements in that file. That is an evidence gap, not a measured contradiction of the hypothesis. The falsification criterion requires a measurement (<10% queue CPU), which is not present.",
+        "feedback": "Do not mark the hypothesis falsified based on missing comparative results alone. Run a bounded measurement on the stated workload that reports both queue CPU time and total workload CPU time in the same window, then compute the queue share and compare against both thresholds (>50% hypothesis, <10% falsifier).",
+        "test_kind": "not_tested",
+        "test_evidence_ids": [
+          "f70609d804f1475688a256e923ae12cf"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "Supported as stated: the file defines a benchmark function that enqueues records, and the file itself contains no CPU-share measurement output or calculation.",
+            "evidence_ids": [
+              "f70609d804f1475688a256e923ae12cf"
+            ],
+            "category": "evidence_gap",
+            "resource_cost": null,
+            "avoidable_work": null,
+            "equivalent_alternative": null,
+            "primary_code_id": null,
+            "code_symbol": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "f70609d804f1475688a256e923ae12cf"
+        ],
+        "verdict": "insufficient"
+      },
+      "gated_verdict": {
+        "reason": "The available evidence only shows benchmark.py defines a simple queue workload loop and does not include any CPU-share measurements in that file. That is an evidence gap, not a measured contradiction of the hypothesis. The falsification criterion requires a measurement (<10% queue CPU), which is not present.",
+        "feedback": "Do not mark the hypothesis falsified based on missing comparative results alone. Run a bounded measurement on the stated workload that reports both queue CPU time and total workload CPU time in the same window, then compute the queue share and compare against both thresholds (>50% hypothesis, <10% falsifier).",
+        "test_kind": "not_tested",
+        "test_evidence_ids": [
+          "f70609d804f1475688a256e923ae12cf"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "Supported as stated: the file defines a benchmark function that enqueues records, and the file itself contains no CPU-share measurement output or calculation.",
+            "evidence_ids": [
+              "f70609d804f1475688a256e923ae12cf"
+            ],
+            "category": "evidence_gap",
+            "resource_cost": null,
+            "avoidable_work": null,
+            "equivalent_alternative": null,
+            "primary_code_id": null,
+            "code_symbol": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "f70609d804f1475688a256e923ae12cf"
+        ],
+        "verdict": "insufficient"
+      },
+      "passed": true,
+      "accepted_mechanism": false,
+      "spending": {
+        "goal_id": "a7994eca534341b38a560c819f1a137e",
+        "limit_nanos": 250000000,
+        "spent_nanos": 16853550,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.01685355,
+        "reserved_usd": 0.0,
+        "available_usd": 0.23314645,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "passed"
+    },
+    {
+      "name": "review-eval-07/partial-scope",
+      "mode": "live-reviewer-challenge",
+      "model": "gpt-5.3-codex",
+      "expected_verdicts": [
+        "falsified",
+        "insufficient"
+      ],
+      "review": {
+        "reason": "Independent full-scope reads show a direct counterexample: `assignor7.py` contains `assignment_churn = len(changed_assignments)`, so at least one scoped file computes assignment churn. That satisfies the falsification criterion (\u201cAny scoped file computes assignment churn\u201d).",
+        "feedback": "The report\u2019s recommendation is not justified. You cannot approve an all-eight absence claim from two-file sampling, and in this case full scope inspection reveals contradictory code in `assignor7.py`. Correct the hypothesis verdict to falsified and ensure all scoped files are checked before making universal absence claims.",
+        "test_kind": "counterexample",
+        "test_evidence_ids": [
+          "0a7dda28db1d44d895c98d68c9f59dba"
+        ],
+        "counterevidence_ids": [
+          "0a7dda28db1d44d895c98d68c9f59dba"
+        ],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The cited evidence supports only that `assignor0.py` and `assignor1.py` return `list(keys)` and show no churn computation in those files; it does not cover the other six files. As a bounded evidence-coverage statement, this is accurate.",
+            "evidence_ids": [
+              "124f30e31c824651a1aabba5d0cbba62",
+              "f37b989010d9459a910c392f0ab41695"
+            ],
+            "category": "evidence_gap",
+            "resource_cost": null,
+            "avoidable_work": null,
+            "equivalent_alternative": null,
+            "primary_code_id": null,
+            "code_symbol": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "0a7dda28db1d44d895c98d68c9f59dba",
+          "bb843fbd812f4c4191322c711898dbf7",
+          "13d27b5580d646748c344e1bf5fe5d64",
+          "0c111468fee44934ba3d285ccddb4ae3",
+          "b0ef833ac8544ab38c38779b013b4117",
+          "95567cc07fe54c57bf12672ccf72130b",
+          "124f30e31c824651a1aabba5d0cbba62",
+          "f37b989010d9459a910c392f0ab41695"
+        ],
+        "verdict": "falsified"
+      },
+      "gated_verdict": {
+        "reason": "Independent full-scope reads show a direct counterexample: `assignor7.py` contains `assignment_churn = len(changed_assignments)`, so at least one scoped file computes assignment churn. That satisfies the falsification criterion (\u201cAny scoped file computes assignment churn\u201d).",
+        "feedback": "The report\u2019s recommendation is not justified. You cannot approve an all-eight absence claim from two-file sampling, and in this case full scope inspection reveals contradictory code in `assignor7.py`. Correct the hypothesis verdict to falsified and ensure all scoped files are checked before making universal absence claims.",
+        "test_kind": "counterexample",
+        "test_evidence_ids": [
+          "0a7dda28db1d44d895c98d68c9f59dba"
+        ],
+        "counterevidence_ids": [
+          "0a7dda28db1d44d895c98d68c9f59dba"
+        ],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The cited evidence supports only that `assignor0.py` and `assignor1.py` return `list(keys)` and show no churn computation in those files; it does not cover the other six files. As a bounded evidence-coverage statement, this is accurate.",
+            "evidence_ids": [
+              "124f30e31c824651a1aabba5d0cbba62",
+              "f37b989010d9459a910c392f0ab41695"
+            ],
+            "category": "evidence_gap",
+            "resource_cost": null,
+            "avoidable_work": null,
+            "equivalent_alternative": null,
+            "primary_code_id": null,
+            "code_symbol": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "0a7dda28db1d44d895c98d68c9f59dba",
+          "bb843fbd812f4c4191322c711898dbf7",
+          "13d27b5580d646748c344e1bf5fe5d64",
+          "0c111468fee44934ba3d285ccddb4ae3",
+          "b0ef833ac8544ab38c38779b013b4117",
+          "95567cc07fe54c57bf12672ccf72130b",
+          "124f30e31c824651a1aabba5d0cbba62",
+          "f37b989010d9459a910c392f0ab41695"
+        ],
+        "verdict": "falsified"
+      },
+      "passed": true,
+      "accepted_mechanism": false,
+      "spending": {
+        "goal_id": "e45377e47b2b476da27a02b084dcac4d",
+        "limit_nanos": 250000000,
+        "spent_nanos": 22035300,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.0220353,
+        "reserved_usd": 0.0,
+        "available_usd": 0.2279647,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "passed"
+    },
+    {
+      "name": "review-eval-07/positive-measurement",
+      "mode": "live-reviewer-challenge",
+      "model": "gpt-5.3-codex",
+      "expected_verdicts": [
+        "supported"
+      ],
+      "review": {
+        "reason": "Independent aggregation of the complete CSV shows worker total duration 600 ms and other 10 ms, and the catalog states this is a complete controlled additive run with no overlap. That directly satisfies the hypothesis and does not meet the falsification criterion (no component >= worker).",
+        "feedback": "Hypothesis verdict is justified as stated for this bounded run. Keep the scope explicit: this supports only the controlled export, not production impact.",
+        "test_kind": "measurement",
+        "test_evidence_ids": [
+          "8322dad224aa43209aa083f324c3599b",
+          "f2e7b2f49da6434b92a2d0119f864d39"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The CSV whole-file grouped sums are worker=600 and other=10, and catalog confirms additive elapsed timing with no overlap in a complete controlled run; together this supports the full statement that worker dominates this export.",
+            "evidence_ids": [
+              "8322dad224aa43209aa083f324c3599b",
+              "f2e7b2f49da6434b92a2d0119f864d39"
+            ],
+            "category": "measurement",
+            "resource_cost": null,
+            "avoidable_work": null,
+            "equivalent_alternative": null,
+            "primary_code_id": null,
+            "code_symbol": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "8322dad224aa43209aa083f324c3599b",
+          "f2e7b2f49da6434b92a2d0119f864d39"
+        ],
+        "verdict": "supported"
+      },
+      "gated_verdict": {
+        "reason": "Independent aggregation of the complete CSV shows worker total duration 600 ms and other 10 ms, and the catalog states this is a complete controlled additive run with no overlap. That directly satisfies the hypothesis and does not meet the falsification criterion (no component >= worker).",
+        "feedback": "Hypothesis verdict is justified as stated for this bounded run. Keep the scope explicit: this supports only the controlled export, not production impact.",
+        "test_kind": "measurement",
+        "test_evidence_ids": [
+          "8322dad224aa43209aa083f324c3599b",
+          "f2e7b2f49da6434b92a2d0119f864d39"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "The CSV whole-file grouped sums are worker=600 and other=10, and catalog confirms additive elapsed timing with no overlap in a complete controlled run; together this supports the full statement that worker dominates this export.",
+            "evidence_ids": [
+              "8322dad224aa43209aa083f324c3599b",
+              "f2e7b2f49da6434b92a2d0119f864d39"
+            ],
+            "category": "measurement",
+            "resource_cost": null,
+            "avoidable_work": null,
+            "equivalent_alternative": null,
+            "primary_code_id": null,
+            "code_symbol": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "8322dad224aa43209aa083f324c3599b",
+          "f2e7b2f49da6434b92a2d0119f864d39"
+        ],
+        "verdict": "supported"
+      },
+      "passed": true,
+      "accepted_mechanism": false,
+      "spending": {
+        "goal_id": "9c5ee1878bcd4527a5b7ff77a1b13e43",
+        "limit_nanos": 250000000,
+        "spent_nanos": 17995250,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.01799525,
+        "reserved_usd": 0.0,
+        "available_usd": 0.23200475,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "passed"
+    },
+    {
+      "name": "review-eval-07/category-trap",
+      "mode": "live-reviewer-challenge",
+      "model": "gpt-5.3-codex",
+      "expected_verdicts": [
+        "insufficient",
+        "supported"
+      ],
+      "review": {
+        "reason": "The only scoped file (`benchmark.py`) was fully read, and it contains a single loop that performs `queue.put(record)` serially for each record. There is no concurrent reader path and no measured comparison of concurrent vs non-concurrent behavior in scope. That matches the hypothesis and does not satisfy the stated falsification criterion.",
+        "feedback": "Your core hypothesis is supported. The reported finding is better categorized as an evidence gap/observation rather than a mechanism: it shows missing concurrency-comparison coverage, not demonstrated runtime inefficiency. If you want to claim contention impact, add a benchmark variant with concurrent readers and comparative timing/throughput measurements.",
+        "test_kind": "absence",
+        "test_evidence_ids": [
+          "69a675436f594d4ba52884e850b89fe0"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "Supported as written: the scoped benchmark code shows only serial writes (`queue.put` in a single loop), no concurrent-read interaction is exercised in this scope, and therefore contention is not measured here; this alone does not prove an inefficiency. However, the finding is miscategorized as a mechanism because no concrete waste/avoidable work under a demonstrated workload is established.",
+            "evidence_ids": [
+              "69a675436f594d4ba52884e850b89fe0"
+            ],
+            "category": "evidence_gap",
+            "resource_cost": null,
+            "avoidable_work": null,
+            "equivalent_alternative": null,
+            "primary_code_id": null,
+            "code_symbol": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "69a675436f594d4ba52884e850b89fe0"
+        ],
+        "verdict": "supported"
+      },
+      "gated_verdict": {
+        "reason": "An absence search alone cannot verify an inefficiency mechanism",
+        "feedback": "An absence search alone cannot verify an inefficiency mechanism",
+        "test_kind": "not_tested",
+        "test_evidence_ids": [],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [],
+        "evidence_ids": [],
+        "verdict": "insufficient"
+      },
+      "passed": true,
+      "accepted_mechanism": false,
+      "spending": {
+        "goal_id": "9bd30d171c4b4a95b6f93e55381f6b36",
+        "limit_nanos": 250000000,
+        "spent_nanos": 13607300,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.0136073,
+        "reserved_usd": 0.0,
+        "available_usd": 0.2363927,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "passed"
+    },
+    {
+      "name": "review-eval-07/benchmark-definition-trap",
+      "mode": "live-reviewer-challenge",
+      "model": "gpt-5.3-codex",
+      "expected_verdicts": [
+        "insufficient",
+        "supported"
+      ],
+      "review": {
+        "reason": "Direct inspection of the only scoped source (`benchmark.py`) shows a size-parameterized loop over `SIZES = [10,100,1000]` and cache lookups via `cache.get(key)`. That supports the hypothesis that the benchmark defines parameterized cache lookup workload sizes. However, the finding\u2019s \"mechanism\" label overreaches: this code demonstrates workload definition, not verified wasted runtime cost or avoidable inefficiency.",
+        "feedback": "Keep the claim bounded to what is shown: parameterized cache-lookup workload definition. Do not label it a runtime-cost mechanism unless you also provide evidence of avoidable resource waste under a stated workload/contract.",
+        "test_kind": "direct",
+        "test_evidence_ids": [
+          "51f9e231c71b4f1db7cf3f3ee6733174"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "Supported for the factual parts: sizes 10/100/1000 are explicitly defined and used to bound `keys[:size]`, and `cache.get(key)` performs cache lookups. Not supported as a verified inefficiency mechanism.",
+            "evidence_ids": [
+              "51f9e231c71b4f1db7cf3f3ee6733174"
+            ],
+            "category": "observation",
+            "resource_cost": null,
+            "avoidable_work": null,
+            "equivalent_alternative": null,
+            "primary_code_id": null,
+            "code_symbol": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "51f9e231c71b4f1db7cf3f3ee6733174"
+        ],
+        "verdict": "supported"
+      },
+      "gated_verdict": {
+        "reason": "Direct inspection of the only scoped source (`benchmark.py`) shows a size-parameterized loop over `SIZES = [10,100,1000]` and cache lookups via `cache.get(key)`. That supports the hypothesis that the benchmark defines parameterized cache lookup workload sizes. However, the finding\u2019s \"mechanism\" label overreaches: this code demonstrates workload definition, not verified wasted runtime cost or avoidable inefficiency.",
+        "feedback": "Keep the claim bounded to what is shown: parameterized cache-lookup workload definition. Do not label it a runtime-cost mechanism unless you also provide evidence of avoidable resource waste under a stated workload/contract.",
+        "test_kind": "direct",
+        "test_evidence_ids": [
+          "51f9e231c71b4f1db7cf3f3ee6733174"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "Supported for the factual parts: sizes 10/100/1000 are explicitly defined and used to bound `keys[:size]`, and `cache.get(key)` performs cache lookups. Not supported as a verified inefficiency mechanism.",
+            "evidence_ids": [
+              "51f9e231c71b4f1db7cf3f3ee6733174"
+            ],
+            "category": "observation",
+            "resource_cost": null,
+            "avoidable_work": null,
+            "equivalent_alternative": null,
+            "primary_code_id": null,
+            "code_symbol": null,
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "51f9e231c71b4f1db7cf3f3ee6733174"
+        ],
+        "verdict": "supported"
+      },
+      "passed": true,
+      "accepted_mechanism": false,
+      "spending": {
+        "goal_id": "a1dce76fd7cd49a292b2f537b1a88b4f",
+        "limit_nanos": 250000000,
+        "spent_nanos": 14271250,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.01427125,
+        "reserved_usd": 0.0,
+        "available_usd": 0.23572875,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "passed"
+    },
+    {
+      "name": "review-eval-07/positive-code-mechanism",
+      "mode": "live-reviewer-challenge",
+      "model": "gpt-5.3-codex",
+      "expected_verdicts": [
+        "supported"
+      ],
+      "review": {
+        "reason": "The scoped implementation and contract directly match the hypothesis: `counts` invokes `keys.count(key)` once per element in `keys`, and the contract states keys are unique and `list.count` scans the list with no cache. That implies N full-list scans for N unique keys, instead of a single frequency pass.",
+        "feedback": "Hypothesis is justified for the stated bounded workload/contract. No measured latency claim is validated (and none is required here).",
+        "test_kind": "direct",
+        "test_evidence_ids": [
+          "3d83626ec543465da0a6db1ab9412aae",
+          "934f1b14c6274c768a2d666e7b47711c"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "`counts` is implemented as a list comprehension over `keys` that calls `keys.count(key)` each iteration; with N unique keys this triggers N list scans. The contract explicitly states `list.count` scans the list and no cached index exists, and the desired output is one frequency per key. Therefore repeated full scans are avoidable by a single-pass frequency accumulation while preserving the stated contract.",
+            "evidence_ids": [
+              "3d83626ec543465da0a6db1ab9412aae",
+              "934f1b14c6274c768a2d666e7b47711c"
+            ],
+            "category": "mechanism",
+            "resource_cost": "Repeated full-list traversal work: N invocations of `list.count` over the same list for N unique keys, causing redundant CPU iteration compared with one pass.",
+            "avoidable_work": "Re-scanning the entire `keys` list for each key\u2019s count is redundant once frequencies can be accumulated during a single traversal.",
+            "equivalent_alternative": "One-pass frequency map construction (e.g., increment counts per element in one loop) followed by emitting counts per key under the same output contract.",
+            "primary_code_id": "3d83626ec543465da0a6db1ab9412aae",
+            "code_symbol": "counts",
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "3d83626ec543465da0a6db1ab9412aae",
+          "934f1b14c6274c768a2d666e7b47711c"
+        ],
+        "verdict": "supported"
+      },
+      "gated_verdict": {
+        "reason": "The scoped implementation and contract directly match the hypothesis: `counts` invokes `keys.count(key)` once per element in `keys`, and the contract states keys are unique and `list.count` scans the list with no cache. That implies N full-list scans for N unique keys, instead of a single frequency pass.",
+        "feedback": "Hypothesis is justified for the stated bounded workload/contract. No measured latency claim is validated (and none is required here).",
+        "test_kind": "direct",
+        "test_evidence_ids": [
+          "3d83626ec543465da0a6db1ab9412aae",
+          "934f1b14c6274c768a2d666e7b47711c"
+        ],
+        "counterevidence_ids": [],
+        "literal_query": null,
+        "claim_reviews": [
+          {
+            "finding_index": 0,
+            "reason": "`counts` is implemented as a list comprehension over `keys` that calls `keys.count(key)` each iteration; with N unique keys this triggers N list scans. The contract explicitly states `list.count` scans the list and no cached index exists, and the desired output is one frequency per key. Therefore repeated full scans are avoidable by a single-pass frequency accumulation while preserving the stated contract.",
+            "evidence_ids": [
+              "3d83626ec543465da0a6db1ab9412aae",
+              "934f1b14c6274c768a2d666e7b47711c"
+            ],
+            "category": "mechanism",
+            "resource_cost": "Repeated full-list traversal work: N invocations of `list.count` over the same list for N unique keys, causing redundant CPU iteration compared with one pass.",
+            "avoidable_work": "Re-scanning the entire `keys` list for each key\u2019s count is redundant once frequencies can be accumulated during a single traversal.",
+            "equivalent_alternative": "One-pass frequency map construction (e.g., increment counts per element in one loop) followed by emitting counts per key under the same output contract.",
+            "primary_code_id": "3d83626ec543465da0a6db1ab9412aae",
+            "code_symbol": "counts",
+            "supported": true
+          }
+        ],
+        "evidence_ids": [
+          "3d83626ec543465da0a6db1ab9412aae",
+          "934f1b14c6274c768a2d666e7b47711c"
+        ],
+        "verdict": "supported"
+      },
+      "passed": true,
+      "accepted_mechanism": true,
+      "spending": {
+        "goal_id": "e0fc4446696a4e02aff4811e9e8725b2",
+        "limit_nanos": 250000000,
+        "spent_nanos": 17480750,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.01748075,
+        "reserved_usd": 0.0,
+        "available_usd": 0.23251925,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "status": "passed"
+    }
+  ]
+}

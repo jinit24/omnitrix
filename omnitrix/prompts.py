@@ -9,6 +9,8 @@ ROLE_FILES = {
     'chat': ('CHAT', 'BRAIN', 'KNOWLEDGE'),
     'discovery': ('DISCOVERY',),
     'research': ('RESEARCH',),
+    'investigator': ('RESEARCH', 'INVESTIGATOR', 'KNOWLEDGE'),
+    'goal_review': ('GOAL_REVIEW',),
     'evaluation': ('EVALUATION',),
     'worker': ('WORKER',),
     'implementation': ('IMPLEMENTATION',),

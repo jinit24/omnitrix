@@ -66,3 +66,13 @@ def test_quality_reports_are_readable_escaped_and_goal_scoped(tmp_path):
     assert '<script>bad()' not in output and 'PRIVATE OTHER GOAL' not in output
     assert output.count('## Mechanism')<=1
     assert 'candidate-id:turn-id' in output
+
+def test_parallel_log_writers_preserve_all_issue_events(tmp_path):
+    from concurrent.futures import ThreadPoolExecutor
+    from omnitrix.reporting import record_issue
+    path=tmp_path/'quality.json'
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        futures=[pool.submit(record_issue,path,'R1','Concurrent evidence','open','observed',{'run':n}) for n in range(20)]
+        for future in futures:future.result()
+    history=json.loads(path.read_text())['issues'][0]['history']
+    assert {event['details']['run'] for event in history}==set(range(20))

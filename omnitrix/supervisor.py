@@ -6,7 +6,8 @@ import json
 import time
 import uuid
 from agents import Agent, Runner, RunConfig
-from agents.exceptions import MaxTurnsExceeded
+from agents.exceptions import MaxTurnsExceeded, ModelBehaviorError
+from openai import APIConnectionError, APITimeoutError, InternalServerError, RateLimitError
 from agents.strict_schema import ensure_strict_json_schema
 from .control import Control
 from .execution import Execution
@@ -192,7 +193,33 @@ class Supervisor:
                         task_id=None, priority=1)
                     self.control.event(self.goal_id,'execution_route',{'route':'direct','implementation':direct[0]['id']})
                 else:
-                    decision = await asyncio.wait_for(self.brain.decide(self.status()),120)
+                    decision = await asyncio.wait_for(self.brain.decide(self.status()),getattr(self.brain,'seconds',120))
+            except (APIConnectionError,APITimeoutError,InternalServerError,RateLimitError) as exc:
+                prior=self.db.execute("SELECT id FROM activity WHERE goal_id=? AND kind='decision' ORDER BY id DESC LIMIT 1",(self.goal_id,)).fetchone()
+                failures=self.db.execute("SELECT count(*) FROM activity WHERE goal_id=? AND kind='manager_provider_failure' AND id>?",(self.goal_id,prior[0] if prior else 0)).fetchone()[0]+1
+                feedback={'error':type(exc).__name__,'status_code':getattr(exc,'status_code',None),'consecutive_failures':failures,
+                    'next':'A transient provider request failed before a decision. Retain any unknown-cost reservation. Make a fresh metered planning attempt; no action has been dispatched.'}
+                self.control.event(self.goal_id,'manager_provider_failure',feedback)
+                if failures>=3:
+                    self.autonomy=0
+                    self.store.execute("UPDATE goals SET status='paused' WHERE id=?",(self.goal_id,))
+                    return {'blocked':feedback}
+                await asyncio.sleep(min(failures,2))
+                return {'rejected':feedback,'recoverable':True}
+            except ModelBehaviorError as exc:
+                # No Decision was produced, so no action has been dispatched.
+                # A fresh, charged turn may repair the format; never replay work.
+                prior=self.db.execute("SELECT id FROM activity WHERE goal_id=? AND kind='decision' ORDER BY id DESC LIMIT 1",(self.goal_id,)).fetchone()
+                failures=self.db.execute("SELECT count(*) FROM activity WHERE goal_id=? AND kind='manager_protocol_failure' AND id>?",(self.goal_id,prior[0] if prior else 0)).fetchone()[0]+1
+                feedback={'error':type(exc).__name__,'reason':str(exc)[:500],'consecutive_failures':failures,
+                    'next':'Return a concise valid Decision using already observed catalog paths. Do not repeat inventory or dispatch any earlier action.'}
+                self.control.event(self.goal_id,'manager_protocol_failure',feedback)
+                self.control.message(self.goal_id,'decision_rejected',feedback,direction='worker_to_manager')
+                if failures>=3:
+                    self.autonomy=0
+                    self.store.execute("UPDATE goals SET status='paused' WHERE id=?",(self.goal_id,))
+                    return {'blocked':feedback}
+                return {'rejected':feedback,'recoverable':True}
             except (MaxTurnsExceeded,asyncio.TimeoutError) as exc:
                 self.autonomy=0
                 self.store.execute("UPDATE goals SET status='paused' WHERE id=?",(self.goal_id,))
@@ -200,6 +227,9 @@ class Supervisor:
                 self.control.message(self.goal_id,'manager_budget_exhausted',reason,direction='worker_to_manager')
                 self.control.event(self.goal_id,'manager_budget_exhausted',reason)
                 return {'blocked':reason}
+            if self.db.execute('SELECT 1 FROM campaigns WHERE goal_id=?',(self.goal_id,)).fetchone():
+                from .allocation import rebalance
+                decision=rebalance(self.store,self.goal_id,decision)
             self.store.execute('INSERT INTO decisions(goal_id,body) VALUES(?,?)', (self.goal_id, decision.model_dump_json()))
             self.control.event(self.goal_id, 'decision', decision.model_dump())
             try:
@@ -249,7 +279,7 @@ class Supervisor:
                 async def investigate(task_id, job_id=job_id):
                     return await self.research.attempt(job_id)
                 task_ids.append(await self.submit('research', {'job_id':job_id}, investigate,
-                    json.loads(self.research.job(job_id)['spec'])['budget']['seconds'] * 2 + 10))
+                    json.loads(self.research.job(job_id)['spec'])['budget']['seconds'] * 3 + 10))
             self.control.event(self.goal_id,'research_wave',{'task_ids':task_ids,'independence_reason':decision.independence_reason})
             return {'task_ids':task_ids,'plans':plans}
         if action in ('discover','research','retry_research'):
@@ -269,7 +299,7 @@ class Supervisor:
             async def investigate(task_id):
                 return await self.research.attempt(job_id, decision.instructions if action=='retry_research' else '')
             return {'task_id': await self.submit('research', {'job_id': job_id}, investigate,
-                json.loads(self.research.job(job_id)['spec'])['budget']['seconds'] * 2 + 10)}
+                json.loads(self.research.job(job_id)['spec'])['budget']['seconds'] * 3 + 10)}
         if action in ('implement','audit'):
             service = Implementations(self.store, self.runtime)
             row = service.get(decision.implementation_id)

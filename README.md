@@ -184,6 +184,9 @@ omnitrix --db .omnitrix/state.db campaign GOAL_ID --pause
 Each campaign is capped at $25. Standard-tier GPT-4.1 requests reserve maximum
 cost before inference; lost responses retain that reservation. Native workers,
 hosted tools, code changes and external PRs are disabled for these campaigns.
+An optional `--strategy investigator` uses a direct GPT-5.3-Codex investigator
+with independent GPT-5.3-Codex evidence and completion reviews. Both models share the
+same saved dollar ceiling; switching strategy preserves all consumed limits.
 The HTML checkpoint includes evidence, decisions, spending and remaining coverage.
 Register local exported logs/CSV with repeatable `--evidence workspace/relative/path`;
 record workload and measurement-window context alongside them. See the
@@ -234,6 +237,10 @@ research behavior; unresolved failures remain visible.
 python scripts/research_eval.py --harness-only --output .omnitrix/eval-harness-NEW
 # Paid autonomous discovery: competing clues and a negative control, scored outside the workspace.
 python scripts/research_eval.py --live --output .omnitrix/eval-live-NEW --log docs/research-quality.json
+# Paid skeptical reviewer probes, including missing-measurement and partial-scope traps ($1.50 combined ceiling).
+python scripts/review_eval.py --output .omnitrix/review-NEW
+# Equal-budget controlled comparisons ($6 combined ceiling for two cases/four arms).
+python scripts/research_compare.py --dollars .75 --output .omnitrix/compare-NEW --log docs/research-quality.json
 # Real Omnitrix source, seeded failing probes, autonomous triage and authorized Codex repair.
 python scripts/self_audit.py --allow-code-modifications --output .omnitrix/self-audit-NEW --log docs/research-quality.json
 ```

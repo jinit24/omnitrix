@@ -63,10 +63,10 @@ async def test_revision_change_after_review_cannot_publish_stale_findings(tmp_pa
     control = Control(other)
     proposal = control.propose(goal, 'requirements', {'constraint': 'Preserve ordering'})
 
-    def concurrent_change(report, evaluation, evidence):
+    def concurrent_change(report, evaluation, evidence, plan=None, coverage=None):
         # A different connection commits after the first revision check.
         control.accept(goal, proposal)
-        return Research.gate(report, evaluation, evidence)
+        return Research.gate(report, evaluation, evidence, plan, coverage)
 
     monkeypatch.setattr(service, 'gate', concurrent_change)
     result = await service.attempt(job)
@@ -112,6 +112,7 @@ async def test_manager_receives_partial_falsification_and_preserved_contract(tmp
         async def run(self, role, context, tools):
             if role == 'evaluation':
                 return Evaluation(verdict='falsified', evidence_ids=context['report']['supporting_evidence'],
+                    test_kind='counterexample',test_evidence_ids=context['report']['supporting_evidence'],
                     reason='The compound claim is false: permanent errors already propagate',
                     feedback='Investigate the missing TimeoutError retries while preserving permanent errors')
             sources = [tools.read('service.py')['id'], tools.read('contract.txt')['id']]

@@ -38,11 +38,17 @@ class Store:
         self.db.executescript(CONTROL_SCHEMA)
         self.db.executescript(IMPLEMENTATION_SCHEMA)
         self.db.executescript(SPENDING_SCHEMA)
+        if 'model' not in {r[1] for r in self.db.execute('PRAGMA table_info(spending_limits)')}:
+            self.db.execute("ALTER TABLE spending_limits ADD COLUMN model TEXT NOT NULL DEFAULT 'gpt-4.1-2025-04-14'")
+        if 'model' not in {r[1] for r in self.db.execute('PRAGMA table_info(spending_requests)')}:
+            self.db.execute("ALTER TABLE spending_requests ADD COLUMN model TEXT NOT NULL DEFAULT 'gpt-4.1-2025-04-14'")
         self.db.executescript(FRONTIER_SCHEMA)
         if 'origin' not in {r[1] for r in self.db.execute('PRAGMA table_info(frontier_files)')}:
             self.db.execute("ALTER TABLE frontier_files ADD COLUMN origin TEXT NOT NULL DEFAULT 'git'")
         from .campaign import SCHEMA as CAMPAIGN_SCHEMA
         self.db.executescript(CAMPAIGN_SCHEMA)
+        if 'strategy' not in {r[1] for r in self.db.execute('PRAGMA table_info(campaigns)')}:
+            self.db.execute("ALTER TABLE campaigns ADD COLUMN strategy TEXT NOT NULL DEFAULT 'manager'")
         if 'quality_spec' not in {r[1] for r in self.db.execute('PRAGMA table_info(campaigns)')}:
             self.db.execute('''ALTER TABLE campaigns ADD COLUMN quality_spec TEXT NOT NULL
                 DEFAULT '{"sources":20,"branches":4,"hypotheses":6,"mechanisms":2}' ''')

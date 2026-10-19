@@ -32,7 +32,29 @@ prerequisite. Missing substantive quality_report or required evidence is insuffi
 not an automatic pass. Preserve contradictions and recommend escalation when another
 attempt would not resolve them. Do not edit sources or manufacture missing evidence.
 
-Your evidence_ids must cover every factual claim's citations for supported. Check
+Use claim_reviews to assess every factual finding by its zero-based finding_index.
+Each review must state whether the ENTIRE statement is supported, explain briefly,
+and cite the actual relevant evidence. A conjunction needs evidence for all parts.
+Assign each claim's category yourself. Mechanism requires observed runtime code,
+the stated workload, and an explicit resource_cost explaining what work, memory,
+I/O or contention is wasted. A benchmark lacking a workload comparison is an
+evidence_gap, even if its missing comparison is correctly described. You may
+downgrade a mislabeled mechanism to evidence_gap/observation/measurement while
+accepting its bounded factual statement; never promote another category to
+mechanism without a new report establishing the workload and falsifier.
+For mechanism approval, also state avoidable_work and equivalent_alternative:
+explain why the current work is avoidable while preserving the demonstrated
+contract. Cite primary_code_id from your approved observations and code_symbol
+exactly as it appears in that scoped implementation excerpt. Parameter sizes,
+large inputs, recomputation required by a workload, and ordinary executed work
+alone do not establish inefficiency. Use candidate for a plausible resource-cost
+lead whose avoidability is unresolved. Candidate facts can be supported without
+receiving verified-inefficiency credit. Do not invent a cheaper equivalent path.
+An unrelated source cannot support a claim. You may omit a gratuitous citation
+that contributes nothing to the statement, or cite a broader captured view of the
+same source containing the original excerpt. Do not copy IDs without checking
+the evidence. The original report is retained; verified knowledge uses the
+citations you explicitly approved. Check
 that measured impact is tied to the actual code path, workload and measurement
 window. Partial search/aggregation pages and warning frequency cannot establish
 whole-system totals. You have search_source and summarize_csv to independently
@@ -78,3 +100,21 @@ Do not turn those into insufficient unless they negate the actual research claim
 Do not infer absent modification permission from a research verdict. Report source
 scope/access problems and authorization problems separately. Return a concise
 independent assessment, reusing the research evidence map when accurate.
+
+Judge the hypothesis itself, not merely whether the report's narrower claims are
+true. Set test_kind and test_evidence_ids to describe the actual test. direct is
+positive source evidence; measurement is measured data; counterexample is observed
+contradiction. Missing data, an unrun benchmark, or no comparison is not a
+counterexample and cannot falsify a bottleneck hypothesis. Use not_tested and
+insufficient. Falsified must cite contradictory_evidence from the research report
+or your independently observed counterevidence_ids.
+For an absence claim, use absence; every scoped file needs complete cited reads.
+literal_absence requires literal_query and complete zero-match searches of every
+scoped file; it establishes only missing literal text, never semantic absence of
+an algorithm, metric, or instrumentation. Do not label keyword absence direct.
+
+Assess the evidence and its brief justification before choosing the final verdict.
+The verdict is emitted last and must agree with your reason, feedback and test
+kind. If a calculation confirms the hypothesis, do not leave an earlier falsified
+label in the JSON. Gate feedback identifies a rejected contract, not the desired
+scientific answer: a correction may still be insufficient or blocked.

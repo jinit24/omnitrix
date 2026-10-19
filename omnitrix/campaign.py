@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS campaigns (
  max_research_runs INTEGER NOT NULL, state TEXT NOT NULL, reason TEXT,
  report_path TEXT NOT NULL, last_progress INTEGER NOT NULL DEFAULT 0,
  stagnant_decisions INTEGER NOT NULL DEFAULT 0,
+ strategy TEXT NOT NULL DEFAULT 'manager',
  quality_spec TEXT NOT NULL DEFAULT '{"sources":20,"branches":4,"hypotheses":6,"mechanisms":2}');
 '''
 
@@ -44,6 +45,13 @@ class Campaign:
             supported = self.store.db.execute("SELECT 1 FROM research_jobs WHERE goal_id=? AND status='supported' LIMIT 1", (self.goal_id,)).fetchone()
             if not supported:
                 raise ValueError('Completion needs an independently supported finding. Falsification alone does not establish the replacement explanation.')
+            if self.status()['strategy']=='investigator':
+                from .investigator import completion_context
+                _,digest=completion_context(self.store,self.store.snapshot(self.goal_id))
+                row=self.store.db.execute("SELECT detail FROM activity WHERE goal_id=? AND kind='research_goal_audit' ORDER BY id DESC LIMIT 1",(self.goal_id,)).fetchone()
+                audit=json.loads(row[0]) if row else {}
+                if not audit.get('passed') or audit.get('digest')!=digest:
+                    raise ValueError('Investigator completion needs a fresh independent objective/requirements audit; counts alone are insufficient')
         if decision.action == 'pause':
             observed = self.store.db.execute('''SELECT 1 FROM research_access a JOIN research_runs r ON r.id=a.run_id
                 JOIN research_jobs j ON j.id=r.job_id WHERE j.goal_id=? LIMIT 1''', (self.goal_id,)).fetchone()
@@ -60,12 +68,16 @@ class Campaign:
         row = self.store.db.execute('SELECT * FROM campaigns WHERE goal_id=?', (self.goal_id,)).fetchone()
         return dict(row) | {'spending':Spending(self.store,self.goal_id).status()} if row else None
 
-    def configure(self, days=None, decisions=None, research_runs=None, dollars=None, report=None, quality=None):
+    def configure(self, days=None, decisions=None, research_runs=None, dollars=None, report=None, quality=None,strategy=None):
+        if strategy is not None and strategy not in ('manager','investigator'):raise ValueError('Unknown campaign strategy')
         existing = self.status()
         if existing:
             if any(v is not None for v in (days, decisions, research_runs, dollars, report, quality)):
                 raise ValueError('Resume the saved campaign without new limits; limits cannot be reset by rerunning it')
-            return existing
+            if strategy and strategy!=existing['strategy']:
+                self.store.execute('UPDATE campaigns SET strategy=? WHERE goal_id=?',(strategy,self.goal_id))
+                Control(self.store).event(self.goal_id,'campaign_strategy_changed',{'prior':existing['strategy'],'strategy':strategy,'limits_reset':False})
+            return self.status()
         if days is None or decisions is None or research_runs is None or dollars is None:
             raise ValueError('First run requires --days, --decisions, --research-runs and --dollars')
         if not 0 < days <= 30 or not 1 <= decisions <= 100000 or not 1 <= research_runs <= 100000:
@@ -90,6 +102,7 @@ class Campaign:
                 if set(quality) != {'sources','branches','hypotheses','mechanisms'} or any(not isinstance(v,int) or v<0 for v in quality.values()):
                     raise ValueError('Invalid campaign quality requirements')
                 self.store.db.execute('UPDATE campaigns SET quality_spec=? WHERE goal_id=?',(json.dumps(quality),self.goal_id))
+            if strategy:self.store.db.execute('UPDATE campaigns SET strategy=? WHERE goal_id=?',(strategy,self.goal_id))
         return self.status()
 
     def quality(self):
@@ -100,16 +113,17 @@ class Campaign:
         branches=db.execute('''SELECT count(DISTINCT f.bucket) FROM frontier_files f WHERE goal_id=? AND EXISTS(
             SELECT 1 FROM research_sources s JOIN research_access a ON a.source_id=s.id JOIN research_runs r ON r.id=a.run_id
             JOIN research_jobs j ON j.id=r.job_id WHERE j.goal_id=f.goal_id AND s.locator=f.locator)''',(self.goal_id,)).fetchone()[0]
-        mechanisms=0
+        mechanisms=set()
         from .knowledge import Knowledge
         from .resources import resource_kind
         knowledge=Knowledge(self.store)
         for row in db.execute("SELECT body,citations FROM knowledge WHERE goal_id=? AND kind='finding' AND classification='verified'",(self.goal_id,)):
-            finding=json.loads(row['body'])['finding']
-            if finding.get('category')!='mechanism':continue
+            body=json.loads(row['body']);finding=body['finding']
+            if finding.get('category')!='mechanism' or body.get('mechanism_proof_version')!=2:continue
             sources=[knowledge.source(s) for s in json.loads(row['citations'])]
-            if sources and not any(s['stale'] for s in sources) and any(resource_kind(s['locator'])=='code' for s in sources):mechanisms+=1
-        actual={'sources':len(observed),'branches':branches,'hypotheses':db.execute("SELECT count(*) FROM research_jobs WHERE goal_id=? AND stage='research' AND status IN ('supported','falsified')",(self.goal_id,)).fetchone()[0],'mechanisms':mechanisms}
+            identity=body.get('mechanism_identity')
+            if identity and sources and not any(s['stale'] for s in sources) and any(resource_kind(s['locator'])=='code' for s in sources):mechanisms.add(tuple(identity))
+        actual={'sources':len(observed),'branches':branches,'hypotheses':db.execute("SELECT count(*) FROM research_jobs WHERE goal_id=? AND stage='research' AND status IN ('supported','falsified')",(self.goal_id,)).fetchone()[0],'mechanisms':len(mechanisms)}
         return {'required':required,'actual':actual,'met':all(actual[k]>=v for k,v in required.items()),
                 'note':'Minimum breadth and evidence gates, not proof of exhaustive coverage or production impact.'}
 
@@ -159,6 +173,15 @@ class Campaign:
             Control(self.store).event(self.goal_id,'campaign_checkpoint',summary)
         write_report(goal_report(self.store, self.goal_id), self.status()['report_path'])
 
+    def source_progress(self):
+        # A new UUID, reread, or recall of the same excerpt is not exploration.
+        # New pages and changed revisions still count even within one file.
+        return self.store.db.execute('''SELECT count(*) FROM (
+            SELECT s.locator,s.revision,s.excerpt FROM research_sources s
+            JOIN research_access a ON a.source_id=s.id JOIN research_runs r ON r.id=a.run_id
+            JOIN research_jobs j ON j.id=r.job_id WHERE j.goal_id=?
+            GROUP BY s.locator,s.revision,s.excerpt)''',(self.goal_id,)).fetchone()[0]
+
     async def drive(self, supervisor=None, continue_paused=False, poll_seconds=.2):
         saved = self.status()
         if not saved:
@@ -170,6 +193,10 @@ class Campaign:
             from .research import ResearchAgents
             supervisor = CampaignSupervisor(self.store, self.goal_id, runtime=ReadOnlyRuntime(),
                 brain=AgentBrain('gpt-4.1', store=self.store), research=Research(self.store, ResearchAgents('gpt-4.1')))
+            if saved['strategy']=='investigator':
+                from .investigator import InvestigatorBrain,PreparedResearchAgents
+                supervisor.brain=InvestigatorBrain(self.store)
+                supervisor.research=Research(self.store,PreparedResearchAgents(supervisor.brain))
         await supervisor.open()
         try:
             if continue_paused:
@@ -192,8 +219,7 @@ class Campaign:
                     break
                 await supervisor.monitor()
                 if not supervisor.work:
-                    count = self.store.db.execute('''SELECT count(*) FROM research_access a JOIN research_runs r ON r.id=a.run_id
-                        JOIN research_jobs j ON j.id=r.job_id WHERE j.goal_id=?''', (self.goal_id,)).fetchone()[0]
+                    count = self.source_progress()
                     current = self.status()
                     stagnant = 0 if count != current['last_progress'] else current['stagnant_decisions']
                     self.store.execute('UPDATE campaigns SET last_progress=?,stagnant_decisions=? WHERE goal_id=?', (count,stagnant,self.goal_id))
@@ -211,7 +237,11 @@ class Campaign:
                     last_report = time.time()
                 await asyncio.sleep(poll_seconds)
         except SpendingLimitReached as exc:
-            self.stop('dollar_budget', str(exc))
+            # A pause can arrive while a model turn is between paid requests.
+            # Its next reservation must fail without relabeling the operator's
+            # explicit stop as dollar exhaustion.
+            if self.status()['state']=='running':
+                self.stop('deadline' if time.time()>=saved['deadline'] else 'dollar_budget',str(exc))
         except asyncio.CancelledError:
             self.stop('interrupted', 'Owner stopped; resume retains deadline, spending reservations and research attempts')
             raise

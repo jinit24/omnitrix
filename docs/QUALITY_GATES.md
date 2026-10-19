@@ -12,6 +12,8 @@ is `instructions/QUALITY_GATES.md`; `omnitrix/prompts.py` composes it with these
 | Conversational manager | `CHAT.md` + brain/knowledge | Accurate, concise status and explicit policy proposals | Existing proposal/acceptance workflow; no implied completion |
 | Discovery | `DISCOVERY.md` | Sourced map, coverage gaps, ranked bounded opportunities | Next discriminating question and map refresh trigger |
 | Research | `RESEARCH.md` | Falsifiable hypothesis, method, support/counterevidence, uncertainty and actionable conclusion | Validation experiment and evidence that would invalidate the conclusion |
+| Primary investigator | `RESEARCH.md` + `INVESTIGATOR.md` + knowledge | Investigate directly and submit one bounded hypothesis with observed sources | Independent review; no repeated availability audit or invented inefficiency |
+| Research completion reviewer | `GOAL_REVIEW.md` | Independently map the original objective and each criterion to verified findings | Validation/invalidation trigger, scope limits and exact remaining gap |
 | Independent evaluator | `EVALUATION.md` | Claim-to-source assessment, visual/data checks, defensible verdict | Exact correction or missing prerequisite; no self-certified support |
 | Repository inspection | `WORKER.md` | Read-only findings with file/revision evidence and useful explanation | Scope gap, next check or freshness trigger |
 | Implementation | `IMPLEMENTATION.md` | Why the fix works, correctness/test evidence, measured versus estimated impact and practice comparison | Rollout, baseline, metrics/queries, thresholds, window, owner and rollback |
@@ -52,7 +54,7 @@ evidence, failed checks and uncertain external outcomes still block execution.
 ## Review contract
 
 `Handoff`, `DiscoveryReport`, `ResearchReport`, `Evaluation` and
-`ImplementationHandoff` carry a bounded Markdown `quality_report`. It holds narrative,
+`ImplementationHandoff` and `GoalReview` carry a bounded Markdown `quality_report`. It holds narrative,
 diagrams, tables and gate assessments without putting prose in evidence-ID arrays or
 creating files outside authorized paths. Reports persist through the existing JSON
 task/research/message records and export paths. Manager decisions/chat use their

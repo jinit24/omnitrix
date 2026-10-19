@@ -4,3 +4,4 @@ __pycache__/
 .pytest_cache/
 .omnitrix/
 *.egg-info/
+*.json.lock

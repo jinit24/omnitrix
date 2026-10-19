@@ -3,6 +3,8 @@ import html
 import json
 import os
 import tempfile
+import fcntl
+from functools import wraps
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -48,10 +50,12 @@ def render_report(data):
     for run in data.get('runs', []):
         score = run.get('score', {})
         score_text = f"{score['passed']}/{score.get('total', '?')}" if isinstance(score, dict) and score.get('passed') is not None else 'Unscored'
+        spending=run.get('spending') or {}
+        cost=(f"${spending['spent_usd']:.4f} + ${spending.get('reserved_usd',0):.4f} held" if 'spent_usd' in spending else '')
         rows.append('<tr>' + ''.join('<td>' + text(value) + '</td>' for value in
                     (run.get('name', 'Run'), run.get('mode', ''), run.get('status', run.get('result', '')),
-                     score_text, run.get('seconds', run.get('duration_seconds', '')))) + '</tr>')
-    table = '<table><thead><tr><th>Experiment</th><th>Mode</th><th>Outcome</th><th>Checks</th><th>Seconds</th></tr></thead><tbody>' + ''.join(rows) + '</tbody></table>' if rows else ''
+                     score_text, run.get('seconds', run.get('duration_seconds', '')), cost)) + '</tr>')
+    table = '<table><thead><tr><th>Experiment</th><th>Mode</th><th>Outcome</th><th>Checks</th><th>Seconds</th><th>Model cost / uncertain holds</th></tr></thead><tbody>' + ''.join(rows) + '</tbody></table>' if rows else ''
     events = ''.join('<details><summary>' + text(e['at']) + ' · ' + text(e['result'].get('name', 'Run')) +
                      ' · ' + text(e['result'].get('status', '')) + '</summary>' + detail(e['result']) + '</details>'
                      for e in data.get('experiment_events', []))
@@ -91,13 +95,25 @@ def _write_atomic(path, contents):
         temporary.unlink(missing_ok=True)
 
 
+def serialized_log(function):
+    @wraps(function)
+    def update(log_path,*args,**kwargs):
+        path=Path(log_path);path.parent.mkdir(parents=True,exist_ok=True)
+        with Path(str(path)+'.lock').open('a') as lock:
+            fcntl.flock(lock,fcntl.LOCK_EX)
+            return function(log_path,*args,**kwargs)
+    return update
+
+
+@serialized_log
 def record_experiment(log_path, name, result):
     """Refresh an explicit shared log without discarding findings or previous runs."""
     path = Path(log_path)
     data = json.loads(path.read_text()) if path.exists() else {'title': 'Research quality log', 'issues': [], 'runs': []}
     summary = {'name': name} | {key: result[key] for key in
         ('mode', 'status', 'seconds', 'score', 'usage', 'reason', 'error_type', 'autonomous_discovery', 'verification', 'audits',
-         'spending', 'frontier', 'quality', 'artifacts', 'head') if key in result}
+         'spending', 'frontier', 'quality', 'artifacts', 'head', 'architecture', 'model', 'variant',
+         'budget_usd', 'time_limit_seconds', 'native_codex_cli') if key in result}
     decisions = result.get('decisions', result.get('snapshot', {}).get('decisions', []))
     summary['decisions'] = [{'action': d.get('action'), 'rationale': d.get('rationale')} for d in decisions]
     implementations = result.get('snapshot', {}).get('implementations', [])
@@ -111,6 +127,7 @@ def record_experiment(log_path, name, result):
     write_report(data, path.with_suffix('.html'))
 
 
+@serialized_log
 def record_issue(log_path, issue_id, title, status, event, details):
     """Append a dated diagnosis/change/result; never erase the earlier issue history."""
     path=Path(log_path)
@@ -132,6 +149,11 @@ def goal_report(store, goal_id):
     from .frontier import Frontier
     snapshot = store.snapshot(goal_id, history_limit=None)
     quality_reports = []
+    for row in store.db.execute("SELECT id,detail FROM activity WHERE goal_id=? AND kind='research_goal_audit' ORDER BY id",(goal_id,)):
+        review=json.loads(row['detail']).get('review',{})
+        if review.get('quality_report'):
+            quality_reports.append({'role':'Independent research completion review','artifact_id':str(row['id']),
+                                    'report':review['quality_report']})
     for d in reversed(snapshot['decisions']):
         if d.get('action') in ('complete','pause') and d.get('instructions'):
             quality_reports.append({'role':'Master review','artifact_id':d['action'],'report':d['instructions']})
@@ -157,7 +179,7 @@ def goal_report(store, goal_id):
             'implementations': snapshot['implementations'],
             'verifications': [dict(r) for r in store.db.execute('SELECT * FROM verifications WHERE implementation_id IN (SELECT id FROM implementations WHERE goal_id=?)', (goal_id,))],
             'completion_audits': [dict(r) for r in store.db.execute('SELECT * FROM completion_audits WHERE goal_id=?', (goal_id,))],
-            'campaign_events': [dict(r) for r in store.db.execute("SELECT kind,detail,created FROM activity WHERE goal_id=? AND kind IN ('campaign_stopped','campaign_resumed','campaign_checkpoint','read_only_recovery','decision_rejected','manager_budget_exhausted','human_repair_feedback','research_challenged','evidence_registered','manager_inventory','manager_frontier_query') ORDER BY id",(goal_id,))],
+            'campaign_events': [dict(r) for r in store.db.execute("SELECT kind,detail,created FROM activity WHERE goal_id=? AND kind IN ('campaign_stopped','campaign_resumed','campaign_checkpoint','read_only_recovery','decision_rejected','manager_budget_exhausted','manager_protocol_failure','manager_provider_failure','provider_request_failed','review_gate_rejected','review_gate_correction','research_allocation','investigator_handoff','investigator_plan_normalized','research_goal_audit','campaign_strategy_changed','human_repair_feedback','research_challenged','evidence_registered','manager_inventory','manager_frontier_query') ORDER BY id",(goal_id,))],
             'spending_requests': [dict(r) for r in store.db.execute('SELECT * FROM spending_requests WHERE goal_id=? ORDER BY created',(goal_id,))],
             'runs': [{'name': 'Model usage', 'events': [json.loads(r[0]) for r in store.db.execute(
                 "SELECT detail FROM activity WHERE goal_id=? AND kind='usage' ORDER BY created", (goal_id,))]}]}
