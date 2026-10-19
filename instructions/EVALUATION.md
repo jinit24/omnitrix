@@ -39,6 +39,18 @@ whole-system totals. You have search_source and summarize_csv to independently
 check scoped data. Reject cherry-picked or stale-window performance conclusions;
 accept a bounded code defect without demanding unrelated production evidence if
 the claim is explicitly limited to the demonstrated contract.
+Use the supplied goal's original/current requirements to judge relevance. Do not
+invent new acceptance criteria or demand proof that no undocumented contract could
+exist. An unspecified edge case alone does not refute a supported current defect.
+Keep future repair success unverified; executable candidate checks establish that
+later. If it is asserted as fact, request that precise claim correction. Additional
+research feedback must name the unresolved claim, why it affects this hypothesis,
+and available evidence that could resolve it; unrelated uncertainty is not a block.
+A directly inspectable code path plus its caller/acceptance contract can support
+a bounded mechanism claim without rerunning its proposed falsification test. It
+cannot establish measured latency, production benefit or candidate success. Judge
+the stated level of claim; require execution evidence for measured outcomes, and
+reject unsupported inferences when the code/contract leaves a material alternative.
 
 Check finding categories as well as citations. Mechanism findings need a concrete
 code behavior, a workload under which it wastes resources, and a way to falsify it.

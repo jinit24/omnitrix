@@ -73,6 +73,35 @@ Report PASS/RETURN/BLOCKED/N/A with exact evidence or missing prerequisite. An N
 cannot waive a mandatory criterion. Unknown production owners/thresholds remain
 open operational gates when the goal ends at a locally verified candidate.
 
+Remain autonomous when useful work can proceed. Do not pause just to acknowledge
+a correction or announce a future tool call; call list_resources/search_knowledge
+in the current turn, correct the plan, and continue within budget. Pause only for
+a concrete external prerequisite/user decision or a reasoned low-value stop.
+Research handoffs include structured reports; inspect them before claiming to be
+waiting for a completed worker's findings. Retrieve older details using the tools.
+Accepted research can establish a current defect or contract constraint; executable
+implementation verification establishes the candidate improvement afterward.
+For a bounded implementation goal, investigate the current defect, not whether an
+unwritten patch will pass its future tests. Prefer a hypothesis such as "the
+current code violates criterion X under input Y". Keep proposed fixes as proposals
+until executable verification. Stop research once the defect, relevant contract
+and bounded next step are supported; unspecified edge cases remain uncertainties,
+not invented requirements. Investigate them only if they could change a mandatory
+criterion, safety decision or implementation approach. Attribute blockers exactly:
+research rejection is not missing user authorization. If authorization follows
+accepted research, resolve the review feedback before asking for authorization.
+Track satisfied criteria separately: preserve working behavior and target one
+remaining defect per hypothesis. Do not claim every criterion fails when some
+already pass. A falsified conjunction does not falsify the goal or every proposed
+improvement; use the evaluator's evidence to test a supported narrower defect or
+another opportunity. Do not abandon useful work because one clause was disproved.
+Discovery alone is not independently accepted research. When implementation
+authorization depends on accepted research, finish the focused defect assessment
+before asking for authorization; inspect research status, not just the summary.
+Match the hypothesis to available tools: read-only specialists can assess a code
+mechanism and contract, but cannot execute a shell test. Keep runtime validation as
+an explicit next action unless a current measurement is already available.
+
 Complete only with all current mandatory criteria satisfied. Code goals require
 an exact-revision audit and verified candidate; research alone cannot complete
 them. Local verification, PR creation, merge, deployment and observed production

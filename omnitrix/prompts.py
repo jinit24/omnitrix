@@ -22,7 +22,9 @@ def load_instructions(role: str, policy: str = '') -> str:
     Unknown roles and missing files fail instead of silently skipping quality rules.
     """
     files = ('QUALITY_GATES', *ROLE_FILES[role])
-    parts = [(ROOT / 'instructions' / f'{name}.md').read_text() for name in files]
+    packaged = Path(__file__).with_name('instructions')
+    directory = packaged if packaged.is_dir() else ROOT / 'instructions'
+    parts = [(directory / f'{name}.md').read_text() for name in files]
     if any(not part.strip() for part in parts):
         raise ValueError(f'Empty instruction file for role {role}')
     if policy.strip():

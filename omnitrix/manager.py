@@ -50,8 +50,24 @@ def compact_snapshot(snapshot, store=None):
     # Findings already occur in task results. Keep questions/blockers, and exactly
     # one full implementation handoff for the final review (not every past attempt).
     messages = snapshot.get('worker_messages', [])
+    represented_jobs = {t['result'].get('job_id') for t in context['tasks'] if isinstance(t['result'],dict)}
+    unique_findings = []
+    for message in messages:
+        if message['kind'] != 'findings':
+            continue
+        body = json.loads(message['body']) if isinstance(message['body'],str) else message['body']
+        job_id = body.get('job_id') if isinstance(body,dict) else None
+        if not job_id or job_id in represented_jobs:
+            continue
+        summary = brief_result(body)
+        if 'report_summary' in summary:
+            summary['report'] = summary.pop('report_summary')
+        unique_findings.append(message | {'body':json.dumps(summary),'compacted':True})
+        represented_jobs.add(job_id)
+        if len(unique_findings)==3:
+            break
     latest = next((m for m in messages if m['kind'] == 'implementation_handoff'), None)
-    context['worker_messages'] = ([latest] if latest else []) + [
+    context['worker_messages'] = ([latest] if latest else []) + unique_findings + [
         m for m in messages if m['kind'] in ('question','blocker')][:5]
     context['pending_messages'] = [m for m in snapshot.get('pending_messages', [])
                                     if m['kind'] != 'findings'][-10:]
@@ -81,7 +97,7 @@ def compact_snapshot(snapshot, store=None):
             context['implementation_readiness'].append({'id': row['id'], 'status': row['status'], **readiness})
         ids = [row['id'] for row in context['implementations']]
         latest_handoff = store.db.execute("SELECT kind,body,task_id,created FROM messages WHERE goal_id=? AND kind='implementation_handoff' ORDER BY created DESC LIMIT 1", (goal_id,)).fetchone()
-        context['worker_messages'] = ([dict(latest_handoff)] if latest_handoff else []) + [
+        context['worker_messages'] = ([dict(latest_handoff)] if latest_handoff else []) + unique_findings + [
             m for m in messages if m['kind'] in ('question','blocker')][:5]
         context['verification'] = [dict(r) for r in store.db.execute(
             '''SELECT v.implementation_id,v.candidate,v.requirement,v.passed,v.exit_code,v.artifact,v.failure_kind

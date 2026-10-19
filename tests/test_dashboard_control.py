@@ -152,3 +152,17 @@ async def test_accept_rechecks_revision_after_waiting_for_manager_lock(control):
         if supervisor.actor.locked():
             supervisor.actor.release()
         await supervisor.close()
+
+
+def test_malformed_requirement_proposal_does_not_break_state(control):
+    store, goal, other, base = control
+    bad = {'constraint': 'Preserve interfaces', 'add_requirements': 'not a list'}
+    with pytest.raises(ValueError, match='list'):
+        Control(store).propose(goal, 'requirements', bad)
+    with pytest.raises(HTTPError) as error:
+        request(base, '/api/commands', payload(goal, command='requirements', text=json.dumps(bad)))
+    assert error.value.code == 409
+    store.execute('INSERT INTO proposals VALUES(?,?,?,?,?,?)', ('legacy', goal, 'requirements', json.dumps(bad), 'pending', 1))
+    assert request(base)[0] == 200
+    proposal = next(p for g in request(base)[1]['goals'] for p in g['data']['proposals'] if p['id'] == 'legacy')
+    assert proposal['review']['invalid'] and proposal['review']['stale']

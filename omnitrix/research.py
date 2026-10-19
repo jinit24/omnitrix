@@ -194,6 +194,17 @@ class Research:
                 'evaluation': evaluation.model_dump() if evaluation else None,
                 'report': report.model_dump() if report else None}
 
+    def _lock_current_revision(self, job, revision):
+        # Hold the writer lock through evidence publication. Control.current()
+        # initializes state and commits, so compare durable versions directly.
+        self.db.execute('BEGIN IMMEDIATE')
+        goal = self.db.execute('SELECT max(revision) FROM goal_versions WHERE goal_id=?',
+                               (job['goal_id'],)).fetchone()[0]
+        policy = self.db.execute('SELECT max(version) FROM policy_versions WHERE goal_id=?',
+                                 (job['goal_id'],)).fetchone()[0]
+        return (goal == revision['goal']['revision'] and policy == revision['policy']['version']
+                and self.job(job['id'])['status'] != 'invalidated')
+
     async def attempt(self, job_id, feedback=''):
         job = self.job(job_id)
         spec = ResearchPlan.model_validate_json(job['spec'])
@@ -231,8 +242,11 @@ class Research:
                 report = DiscoveryReport.model_validate(report)
                 if not any(not source['stale'] for source in tools.evidence()):
                     raise ValueError('Discovery inspected no current evidence. Read scoped sources before returning a map; filename assumptions alone do not complete discovery.')
-                self.save_discovery(job, report, tools)
-                return self.finish(job, run_id, 'discovered', report)
+                with self.db:
+                    if not self._lock_current_revision(job, revision):
+                        return self.finish(job, run_id, 'stale', report, feedback='Revision changed before discovery publication')
+                    self.save_discovery(job, report, tools)
+                    return self.finish(job, run_id, 'discovered', report)
             report = ResearchReport.model_validate(report)
             # Evaluation has a fresh agent context, captured excerpts, and its own bounded reads.
             self.charge(job['goal_id'])
@@ -251,8 +265,11 @@ class Research:
             status = evaluation.verdict
             if status in ('insufficient', 'blocked') and job['attempts'] + 1 >= spec.budget.attempts:
                 status = 'escalated'
-            self.save_findings(job, report, evaluation)
-            return self.finish(job, run_id, status, report, evaluation, evaluation.feedback)
+            with self.db:
+                if not self._lock_current_revision(job, revision):
+                    return self.finish(job, run_id, 'stale', report, feedback='Revision changed before findings publication')
+                self.save_findings(job, report, evaluation)
+                return self.finish(job, run_id, status, report, evaluation, evaluation.feedback)
         except asyncio.CancelledError:
             self.finish(job, run_id, 'interrupted', feedback='Cancelled; reconcile captured observations before retry')
             raise
@@ -274,7 +291,9 @@ class Research:
         if evaluation.verdict in ('supported', 'falsified') and not evaluation.evidence_ids:
             errors.append('Evaluator must cite independently available evidence')
         if evaluation.verdict == 'supported' and (not claims or any(not f.evidence_ids for f in claims)):
-            errors.append('Every asserted claim needs observed evidence; assumptions are not verified facts')
+            missing = [f.statement[:180] for f in claims if not f.evidence_ids]
+            errors.append('Every asserted claim needs observed evidence; uncited claims: ' +
+                          json.dumps(missing) + '. Cite captured sources or move unexamined gaps to uncertainties/assumptions')
         if evaluation.verdict == 'supported' and any(not set(f.evidence_ids).issubset(evaluation.evidence_ids) for f in claims):
             errors.append('Evaluator evidence must cover every factual claim, not unrelated observations')
         if report.blocked and evaluation.verdict == 'supported':

@@ -35,6 +35,7 @@ class Supervisor:
         self._lock = None
         self.closed = False
         self.housekeeper = None
+        self.heartbeat_task = None
 
     async def open(self):
         self._lock = open(str(self.store.path)+'.lock', 'a')
@@ -43,12 +44,25 @@ class Supervisor:
         except BlockingIOError:
             self._lock.close()
             raise RuntimeError('Another manager owns this database') from None
-        self.control.initialize(self.goal_id)
-        self.control.recover(self.goal_id)
-        # Uncertain implementations must be inspected, never automatically reexecuted.
-        self.store.execute("UPDATE implementations SET status='uncertain' WHERE goal_id=? AND status='running'", (self.goal_id,))
-        self.housekeeper = asyncio.create_task(self.housekeeping())
+        try:
+            self.control.initialize(self.goal_id)
+            self.control.recover(self.goal_id)
+            # Uncertain implementations must be inspected, never automatically reexecuted.
+            self.store.execute("UPDATE implementations SET status='uncertain' WHERE goal_id=? AND status='running'", (self.goal_id,))
+            self.control.heartbeat(self.goal_id, self.owner, start=True)
+            self.heartbeat_task = asyncio.create_task(self.keep_presence())
+            self.housekeeper = asyncio.create_task(self.housekeeping())
+        except BaseException:
+            self._lock.close()
+            self._lock = None
+            raise
         return self
+
+    async def keep_presence(self):
+        # Separate from inbox processing: a slow model reply must not hide a live owner.
+        while not self.closed:
+            self.control.heartbeat(self.goal_id, self.owner)
+            await asyncio.sleep(2)
 
     async def housekeeping(self):
         while not self.closed:
@@ -155,6 +169,7 @@ class Supervisor:
                 return {'waiting': bool(self.work)}
             # Unknown external outcomes are a reconciliation requirement, not a retry signal.
             unresolved = self.db.execute("SELECT 1 FROM task_runtime WHERE state='uncertain' AND task_id IN (SELECT id FROM tasks WHERE goal_id=?)", (self.goal_id,)).fetchone()
+            unresolved = unresolved or self.db.execute("SELECT 1 FROM implementations WHERE goal_id=? AND status='uncertain'", (self.goal_id,)).fetchone()
             uncertain_delivery = self.db.execute("SELECT 1 FROM messages WHERE goal_id=? AND direction='manager_to_worker' AND state IN ('uncertain','sending')",(self.goal_id,)).fetchone()
             if unresolved or uncertain_delivery:
                 self.autonomy = 0
@@ -521,8 +536,16 @@ class Supervisor:
         if self.housekeeper:
             self.housekeeper.cancel()
             await asyncio.gather(self.housekeeper,return_exceptions=True)
+        if self.heartbeat_task:
+            self.heartbeat_task.cancel()
+            await asyncio.gather(self.heartbeat_task, return_exceptions=True)
         for task_id in list(self.work):
             await self.stop(task_id,pause=True)
-        await self.runtime.close()
-        if self._lock:
-            self._lock.close()
+        try:
+            await self.runtime.close()
+        finally:
+            try:
+                self.control.heartbeat(self.goal_id, self.owner, stopped=True)
+            finally:
+                if self._lock:
+                    self._lock.close()

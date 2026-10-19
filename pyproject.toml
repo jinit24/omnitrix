@@ -10,16 +10,21 @@ dependencies = ["openai-agents==0.24.0"]
 
 [project.optional-dependencies]
 docs = ["markdown-it-py==4.0.0"]
+browser = ["playwright==1.58.0"]
 test = ["pytest==9.1.1", "pytest-asyncio==1.4.0"]
 
 [project.scripts]
 omnitrix = "omnitrix.cli:main"
 
 [tool.setuptools]
-packages = ["omnitrix"]
+packages = ["omnitrix", "omnitrix.instructions"]
+
+[tool.setuptools.package-dir]
+"omnitrix.instructions" = "instructions"
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 
 [tool.setuptools.package-data]
+"omnitrix.instructions" = ["*.md"]
 omnitrix = ["web/*.html", "web/*.css", "web/*.js", "web/docs/*", "web/docs/experiments/*.json"]

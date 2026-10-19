@@ -308,3 +308,20 @@ async def test_nonblocking_unknowns_do_not_override_supported_evidence(project,b
     service=Research(store,Reviewer())
     job=service.plan(goal,'research',plans()[0])['job_id']
     assert (await service.attempt(job))['status']==expected
+
+
+async def test_uncertain_standalone_implementation_blocks_another_direct_action(project):
+    store,goal,repo,spec=project
+    class NoDecisions:
+        async def decide(self,state): raise AssertionError('Uncertain outcome must block new model actions')
+    service=Implementations(store,Runtime())
+    first=service.create(service.authorize(goal,spec,explicit=True))
+    store.execute("UPDATE implementations SET status='uncertain' WHERE id=?",(first,))
+    service.create(service.authorize(goal,spec,explicit=True))
+    runtime=Runtime()
+    owner=await Supervisor(store,goal,brain=NoDecisions(),runtime=runtime).open()
+    try:
+        assert 'Reconcile uncertain' in (await owner.advance(3))['blocked']
+        assert not runtime.sessions
+    finally:
+        await owner.close()
