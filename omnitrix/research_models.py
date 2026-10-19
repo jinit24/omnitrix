@@ -57,6 +57,8 @@ class DiscoveryReport(Contract):
     system_map: list[MapEntry] = Field(max_length=40)
     opportunities: list[Opportunity] = Field(max_length=12)
     gaps: list[str] = Field(max_length=20)
+    quality_report: str = Field(default='', max_length=12000,
+        description='Markdown scope coverage, evidence map/visual, ranking rationale, uncertainty and next investigation gates. Empty legacy reports are unreviewed.')
 
 
 class Finding(Contract):
@@ -72,6 +74,8 @@ class ResearchReport(Contract):
     uncertainties: list[str] = Field(max_length=15)
     recommendation: str = Field(min_length=1, max_length=2000)
     blocked: bool
+    quality_report: str = Field(default='', max_length=12000,
+        description='Markdown hypothesis, method, evidence visuals, practice comparison, uncertainty, validation/invalidation plan and research gate outcomes. Empty legacy reports are unreviewed.')
 
 
 class Evaluation(Contract):
@@ -79,3 +83,5 @@ class Evaluation(Contract):
     evidence_ids: list[str] = Field(max_length=20)
     reason: str = Field(min_length=1, max_length=3000)
     feedback: str = Field(min_length=1, max_length=3000)
+    quality_report: str = Field(default='', max_length=12000,
+        description='Independent claim-to-evidence gate assessment, checked visual/data consistency, limitations and precise return conditions. Empty legacy reviews are unreviewed.')

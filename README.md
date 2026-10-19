@@ -110,6 +110,28 @@ and invalidated knowledge. Changed source hashes, missing files and observations
 than 24 hours are flagged stale. Exact repeated investigations are detected. The manager
 can retrieve older findings in a fresh session rather than repeating worker history.
 
+## Agent quality gates
+
+Every model entry point receives `instructions/QUALITY_GATES.md` plus its own role
+prompt through `omnitrix/prompts.py`. The master manager reviews acceptance; the
+`AgentBrain` layer maintains evidence and decision quality; discovery maps scope;
+research tests hypotheses; evaluation challenges findings; repository workers inspect;
+implementation workers explain, validate and prepare operational handoff. Chat reports
+these distinctions without turning status questions into new work.
+
+New worker/research/evaluation handoffs include a Markdown `quality_report`: why the
+answer works, sourced charts/diagrams or evidence tables, established-practice fit,
+validation and limitations, role-appropriate follow-through, and PASS/RETURN/BLOCKED/N/A
+gate outcomes. Research uses validation/invalidation triggers; implementation uses
+rollout, monitoring and rollback plans. A PR alone never satisfies acceptance.
+
+These are model instructions and review gates, backed by the existing deterministic
+source, scope, authorization, revision and executable-check gates. They are not an
+automatic semantic grader or a production monitoring service. Old stored handoffs
+still load; an absent quality report is unreviewed. New/resumed model invocations load
+current prompts; an already-running turn is not retroactively changed. See
+[role contracts and review examples](docs/QUALITY_GATES.md).
+
 ## Authorize an implementation
 
 First obtain accepted research for the goal. Review a JSON specification such as:

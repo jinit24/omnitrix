@@ -6,6 +6,7 @@ import shutil
 from pathlib import Path
 import uuid
 from .codex_config import cli_config_args, codex_environment
+from .prompts import load_instructions
 
 
 class CodexRuntime:
@@ -103,7 +104,7 @@ class CodexRuntime:
         await self.connect()
         params = {**({'model':os.environ['OMNITRIX_CODEX_MODEL']} if os.getenv('OMNITRIX_CODEX_MODEL') else {}), 'cwd': workspace, 'sandbox': 'workspace-write' if write else 'read-only',
                   'approvalPolicy': 'never', 'config': {'sandbox_workspace_write.network_access': False},
-                  'developerInstructions': 'Bounded engineering task. No deployments or destructive commands. Ask for decisions when blocked.'}
+                  'developerInstructions': load_instructions('implementation' if write else 'worker')}
         if session_id:
             thread = await self.call('thread/resume', dict(params, threadId=session_id))
         else:

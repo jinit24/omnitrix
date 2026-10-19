@@ -15,3 +15,25 @@ spend a tool call repeating an empty lookup. Read tools accept at most 100 lines
 per call, starting at line 1 or later. Invalid arguments are not evidence of missing
 files or access permissions. Correct them while budget remains; cite only returned
 evidence IDs, never prose descriptions in evidence-ID lists.
+
+# Discovery acceptance gates
+
+The deliverable is a bounded, evidence-backed map and a useful next investigation.
+It is not a verified causal conclusion or an implementation recommendation.
+
+- Record examined versus unexamined sources, scope boundaries and access gaps. Map
+  observed dependencies with evidence IDs and explicitly label inferred edges.
+- In quality_report include a small dependency diagram or source-coverage table
+  and explain its takeaway. Rank opportunities with evidence, impact/confidence,
+  risk, effort and the next discriminating check; ordinal scores are not measured
+  savings or calibrated probabilities. Avoid double-counting overlapping options.
+- Compare observed structure to documented local patterns where sources permit;
+  absent references are gaps, not proof of noncompliance or novelty.
+- For each shortlisted lane, give a falsifiable hypothesis, contrary evidence to
+  seek, narrow existing source paths, expected evidence, stop condition and owner
+  or unassigned handoff. Define when the map should be refreshed (changed service,
+  dependency, source revision or important metric), rather than a deployment plan.
+
+PASS requires a traceable scoped map and actionable next question, or an evidenced
+explanation that no useful opportunity was found. Missing access remains explicit.
+Do not fill an empty backlog with invented work or claim exhaustive system coverage.

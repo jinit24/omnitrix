@@ -10,7 +10,7 @@ from pydantic import Field
 from agents import Agent, Runner, RunConfig, ModelSettings, function_tool
 from .knowledge import Knowledge, ResearchTools, source_path, read_source_bytes
 from .research_models import DiscoveryReport, ResearchReport, Evaluation, ResearchPlan
-from .workers import ROOT
+from .prompts import load_instructions
 
 
 def research_tool_error(context, error):
@@ -38,7 +38,7 @@ class ResearchAgents:
 
         output = {'discovery': DiscoveryReport, 'research': ResearchReport, 'evaluation': Evaluation}[role]
         agent = Agent(name=f'Independent {role} agent', model=self.model,
-            instructions=(ROOT / f'instructions/{role.upper()}.md').read_text(),
+            instructions=load_instructions(role),
             tools=[read_source, search_knowledge], output_type=output,
             model_settings=ModelSettings(max_tokens=3500))
         result = await Runner.run(agent, json.dumps(context), max_turns=8,

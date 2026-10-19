@@ -9,6 +9,8 @@ class Handoff(BaseModel):
     summary: str = Field(max_length=6000)
     evidence: list[str] = Field(max_length=20)
     next_steps: list[str] = Field(max_length=10)
+    quality_report: str = Field(default='', max_length=12000,
+        description='Markdown evidence, explanation, visuals, limitations, follow-through and role gate outcomes. Required for new substantive handoffs; empty legacy values are unreviewed.')
 
 
 class Decision(BaseModel):

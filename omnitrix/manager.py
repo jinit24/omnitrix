@@ -8,7 +8,7 @@ from .research import Research
 from .implementation import Implementations
 from .execution import Execution
 from .models import Decision
-from .workers import ROOT
+from .prompts import load_instructions
 
 
 class AgentBrain:
@@ -36,7 +36,7 @@ class AgentBrain:
             control = Control(self.store)
             goal_id = snapshot['goal']['id']
             current = control.current(goal_id)
-            policy = '\nDurable manager policy:\n' + current['policy']['instructions']
+            policy = current['policy']['instructions']
             session = control.session(goal_id)
             @function_tool
             async def search_knowledge(query: str = '', offset: int = 0) -> str:
@@ -56,8 +56,7 @@ class AgentBrain:
             tools += [search_knowledge, list_resources]
         agent = Agent(
             name='Engineering manager', model=self.model,
-            instructions=(ROOT / 'instructions/MANAGER.md').read_text() + '\n' +
-                         (ROOT / 'instructions/KNOWLEDGE.md').read_text() + policy,
+            instructions=load_instructions('manager', policy),
             tools=tools, output_type=Decision)
         # Stable objective + concise outcomes, never worker event streams.
         context = {**snapshot, 'tasks': snapshot['tasks'][-20:],

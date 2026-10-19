@@ -1,12 +1,11 @@
 """Adapter boundary; the database owns status, adapters own execution sessions."""
 import asyncio
 import json
-from pathlib import Path
 from typing import Callable, Protocol
+from agents.strict_schema import ensure_strict_json_schema
 from .models import Handoff
 from .codex_config import api_provider_config, codex_environment
-
-ROOT = Path(__file__).resolve().parents[1]
+from .prompts import ROOT, load_instructions
 
 
 class Worker(Protocol):
@@ -26,7 +25,8 @@ class CodexWorker:
 
     async def run(self, instructions, workspace, session_id, on_session):
         payload = json.dumps(dict(instructions=instructions, workspace=workspace,
-                                  session_id=session_id, schema=Handoff.model_json_schema(), config=api_provider_config()))
+                                  role_instructions=load_instructions('worker'),
+                                  session_id=session_id, schema=ensure_strict_json_schema(Handoff.model_json_schema()), config=api_provider_config()))
         proc = await asyncio.create_subprocess_exec(
             'node', str(ROOT / 'bridge/codex.mjs'), env=codex_environment(), stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)

@@ -9,6 +9,7 @@ import subprocess
 import time
 import uuid
 from pydantic import Field
+from agents.strict_schema import ensure_strict_json_schema
 from .research_models import Contract
 from .control import Control
 from .knowledge import Knowledge
@@ -49,6 +50,8 @@ class ImplementationHandoff(Contract):
     tests_run: list[str] = Field(max_length=20)
     unresolved_concerns: list[str] = Field(max_length=20)
     questions: list[str] = Field(max_length=10)
+    quality_report: str = Field(default='', max_length=12000,
+        description='Markdown why the fix works, evidence/visuals, established practice, criterion validation, rollout/monitoring/rollback plan and gate outcomes. Empty legacy handoffs are unreviewed.')
 
 
 class ImplementationSpec(Contract):
@@ -176,8 +179,8 @@ class Implementations:
                 prompt = json.dumps({'objective': spec.objective, 'research': findings,
                     'constraints': self.control.current(row['goal_id']), 'allowed_paths': spec.allowed_paths,
                     'checks': [c.model_dump() for c in spec.checks], 'feedback': row['feedback'],
-                    'instructions': 'Implement only this objective in this worktree. Run tests. Do not commit, deploy, access production, or run destructive commands. Ask manager if a decision is needed. Return artifacts and unresolved concerns.'})
-                thread_id, turn_id = await self.runtime.start(str(workspace), prompt, write=True,schema=ImplementationHandoff.model_json_schema(),
+                    'instructions': 'Implement only this objective in this worktree and follow the implementation role quality gates. Run tests. Do not commit, deploy, access production, or run destructive commands. Return artifacts, unresolved concerns and quality_report with evidence, explanation, visuals and the monitoring/rollback plan; mark gaps explicitly.'})
+                thread_id, turn_id = await self.runtime.start(str(workspace), prompt, write=True,schema=ensure_strict_json_schema(ImplementationHandoff.model_json_schema()),
                     on_thread=(lambda sid: self.store.execute('UPDATE task_runtime SET session_id=? WHERE task_id=?',(sid,task_id))) if task_id else None)
                 if task_id:
                     self.store.execute('UPDATE task_runtime SET session_id=?,turn_id=? WHERE task_id=?', (thread_id,turn_id,task_id))

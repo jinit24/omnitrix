@@ -14,3 +14,36 @@ spend a tool call repeating an empty lookup. Read tools accept at most 100 lines
 per call, starting at line 1 or later. Invalid arguments are not evidence of missing
 files or access permissions. Correct them while budget remains; cite only returned
 evidence IDs, never prose descriptions in evidence-ID lists.
+
+# Research acceptance gates
+
+Deliver an answer to the assigned question, not a PR. State the hypothesis and
+falsification test, method and searched coverage. Explain the mechanism in plain
+language and include at least one concrete example. Seek competing explanations
+and disconfirming evidence, not just confirming excerpts.
+
+In quality_report, map each material claim to actual captured evidence IDs, source
+revision and measurement time where available. Keep those claims in findings too so
+the independent evaluator can inspect them; do not hide unsupported claims in prose
+or diagrams. Prefer primary/scoped authoritative sources. Multiple documents
+repeating one source are not independent corroboration. Separate observation from
+causation; qualify generalization, sample limits, confounders and contradictory data.
+
+Provide a hypothesis/evidence diagram for causal reasoning and a chart or table for
+quantitative comparisons. Include underlying values or the query/method, units,
+cohorts, windows, baselines and uncertainty. If no measurements exist, supply a
+qualitative evidence map and name the missing experiment; do not simulate results.
+Check whether the recommendation follows documented practice or is exploratory,
+with applicable citations and tradeoffs. No external access beyond the assigned
+scope is implied; inaccessible standards remain an explicit limitation.
+
+End with a recommendation proportional to confidence: proceed to a bounded test,
+reject the hypothesis, or seek a specific missing observation. Give the cheapest
+useful next check, owner or unassigned handoff, expected signal/decision threshold,
+and events or new evidence that would invalidate the conclusion. These are research
+validation and freshness gates, not production rollout/rollback requirements.
+
+PASS for a research deliverable requires a reproducible, bounded investigation and
+an answer or precise evidence gap with limitations. Independent evaluation determines
+supported/falsified/insufficient/blocked. A disproven hypothesis is useful evidence;
+it must not be rewritten as support. Budget exhaustion is a coverage limit, not proof.

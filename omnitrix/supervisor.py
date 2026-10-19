@@ -7,6 +7,7 @@ import time
 import uuid
 from agents import Agent, Runner, RunConfig
 from agents.exceptions import MaxTurnsExceeded
+from agents.strict_schema import ensure_strict_json_schema
 from .control import Control
 from .execution import Execution
 from .implementation import Implementations
@@ -15,7 +16,7 @@ from .manager import AgentBrain
 from .models import ChatReply,Handoff
 from .research import Research
 from .runtime import CodexRuntime
-from .workers import ROOT
+from .prompts import load_instructions
 
 
 class Supervisor:
@@ -230,7 +231,7 @@ class Supervisor:
                 session_id = previous['session_id']
             async def run(task_id):
                 thread_id, turn_id = await self.runtime.start(self.status()['goal']['workspace'], decision.instructions, session_id,
-                    on_thread=lambda sid: self.store.execute('UPDATE task_runtime SET session_id=? WHERE task_id=?',(sid,task_id)),schema=Handoff.model_json_schema())
+                    on_thread=lambda sid: self.store.execute('UPDATE task_runtime SET session_id=? WHERE task_id=?',(sid,task_id)),schema=ensure_strict_json_schema(Handoff.model_json_schema()))
                 self.store.execute('UPDATE task_runtime SET session_id=?,turn_id=? WHERE task_id=?', (thread_id,turn_id,task_id))
                 self.store.execute('UPDATE tasks SET session_id=? WHERE id=?', (thread_id, task_id))
                 result = await self.runtime.wait(thread_id, turn_id, 300)
@@ -375,7 +376,7 @@ class Supervisor:
             session = self.control.session(self.goal_id)
             current = self.control.current(self.goal_id)
             agent = Agent(name='Engineering manager', model=self.brain.model if hasattr(self.brain,'model') else 'gpt-4.1',
-                instructions=(ROOT / 'instructions/CHAT.md').read_text()+'\n'+current['policy']['instructions'], output_type=ChatReply)
+                instructions=load_instructions('chat', current['policy']['instructions']), output_type=ChatReply)
             try:
                 result = await asyncio.wait_for(Runner.run(agent, json.dumps({'user_message':text,
                     'state':self.status(),'policy':current['policy']}), session=session,

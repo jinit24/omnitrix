@@ -162,3 +162,24 @@ async def test_manager_can_see_authorized_checks_instead_of_guessing_they_are_mi
     assert visible['spec']['checks'][0]['argv']
     assert {c['requirement'] for c in visible['spec']['checks']}=={'Double positive numbers','Handle zero'}
     assert visible['authorization_revoked']==0
+
+
+async def test_implementation_quality_report_reaches_manager_with_strict_schema(project):
+    report = 'Why: multiplication preserves zero.\nMonitoring: N/A for local fixture; rerun acceptance checks.'
+
+    class ReportingRuntime(CodingRuntime):
+        async def start(self, workspace, instructions, **kwargs):
+            assert 'quality_report' in kwargs['schema']['required']
+            return await super().start(workspace, instructions, **kwargs)
+
+        async def wait(self, *args):
+            return {'status': 'completed', 'items': [{'type': 'agentMessage', 'text': json.dumps({
+                'summary': 'Corrected double', 'artifacts': ['service.py'], 'tests_run': [],
+                'unresolved_concerns': ['Worker tests not run; independent checks pending'],
+                'questions': [], 'quality_report': report})}]}
+
+    service, implementation = await create(project, ReportingRuntime())
+    assert (await service.run(implementation))['status'] == 'ready_for_audit'
+    messages = project[0].snapshot(project[1])['worker_messages']
+    handoff = next(json.loads(m['body']) for m in messages if m['kind'] == 'implementation_handoff')
+    assert handoff['report']['quality_report'] == report
