@@ -39,6 +39,44 @@ def test_claim_review_can_bind_a_fresh_broader_observation_of_the_same_source():
     assert Research.gate(report,review,evidence).verdict=='insufficient'
 
 
+async def test_true_measurement_gap_is_downgraded_instead_of_counted_as_a_mechanism(tmp_path):
+    (tmp_path/'benchmark.py').write_text('def benchmark(queue,rows):\n    for row in rows: queue.put(row)\n')
+    store=Store(tmp_path/'state.db');goal=store.create_goal('Find resource waste',['Actual mechanisms'],tmp_path)
+    class Agents:
+        async def run(self,role,context,tools):
+            if role=='research':
+                source=tools.read('benchmark.py')['id']
+                return ResearchReport(findings=[Finding(statement='Benchmark contains serial writes; concurrent contention remains unmeasured',
+                    classification='claim',evidence_ids=[source],category='mechanism',workload='Serial writes',falsification='Concurrent readers run here')],
+                    supporting_evidence=[source],contradictory_evidence=[],uncertainties=[],recommendation='Measure contention',blocked=False)
+            ids=context['report']['supporting_evidence']
+            return Evaluation(reason='A true scoped fact, but missing measurements establish no resource waste',feedback='Inspect runtime implementation',
+                verdict='supported',evidence_ids=ids,test_evidence_ids=ids,test_kind='direct',
+                claim_reviews=[ClaimReview(finding_index=0,reason='Gap only',evidence_ids=ids,category='evidence_gap',supported=True)])
+    research=Research(store,Agents());job=research.plan(goal,'research',ResearchPlan(scope=['benchmark.py'],
+        question='What workload does this benchmark execute?',hypothesis='Benchmark executes serial writes',falsification='Concurrent writes execute'))['job_id']
+    assert (await research.attempt(job))['status']=='supported'
+    import json
+    body=json.loads(store.db.execute("SELECT body FROM knowledge WHERE kind='finding'").fetchone()[0])
+    assert body['finding']['category']=='evidence_gap' and not body['mechanism_category_reviewed']
+
+
+def test_mechanism_review_must_independently_identify_waste_and_observed_code():
+    report=ResearchReport(findings=[Finding(statement='Repeated count scans create quadratic work',classification='claim',evidence_ids=['code'],
+        category='mechanism',workload='N unique keys',falsification='An index avoids repeated scanning')],supporting_evidence=['code'],
+        contradictory_evidence=[],uncertainties=[],recommendation='Build counts once',blocked=False)
+    claim=ClaimReview(finding_index=0,reason='Observed nested scan',evidence_ids=['code'],category='mechanism',supported=True)
+    review=Evaluation(reason='Source establishes N scans of N keys',feedback='Measure candidate',evidence_ids=['code'],claim_reviews=[claim],verdict='supported')
+    evidence=[{'id':'code','stale':False,'locator':'service.py','excerpt':'def counts(keys): return [keys.count(k) for k in keys]'}]
+    assert Research.gate(report,review,evidence).verdict=='insufficient'
+    claim.resource_cost='N full scans of N keys use O(N²) comparisons instead of one counting pass'
+    assert Research.gate(report,review,evidence).verdict=='insufficient'
+    claim.avoidable_work='The same complete list is rescanned for each key'
+    claim.equivalent_alternative='Build frequencies once, then return the frequency for each input key; same list-count contract'
+    claim.primary_code_id='code';claim.code_symbol='counts'
+    assert Research.gate(report,review,evidence).verdict=='supported'
+
+
 def test_duplicate_investigation_does_not_return_another_goals_job(tmp_path):
     (tmp_path / 'system.md').write_text('system')
     store = Store(tmp_path / 'state.db')

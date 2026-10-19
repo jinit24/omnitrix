@@ -272,7 +272,7 @@ class Supervisor:
             async def investigate(task_id):
                 return await self.research.attempt(job_id, decision.instructions if action=='retry_research' else '')
             return {'task_id': await self.submit('research', {'job_id': job_id}, investigate,
-                json.loads(self.research.job(job_id)['spec'])['budget']['seconds'] * 2 + 10)}
+                json.loads(self.research.job(job_id)['spec'])['budget']['seconds'] * 3 + 10)}
         if action in ('implement','audit'):
             service = Implementations(self.store, self.runtime)
             row = service.get(decision.implementation_id)

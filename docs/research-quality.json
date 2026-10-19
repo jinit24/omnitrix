@@ -690,9 +690,32 @@
             },
             "interpretation": "Source coverage expanded to 74 files, but no verified inefficiency mechanism or implemented optimization emerged. The two terminal hypothesis verdicts are not proof of causal correctness or useful findings."
           }
+        },
+        {
+          "at": "2026-10-19T04:26:12.454532+00:00",
+          "status": "still open on Kafka; controlled investigator improves over manager",
+          "event": "latest controlled comparison",
+          "details": {
+            "round": ".omnitrix/research-compare-09",
+            "investigator": "Both cases complete with correct component and numeric total, 42\u201348 seconds and $0.085\u2013$0.096.",
+            "single_codex_model": "Both report 8/8 heuristic checks, 33 seconds and about $0.06 each.",
+            "default_manager": "Positive completes in 115 seconds/$0.557; negative reaches dollar ceiling in 130 seconds/$0.676 with 6/8 checks and missing accepted numeric total.",
+            "conclusion": "No demonstrated superiority over single Codex. Kafka still needs actual code-supported inefficiency findings; repeated measurement-gap audits remain a live failure."
+          }
+        },
+        {
+          "at": "2026-10-19T04:42:59.498524+00:00",
+          "status": "still open on Kafka; original-loop and reviewer controls strengthened",
+          "event": "final development comparison",
+          "details": {
+            "round": ".omnitrix/research-compare-12",
+            "investigator": "Fresh Codex-model evidence/completion reviews: both controlled cases complete with correct target and numeric total; 103\u2013104 seconds, $0.198\u2013$0.213; heuristic checks 7/8 and 8/8.",
+            "single_codex_model": "Both correct target/numeric total; 32\u201334 seconds, $0.062 each; heuristic checks 7/8 each.",
+            "conclusion": "No demonstrated superiority; stronger reviews improve the harder classification probes but add substantial overhead. Large public-repository useful discovery remains unproven."
+          }
         }
       ],
-      "status": "open; final paused probe has zero verified mechanisms"
+      "status": "still open on Kafka; original-loop and reviewer controls strengthened"
     },
     {
       "id": "R32",
@@ -1061,9 +1084,18 @@
             "fix": "Investigator hypotheses must describe currently tested claims. A separate metered reviewer checks the original objective and each indexed requirement against actual fresh finding IDs before completion. Cache unchanged failed reviews to avoid repeated spending.",
             "validation": "Invented finding-ID rejection and unchanged-review caching regressions pass. The manager strategy retains its existing minimum gates; numerical gates alone are not a semantic guarantee."
           }
+        },
+        {
+          "at": "2026-10-19T04:29:16.441774+00:00",
+          "status": "completion audit enforced across actor entry points; regressions pass",
+          "event": "additional safeguard",
+          "details": {
+            "fix": "The campaign dispatcher requires a matching fresh audit digest for investigator completion, even through alternate actor/inbox routes. Digest covers current goal, policy, fresh findings and next actions. Changed sources or instructions invalidate the audit.",
+            "test": "Absent audit rejected, current audit accepted, changed source rejected. Corrected-review context also retains original/current requirements from concurrent main changes."
+          }
         }
       ],
-      "status": "independent completion audit implemented for investigator; live validation pending"
+      "status": "completion audit enforced across actor entry points; regressions pass"
     },
     {
       "id": "R44",
@@ -1114,6 +1146,129 @@
         }
       ],
       "status": "regression passes; Kafka owner paused to adopt the fix"
+    },
+    {
+      "id": "R46",
+      "title": "Operator pause is mislabeled as exhausted dollars",
+      "history": [
+        {
+          "at": "2026-10-19T04:29:16.420801+00:00",
+          "status": "fixed; regression passes",
+          "event": "live diagnosis and correction",
+          "details": {
+            "problem": "A deliberate Kafka pause arrived between API calls. The next reservation correctly failed, but the campaign exception handler replaced paused with dollar_budget despite $9.59 still available.",
+            "fix": "Preserve an existing explicit stopped state when reservation fails. A reached wall deadline is reported as deadline.",
+            "test": "Pause during model turn preserves paused state, operator reason and untouched money. No spending guard was relaxed."
+          }
+        }
+      ],
+      "status": "fixed; regression passes"
+    },
+    {
+      "id": "R47",
+      "title": "A measurement gap is accepted as an inefficiency mechanism",
+      "history": [
+        {
+          "at": "2026-10-19T04:35:29.729633+00:00",
+          "status": "category downgrade and resource-waste review implemented; 4/4 live challenges pass",
+          "event": "live diagnosis and fix",
+          "details": {
+            "problem": "Kafka accepted a correctly described missing concurrent-read benchmark comparison as a mechanism, inflating the completion count.",
+            "fix": "Reviewer explicitly assigns each factual finding category and explains resource_cost for mechanisms, with code/workload/falsifier evidence. Accepting a scoped fact may downgrade its category. Older unreviewed categories do not count. Known false positive corrected with original report retained.",
+            "validation": "End-to-end category downgrade and explicit waste/code regressions pass. Four live reviewer traps pass, including correct fact acceptance without mechanism credit. Semantic category accuracy remains an empirical model limitation."
+          }
+        },
+        {
+          "at": "2026-10-19T04:40:36.226703+00:00",
+          "status": "real recurrence reproduced; stronger reviewer passes 6/6 probes; Kafka verification pending",
+          "event": "regression and model comparison",
+          "details": {
+            "recurrence": "After the 4/4 simple tests passed, GPT-4.1 again counted parameterized benchmark definitions as a mechanism. Its resource_cost merely said code-defined parameterized runtime costs, not wasted work. Structural fields alone are insufficient.",
+            "controlled_test": "Added a less explicit benchmark-definition trap plus a positive quadratic-code mechanism control. Same evidence/contract supplied to fresh model sessions. GPT-4.1 passes 5/6 and falsely credits the definition trap; GPT-5.3-Codex passes 6/6, rejects that trap and supports the actual static code mechanism.",
+            "fix": "Investigator hypothesis and goal-completion reviews now use fresh Codex-model contexts. Shared original request ledger still enforces one cap; default manager remains GPT-4.1. Code-research allocation explicitly requests runtime mechanism tests after prior investigations rather than another availability audit.",
+            "limitation": "Six development probes do not establish general semantic reliability or production accuracy. Fresh Kafka results will be audited."
+          }
+        }
+      ],
+      "status": "real recurrence reproduced; stronger reviewer passes 6/6 probes; Kafka verification pending"
+    },
+    {
+      "id": "R48",
+      "title": "Direct tool schema permits invalid source page sizes",
+      "history": [
+        {
+          "at": "2026-10-19T04:35:29.751403+00:00",
+          "status": "SDK bounds aligned with research roles; regressions pass",
+          "event": "diagnosis and fix",
+          "details": {
+            "problem": "Kafka primary requested 220\u2013260 lines despite the 100-line reader ceiling, wasting calls and reusing old source observations.",
+            "fix": "Expose the same positive cursors and 1\u2013100 line bounds in the SDK tool schemas for both investigator and single-agent comparison."
+          }
+        }
+      ],
+      "status": "SDK bounds aligned with research roles; regressions pass"
+    },
+    {
+      "id": "R49",
+      "title": "Large-space investigation has pathname search but no global content navigation",
+      "history": [
+        {
+          "at": "2026-10-19T04:35:29.771631+00:00",
+          "status": "bounded literal content search implemented; cursor/scope regressions pass",
+          "event": "diagnosis and fix",
+          "details": {
+            "problem": "The investigator repeatedly selected benchmark filenames; it could only search content after already guessing each source path. This makes locating runtime implementations and callers unnecessarily difficult in a 7,545-file tree.",
+            "fix": "search_scope streams ripgrep over explicit indexed scope in bounded batches (500 files/16 MiB; one source may be up to 32 MiB), limits arguments/time/hits, captures real matching source lines, and exposes a continuation cursor. Empty pages are not whole-repository absence proof. Both comparison arms receive the same tool.",
+            "validation": "12 matching sources paginate 8+4 without skipping hits or reading outside explicit scope. A zero-hit 500-file page continues to a match in file 501. New live comparison and Kafka continuation started.",
+            "pid": 45634
+          }
+        }
+      ],
+      "status": "bounded literal content search implemented; cursor/scope regressions pass"
+    },
+    {
+      "id": "R50",
+      "title": "HTML checkpoint can be delayed by a slow planning call",
+      "history": [
+        {
+          "at": "2026-10-19T04:42:59.471257+00:00",
+          "status": "documented; request/evidence records remain durable in SQLite",
+          "event": "operational limitation",
+          "details": {
+            "observation": "The owner awaits bounded planning in the main loop, so an approximately minute-long HTML cadence can slip during that call. Independent mission-control heartbeat remains separate.",
+            "action": "Corrected the campaign guide to distinguish HTML checkpoint cadence from immediately persisted request/evidence records. A surviving host is still needed for multi-day work."
+          }
+        }
+      ],
+      "status": "documented; request/evidence records remain durable in SQLite"
+    },
+    {
+      "id": "R51",
+      "title": "Ordinary cost candidates and duplicate descriptions can satisfy the mechanism quota",
+      "history": [
+        {
+          "at": "2026-10-19T04:46:56.640506+00:00",
+          "status": "stronger proof and unique code-symbol counting implemented; regression/live validation running",
+          "event": "real recurrence and correction",
+          "details": {
+            "failure": "The stronger reviewer also approved benchmark-defined possible costs as mechanisms, and its completion audit accepted a controlled-analysis interpretation of an actual inefficiency goal. The original four criteria were too easy to satisfy through a candidate catalog. This is a real false completion, not research success.",
+            "fix": "Mechanism reviews now name avoidable_work, an equivalent_alternative, primary observed scoped code and its exact symbol. Plausible cost leads have a separate candidate category. Count distinct locator/symbol identities rather than rows. Goal completion instructions explicitly require avoidability for inefficiency objectives.",
+            "human_steering": "The same Kafka goal was clarified through an accepted revision: actual avoidable runtime work, contract-preserving cheaper alternatives, distinct mechanisms. Original goal/criteria and the false completion remain in history. This is assisted continuation, not an autonomous success.",
+            "limits": "Same original database, goal, $25 ledger and deadline; $17.48 spent at false completion, $7.52 remains before continuation."
+          }
+        },
+        {
+          "at": "2026-10-19T04:48:02.596757+00:00",
+          "status": "proof and distinct-identity regressions pass; fresh six live probes pass; Kafka continuation pending",
+          "event": "verification",
+          "details": {
+            "checks": "Missing avoidable-work/equivalent-alternative proof is rejected. Two rephrasings of the same observed code operation produce two retained facts but only one mechanism credit.",
+            "live": ".omnitrix/review-eval-07: 6/6 pass, including genuine static quadratic-waste acceptance and ordinary benchmark-definition acceptance without inefficiency credit.",
+            "limits": "Earlier passing small suites failed on real Kafka; this result validates these probes only. The false completion remains preserved."
+          }
+        }
+      ],
+      "status": "proof and distinct-identity regressions pass; fresh six live probes pass; Kafka continuation pending"
     }
   ],
   "runs": [
@@ -5599,6 +5754,1078 @@
       "budget_usd": 0.75,
       "time_limit_seconds": 360,
       "native_codex_cli": false,
+      "decisions": []
+    },
+    {
+      "name": ".omnitrix/research-compare-10/buried-bottleneck/investigator",
+      "mode": "live-controlled-comparison",
+      "status": "completed",
+      "seconds": 41.663,
+      "score": {
+        "passed": 8,
+        "total": 8,
+        "checks": {
+          "observed_multiple_code_paths": true,
+          "used_metrics": true,
+          "used_logs": true,
+          "reached_log_tail": true,
+          "aggregated_later_rows": true,
+          "reported_oracle_component": true,
+          "reported_oracle_numeric_total": true,
+          "claim_cites_code_logs_metrics": true
+        },
+        "oracle": {
+          "case": "buried-bottleneck",
+          "target": "record_lookup",
+          "cost_ms": {
+            "hotset": 2039.9999999997867,
+            "record_lookup": 14400.0,
+            "event_export": 65.99999999999972
+          },
+          "note": "The per-item loader dominates this controlled additive workload. Compare batching against the captured baseline; production speedup is unmeasured."
+        },
+        "limitation": "Observable coverage, target/number matching and citation-kind checks, not a semantic proof. No production/general superiority claim."
+      },
+      "spending": {
+        "goal_id": "5476e62276e84fe7909d786cfeb0e2af",
+        "limit_nanos": 750000000,
+        "spent_nanos": 92448150,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.75,
+        "spent_usd": 0.09244815,
+        "reserved_usd": 0.0,
+        "available_usd": 0.65755185,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "architecture": "investigator",
+      "model": "gpt-5.3-codex",
+      "variant": "renamed-history-scaled",
+      "budget_usd": 0.75,
+      "time_limit_seconds": 180,
+      "native_codex_cli": false,
+      "decisions": []
+    },
+    {
+      "name": ".omnitrix/research-compare-10/buried-bottleneck/single-codex",
+      "mode": "live-controlled-comparison",
+      "status": "reported",
+      "seconds": 54.249,
+      "score": {
+        "passed": 7,
+        "total": 8,
+        "checks": {
+          "observed_multiple_code_paths": true,
+          "used_metrics": true,
+          "used_logs": true,
+          "reached_log_tail": true,
+          "aggregated_later_rows": true,
+          "reported_oracle_component": true,
+          "reported_oracle_numeric_total": true,
+          "claim_cites_code_logs_metrics": false
+        },
+        "oracle": {
+          "case": "buried-bottleneck",
+          "target": "record_lookup",
+          "cost_ms": {
+            "hotset": 2039.9999999997867,
+            "record_lookup": 14400.0,
+            "event_export": 65.99999999999972
+          },
+          "note": "The per-item loader dominates this controlled additive workload. Compare batching against the captured baseline; production speedup is unmeasured."
+        },
+        "limitation": "Observable coverage, target/number matching and citation-kind checks, not a semantic proof. No production/general superiority claim."
+      },
+      "spending": {
+        "goal_id": "40811832905e49d98da6e5a5e1f64bf9",
+        "limit_nanos": 750000000,
+        "spent_nanos": 89357100,
+        "reserved_nanos": 0,
+        "model": "gpt-5.3-codex",
+        "limit_usd": 0.75,
+        "spent_usd": 0.0893571,
+        "reserved_usd": 0.0,
+        "available_usd": 0.6606429,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-5.3-codex"
+      },
+      "architecture": "single-codex",
+      "model": "gpt-5.3-codex",
+      "variant": "renamed-history-scaled",
+      "budget_usd": 0.75,
+      "time_limit_seconds": 180,
+      "native_codex_cli": false,
+      "decisions": []
+    },
+    {
+      "name": ".omnitrix/research-compare-10/negative-control/investigator",
+      "mode": "live-controlled-comparison",
+      "status": "completed",
+      "seconds": 48.353,
+      "score": {
+        "passed": 8,
+        "total": 8,
+        "checks": {
+          "observed_multiple_code_paths": true,
+          "used_metrics": true,
+          "used_logs": true,
+          "reached_log_tail": true,
+          "aggregated_later_rows": true,
+          "reported_oracle_component": true,
+          "reported_oracle_numeric_total": true,
+          "claim_cites_code_logs_metrics": true
+        },
+        "oracle": {
+          "case": "negative-control",
+          "target": "event_export",
+          "cost_ms": {
+            "hotset": 2039.9999999997867,
+            "record_lookup": 35.99999999999985,
+            "event_export": 26400.0
+          },
+          "note": "Negative control still has a suspicious per-item loop, but measured local cost is small. Upstream measurements warrant investigation, not an invented local optimization."
+        },
+        "limitation": "Observable coverage, target/number matching and citation-kind checks, not a semantic proof. No production/general superiority claim."
+      },
+      "spending": {
+        "goal_id": "3db352010ffd465b8f16ca4ea4e44bad",
+        "limit_nanos": 750000000,
+        "spent_nanos": 110627250,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.75,
+        "spent_usd": 0.11062725,
+        "reserved_usd": 0.0,
+        "available_usd": 0.63937275,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "architecture": "investigator",
+      "model": "gpt-5.3-codex",
+      "variant": "renamed-history-scaled",
+      "budget_usd": 0.75,
+      "time_limit_seconds": 180,
+      "native_codex_cli": false,
+      "decisions": []
+    },
+    {
+      "name": ".omnitrix/research-compare-10/negative-control/single-codex",
+      "mode": "live-controlled-comparison",
+      "status": "reported",
+      "seconds": 34.675,
+      "score": {
+        "passed": 8,
+        "total": 8,
+        "checks": {
+          "observed_multiple_code_paths": true,
+          "used_metrics": true,
+          "used_logs": true,
+          "reached_log_tail": true,
+          "aggregated_later_rows": true,
+          "reported_oracle_component": true,
+          "reported_oracle_numeric_total": true,
+          "claim_cites_code_logs_metrics": true
+        },
+        "oracle": {
+          "case": "negative-control",
+          "target": "event_export",
+          "cost_ms": {
+            "hotset": 2039.9999999997867,
+            "record_lookup": 35.99999999999985,
+            "event_export": 26400.0
+          },
+          "note": "Negative control still has a suspicious per-item loop, but measured local cost is small. Upstream measurements warrant investigation, not an invented local optimization."
+        },
+        "limitation": "Observable coverage, target/number matching and citation-kind checks, not a semantic proof. No production/general superiority claim."
+      },
+      "spending": {
+        "goal_id": "6ec4ad359aa84579b9bd17d35b66f7fd",
+        "limit_nanos": 750000000,
+        "spent_nanos": 53600050,
+        "reserved_nanos": 0,
+        "model": "gpt-5.3-codex",
+        "limit_usd": 0.75,
+        "spent_usd": 0.05360005,
+        "reserved_usd": 0.0,
+        "available_usd": 0.69639995,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-5.3-codex"
+      },
+      "architecture": "single-codex",
+      "model": "gpt-5.3-codex",
+      "variant": "renamed-history-scaled",
+      "budget_usd": 0.75,
+      "time_limit_seconds": 180,
+      "native_codex_cli": false,
+      "decisions": []
+    },
+    {
+      "name": "review-eval-04/missing-measurement",
+      "mode": "live-reviewer-challenge",
+      "status": "passed",
+      "spending": {
+        "goal_id": "1ace4a6830e3493e838292c1a7b889f7",
+        "limit_nanos": 250000000,
+        "spent_nanos": 7592000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.007592,
+        "reserved_usd": 0.0,
+        "available_usd": 0.242408,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "decisions": []
+    },
+    {
+      "name": "review-eval-04/partial-scope",
+      "mode": "live-reviewer-challenge",
+      "status": "passed",
+      "spending": {
+        "goal_id": "4272ccf4754143888f5a89c92ebddad6",
+        "limit_nanos": 250000000,
+        "spent_nanos": 8404000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.008404,
+        "reserved_usd": 0.0,
+        "available_usd": 0.241596,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "decisions": []
+    },
+    {
+      "name": "review-eval-04/positive-measurement",
+      "mode": "live-reviewer-challenge",
+      "status": "passed",
+      "spending": {
+        "goal_id": "919a9b2518954680a654cf400a2bcec8",
+        "limit_nanos": 250000000,
+        "spent_nanos": 9200000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.0092,
+        "reserved_usd": 0.0,
+        "available_usd": 0.2408,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "decisions": []
+    },
+    {
+      "name": "review-eval-04/category-trap",
+      "mode": "live-reviewer-challenge",
+      "status": "passed",
+      "spending": {
+        "goal_id": "9a372370b0e94341944c93ced011a97e",
+        "limit_nanos": 250000000,
+        "spent_nanos": 7006000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.007006,
+        "reserved_usd": 0.0,
+        "available_usd": 0.242994,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "decisions": []
+    },
+    {
+      "name": ".omnitrix/research-compare-11/buried-bottleneck/investigator",
+      "mode": "live-controlled-comparison",
+      "status": "completed",
+      "seconds": 39.483,
+      "score": {
+        "passed": 7,
+        "total": 8,
+        "checks": {
+          "observed_multiple_code_paths": true,
+          "used_metrics": true,
+          "used_logs": true,
+          "reached_log_tail": true,
+          "aggregated_later_rows": true,
+          "reported_oracle_component": true,
+          "reported_oracle_numeric_total": true,
+          "claim_cites_code_logs_metrics": false
+        },
+        "oracle": {
+          "case": "buried-bottleneck",
+          "target": "record_lookup",
+          "cost_ms": {
+            "hotset": 2039.9999999997867,
+            "record_lookup": 14400.0,
+            "event_export": 65.99999999999972
+          },
+          "note": "The per-item loader dominates this controlled additive workload. Compare batching against the captured baseline; production speedup is unmeasured."
+        },
+        "limitation": "Observable coverage, target/number matching and citation-kind checks, not a semantic proof. No production/general superiority claim."
+      },
+      "spending": {
+        "goal_id": "c05c7a3d8ed14d19b23cbfa51910017e",
+        "limit_nanos": 750000000,
+        "spent_nanos": 91688500,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.75,
+        "spent_usd": 0.0916885,
+        "reserved_usd": 0.0,
+        "available_usd": 0.6583115,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "architecture": "investigator",
+      "model": "gpt-5.3-codex",
+      "variant": "renamed-history-scaled",
+      "budget_usd": 0.75,
+      "time_limit_seconds": 180,
+      "native_codex_cli": false,
+      "decisions": []
+    },
+    {
+      "name": ".omnitrix/research-compare-11/buried-bottleneck/single-codex",
+      "mode": "live-controlled-comparison",
+      "status": "reported",
+      "seconds": 31.984,
+      "score": {
+        "passed": 8,
+        "total": 8,
+        "checks": {
+          "observed_multiple_code_paths": true,
+          "used_metrics": true,
+          "used_logs": true,
+          "reached_log_tail": true,
+          "aggregated_later_rows": true,
+          "reported_oracle_component": true,
+          "reported_oracle_numeric_total": true,
+          "claim_cites_code_logs_metrics": true
+        },
+        "oracle": {
+          "case": "buried-bottleneck",
+          "target": "record_lookup",
+          "cost_ms": {
+            "hotset": 2039.9999999997867,
+            "record_lookup": 14400.0,
+            "event_export": 65.99999999999972
+          },
+          "note": "The per-item loader dominates this controlled additive workload. Compare batching against the captured baseline; production speedup is unmeasured."
+        },
+        "limitation": "Observable coverage, target/number matching and citation-kind checks, not a semantic proof. No production/general superiority claim."
+      },
+      "spending": {
+        "goal_id": "4046985f3cfb4a71956ea54e584c5547",
+        "limit_nanos": 750000000,
+        "spent_nanos": 56364350,
+        "reserved_nanos": 0,
+        "model": "gpt-5.3-codex",
+        "limit_usd": 0.75,
+        "spent_usd": 0.05636435,
+        "reserved_usd": 0.0,
+        "available_usd": 0.69363565,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-5.3-codex"
+      },
+      "architecture": "single-codex",
+      "model": "gpt-5.3-codex",
+      "variant": "renamed-history-scaled",
+      "budget_usd": 0.75,
+      "time_limit_seconds": 180,
+      "native_codex_cli": false,
+      "decisions": []
+    },
+    {
+      "name": ".omnitrix/research-compare-11/negative-control/investigator",
+      "mode": "live-controlled-comparison",
+      "status": "completed",
+      "seconds": 55.317,
+      "score": {
+        "passed": 8,
+        "total": 8,
+        "checks": {
+          "observed_multiple_code_paths": true,
+          "used_metrics": true,
+          "used_logs": true,
+          "reached_log_tail": true,
+          "aggregated_later_rows": true,
+          "reported_oracle_component": true,
+          "reported_oracle_numeric_total": true,
+          "claim_cites_code_logs_metrics": true
+        },
+        "oracle": {
+          "case": "negative-control",
+          "target": "event_export",
+          "cost_ms": {
+            "hotset": 2039.9999999997867,
+            "record_lookup": 35.99999999999985,
+            "event_export": 26400.0
+          },
+          "note": "Negative control still has a suspicious per-item loop, but measured local cost is small. Upstream measurements warrant investigation, not an invented local optimization."
+        },
+        "limitation": "Observable coverage, target/number matching and citation-kind checks, not a semantic proof. No production/general superiority claim."
+      },
+      "spending": {
+        "goal_id": "c1741c52222e4baeb49806e06cc8b959",
+        "limit_nanos": 750000000,
+        "spent_nanos": 108347550,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.75,
+        "spent_usd": 0.10834755,
+        "reserved_usd": 0.0,
+        "available_usd": 0.64165245,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "architecture": "investigator",
+      "model": "gpt-5.3-codex",
+      "variant": "renamed-history-scaled",
+      "budget_usd": 0.75,
+      "time_limit_seconds": 180,
+      "native_codex_cli": false,
+      "decisions": []
+    },
+    {
+      "name": ".omnitrix/research-compare-11/negative-control/single-codex",
+      "mode": "live-controlled-comparison",
+      "status": "reported",
+      "seconds": 29.862,
+      "score": {
+        "passed": 8,
+        "total": 8,
+        "checks": {
+          "observed_multiple_code_paths": true,
+          "used_metrics": true,
+          "used_logs": true,
+          "reached_log_tail": true,
+          "aggregated_later_rows": true,
+          "reported_oracle_component": true,
+          "reported_oracle_numeric_total": true,
+          "claim_cites_code_logs_metrics": true
+        },
+        "oracle": {
+          "case": "negative-control",
+          "target": "event_export",
+          "cost_ms": {
+            "hotset": 2039.9999999997867,
+            "record_lookup": 35.99999999999985,
+            "event_export": 26400.0
+          },
+          "note": "Negative control still has a suspicious per-item loop, but measured local cost is small. Upstream measurements warrant investigation, not an invented local optimization."
+        },
+        "limitation": "Observable coverage, target/number matching and citation-kind checks, not a semantic proof. No production/general superiority claim."
+      },
+      "spending": {
+        "goal_id": "c570624ea013411a99ea6f537ac3924d",
+        "limit_nanos": 750000000,
+        "spent_nanos": 56134750,
+        "reserved_nanos": 0,
+        "model": "gpt-5.3-codex",
+        "limit_usd": 0.75,
+        "spent_usd": 0.05613475,
+        "reserved_usd": 0.0,
+        "available_usd": 0.69386525,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-5.3-codex"
+      },
+      "architecture": "single-codex",
+      "model": "gpt-5.3-codex",
+      "variant": "renamed-history-scaled",
+      "budget_usd": 0.75,
+      "time_limit_seconds": 180,
+      "native_codex_cli": false,
+      "decisions": []
+    },
+    {
+      "name": "review-eval-05/missing-measurement",
+      "mode": "live-reviewer-challenge",
+      "status": "passed",
+      "spending": {
+        "goal_id": "13f1e104d30a4c8cbdb91bc90e704af1",
+        "limit_nanos": 250000000,
+        "spent_nanos": 7554000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.007554,
+        "reserved_usd": 0.0,
+        "available_usd": 0.242446,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "model": "gpt-4.1",
+      "decisions": []
+    },
+    {
+      "name": "review-eval-05/partial-scope",
+      "mode": "live-reviewer-challenge",
+      "status": "passed",
+      "spending": {
+        "goal_id": "b699eecc957d4ed7a11e6b4ccc513ae1",
+        "limit_nanos": 250000000,
+        "spent_nanos": 8268000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.008268,
+        "reserved_usd": 0.0,
+        "available_usd": 0.241732,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "model": "gpt-4.1",
+      "decisions": []
+    },
+    {
+      "name": "review-eval-05/positive-measurement",
+      "mode": "live-reviewer-challenge",
+      "status": "passed",
+      "spending": {
+        "goal_id": "f81e489c3ff14ec9a25d2a64337915b0",
+        "limit_nanos": 250000000,
+        "spent_nanos": 9330000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.00933,
+        "reserved_usd": 0.0,
+        "available_usd": 0.24067,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "model": "gpt-4.1",
+      "decisions": []
+    },
+    {
+      "name": "review-eval-05/category-trap",
+      "mode": "live-reviewer-challenge",
+      "status": "passed",
+      "spending": {
+        "goal_id": "1b638a5f339b4e56b4f39e16358a8afd",
+        "limit_nanos": 250000000,
+        "spent_nanos": 4846000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.004846,
+        "reserved_usd": 0.0,
+        "available_usd": 0.245154,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "model": "gpt-4.1",
+      "decisions": []
+    },
+    {
+      "name": "review-eval-05/benchmark-definition-trap",
+      "mode": "live-reviewer-challenge",
+      "status": "failed",
+      "spending": {
+        "goal_id": "67464dfb4f2a4cdfb00393f1b5c8e8ed",
+        "limit_nanos": 250000000,
+        "spent_nanos": 7918000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.007918,
+        "reserved_usd": 0.0,
+        "available_usd": 0.242082,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "model": "gpt-4.1",
+      "decisions": []
+    },
+    {
+      "name": "review-eval-05/positive-code-mechanism",
+      "mode": "live-reviewer-challenge",
+      "status": "passed",
+      "spending": {
+        "goal_id": "83ea84d6468b40e3828e1876c80209d5",
+        "limit_nanos": 250000000,
+        "spent_nanos": 8938000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.008938,
+        "reserved_usd": 0.0,
+        "available_usd": 0.241062,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "model": "gpt-4.1",
+      "decisions": []
+    },
+    {
+      "name": "review-eval-06/missing-measurement",
+      "mode": "live-reviewer-challenge",
+      "status": "passed",
+      "spending": {
+        "goal_id": "f76caf15e23142578c0ea51a00be8cdf",
+        "limit_nanos": 250000000,
+        "spent_nanos": 15140300,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.0151403,
+        "reserved_usd": 0.0,
+        "available_usd": 0.2348597,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "model": "gpt-5.3-codex",
+      "decisions": []
+    },
+    {
+      "name": "review-eval-06/partial-scope",
+      "mode": "live-reviewer-challenge",
+      "status": "passed",
+      "spending": {
+        "goal_id": "7893b6b4a4f246a8924bee9bca0f65d0",
+        "limit_nanos": 250000000,
+        "spent_nanos": 21620550,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.02162055,
+        "reserved_usd": 0.0,
+        "available_usd": 0.22837945,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "model": "gpt-5.3-codex",
+      "decisions": []
+    },
+    {
+      "name": "review-eval-06/positive-measurement",
+      "mode": "live-reviewer-challenge",
+      "status": "passed",
+      "spending": {
+        "goal_id": "27331aba6fcc4f77aa510b1b53d47b04",
+        "limit_nanos": 250000000,
+        "spent_nanos": 11508000,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.011508,
+        "reserved_usd": 0.0,
+        "available_usd": 0.238492,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "model": "gpt-5.3-codex",
+      "decisions": []
+    },
+    {
+      "name": "review-eval-06/category-trap",
+      "mode": "live-reviewer-challenge",
+      "status": "passed",
+      "spending": {
+        "goal_id": "24583112a8bf44799a8e3abaea5ecd18",
+        "limit_nanos": 250000000,
+        "spent_nanos": 16596300,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.0165963,
+        "reserved_usd": 0.0,
+        "available_usd": 0.2334037,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "model": "gpt-5.3-codex",
+      "decisions": []
+    },
+    {
+      "name": "review-eval-06/benchmark-definition-trap",
+      "mode": "live-reviewer-challenge",
+      "status": "passed",
+      "spending": {
+        "goal_id": "fad741e2291d4d00b45724047042100d",
+        "limit_nanos": 250000000,
+        "spent_nanos": 17132850,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.01713285,
+        "reserved_usd": 0.0,
+        "available_usd": 0.23286715,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "model": "gpt-5.3-codex",
+      "decisions": []
+    },
+    {
+      "name": "review-eval-06/positive-code-mechanism",
+      "mode": "live-reviewer-challenge",
+      "status": "passed",
+      "spending": {
+        "goal_id": "5ef2987ddc494f1cb7124ca333f4459c",
+        "limit_nanos": 250000000,
+        "spent_nanos": 11211550,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.01121155,
+        "reserved_usd": 0.0,
+        "available_usd": 0.23878845,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "model": "gpt-5.3-codex",
+      "decisions": []
+    },
+    {
+      "name": ".omnitrix/research-compare-12/buried-bottleneck/investigator",
+      "mode": "live-controlled-comparison",
+      "status": "completed",
+      "seconds": 104.31,
+      "score": {
+        "passed": 7,
+        "total": 8,
+        "checks": {
+          "observed_multiple_code_paths": true,
+          "used_metrics": true,
+          "used_logs": true,
+          "reached_log_tail": true,
+          "aggregated_later_rows": true,
+          "reported_oracle_component": true,
+          "reported_oracle_numeric_total": true,
+          "claim_cites_code_logs_metrics": false
+        },
+        "oracle": {
+          "case": "buried-bottleneck",
+          "target": "record_lookup",
+          "cost_ms": {
+            "hotset": 2039.9999999997867,
+            "record_lookup": 14400.0,
+            "event_export": 65.99999999999972
+          },
+          "note": "The per-item loader dominates this controlled additive workload. Compare batching against the captured baseline; production speedup is unmeasured."
+        },
+        "limitation": "Observable coverage, target/number matching and citation-kind checks, not a semantic proof. No production/general superiority claim."
+      },
+      "spending": {
+        "goal_id": "78983f9154d84bdd8a1977e41deeceaa",
+        "limit_nanos": 750000000,
+        "spent_nanos": 197784300,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.75,
+        "spent_usd": 0.1977843,
+        "reserved_usd": 0.0,
+        "available_usd": 0.5522157,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "architecture": "investigator",
+      "model": "gpt-5.3-codex",
+      "variant": "renamed-history-scaled",
+      "budget_usd": 0.75,
+      "time_limit_seconds": 180,
+      "native_codex_cli": false,
+      "decisions": []
+    },
+    {
+      "name": ".omnitrix/research-compare-12/buried-bottleneck/single-codex",
+      "mode": "live-controlled-comparison",
+      "status": "reported",
+      "seconds": 31.529,
+      "score": {
+        "passed": 7,
+        "total": 8,
+        "checks": {
+          "observed_multiple_code_paths": true,
+          "used_metrics": true,
+          "used_logs": true,
+          "reached_log_tail": true,
+          "aggregated_later_rows": true,
+          "reported_oracle_component": true,
+          "reported_oracle_numeric_total": true,
+          "claim_cites_code_logs_metrics": false
+        },
+        "oracle": {
+          "case": "buried-bottleneck",
+          "target": "record_lookup",
+          "cost_ms": {
+            "hotset": 2039.9999999997867,
+            "record_lookup": 14400.0,
+            "event_export": 65.99999999999972
+          },
+          "note": "The per-item loader dominates this controlled additive workload. Compare batching against the captured baseline; production speedup is unmeasured."
+        },
+        "limitation": "Observable coverage, target/number matching and citation-kind checks, not a semantic proof. No production/general superiority claim."
+      },
+      "spending": {
+        "goal_id": "6ab229fced9840cd8b9d2fd4d2475c76",
+        "limit_nanos": 750000000,
+        "spent_nanos": 62141450,
+        "reserved_nanos": 0,
+        "model": "gpt-5.3-codex",
+        "limit_usd": 0.75,
+        "spent_usd": 0.06214145,
+        "reserved_usd": 0.0,
+        "available_usd": 0.68785855,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-5.3-codex"
+      },
+      "architecture": "single-codex",
+      "model": "gpt-5.3-codex",
+      "variant": "renamed-history-scaled",
+      "budget_usd": 0.75,
+      "time_limit_seconds": 180,
+      "native_codex_cli": false,
+      "decisions": []
+    },
+    {
+      "name": ".omnitrix/research-compare-12/negative-control/investigator",
+      "mode": "live-controlled-comparison",
+      "status": "completed",
+      "seconds": 103.038,
+      "score": {
+        "passed": 8,
+        "total": 8,
+        "checks": {
+          "observed_multiple_code_paths": true,
+          "used_metrics": true,
+          "used_logs": true,
+          "reached_log_tail": true,
+          "aggregated_later_rows": true,
+          "reported_oracle_component": true,
+          "reported_oracle_numeric_total": true,
+          "claim_cites_code_logs_metrics": true
+        },
+        "oracle": {
+          "case": "negative-control",
+          "target": "event_export",
+          "cost_ms": {
+            "hotset": 2039.9999999997867,
+            "record_lookup": 35.99999999999985,
+            "event_export": 26400.0
+          },
+          "note": "Negative control still has a suspicious per-item loop, but measured local cost is small. Upstream measurements warrant investigation, not an invented local optimization."
+        },
+        "limitation": "Observable coverage, target/number matching and citation-kind checks, not a semantic proof. No production/general superiority claim."
+      },
+      "spending": {
+        "goal_id": "3d270ddf013b411c882d7a6a0135aafb",
+        "limit_nanos": 750000000,
+        "spent_nanos": 212785650,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.75,
+        "spent_usd": 0.21278565,
+        "reserved_usd": 0.0,
+        "available_usd": 0.53721435,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "architecture": "investigator",
+      "model": "gpt-5.3-codex",
+      "variant": "renamed-history-scaled",
+      "budget_usd": 0.75,
+      "time_limit_seconds": 180,
+      "native_codex_cli": false,
+      "decisions": []
+    },
+    {
+      "name": ".omnitrix/research-compare-12/negative-control/single-codex",
+      "mode": "live-controlled-comparison",
+      "status": "reported",
+      "seconds": 34.111,
+      "score": {
+        "passed": 7,
+        "total": 8,
+        "checks": {
+          "observed_multiple_code_paths": true,
+          "used_metrics": true,
+          "used_logs": true,
+          "reached_log_tail": true,
+          "aggregated_later_rows": true,
+          "reported_oracle_component": true,
+          "reported_oracle_numeric_total": true,
+          "claim_cites_code_logs_metrics": false
+        },
+        "oracle": {
+          "case": "negative-control",
+          "target": "event_export",
+          "cost_ms": {
+            "hotset": 2039.9999999997867,
+            "record_lookup": 35.99999999999985,
+            "event_export": 26400.0
+          },
+          "note": "Negative control still has a suspicious per-item loop, but measured local cost is small. Upstream measurements warrant investigation, not an invented local optimization."
+        },
+        "limitation": "Observable coverage, target/number matching and citation-kind checks, not a semantic proof. No production/general superiority claim."
+      },
+      "spending": {
+        "goal_id": "920742d39c60438f91f9fe33e6057659",
+        "limit_nanos": 750000000,
+        "spent_nanos": 62216350,
+        "reserved_nanos": 0,
+        "model": "gpt-5.3-codex",
+        "limit_usd": 0.75,
+        "spent_usd": 0.06221635,
+        "reserved_usd": 0.0,
+        "available_usd": 0.68778365,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-5.3-codex"
+      },
+      "architecture": "single-codex",
+      "model": "gpt-5.3-codex",
+      "variant": "renamed-history-scaled",
+      "budget_usd": 0.75,
+      "time_limit_seconds": 180,
+      "native_codex_cli": false,
+      "decisions": []
+    },
+    {
+      "name": "kafka-campaign/latest",
+      "mode": "live-capped-public-repository",
+      "status": "running",
+      "spending": {
+        "goal_id": "c849afa7ebea434ea01d292996c10a77",
+        "limit_nanos": 25000000000,
+        "spent_nanos": 17234689000,
+        "reserved_nanos": 81900000,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 25.0,
+        "spent_usd": 17.234689,
+        "reserved_usd": 0.0819,
+        "available_usd": 7.683411,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "frontier": {
+        "goal_id": "c849afa7ebea434ea01d292996c10a77",
+        "head": "cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282",
+        "complete": 1,
+        "skipped": 64,
+        "files": 7551,
+        "by_kind": {
+          "code": 6760,
+          "document": 785,
+          "logs": 4,
+          "metrics": 2
+        },
+        "by_origin": {
+          "export": 6,
+          "git": 7545
+        },
+        "observed_files": 82,
+        "basis": "Git-tracked UTF-8 files and explicitly registered local exports <=32 MiB; binaries, unavailable files and oversized files counted as skipped. Excerpts do not establish full coverage."
+      },
+      "quality": {
+        "required": {
+          "sources": 20,
+          "branches": 4,
+          "hypotheses": 6,
+          "mechanisms": 2
+        },
+        "actual": {
+          "sources": 82,
+          "branches": 13,
+          "hypotheses": 11,
+          "mechanisms": 1
+        },
+        "met": false,
+        "note": "Minimum breadth and evidence gates, not proof of exhaustive coverage or production impact."
+      },
+      "artifacts": {
+        "local_report": "/workspace/omnitrix/.omnitrix/kafka-campaign/campaign.html",
+        "database": "/workspace/omnitrix/.omnitrix/kafka-campaign/state.db",
+        "note": "Local fixture/build evidence is not production telemetry. False mechanism categories were challenged; original reports/evaluations remain. Current code-supported findings require fresh review."
+      },
+      "decisions": []
+    },
+    {
+      "name": "review-eval-07/missing-measurement",
+      "mode": "live-reviewer-challenge",
+      "status": "passed",
+      "spending": {
+        "goal_id": "a7994eca534341b38a560c819f1a137e",
+        "limit_nanos": 250000000,
+        "spent_nanos": 16853550,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.01685355,
+        "reserved_usd": 0.0,
+        "available_usd": 0.23314645,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "model": "gpt-5.3-codex",
+      "decisions": []
+    },
+    {
+      "name": "review-eval-07/partial-scope",
+      "mode": "live-reviewer-challenge",
+      "status": "passed",
+      "spending": {
+        "goal_id": "e45377e47b2b476da27a02b084dcac4d",
+        "limit_nanos": 250000000,
+        "spent_nanos": 22035300,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.0220353,
+        "reserved_usd": 0.0,
+        "available_usd": 0.2279647,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "model": "gpt-5.3-codex",
+      "decisions": []
+    },
+    {
+      "name": "review-eval-07/positive-measurement",
+      "mode": "live-reviewer-challenge",
+      "status": "passed",
+      "spending": {
+        "goal_id": "9c5ee1878bcd4527a5b7ff77a1b13e43",
+        "limit_nanos": 250000000,
+        "spent_nanos": 17995250,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.01799525,
+        "reserved_usd": 0.0,
+        "available_usd": 0.23200475,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "model": "gpt-5.3-codex",
+      "decisions": []
+    },
+    {
+      "name": "review-eval-07/category-trap",
+      "mode": "live-reviewer-challenge",
+      "status": "passed",
+      "spending": {
+        "goal_id": "9bd30d171c4b4a95b6f93e55381f6b36",
+        "limit_nanos": 250000000,
+        "spent_nanos": 13607300,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.0136073,
+        "reserved_usd": 0.0,
+        "available_usd": 0.2363927,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "model": "gpt-5.3-codex",
+      "decisions": []
+    },
+    {
+      "name": "review-eval-07/benchmark-definition-trap",
+      "mode": "live-reviewer-challenge",
+      "status": "passed",
+      "spending": {
+        "goal_id": "a1dce76fd7cd49a292b2f537b1a88b4f",
+        "limit_nanos": 250000000,
+        "spent_nanos": 14271250,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.01427125,
+        "reserved_usd": 0.0,
+        "available_usd": 0.23572875,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "model": "gpt-5.3-codex",
+      "decisions": []
+    },
+    {
+      "name": "review-eval-07/positive-code-mechanism",
+      "mode": "live-reviewer-challenge",
+      "status": "passed",
+      "spending": {
+        "goal_id": "e0fc4446696a4e02aff4811e9e8725b2",
+        "limit_nanos": 250000000,
+        "spent_nanos": 17480750,
+        "reserved_nanos": 0,
+        "model": "gpt-4.1-2025-04-14",
+        "limit_usd": 0.25,
+        "spent_usd": 0.01748075,
+        "reserved_usd": 0.0,
+        "available_usd": 0.23251925,
+        "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+      },
+      "model": "gpt-5.3-codex",
       "decisions": []
     }
   ],
@@ -11036,6 +12263,1218 @@
         "budget_usd": 0.75,
         "time_limit_seconds": 360,
         "native_codex_cli": false,
+        "decisions": []
+      }
+    },
+    {
+      "id": "8257872f42cb4786ad01a178259f97bf",
+      "at": "2026-10-19T04:29:21.234038+00:00",
+      "result": {
+        "name": ".omnitrix/research-compare-10/buried-bottleneck/investigator",
+        "mode": "live-controlled-comparison",
+        "status": "completed",
+        "seconds": 41.663,
+        "score": {
+          "passed": 8,
+          "total": 8,
+          "checks": {
+            "observed_multiple_code_paths": true,
+            "used_metrics": true,
+            "used_logs": true,
+            "reached_log_tail": true,
+            "aggregated_later_rows": true,
+            "reported_oracle_component": true,
+            "reported_oracle_numeric_total": true,
+            "claim_cites_code_logs_metrics": true
+          },
+          "oracle": {
+            "case": "buried-bottleneck",
+            "target": "record_lookup",
+            "cost_ms": {
+              "hotset": 2039.9999999997867,
+              "record_lookup": 14400.0,
+              "event_export": 65.99999999999972
+            },
+            "note": "The per-item loader dominates this controlled additive workload. Compare batching against the captured baseline; production speedup is unmeasured."
+          },
+          "limitation": "Observable coverage, target/number matching and citation-kind checks, not a semantic proof. No production/general superiority claim."
+        },
+        "spending": {
+          "goal_id": "5476e62276e84fe7909d786cfeb0e2af",
+          "limit_nanos": 750000000,
+          "spent_nanos": 92448150,
+          "reserved_nanos": 0,
+          "model": "gpt-4.1-2025-04-14",
+          "limit_usd": 0.75,
+          "spent_usd": 0.09244815,
+          "reserved_usd": 0.0,
+          "available_usd": 0.65755185,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "architecture": "investigator",
+        "model": "gpt-5.3-codex",
+        "variant": "renamed-history-scaled",
+        "budget_usd": 0.75,
+        "time_limit_seconds": 180,
+        "native_codex_cli": false,
+        "decisions": []
+      }
+    },
+    {
+      "id": "eb968c9e5ea941578bae4d2a257b5952",
+      "at": "2026-10-19T04:29:21.258040+00:00",
+      "result": {
+        "name": ".omnitrix/research-compare-10/buried-bottleneck/single-codex",
+        "mode": "live-controlled-comparison",
+        "status": "reported",
+        "seconds": 54.249,
+        "score": {
+          "passed": 7,
+          "total": 8,
+          "checks": {
+            "observed_multiple_code_paths": true,
+            "used_metrics": true,
+            "used_logs": true,
+            "reached_log_tail": true,
+            "aggregated_later_rows": true,
+            "reported_oracle_component": true,
+            "reported_oracle_numeric_total": true,
+            "claim_cites_code_logs_metrics": false
+          },
+          "oracle": {
+            "case": "buried-bottleneck",
+            "target": "record_lookup",
+            "cost_ms": {
+              "hotset": 2039.9999999997867,
+              "record_lookup": 14400.0,
+              "event_export": 65.99999999999972
+            },
+            "note": "The per-item loader dominates this controlled additive workload. Compare batching against the captured baseline; production speedup is unmeasured."
+          },
+          "limitation": "Observable coverage, target/number matching and citation-kind checks, not a semantic proof. No production/general superiority claim."
+        },
+        "spending": {
+          "goal_id": "40811832905e49d98da6e5a5e1f64bf9",
+          "limit_nanos": 750000000,
+          "spent_nanos": 89357100,
+          "reserved_nanos": 0,
+          "model": "gpt-5.3-codex",
+          "limit_usd": 0.75,
+          "spent_usd": 0.0893571,
+          "reserved_usd": 0.0,
+          "available_usd": 0.6606429,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-5.3-codex"
+        },
+        "architecture": "single-codex",
+        "model": "gpt-5.3-codex",
+        "variant": "renamed-history-scaled",
+        "budget_usd": 0.75,
+        "time_limit_seconds": 180,
+        "native_codex_cli": false,
+        "decisions": []
+      }
+    },
+    {
+      "id": "98395395181946f58838cbd594bb1b43",
+      "at": "2026-10-19T04:29:21.282667+00:00",
+      "result": {
+        "name": ".omnitrix/research-compare-10/negative-control/investigator",
+        "mode": "live-controlled-comparison",
+        "status": "completed",
+        "seconds": 48.353,
+        "score": {
+          "passed": 8,
+          "total": 8,
+          "checks": {
+            "observed_multiple_code_paths": true,
+            "used_metrics": true,
+            "used_logs": true,
+            "reached_log_tail": true,
+            "aggregated_later_rows": true,
+            "reported_oracle_component": true,
+            "reported_oracle_numeric_total": true,
+            "claim_cites_code_logs_metrics": true
+          },
+          "oracle": {
+            "case": "negative-control",
+            "target": "event_export",
+            "cost_ms": {
+              "hotset": 2039.9999999997867,
+              "record_lookup": 35.99999999999985,
+              "event_export": 26400.0
+            },
+            "note": "Negative control still has a suspicious per-item loop, but measured local cost is small. Upstream measurements warrant investigation, not an invented local optimization."
+          },
+          "limitation": "Observable coverage, target/number matching and citation-kind checks, not a semantic proof. No production/general superiority claim."
+        },
+        "spending": {
+          "goal_id": "3db352010ffd465b8f16ca4ea4e44bad",
+          "limit_nanos": 750000000,
+          "spent_nanos": 110627250,
+          "reserved_nanos": 0,
+          "model": "gpt-4.1-2025-04-14",
+          "limit_usd": 0.75,
+          "spent_usd": 0.11062725,
+          "reserved_usd": 0.0,
+          "available_usd": 0.63937275,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "architecture": "investigator",
+        "model": "gpt-5.3-codex",
+        "variant": "renamed-history-scaled",
+        "budget_usd": 0.75,
+        "time_limit_seconds": 180,
+        "native_codex_cli": false,
+        "decisions": []
+      }
+    },
+    {
+      "id": "d00501f02379426a8e4f2b0702fdaecd",
+      "at": "2026-10-19T04:29:21.313270+00:00",
+      "result": {
+        "name": ".omnitrix/research-compare-10/negative-control/single-codex",
+        "mode": "live-controlled-comparison",
+        "status": "reported",
+        "seconds": 34.675,
+        "score": {
+          "passed": 8,
+          "total": 8,
+          "checks": {
+            "observed_multiple_code_paths": true,
+            "used_metrics": true,
+            "used_logs": true,
+            "reached_log_tail": true,
+            "aggregated_later_rows": true,
+            "reported_oracle_component": true,
+            "reported_oracle_numeric_total": true,
+            "claim_cites_code_logs_metrics": true
+          },
+          "oracle": {
+            "case": "negative-control",
+            "target": "event_export",
+            "cost_ms": {
+              "hotset": 2039.9999999997867,
+              "record_lookup": 35.99999999999985,
+              "event_export": 26400.0
+            },
+            "note": "Negative control still has a suspicious per-item loop, but measured local cost is small. Upstream measurements warrant investigation, not an invented local optimization."
+          },
+          "limitation": "Observable coverage, target/number matching and citation-kind checks, not a semantic proof. No production/general superiority claim."
+        },
+        "spending": {
+          "goal_id": "6ec4ad359aa84579b9bd17d35b66f7fd",
+          "limit_nanos": 750000000,
+          "spent_nanos": 53600050,
+          "reserved_nanos": 0,
+          "model": "gpt-5.3-codex",
+          "limit_usd": 0.75,
+          "spent_usd": 0.05360005,
+          "reserved_usd": 0.0,
+          "available_usd": 0.69639995,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-5.3-codex"
+        },
+        "architecture": "single-codex",
+        "model": "gpt-5.3-codex",
+        "variant": "renamed-history-scaled",
+        "budget_usd": 0.75,
+        "time_limit_seconds": 180,
+        "native_codex_cli": false,
+        "decisions": []
+      }
+    },
+    {
+      "id": "d2193bb902a74da886cd7b4d93ffef8c",
+      "at": "2026-10-19T04:35:29.792184+00:00",
+      "result": {
+        "name": "review-eval-04/missing-measurement",
+        "mode": "live-reviewer-challenge",
+        "status": "passed",
+        "spending": {
+          "goal_id": "1ace4a6830e3493e838292c1a7b889f7",
+          "limit_nanos": 250000000,
+          "spent_nanos": 7592000,
+          "reserved_nanos": 0,
+          "model": "gpt-4.1-2025-04-14",
+          "limit_usd": 0.25,
+          "spent_usd": 0.007592,
+          "reserved_usd": 0.0,
+          "available_usd": 0.242408,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "decisions": []
+      }
+    },
+    {
+      "id": "fb5904fb11d943c4b78431ccaa8fa978",
+      "at": "2026-10-19T04:35:29.920391+00:00",
+      "result": {
+        "name": "review-eval-04/partial-scope",
+        "mode": "live-reviewer-challenge",
+        "status": "passed",
+        "spending": {
+          "goal_id": "4272ccf4754143888f5a89c92ebddad6",
+          "limit_nanos": 250000000,
+          "spent_nanos": 8404000,
+          "reserved_nanos": 0,
+          "model": "gpt-4.1-2025-04-14",
+          "limit_usd": 0.25,
+          "spent_usd": 0.008404,
+          "reserved_usd": 0.0,
+          "available_usd": 0.241596,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "decisions": []
+      }
+    },
+    {
+      "id": "cc67fa710d284c3b911aafb1009feed9",
+      "at": "2026-10-19T04:35:29.954074+00:00",
+      "result": {
+        "name": "review-eval-04/positive-measurement",
+        "mode": "live-reviewer-challenge",
+        "status": "passed",
+        "spending": {
+          "goal_id": "919a9b2518954680a654cf400a2bcec8",
+          "limit_nanos": 250000000,
+          "spent_nanos": 9200000,
+          "reserved_nanos": 0,
+          "model": "gpt-4.1-2025-04-14",
+          "limit_usd": 0.25,
+          "spent_usd": 0.0092,
+          "reserved_usd": 0.0,
+          "available_usd": 0.2408,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "decisions": []
+      }
+    },
+    {
+      "id": "8ab74d8266a7473c9efa7d63c45f8e4d",
+      "at": "2026-10-19T04:35:29.983167+00:00",
+      "result": {
+        "name": "review-eval-04/category-trap",
+        "mode": "live-reviewer-challenge",
+        "status": "passed",
+        "spending": {
+          "goal_id": "9a372370b0e94341944c93ced011a97e",
+          "limit_nanos": 250000000,
+          "spent_nanos": 7006000,
+          "reserved_nanos": 0,
+          "model": "gpt-4.1-2025-04-14",
+          "limit_usd": 0.25,
+          "spent_usd": 0.007006,
+          "reserved_usd": 0.0,
+          "available_usd": 0.242994,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "decisions": []
+      }
+    },
+    {
+      "id": "1e86304004724025abb86d752f252e16",
+      "at": "2026-10-19T04:36:24.608596+00:00",
+      "result": {
+        "name": ".omnitrix/research-compare-11/buried-bottleneck/investigator",
+        "mode": "live-controlled-comparison",
+        "status": "completed",
+        "seconds": 39.483,
+        "score": {
+          "passed": 7,
+          "total": 8,
+          "checks": {
+            "observed_multiple_code_paths": true,
+            "used_metrics": true,
+            "used_logs": true,
+            "reached_log_tail": true,
+            "aggregated_later_rows": true,
+            "reported_oracle_component": true,
+            "reported_oracle_numeric_total": true,
+            "claim_cites_code_logs_metrics": false
+          },
+          "oracle": {
+            "case": "buried-bottleneck",
+            "target": "record_lookup",
+            "cost_ms": {
+              "hotset": 2039.9999999997867,
+              "record_lookup": 14400.0,
+              "event_export": 65.99999999999972
+            },
+            "note": "The per-item loader dominates this controlled additive workload. Compare batching against the captured baseline; production speedup is unmeasured."
+          },
+          "limitation": "Observable coverage, target/number matching and citation-kind checks, not a semantic proof. No production/general superiority claim."
+        },
+        "spending": {
+          "goal_id": "c05c7a3d8ed14d19b23cbfa51910017e",
+          "limit_nanos": 750000000,
+          "spent_nanos": 91688500,
+          "reserved_nanos": 0,
+          "model": "gpt-4.1-2025-04-14",
+          "limit_usd": 0.75,
+          "spent_usd": 0.0916885,
+          "reserved_usd": 0.0,
+          "available_usd": 0.6583115,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "architecture": "investigator",
+        "model": "gpt-5.3-codex",
+        "variant": "renamed-history-scaled",
+        "budget_usd": 0.75,
+        "time_limit_seconds": 180,
+        "native_codex_cli": false,
+        "decisions": []
+      }
+    },
+    {
+      "id": "611dc790a56c46d8bf52bc479895e54b",
+      "at": "2026-10-19T04:36:24.632151+00:00",
+      "result": {
+        "name": ".omnitrix/research-compare-11/buried-bottleneck/single-codex",
+        "mode": "live-controlled-comparison",
+        "status": "reported",
+        "seconds": 31.984,
+        "score": {
+          "passed": 8,
+          "total": 8,
+          "checks": {
+            "observed_multiple_code_paths": true,
+            "used_metrics": true,
+            "used_logs": true,
+            "reached_log_tail": true,
+            "aggregated_later_rows": true,
+            "reported_oracle_component": true,
+            "reported_oracle_numeric_total": true,
+            "claim_cites_code_logs_metrics": true
+          },
+          "oracle": {
+            "case": "buried-bottleneck",
+            "target": "record_lookup",
+            "cost_ms": {
+              "hotset": 2039.9999999997867,
+              "record_lookup": 14400.0,
+              "event_export": 65.99999999999972
+            },
+            "note": "The per-item loader dominates this controlled additive workload. Compare batching against the captured baseline; production speedup is unmeasured."
+          },
+          "limitation": "Observable coverage, target/number matching and citation-kind checks, not a semantic proof. No production/general superiority claim."
+        },
+        "spending": {
+          "goal_id": "4046985f3cfb4a71956ea54e584c5547",
+          "limit_nanos": 750000000,
+          "spent_nanos": 56364350,
+          "reserved_nanos": 0,
+          "model": "gpt-5.3-codex",
+          "limit_usd": 0.75,
+          "spent_usd": 0.05636435,
+          "reserved_usd": 0.0,
+          "available_usd": 0.69363565,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-5.3-codex"
+        },
+        "architecture": "single-codex",
+        "model": "gpt-5.3-codex",
+        "variant": "renamed-history-scaled",
+        "budget_usd": 0.75,
+        "time_limit_seconds": 180,
+        "native_codex_cli": false,
+        "decisions": []
+      }
+    },
+    {
+      "id": "1f3ed64d64d64f1cba49adcbd7d288b5",
+      "at": "2026-10-19T04:36:24.654811+00:00",
+      "result": {
+        "name": ".omnitrix/research-compare-11/negative-control/investigator",
+        "mode": "live-controlled-comparison",
+        "status": "completed",
+        "seconds": 55.317,
+        "score": {
+          "passed": 8,
+          "total": 8,
+          "checks": {
+            "observed_multiple_code_paths": true,
+            "used_metrics": true,
+            "used_logs": true,
+            "reached_log_tail": true,
+            "aggregated_later_rows": true,
+            "reported_oracle_component": true,
+            "reported_oracle_numeric_total": true,
+            "claim_cites_code_logs_metrics": true
+          },
+          "oracle": {
+            "case": "negative-control",
+            "target": "event_export",
+            "cost_ms": {
+              "hotset": 2039.9999999997867,
+              "record_lookup": 35.99999999999985,
+              "event_export": 26400.0
+            },
+            "note": "Negative control still has a suspicious per-item loop, but measured local cost is small. Upstream measurements warrant investigation, not an invented local optimization."
+          },
+          "limitation": "Observable coverage, target/number matching and citation-kind checks, not a semantic proof. No production/general superiority claim."
+        },
+        "spending": {
+          "goal_id": "c1741c52222e4baeb49806e06cc8b959",
+          "limit_nanos": 750000000,
+          "spent_nanos": 108347550,
+          "reserved_nanos": 0,
+          "model": "gpt-4.1-2025-04-14",
+          "limit_usd": 0.75,
+          "spent_usd": 0.10834755,
+          "reserved_usd": 0.0,
+          "available_usd": 0.64165245,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "architecture": "investigator",
+        "model": "gpt-5.3-codex",
+        "variant": "renamed-history-scaled",
+        "budget_usd": 0.75,
+        "time_limit_seconds": 180,
+        "native_codex_cli": false,
+        "decisions": []
+      }
+    },
+    {
+      "id": "b20e68b6bc3c425d88117278abd25f57",
+      "at": "2026-10-19T04:36:24.678486+00:00",
+      "result": {
+        "name": ".omnitrix/research-compare-11/negative-control/single-codex",
+        "mode": "live-controlled-comparison",
+        "status": "reported",
+        "seconds": 29.862,
+        "score": {
+          "passed": 8,
+          "total": 8,
+          "checks": {
+            "observed_multiple_code_paths": true,
+            "used_metrics": true,
+            "used_logs": true,
+            "reached_log_tail": true,
+            "aggregated_later_rows": true,
+            "reported_oracle_component": true,
+            "reported_oracle_numeric_total": true,
+            "claim_cites_code_logs_metrics": true
+          },
+          "oracle": {
+            "case": "negative-control",
+            "target": "event_export",
+            "cost_ms": {
+              "hotset": 2039.9999999997867,
+              "record_lookup": 35.99999999999985,
+              "event_export": 26400.0
+            },
+            "note": "Negative control still has a suspicious per-item loop, but measured local cost is small. Upstream measurements warrant investigation, not an invented local optimization."
+          },
+          "limitation": "Observable coverage, target/number matching and citation-kind checks, not a semantic proof. No production/general superiority claim."
+        },
+        "spending": {
+          "goal_id": "c570624ea013411a99ea6f537ac3924d",
+          "limit_nanos": 750000000,
+          "spent_nanos": 56134750,
+          "reserved_nanos": 0,
+          "model": "gpt-5.3-codex",
+          "limit_usd": 0.75,
+          "spent_usd": 0.05613475,
+          "reserved_usd": 0.0,
+          "available_usd": 0.69386525,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-5.3-codex"
+        },
+        "architecture": "single-codex",
+        "model": "gpt-5.3-codex",
+        "variant": "renamed-history-scaled",
+        "budget_usd": 0.75,
+        "time_limit_seconds": 180,
+        "native_codex_cli": false,
+        "decisions": []
+      }
+    },
+    {
+      "id": "45b121196ccf4a73aad194735d3a19b3",
+      "at": "2026-10-19T04:40:36.250808+00:00",
+      "result": {
+        "name": "review-eval-05/missing-measurement",
+        "mode": "live-reviewer-challenge",
+        "status": "passed",
+        "spending": {
+          "goal_id": "13f1e104d30a4c8cbdb91bc90e704af1",
+          "limit_nanos": 250000000,
+          "spent_nanos": 7554000,
+          "reserved_nanos": 0,
+          "model": "gpt-4.1-2025-04-14",
+          "limit_usd": 0.25,
+          "spent_usd": 0.007554,
+          "reserved_usd": 0.0,
+          "available_usd": 0.242446,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "model": "gpt-4.1",
+        "decisions": []
+      }
+    },
+    {
+      "id": "3c8c18a31bd442fe911c806e6eb67a39",
+      "at": "2026-10-19T04:40:36.274823+00:00",
+      "result": {
+        "name": "review-eval-05/partial-scope",
+        "mode": "live-reviewer-challenge",
+        "status": "passed",
+        "spending": {
+          "goal_id": "b699eecc957d4ed7a11e6b4ccc513ae1",
+          "limit_nanos": 250000000,
+          "spent_nanos": 8268000,
+          "reserved_nanos": 0,
+          "model": "gpt-4.1-2025-04-14",
+          "limit_usd": 0.25,
+          "spent_usd": 0.008268,
+          "reserved_usd": 0.0,
+          "available_usd": 0.241732,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "model": "gpt-4.1",
+        "decisions": []
+      }
+    },
+    {
+      "id": "b59cd0185fa74d9b9712e19b1793c520",
+      "at": "2026-10-19T04:40:36.382769+00:00",
+      "result": {
+        "name": "review-eval-05/positive-measurement",
+        "mode": "live-reviewer-challenge",
+        "status": "passed",
+        "spending": {
+          "goal_id": "f81e489c3ff14ec9a25d2a64337915b0",
+          "limit_nanos": 250000000,
+          "spent_nanos": 9330000,
+          "reserved_nanos": 0,
+          "model": "gpt-4.1-2025-04-14",
+          "limit_usd": 0.25,
+          "spent_usd": 0.00933,
+          "reserved_usd": 0.0,
+          "available_usd": 0.24067,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "model": "gpt-4.1",
+        "decisions": []
+      }
+    },
+    {
+      "id": "9c2819501c9f4b74a66e88747d0ccb1d",
+      "at": "2026-10-19T04:40:36.405988+00:00",
+      "result": {
+        "name": "review-eval-05/category-trap",
+        "mode": "live-reviewer-challenge",
+        "status": "passed",
+        "spending": {
+          "goal_id": "1b638a5f339b4e56b4f39e16358a8afd",
+          "limit_nanos": 250000000,
+          "spent_nanos": 4846000,
+          "reserved_nanos": 0,
+          "model": "gpt-4.1-2025-04-14",
+          "limit_usd": 0.25,
+          "spent_usd": 0.004846,
+          "reserved_usd": 0.0,
+          "available_usd": 0.245154,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "model": "gpt-4.1",
+        "decisions": []
+      }
+    },
+    {
+      "id": "69574a0c824e4eceb3d642b9acecbf33",
+      "at": "2026-10-19T04:40:36.427910+00:00",
+      "result": {
+        "name": "review-eval-05/benchmark-definition-trap",
+        "mode": "live-reviewer-challenge",
+        "status": "failed",
+        "spending": {
+          "goal_id": "67464dfb4f2a4cdfb00393f1b5c8e8ed",
+          "limit_nanos": 250000000,
+          "spent_nanos": 7918000,
+          "reserved_nanos": 0,
+          "model": "gpt-4.1-2025-04-14",
+          "limit_usd": 0.25,
+          "spent_usd": 0.007918,
+          "reserved_usd": 0.0,
+          "available_usd": 0.242082,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "model": "gpt-4.1",
+        "decisions": []
+      }
+    },
+    {
+      "id": "2fc15311bd9d44069244bfaaba04b6fd",
+      "at": "2026-10-19T04:40:36.449323+00:00",
+      "result": {
+        "name": "review-eval-05/positive-code-mechanism",
+        "mode": "live-reviewer-challenge",
+        "status": "passed",
+        "spending": {
+          "goal_id": "83ea84d6468b40e3828e1876c80209d5",
+          "limit_nanos": 250000000,
+          "spent_nanos": 8938000,
+          "reserved_nanos": 0,
+          "model": "gpt-4.1-2025-04-14",
+          "limit_usd": 0.25,
+          "spent_usd": 0.008938,
+          "reserved_usd": 0.0,
+          "available_usd": 0.241062,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "model": "gpt-4.1",
+        "decisions": []
+      }
+    },
+    {
+      "id": "9f3c8ce062e9495eb9a3f35ee4a75017",
+      "at": "2026-10-19T04:40:36.472633+00:00",
+      "result": {
+        "name": "review-eval-06/missing-measurement",
+        "mode": "live-reviewer-challenge",
+        "status": "passed",
+        "spending": {
+          "goal_id": "f76caf15e23142578c0ea51a00be8cdf",
+          "limit_nanos": 250000000,
+          "spent_nanos": 15140300,
+          "reserved_nanos": 0,
+          "model": "gpt-4.1-2025-04-14",
+          "limit_usd": 0.25,
+          "spent_usd": 0.0151403,
+          "reserved_usd": 0.0,
+          "available_usd": 0.2348597,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "model": "gpt-5.3-codex",
+        "decisions": []
+      }
+    },
+    {
+      "id": "6a7cd73d1dc64fc28772428fa218e70f",
+      "at": "2026-10-19T04:40:36.496219+00:00",
+      "result": {
+        "name": "review-eval-06/partial-scope",
+        "mode": "live-reviewer-challenge",
+        "status": "passed",
+        "spending": {
+          "goal_id": "7893b6b4a4f246a8924bee9bca0f65d0",
+          "limit_nanos": 250000000,
+          "spent_nanos": 21620550,
+          "reserved_nanos": 0,
+          "model": "gpt-4.1-2025-04-14",
+          "limit_usd": 0.25,
+          "spent_usd": 0.02162055,
+          "reserved_usd": 0.0,
+          "available_usd": 0.22837945,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "model": "gpt-5.3-codex",
+        "decisions": []
+      }
+    },
+    {
+      "id": "7afa7d697cec4c11a36ede3be84c25db",
+      "at": "2026-10-19T04:40:36.521518+00:00",
+      "result": {
+        "name": "review-eval-06/positive-measurement",
+        "mode": "live-reviewer-challenge",
+        "status": "passed",
+        "spending": {
+          "goal_id": "27331aba6fcc4f77aa510b1b53d47b04",
+          "limit_nanos": 250000000,
+          "spent_nanos": 11508000,
+          "reserved_nanos": 0,
+          "model": "gpt-4.1-2025-04-14",
+          "limit_usd": 0.25,
+          "spent_usd": 0.011508,
+          "reserved_usd": 0.0,
+          "available_usd": 0.238492,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "model": "gpt-5.3-codex",
+        "decisions": []
+      }
+    },
+    {
+      "id": "6d41f5aa6d1c441880db586c9211f9e3",
+      "at": "2026-10-19T04:40:36.544275+00:00",
+      "result": {
+        "name": "review-eval-06/category-trap",
+        "mode": "live-reviewer-challenge",
+        "status": "passed",
+        "spending": {
+          "goal_id": "24583112a8bf44799a8e3abaea5ecd18",
+          "limit_nanos": 250000000,
+          "spent_nanos": 16596300,
+          "reserved_nanos": 0,
+          "model": "gpt-4.1-2025-04-14",
+          "limit_usd": 0.25,
+          "spent_usd": 0.0165963,
+          "reserved_usd": 0.0,
+          "available_usd": 0.2334037,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "model": "gpt-5.3-codex",
+        "decisions": []
+      }
+    },
+    {
+      "id": "d44822670a9f403b90f3af75726df22e",
+      "at": "2026-10-19T04:40:36.569345+00:00",
+      "result": {
+        "name": "review-eval-06/benchmark-definition-trap",
+        "mode": "live-reviewer-challenge",
+        "status": "passed",
+        "spending": {
+          "goal_id": "fad741e2291d4d00b45724047042100d",
+          "limit_nanos": 250000000,
+          "spent_nanos": 17132850,
+          "reserved_nanos": 0,
+          "model": "gpt-4.1-2025-04-14",
+          "limit_usd": 0.25,
+          "spent_usd": 0.01713285,
+          "reserved_usd": 0.0,
+          "available_usd": 0.23286715,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "model": "gpt-5.3-codex",
+        "decisions": []
+      }
+    },
+    {
+      "id": "c48b3a42e1e24d75aafc6a598c3ff913",
+      "at": "2026-10-19T04:40:36.596714+00:00",
+      "result": {
+        "name": "review-eval-06/positive-code-mechanism",
+        "mode": "live-reviewer-challenge",
+        "status": "passed",
+        "spending": {
+          "goal_id": "5ef2987ddc494f1cb7124ca333f4459c",
+          "limit_nanos": 250000000,
+          "spent_nanos": 11211550,
+          "reserved_nanos": 0,
+          "model": "gpt-4.1-2025-04-14",
+          "limit_usd": 0.25,
+          "spent_usd": 0.01121155,
+          "reserved_usd": 0.0,
+          "available_usd": 0.23878845,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "model": "gpt-5.3-codex",
+        "decisions": []
+      }
+    },
+    {
+      "id": "8522a575fe9e4133a1e8dfdc68728599",
+      "at": "2026-10-19T04:41:41.956787+00:00",
+      "result": {
+        "name": ".omnitrix/research-compare-12/buried-bottleneck/investigator",
+        "mode": "live-controlled-comparison",
+        "status": "completed",
+        "seconds": 104.31,
+        "score": {
+          "passed": 7,
+          "total": 8,
+          "checks": {
+            "observed_multiple_code_paths": true,
+            "used_metrics": true,
+            "used_logs": true,
+            "reached_log_tail": true,
+            "aggregated_later_rows": true,
+            "reported_oracle_component": true,
+            "reported_oracle_numeric_total": true,
+            "claim_cites_code_logs_metrics": false
+          },
+          "oracle": {
+            "case": "buried-bottleneck",
+            "target": "record_lookup",
+            "cost_ms": {
+              "hotset": 2039.9999999997867,
+              "record_lookup": 14400.0,
+              "event_export": 65.99999999999972
+            },
+            "note": "The per-item loader dominates this controlled additive workload. Compare batching against the captured baseline; production speedup is unmeasured."
+          },
+          "limitation": "Observable coverage, target/number matching and citation-kind checks, not a semantic proof. No production/general superiority claim."
+        },
+        "spending": {
+          "goal_id": "78983f9154d84bdd8a1977e41deeceaa",
+          "limit_nanos": 750000000,
+          "spent_nanos": 197784300,
+          "reserved_nanos": 0,
+          "model": "gpt-4.1-2025-04-14",
+          "limit_usd": 0.75,
+          "spent_usd": 0.1977843,
+          "reserved_usd": 0.0,
+          "available_usd": 0.5522157,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "architecture": "investigator",
+        "model": "gpt-5.3-codex",
+        "variant": "renamed-history-scaled",
+        "budget_usd": 0.75,
+        "time_limit_seconds": 180,
+        "native_codex_cli": false,
+        "decisions": []
+      }
+    },
+    {
+      "id": "742441b0f2fc42ef84a7ccf4af46ac40",
+      "at": "2026-10-19T04:41:41.982241+00:00",
+      "result": {
+        "name": ".omnitrix/research-compare-12/buried-bottleneck/single-codex",
+        "mode": "live-controlled-comparison",
+        "status": "reported",
+        "seconds": 31.529,
+        "score": {
+          "passed": 7,
+          "total": 8,
+          "checks": {
+            "observed_multiple_code_paths": true,
+            "used_metrics": true,
+            "used_logs": true,
+            "reached_log_tail": true,
+            "aggregated_later_rows": true,
+            "reported_oracle_component": true,
+            "reported_oracle_numeric_total": true,
+            "claim_cites_code_logs_metrics": false
+          },
+          "oracle": {
+            "case": "buried-bottleneck",
+            "target": "record_lookup",
+            "cost_ms": {
+              "hotset": 2039.9999999997867,
+              "record_lookup": 14400.0,
+              "event_export": 65.99999999999972
+            },
+            "note": "The per-item loader dominates this controlled additive workload. Compare batching against the captured baseline; production speedup is unmeasured."
+          },
+          "limitation": "Observable coverage, target/number matching and citation-kind checks, not a semantic proof. No production/general superiority claim."
+        },
+        "spending": {
+          "goal_id": "6ab229fced9840cd8b9d2fd4d2475c76",
+          "limit_nanos": 750000000,
+          "spent_nanos": 62141450,
+          "reserved_nanos": 0,
+          "model": "gpt-5.3-codex",
+          "limit_usd": 0.75,
+          "spent_usd": 0.06214145,
+          "reserved_usd": 0.0,
+          "available_usd": 0.68785855,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-5.3-codex"
+        },
+        "architecture": "single-codex",
+        "model": "gpt-5.3-codex",
+        "variant": "renamed-history-scaled",
+        "budget_usd": 0.75,
+        "time_limit_seconds": 180,
+        "native_codex_cli": false,
+        "decisions": []
+      }
+    },
+    {
+      "id": "4f75aac3f4274d7cae777e52d64be70c",
+      "at": "2026-10-19T04:41:42.007196+00:00",
+      "result": {
+        "name": ".omnitrix/research-compare-12/negative-control/investigator",
+        "mode": "live-controlled-comparison",
+        "status": "completed",
+        "seconds": 103.038,
+        "score": {
+          "passed": 8,
+          "total": 8,
+          "checks": {
+            "observed_multiple_code_paths": true,
+            "used_metrics": true,
+            "used_logs": true,
+            "reached_log_tail": true,
+            "aggregated_later_rows": true,
+            "reported_oracle_component": true,
+            "reported_oracle_numeric_total": true,
+            "claim_cites_code_logs_metrics": true
+          },
+          "oracle": {
+            "case": "negative-control",
+            "target": "event_export",
+            "cost_ms": {
+              "hotset": 2039.9999999997867,
+              "record_lookup": 35.99999999999985,
+              "event_export": 26400.0
+            },
+            "note": "Negative control still has a suspicious per-item loop, but measured local cost is small. Upstream measurements warrant investigation, not an invented local optimization."
+          },
+          "limitation": "Observable coverage, target/number matching and citation-kind checks, not a semantic proof. No production/general superiority claim."
+        },
+        "spending": {
+          "goal_id": "3d270ddf013b411c882d7a6a0135aafb",
+          "limit_nanos": 750000000,
+          "spent_nanos": 212785650,
+          "reserved_nanos": 0,
+          "model": "gpt-4.1-2025-04-14",
+          "limit_usd": 0.75,
+          "spent_usd": 0.21278565,
+          "reserved_usd": 0.0,
+          "available_usd": 0.53721435,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "architecture": "investigator",
+        "model": "gpt-5.3-codex",
+        "variant": "renamed-history-scaled",
+        "budget_usd": 0.75,
+        "time_limit_seconds": 180,
+        "native_codex_cli": false,
+        "decisions": []
+      }
+    },
+    {
+      "id": "b0befc57c3014f358ca71df89c97238c",
+      "at": "2026-10-19T04:41:42.034394+00:00",
+      "result": {
+        "name": ".omnitrix/research-compare-12/negative-control/single-codex",
+        "mode": "live-controlled-comparison",
+        "status": "reported",
+        "seconds": 34.111,
+        "score": {
+          "passed": 7,
+          "total": 8,
+          "checks": {
+            "observed_multiple_code_paths": true,
+            "used_metrics": true,
+            "used_logs": true,
+            "reached_log_tail": true,
+            "aggregated_later_rows": true,
+            "reported_oracle_component": true,
+            "reported_oracle_numeric_total": true,
+            "claim_cites_code_logs_metrics": false
+          },
+          "oracle": {
+            "case": "negative-control",
+            "target": "event_export",
+            "cost_ms": {
+              "hotset": 2039.9999999997867,
+              "record_lookup": 35.99999999999985,
+              "event_export": 26400.0
+            },
+            "note": "Negative control still has a suspicious per-item loop, but measured local cost is small. Upstream measurements warrant investigation, not an invented local optimization."
+          },
+          "limitation": "Observable coverage, target/number matching and citation-kind checks, not a semantic proof. No production/general superiority claim."
+        },
+        "spending": {
+          "goal_id": "920742d39c60438f91f9fe33e6057659",
+          "limit_nanos": 750000000,
+          "spent_nanos": 62216350,
+          "reserved_nanos": 0,
+          "model": "gpt-5.3-codex",
+          "limit_usd": 0.75,
+          "spent_usd": 0.06221635,
+          "reserved_usd": 0.0,
+          "available_usd": 0.68778365,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-5.3-codex"
+        },
+        "architecture": "single-codex",
+        "model": "gpt-5.3-codex",
+        "variant": "renamed-history-scaled",
+        "budget_usd": 0.75,
+        "time_limit_seconds": 180,
+        "native_codex_cli": false,
+        "decisions": []
+      }
+    },
+    {
+      "id": "d4ef52e3f59849f2a03ec53b6e1b369d",
+      "at": "2026-10-19T04:43:02.650104+00:00",
+      "result": {
+        "name": "kafka-campaign/latest",
+        "mode": "live-capped-public-repository",
+        "status": "running",
+        "spending": {
+          "goal_id": "c849afa7ebea434ea01d292996c10a77",
+          "limit_nanos": 25000000000,
+          "spent_nanos": 17234689000,
+          "reserved_nanos": 81900000,
+          "model": "gpt-4.1-2025-04-14",
+          "limit_usd": 25.0,
+          "spent_usd": 17.234689,
+          "reserved_usd": 0.0819,
+          "available_usd": 7.683411,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "frontier": {
+          "goal_id": "c849afa7ebea434ea01d292996c10a77",
+          "head": "cc8baadc9f0363f2bdfe68a2f1cd8dbe4372d282",
+          "complete": 1,
+          "skipped": 64,
+          "files": 7551,
+          "by_kind": {
+            "code": 6760,
+            "document": 785,
+            "logs": 4,
+            "metrics": 2
+          },
+          "by_origin": {
+            "export": 6,
+            "git": 7545
+          },
+          "observed_files": 82,
+          "basis": "Git-tracked UTF-8 files and explicitly registered local exports <=32 MiB; binaries, unavailable files and oversized files counted as skipped. Excerpts do not establish full coverage."
+        },
+        "quality": {
+          "required": {
+            "sources": 20,
+            "branches": 4,
+            "hypotheses": 6,
+            "mechanisms": 2
+          },
+          "actual": {
+            "sources": 82,
+            "branches": 13,
+            "hypotheses": 11,
+            "mechanisms": 1
+          },
+          "met": false,
+          "note": "Minimum breadth and evidence gates, not proof of exhaustive coverage or production impact."
+        },
+        "artifacts": {
+          "local_report": "/workspace/omnitrix/.omnitrix/kafka-campaign/campaign.html",
+          "database": "/workspace/omnitrix/.omnitrix/kafka-campaign/state.db",
+          "note": "Local fixture/build evidence is not production telemetry. False mechanism categories were challenged; original reports/evaluations remain. Current code-supported findings require fresh review."
+        },
+        "decisions": []
+      }
+    },
+    {
+      "id": "6761829fc08a4651810934d4644c401c",
+      "at": "2026-10-19T04:48:02.622976+00:00",
+      "result": {
+        "name": "review-eval-07/missing-measurement",
+        "mode": "live-reviewer-challenge",
+        "status": "passed",
+        "spending": {
+          "goal_id": "a7994eca534341b38a560c819f1a137e",
+          "limit_nanos": 250000000,
+          "spent_nanos": 16853550,
+          "reserved_nanos": 0,
+          "model": "gpt-4.1-2025-04-14",
+          "limit_usd": 0.25,
+          "spent_usd": 0.01685355,
+          "reserved_usd": 0.0,
+          "available_usd": 0.23314645,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "model": "gpt-5.3-codex",
+        "decisions": []
+      }
+    },
+    {
+      "id": "9ea42a6f60904cdda8989271e4844562",
+      "at": "2026-10-19T04:48:02.646303+00:00",
+      "result": {
+        "name": "review-eval-07/partial-scope",
+        "mode": "live-reviewer-challenge",
+        "status": "passed",
+        "spending": {
+          "goal_id": "e45377e47b2b476da27a02b084dcac4d",
+          "limit_nanos": 250000000,
+          "spent_nanos": 22035300,
+          "reserved_nanos": 0,
+          "model": "gpt-4.1-2025-04-14",
+          "limit_usd": 0.25,
+          "spent_usd": 0.0220353,
+          "reserved_usd": 0.0,
+          "available_usd": 0.2279647,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "model": "gpt-5.3-codex",
+        "decisions": []
+      }
+    },
+    {
+      "id": "62a593bb1cf846efa8946b04021e39b9",
+      "at": "2026-10-19T04:48:02.670230+00:00",
+      "result": {
+        "name": "review-eval-07/positive-measurement",
+        "mode": "live-reviewer-challenge",
+        "status": "passed",
+        "spending": {
+          "goal_id": "9c5ee1878bcd4527a5b7ff77a1b13e43",
+          "limit_nanos": 250000000,
+          "spent_nanos": 17995250,
+          "reserved_nanos": 0,
+          "model": "gpt-4.1-2025-04-14",
+          "limit_usd": 0.25,
+          "spent_usd": 0.01799525,
+          "reserved_usd": 0.0,
+          "available_usd": 0.23200475,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "model": "gpt-5.3-codex",
+        "decisions": []
+      }
+    },
+    {
+      "id": "909599d0c409491cbed65768ee598b5d",
+      "at": "2026-10-19T04:48:02.693802+00:00",
+      "result": {
+        "name": "review-eval-07/category-trap",
+        "mode": "live-reviewer-challenge",
+        "status": "passed",
+        "spending": {
+          "goal_id": "9bd30d171c4b4a95b6f93e55381f6b36",
+          "limit_nanos": 250000000,
+          "spent_nanos": 13607300,
+          "reserved_nanos": 0,
+          "model": "gpt-4.1-2025-04-14",
+          "limit_usd": 0.25,
+          "spent_usd": 0.0136073,
+          "reserved_usd": 0.0,
+          "available_usd": 0.2363927,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "model": "gpt-5.3-codex",
+        "decisions": []
+      }
+    },
+    {
+      "id": "f1bf5d8df3504528a6a0f9c43dcf7e1c",
+      "at": "2026-10-19T04:48:02.718510+00:00",
+      "result": {
+        "name": "review-eval-07/benchmark-definition-trap",
+        "mode": "live-reviewer-challenge",
+        "status": "passed",
+        "spending": {
+          "goal_id": "a1dce76fd7cd49a292b2f537b1a88b4f",
+          "limit_nanos": 250000000,
+          "spent_nanos": 14271250,
+          "reserved_nanos": 0,
+          "model": "gpt-4.1-2025-04-14",
+          "limit_usd": 0.25,
+          "spent_usd": 0.01427125,
+          "reserved_usd": 0.0,
+          "available_usd": 0.23572875,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "model": "gpt-5.3-codex",
+        "decisions": []
+      }
+    },
+    {
+      "id": "5c9439fb20d14bd98645b3a0cc1b71d6",
+      "at": "2026-10-19T04:48:02.743161+00:00",
+      "result": {
+        "name": "review-eval-07/positive-code-mechanism",
+        "mode": "live-reviewer-challenge",
+        "status": "passed",
+        "spending": {
+          "goal_id": "e0fc4446696a4e02aff4811e9e8725b2",
+          "limit_nanos": 250000000,
+          "spent_nanos": 17480750,
+          "reserved_nanos": 0,
+          "model": "gpt-4.1-2025-04-14",
+          "limit_usd": 0.25,
+          "spent_usd": 0.01748075,
+          "reserved_usd": 0.0,
+          "available_usd": 0.23251925,
+          "price_source": "https://developers.openai.com/api/docs/models/gpt-4.1"
+        },
+        "model": "gpt-5.3-codex",
         "decisions": []
       }
     }

@@ -14,6 +14,7 @@ import subprocess
 import sys
 import time
 import csv
+import hashlib
 from openai import APIConnectionError,APITimeoutError,InternalServerError,RateLimitError
 from agents.exceptions import ModelBehaviorError
 
@@ -146,7 +147,7 @@ async def arm(directory,case,name,dollars,seconds,variant):
     subprocess.run(['git','-C',str(workspace),'add','.'],check=True)
     subprocess.run(['git','-C',str(workspace),'-c','user.name=Fixture','-c','user.email=fixture@localhost','commit','-qm','Controlled workload'],check=True)
     store=Store(directory/'state.db');goal=store.create_goal(OBJECTIVE,['Use captured evidence and state workload limitations'],workspace)
-    model='gpt-5.3-codex' if name=='single-codex' else 'gpt-4.1-2025-04-14'
+    model='gpt-5.3-codex' if name in ('single-codex','investigator') else 'gpt-4.1-2025-04-14'
     result={'name':case+'/'+name,'mode':'live-controlled-comparison','goal_id':goal,'model':model,'architecture':name,'variant':variant,
         'budget_usd':dollars,'time_limit_seconds':seconds,'native_codex_cli':False,'status':'running'}
     started=time.monotonic();report=None
@@ -169,7 +170,8 @@ async def arm(directory,case,name,dollars,seconds,variant):
         result.update(status='error',error_type=type(exc).__name__)
     finally:
         if hasattr(store,'_campaign_client'):await store._campaign_client.close()
-        result.update(seconds=round(time.monotonic()-started,3),spending=Spending(store,goal).status(),score=score(store,goal,oracle,report),report=report)
+        result.update(seconds=round(time.monotonic()-started,3),spending=Spending(store,goal).status(),score=score(store,goal,oracle,report),report=report,
+            actual_models=[r[0] for r in store.db.execute('SELECT DISTINCT model FROM spending_requests WHERE goal_id=?',(goal,))])
         (directory/'result.json').write_text(json.dumps(result,indent=2)+'\n')
         write_report(goal_report(store,goal),directory/'goal.html')
         store.db.close()
@@ -182,7 +184,11 @@ async def main(args):
     if not 0<args.dollars<=25 or args.dollars*len(cases)*len(arms)>25:
         raise ValueError('Combined maximum reservation ceilings for this comparison must not exceed $25')
     args.output.mkdir(parents=True,exist_ok=False)
-    config={'cases':cases,'arms':arms,'dollars_per_arm':args.dollars,'combined_ceiling_usd':args.dollars*len(cases)*len(arms),'seconds_per_arm':args.seconds,'variant':args.variant}
+    source_files=sorted((ROOT/'omnitrix').glob('*.py'))+sorted((ROOT/'instructions').glob('*.md'))+[Path(__file__)]
+    config={'cases':cases,'arms':arms,'dollars_per_arm':args.dollars,'combined_ceiling_usd':args.dollars*len(cases)*len(arms),'seconds_per_arm':args.seconds,'variant':args.variant,
+        'code_revision':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
+        'source_sha256':{str(path.relative_to(ROOT)):hashlib.sha256(path.read_bytes()).hexdigest() for path in source_files},
+        'score_version':'all-verified-findings-v1'}
     (args.output/'protocol.json').write_text(json.dumps(config,indent=2)+'\n')
     results=await asyncio.gather(*(arm(args.output/case/name,case,name,args.dollars,args.seconds,args.variant) for case in cases for name in arms))
     data={'title':'Equal-budget controlled research comparison','protocol':config,

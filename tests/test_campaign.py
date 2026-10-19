@@ -52,6 +52,20 @@ def test_campaign_cannot_exceed_users_25_dollar_limit(tmp_path):
         Campaign(store,other).configure(3,1000,2000,26)
 
 
+async def test_pause_during_model_turn_is_not_relabelled_as_dollar_exhaustion(tmp_path):
+    from omnitrix.spending import SpendingLimitReached
+    store,goal,campaign,_=setup(tmp_path)
+    class Brain:
+        async def decide(self,snapshot):
+            campaign.stop('paused','Operator paused the campaign')
+            raise SpendingLimitReached('Campaign is stopped or its saved deadline has expired')
+    supervisor=CampaignSupervisor(store,goal,brain=Brain(),runtime=ReadOnlyRuntime())
+    result=await campaign.drive(supervisor=supervisor,poll_seconds=.001)
+    assert result['state']=='paused'
+    assert result['reason']=='Operator paused the campaign'
+    assert result['spending']['available_usd']==25
+
+
 def test_rereading_and_recalling_the_same_excerpt_is_not_new_exploration(tmp_path):
     store,goal,campaign,workspace=setup(tmp_path)
     (workspace/'system.md').write_text('first\nsecond\n')
@@ -195,6 +209,34 @@ def test_mechanism_finding_requires_workload_and_falsification():
         evidence_ids=['actual-code'],category='mechanism',workload='N unique keys',
         falsification='An early index avoids the inner scan')
     assert finding.category=='mechanism'
+
+
+async def test_rephrasing_the_same_code_mechanism_does_not_inflate_completion_count(tmp_path):
+    from omnitrix.research_models import ResearchReport,Finding,Evaluation,ClaimReview
+    store,goal,campaign,workspace=setup(tmp_path)
+    (workspace/'count.py').write_text('def counts(keys):\n    return [keys.count(key) for key in keys]\n')
+    subprocess.run(['git','-C',str(workspace),'add','count.py'],check=True)
+    subprocess.run(['git','-C',str(workspace),'-c','user.name=Fixture','-c','user.email=fixture@localhost','commit','-qm','Runtime mechanism'],check=True)
+    Frontier(store,goal).build()
+    class Agents:
+        async def run(self,role,context,tools):
+            if role=='research':
+                source=tools.read('count.py')['id']
+                return ResearchReport(findings=[Finding(statement=context['plan']['hypothesis'],classification='claim',
+                    category='mechanism',workload='N unique ordinary list keys',falsification='A precomputed index supplies counts',evidence_ids=[source])],
+                    supporting_evidence=[source],contradictory_evidence=[],uncertainties=[],recommendation='Build frequencies once',blocked=False)
+            ids=context['report']['supporting_evidence']
+            return Evaluation(reason='N full list scans',feedback='Verify candidate independently',verdict='supported',evidence_ids=ids,
+                test_kind='direct',test_evidence_ids=ids,claim_reviews=[ClaimReview(finding_index=0,reason='Observed repeated scan',supported=True,
+                evidence_ids=ids,category='mechanism',resource_cost='O(N²) list traversal',avoidable_work='Repeated scans of unchanged keys',
+                equivalent_alternative='One frequency pass preserves per-key counts',primary_code_id=ids[0],code_symbol='counts')])
+    research=Research(store,Agents())
+    for hypothesis in ('counts scans the list once per key','Each key triggers another complete list scan'):
+        job=research.plan(goal,'research',ResearchPlan(scope=['count.py'],question='Is repeated list work avoidable?',
+            hypothesis=hypothesis,falsification='A cached index supplies counts'))['job_id']
+        assert (await research.attempt(job))['status']=='supported'
+    assert campaign.quality()['actual']['mechanisms']==1
+    assert store.db.execute("SELECT count(*) FROM knowledge WHERE kind='finding' AND classification='verified'").fetchone()[0]==2
 
 
 def test_local_export_is_searchable_without_becoming_git_source_or_production_telemetry(tmp_path):

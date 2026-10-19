@@ -5,6 +5,7 @@ import json
 import math
 import time
 import uuid
+import subprocess
 from collections import deque
 from pathlib import Path
 from .resources import EXCLUDED, resource_kind
@@ -218,6 +219,43 @@ class ResearchTools:
             self.store.db.execute('UPDATE research_runs SET tool_calls=tool_calls+1 WHERE id=?', (self.run_id,))
             self.store.db.execute('INSERT INTO research_queries(run_id,operation,query,created) VALUES(?,?,?,?)',
                                  (self.run_id, operation, query, time.time()))
+
+    def search_scope(self,query,after='',directory=''):
+        """Literal content navigation over explicit scope, with bounded file batches."""
+        if not query.strip() or len(query)>500 or any(c in query for c in ('\n','\0')):
+            raise ValueError('Use one nonempty literal query of at most 500 characters')
+        self.charge('search_scope',json.dumps([query,after,directory]))
+        prefix=directory.rstrip('/')+'/' if directory and directory!='.' else ''
+        paths=sorted(path for path in self.scope if path>after and path.startswith(prefix))
+        batch=[];size=0;argument_bytes=0
+        for path in paths:
+            source=source_path(self.workspace,path);length=source.stat().st_size
+            if length>32*1024*1024:raise ValueError('Indexed source now exceeds 32 MiB; partition or narrow the scope')
+            encoded=len(path.encode('utf-8'))+1
+            if batch and (len(batch)>=500 or size+length>16*1024*1024 or argument_bytes+encoded>65536):break
+            batch.append(path);size+=length;argument_bytes+=encoded
+        if not batch:return {'matches':[],'next_after':None,'searched_files':0}
+        options=['rg','--fixed-strings','--ignore-case','--no-ignore','--no-messages']
+        result=subprocess.run(options+['--files-with-matches','--null','--',query,*batch],
+            cwd=self.workspace,capture_output=True,timeout=10)
+        if result.returncode not in (0,1):raise ValueError('Literal content search did not complete; no absence conclusion is available')
+        matched=sorted(p.decode('utf-8') for p in result.stdout.split(b'\0') if p)
+        # Only return a bounded page of hits; resume after its last filename,
+        # rather than skipping unreturned matches in the scanned batch.
+        page=matched[:min(8,self.remaining)];hits=[]
+        for path in page:
+            first=subprocess.run(options+['--no-filename','--line-number','--max-count','1','--max-columns','200','--',query,path],
+                cwd=self.workspace,capture_output=True,timeout=5)
+            if first.returncode!=0:raise ValueError('Source changed during navigation; search again before citing')
+            line=int(first.stdout.split(b':',1)[0])
+            observation=self.read(path,line,8)
+            hits.append({'locator':path,'line':line,'evidence':observation,
+                         'matching_excerpt_captured':query.casefold() in observation['excerpt'].casefold()})
+        cursor=page[-1] if len(page)<len(matched) and page else batch[-1]
+        if matched and not page:cursor=after
+        return {'matches':hits,'next_after':cursor if len(page)<len(matched) or len(batch)<len(paths) else None,
+                'searched_files':len(batch),'searched_bytes':size,
+                'note':'One match per file in this bounded batch, not all occurrences or whole-repository absence proof. Follow next_after. Read/search individual files for complete evidence; long matching lines may be clipped.'}
 
     def read(self, locator, start_line=1, line_count=80):
         self.charge('read_source', json.dumps([locator, start_line, line_count]))

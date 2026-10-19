@@ -41,6 +41,10 @@ means an observed numeric result; evidence_gap means missing data or validation;
 observation covers other bounded facts. Do not relabel missing telemetry or test
 coverage as a system inefficiency. A code-supported mechanism may still lack a
 production impact measurement: state that uncertainty instead of claiming speedup.
+Use candidate for a plausible resource-cost lead whose avoidability is unresolved.
+A verified inefficiency must explain avoidable work and a contract-preserving
+cheaper alternative in the actual implementation. Large workload parameters,
+ordinary recomputation, and benchmark definitions alone do not prove waste.
 Frameworks, callers and harnesses may supply instrumentation or behavior outside
 a leaf file. Before claiming that measurements or behavior are absent, inspect
 the relevant execution contract. If the plan excludes it, state the scope gap;

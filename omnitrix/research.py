@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Annotated
 from pydantic import Field
 from agents import Agent, Runner, RunConfig, ModelSettings, function_tool
+from openai.types.shared import Reasoning
 from .knowledge import Knowledge, ResearchTools, source_path, source_revision
 from .research_models import DiscoveryReport, ResearchReport, Evaluation, ResearchPlan
 from .workers import ROOT
@@ -77,11 +78,12 @@ class ResearchAgents:
         choice = 'auto' if role == 'evaluation' else 'summarize_csv' if numeric_csv else 'required'
         from .spending import metered_model
         goal_id = tools.store.db.execute('SELECT goal_id FROM research_jobs WHERE id=(SELECT job_id FROM research_runs WHERE id=?)',(tools.run_id,)).fetchone()[0]
+        settings=ModelSettings(max_tokens=3500,tool_choice=choice)
+        if self.model=='gpt-5.3-codex':settings.reasoning=Reasoning(effort='low')
         agent = Agent(name=f'Independent {role} agent', model=metered_model(tools.store, goal_id, role, self.model),
             instructions=(ROOT / f'instructions/{role.upper()}.md').read_text(),
             tools=[read_source, search_knowledge, search_source, summarize_csv,tail_source], output_type=output,
-            model_settings=ModelSettings(max_tokens=3500,
-                tool_choice=choice))
+            model_settings=settings)
         result = await Runner.run(agent, json.dumps(context), max_turns=max(8, min(28, tools.remaining + 2)),
                                   run_config=RunConfig(tracing_disabled=True))
         from .telemetry import record_usage
@@ -139,7 +141,7 @@ class Research:
                 raise ValueError('Opportunity must belong to this goal')
         from .control import Control
         revisions = Control(self.store).current(goal_id)
-        signature = hashlib.sha256(json.dumps(['hypothesis-proof-v2',goal_id, workspace, stage, revisions['goal']['revision'], revisions['policy']['version'],
+        signature = hashlib.sha256(json.dumps(['hypothesis-proof-v4',goal_id, workspace, stage, revisions['goal']['revision'], revisions['policy']['version'],
             ' '.join((spec.hypothesis or spec.question).casefold().split()), scope,
             [source_revision(workspace,s)[1] for s in scope]], sort_keys=True).encode()).hexdigest()
         prior = self.db.execute('SELECT id,status FROM research_jobs WHERE goal_id=? AND signature=? ORDER BY created DESC LIMIT 1',
@@ -307,8 +309,21 @@ class Research:
                         and b.get('excerpt') and b['excerpt'] in a.get('excerpt',''))
                 if not review.supported or not any(binds(source,prior) for source in review.evidence_ids for prior in original.evidence_ids):
                     errors.append('Claim review is unsupported or bound to unrelated evidence')
+                if original.category=='mechanism' and review.category is None:
+                    errors.append('A mechanism needs explicit independent category review')
+                if review.category=='mechanism':
+                    from .resources import resource_kind
+                    primary=available.get(review.primary_code_id,{})
+                    if (original.category!='mechanism' or not all((field or '').strip() for field in
+                            (review.resource_cost,review.avoidable_work,review.equivalent_alternative,review.code_symbol))
+                        or review.primary_code_id not in review.evidence_ids or resource_kind(primary.get('locator',''))!='code'
+                        or review.code_symbol not in primary.get('excerpt','')
+                        or (plan and primary.get('locator') not in plan.scope)):
+                        errors.append('A verified mechanism needs avoidable work, an equivalent cheaper alternative, and its exact observed scoped code symbol; possible runtime cost alone is a candidate')
         elif evaluation.verdict == 'supported' and any(not set(f.evidence_ids).issubset(evaluation.evidence_ids) for f in claims):
             errors.append('Evaluator evidence must cover every factual claim, not unrelated observations')
+        if evaluation.verdict=='supported' and any(f.category=='mechanism' for f in claims) and not evaluation.claim_reviews:
+            errors.append('Mechanism classification needs an explicit independent claim/category review')
         if report.blocked and evaluation.verdict == 'supported':
             errors.append('Blocked research cannot establish support')
         if plan and evaluation.verdict in ('supported','falsified'):
@@ -366,9 +381,13 @@ class Research:
             approved=(review and review.supported) or set(finding.evidence_ids).issubset(evaluation.evidence_ids)
             classification = 'verified' if evaluation.verdict == 'supported' and approved and finding.classification == 'claim' else 'assumption'
             if classification=='verified' and review:
-                finding=finding.model_copy(update={'evidence_ids':review.evidence_ids})
+                finding=finding.model_copy(update={'evidence_ids':review.evidence_ids,'category':review.category or finding.category})
             self.knowledge.put(job['goal_id'], job['id'], 'finding', finding.statement,
                 {'finding': finding.model_dump(), 'evaluation': evaluation.model_dump(),
+                 'mechanism_category_reviewed':bool(classification=='verified' and review and review.category=='mechanism'),
+                 'mechanism_proof_version':2 if classification=='verified' and review and review.category=='mechanism' else None,
+                 'mechanism_identity':([self.knowledge.source(review.primary_code_id)['locator'],review.code_symbol]
+                    if classification=='verified' and review and review.category=='mechanism' else None),
                  'uncertainties': report.uncertainties}, classification,
                 [s for s in finding.evidence_ids if self.db.execute('SELECT 1 FROM research_sources WHERE id=?', (s,)).fetchone()])
         if evaluation.verdict == 'falsified':

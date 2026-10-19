@@ -76,7 +76,8 @@ def fixture(directory, case):
     (workspace / 'telemetry/worker.log').write_text(logs)
     oracle = {'case': case, 'target': 'upstream' if negative else 'batch_loader',
               'cost_ms': {'cache': 1200, 'batch_loader': 60 if negative else 24000, 'upstream': 24000 if negative else 60},
-              'note': 'Negative control still has a suspicious per-item loop, but measured local cost is small. Upstream measurements warrant investigation, not an invented local optimization.'}
+              'note': ('Negative control still has a suspicious per-item loop, but measured local cost is small. Upstream measurements warrant investigation, not an invented local optimization.' if negative else
+                       'The per-item loader dominates this controlled additive workload. Compare batching against the captured baseline; production speedup is unmeasured.')}
     (directory / 'oracle.json').write_text(json.dumps(oracle, indent=2))
     return workspace, oracle
 

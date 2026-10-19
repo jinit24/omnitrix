@@ -129,3 +129,32 @@ def test_last_csv_page_is_not_a_whole_export(tmp_path):
     assert not tools.knowledge.source(page['id'])['observation_scope']['whole_file']
     complete=tools.summarize_csv('data.csv','ms','group',1,complete=True)
     assert complete['summary']['whole_file']
+
+
+def test_content_search_paginates_hits_without_reading_outside_explicit_scope(tmp_path):
+    scope=[f'file{n:02}.py' for n in range(12)]
+    for path in scope:(tmp_path/path).write_text('header\n# unrelated\nclass Needle: pass\n')
+    (tmp_path/'outside.py').write_text('class Needle: pass\n')
+    store=Store(tmp_path/'state.db');goal=store.create_goal('Locate runtime implementations',['Capture actual contents'],tmp_path)
+    job=Research(store).plan(goal,'discovery',ResearchPlan(scope=scope,question='Where is the implementation named Needle?'))['job_id']
+    store.execute("INSERT INTO research_runs(id,job_id,status,created) VALUES('r',?,'running',0)",(job,))
+    tools=ResearchTools(store,'r',str(tmp_path),scope,20)
+    first=tools.search_scope('Needle');second=tools.search_scope('Needle',first['next_after'])
+    hits=first['matches']+second['matches']
+    assert len(first['matches'])==8 and len(second['matches'])==4
+    assert {hit['locator'] for hit in hits}==set(scope) and second['next_after'] is None
+    assert all(hit['line']==3 and hit['matching_excerpt_captured'] and hit['evidence']['id'] for hit in hits)
+    assert {source['locator'] for source in tools.evidence()}==set(scope)
+    assert tools.remaining==6
+
+
+def test_empty_content_search_page_has_a_continuation_cursor(tmp_path):
+    scope=[f'part{n:03}.py' for n in range(501)]
+    for path in scope:(tmp_path/path).write_text('ordinary code\n')
+    (tmp_path/scope[-1]).write_text('needle beyond first batch\n')
+    store=Store(tmp_path/'state.db');goal=store.create_goal('Locate implementation',['Follow cursors'],tmp_path)
+    job=Research(store).plan(goal,'discovery',ResearchPlan(scope=[scope[0]],question='Where is a referenced implementation?'))['job_id']
+    store.execute("INSERT INTO research_runs(id,job_id,status,created) VALUES('r',?,'running',0)",(job,))
+    tools=ResearchTools(store,'r',str(tmp_path),scope,4)
+    first=tools.search_scope('needle');assert not first['matches'] and first['next_after']==scope[499]
+    second=tools.search_scope('needle',first['next_after']);assert second['matches'][0]['locator']==scope[-1]

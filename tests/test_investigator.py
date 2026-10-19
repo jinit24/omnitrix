@@ -5,7 +5,10 @@ from agents.tool_context import ToolContext
 
 from omnitrix.campaign import Campaign
 from omnitrix.investigator import Investigation,InvestigatorBrain,PreparedResearchAgents
-from omnitrix.investigator import GoalReview,CriterionReview
+from omnitrix.investigator import GoalReview,CriterionReview,completion_context
+from omnitrix.models import Decision
+from omnitrix.control import Control
+from omnitrix.frontier import Frontier
 from omnitrix.research import Research
 from omnitrix.research_models import ResearchPlan,ResearchReport,Finding
 from tests.test_campaign import setup
@@ -70,3 +73,19 @@ async def test_completion_audit_rejects_invented_findings_and_does_not_repeat_un
     assert not (await brain.completion_review(store.snapshot(goal)))['passed']
     assert len(calls)==1
     if hasattr(store,'_campaign_client'):await store._campaign_client.close()
+
+
+async def test_all_entry_points_require_current_investigator_completion_audit(tmp_path):
+    store,goal,campaign,workspace=setup(tmp_path);campaign.configure(strategy='investigator')
+    Frontier(store,goal).build()
+    service=Research(store,FixtureAgents())
+    job=service.plan(goal,'research',ResearchPlan(scope=['system.md'],question='What is the polling interval?',
+        hypothesis='The interval is 30 seconds',falsification='A different interval appears'))['job_id']
+    await service.attempt(job)
+    complete=Decision(action='complete',rationale='Counts are met',instructions='Complete',task_id=None,priority=1)
+    with pytest.raises(ValueError,match='audit'):campaign.validate_decision(complete)
+    _,digest=completion_context(store,store.snapshot(goal))
+    Control(store).event(goal,'research_goal_audit',{'passed':True,'digest':digest})
+    campaign.validate_decision(complete)
+    (workspace/'system.md').write_text('Queue polling interval=60 seconds\n')
+    with pytest.raises(ValueError,match='audit'):campaign.validate_decision(complete)

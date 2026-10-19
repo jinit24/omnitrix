@@ -202,7 +202,7 @@ omnitrix --db .omnitrix/state.db campaign GOAL_ID --pause
 cost before inference; lost responses retain that reservation. Native workers,
 hosted tools, code changes and external PRs are disabled for these campaigns.
 An optional <code>--strategy investigator</code> uses a direct GPT-5.3-Codex investigator
-with independent GPT-4.1 evidence and completion reviews. Both models share the
+with independent GPT-5.3-Codex evidence and completion reviews. Both models share the
 same saved dollar ceiling; switching strategy preserves all consumed limits.
 The HTML checkpoint includes evidence, decisions, spending and remaining coverage.
 Register local exported logs/CSV with repeatable <code>--evidence workspace/relative/path</code>;
@@ -243,7 +243,7 @@ research behavior; unresolved failures remain visible.</p>
 python scripts/research_eval.py --harness-only --output .omnitrix/eval-harness-NEW
 # Paid autonomous discovery: competing clues and a negative control, scored outside the workspace.
 python scripts/research_eval.py --live --output .omnitrix/eval-live-NEW --log docs/research-quality.json
-# Paid skeptical reviewer probes, including missing-measurement and partial-scope traps ($0.75 combined ceiling).
+# Paid skeptical reviewer probes, including missing-measurement and partial-scope traps ($1.50 combined ceiling).
 python scripts/review_eval.py --output .omnitrix/review-NEW
 # Equal-budget controlled comparisons ($6 combined ceiling for two cases/four arms).
 python scripts/research_compare.py --dollars .75 --output .omnitrix/compare-NEW --log docs/research-quality.json
