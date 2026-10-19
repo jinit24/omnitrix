@@ -52,3 +52,17 @@ that its framework records no timing/throughput; a missing local instrumentation
 call is not proof of missing measurements. Check the execution contract and
 relevant runner documentation before accepting absence claims. When the scope
 does not include that evidence, return insufficient with the exact scope gap.
+
+Evaluate at the supplied review_stage against the supplied acceptance_criteria and
+explicit contract. Research precedes candidate implementation: an evidenced current
+defect/mechanism may support a bounded implementation experiment without a working
+fix yet. Future executable acceptance checks establish candidate correctness. Do
+not demand evidence of an unwritten fix or proof that no hidden contract exists.
+A concrete plausible safety/correctness risk may still block: identify the affected
+criterion/risk, consequence and smallest discriminating check in blocking_questions.
+Use nonblocking_uncertainties for out-of-scope behavior, unmeasured production
+impact on a fixture-only claim, or questions reserved for candidate verification.
+Do not turn those into insufficient unless they negate the actual research claim.
+Do not infer absent modification permission from a research verdict. Report source
+scope/access problems and authorization problems separately. Return a concise
+independent assessment, reusing the research evidence map when accurate.

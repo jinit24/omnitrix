@@ -92,5 +92,9 @@ class Evaluation(Contract):
     evidence_ids: list[str] = Field(max_length=20)
     reason: str = Field(min_length=1, max_length=3000)
     feedback: str = Field(min_length=1, max_length=3000)
+    blocking_questions: list[str] = Field(default_factory=list, max_length=8,
+        description='Only missing evidence necessary for the stated hypothesis/criterion or a concrete material correctness risk. State criterion or risk, consequence and next bounded check.')
+    nonblocking_uncertainties: list[str] = Field(default_factory=list, max_length=8,
+        description='Out-of-scope or candidate-test questions that do not negate the supported current finding. Never require proof that no hidden contract exists.')
     quality_report: str = Field(default='', max_length=12000,
         description='Independent claim-to-evidence gate assessment, checked visual/data consistency, limitations and precise return conditions. Empty legacy reviews are unreviewed.')

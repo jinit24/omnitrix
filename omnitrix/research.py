@@ -77,11 +77,15 @@ class ResearchAgents:
             tools=[read_source, search_knowledge, search_source, summarize_csv], output_type=output,
             model_settings=ModelSettings(max_tokens=3500,
                 tool_choice=choice))
+        started = time.monotonic()
         result = await Runner.run(agent, json.dumps(context), max_turns=max(8, min(28, tools.remaining + 2)),
                                   run_config=RunConfig(tracing_disabled=True))
         from .telemetry import record_usage
         goal_id = tools.store.db.execute('SELECT goal_id FROM research_jobs WHERE id=(SELECT job_id FROM research_runs WHERE id=?)',(tools.run_id,)).fetchone()[0]
         record_usage(tools.store,goal_id,result,role)
+        from .control import Control
+        Control(tools.store).event(goal_id,'research_role',{'role':role,'run_id':tools.run_id,
+            'seconds':time.monotonic()-started,'context_bytes':len(json.dumps(context).encode())})
         return result.final_output
 
 
@@ -103,6 +107,28 @@ class Research:
                                     (goal_id,))
         if result.rowcount != 1:
             raise RuntimeError('Goal research budget exhausted; escalate instead of retrying')
+
+    def plan_batch(self, goal_id, specs, independence_reason):
+        """Preflight one bounded wave; each role still charges its durable budget."""
+        if not 2 <= len(specs) <= 3 or len(independence_reason.strip()) < 10:
+            raise ValueError('A research batch needs 2..3 independent plans and an independence reason')
+        workspace = self.store.snapshot(goal_id)['goal']['workspace']
+        signatures = set()
+        for spec in specs:
+            paths = tuple(sorted(str(source_path(workspace, p)) for p in spec.scope))
+            key = (' '.join((spec.hypothesis or spec.question).casefold().split()), paths)
+            if key in signatures:
+                raise ValueError('Research batch repeats the same question and scope')
+            signatures.add(key)
+            if spec.opportunity_id and not self.db.execute('SELECT 1 FROM opportunities WHERE id=? AND goal_id=?',
+                                                         (spec.opportunity_id, goal_id)).fetchone():
+                raise ValueError('Opportunity must belong to this goal')
+        self.configure(goal_id)
+        limit = self.db.execute('SELECT * FROM research_limits WHERE goal_id=?', (goal_id,)).fetchone()
+        required = sum(2 if p.hypothesis else 1 for p in specs)
+        if limit['max_runs'] - limit['spent'] < required:
+            raise ValueError('Research batch exceeds remaining role-run budget, including evaluations')
+        return [self.plan(goal_id, 'research' if spec.hypothesis else 'discovery', spec) for spec in specs]
 
     def plan(self, goal_id, stage, spec):
         if stage not in ('discovery', 'research'):
@@ -213,7 +239,10 @@ class Research:
             review_tools = ResearchTools(self.store, run_id, workspace, spec.scope, spec.budget.tool_calls)
             evidence = tools.evidence()
             evaluation = await asyncio.wait_for(self.agents.run('evaluation',
-                {'plan': spec.model_dump(), 'report': report.model_dump(), 'evidence': evidence}, review_tools),
+                {'plan': spec.model_dump(), 'report': report.model_dump(), 'evidence': evidence,
+                 'goal': context['goal'], 'acceptance_criteria': revision['goal']['requirements'],
+                 'review_stage': 'research_evidence_before_candidate_verification',
+                 'decision_contract': 'Assess factual support within the stated scope. An evidenced defect or mechanism can support a bounded implementation experiment; candidate correctness is established later by executable checks. Separate requirement-blocking gaps from nonblocking unknowns. Do not infer missing user permission from a research verdict.'}, review_tools),
                 spec.budget.seconds)
             evaluation = Evaluation.model_validate(evaluation)
             if Control(self.store).current(job['goal_id']) != revision or self.job(job_id)['status'] == 'invalidated':

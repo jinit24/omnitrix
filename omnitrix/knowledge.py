@@ -382,7 +382,22 @@ class ResearchTools:
         # Required context preparation is not one of the agent's discretionary tool calls.
         self.store.execute('INSERT INTO research_queries(run_id,operation,query,created) VALUES(?,?,?,?)',
             (self.run_id,'prefetch_knowledge','',time.time()))
-        return self._search('',0)
+        # Scope relevance outranks recency: a fresh unrelated report must not
+        # evict the earlier falsification of this exact component's hypothesis.
+        placeholders = ','.join('?' for _ in self.scope)
+        rows = self.store.db.execute(f'''SELECT k.* FROM knowledge k JOIN research_jobs j ON j.id=k.job_id
+            WHERE k.workspace=? ORDER BY EXISTS(SELECT 1 FROM json_each(j.spec,'$.scope')
+            WHERE value IN ({placeholders})) DESC,k.created DESC LIMIT 5''',
+            (str(Path(self.workspace).resolve()), *sorted(self.scope))).fetchall()
+        records = []
+        for row in rows:
+            item = dict(row)
+            item['body'] = json.loads(item['body'])
+            item['citations'] = json.loads(item['citations'])
+            item['sources'] = [self.knowledge.source(s) for s in item['citations']]
+            item['stale'] = any(s['stale'] for s in item['sources'])
+            records.append(item)
+        return self._remember(records)
 
     def search(self, query='', offset=0):
         self.charge('search_knowledge', query)
@@ -390,6 +405,9 @@ class ResearchTools:
 
     def _search(self,query,offset):
         records = self.knowledge.search(self.workspace, query, limit=5, offset=offset)
+        return self._remember(records)
+
+    def _remember(self, records):
         for record in records:
             for source in record['sources']:
                 self.store.execute('INSERT OR IGNORE INTO research_access VALUES(?,?)',

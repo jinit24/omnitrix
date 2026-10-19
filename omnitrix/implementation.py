@@ -8,7 +8,8 @@ import signal
 import subprocess
 import time
 import uuid
-from pydantic import Field
+from typing import Literal
+from pydantic import Field, model_validator
 from agents.strict_schema import ensure_strict_json_schema
 from .research_models import Contract
 from .control import Control
@@ -56,11 +57,21 @@ class ImplementationHandoff(Contract):
 
 class ImplementationSpec(Contract):
     objective: str = Field(min_length=10, max_length=6000)
-    research_job: str
+    research_job: str | None = None
+    basis: Literal['research', 'direct'] = 'research'
+    contract: str = Field(default='', max_length=6000)
     allowed_paths: list[str] = Field(min_length=1, max_length=30)
     checks: list[AcceptanceCheck] = Field(min_length=1, max_length=30)
     max_attempts: int = Field(default=2, ge=1, le=3)
     seconds: int = Field(default=300, ge=1, le=1800)
+
+    @model_validator(mode='after')
+    def evidence_basis(self):
+        if self.basis == 'research' and not self.research_job:
+            raise ValueError('Research-based implementation needs a research_job')
+        if self.basis == 'direct' and (self.research_job or len(self.contract.strip()) < 20):
+            raise ValueError('Direct implementation needs an explicit bounded contract and no research_job')
+        return self
 
 
 def git(repo, *args):
@@ -77,9 +88,11 @@ class Implementations:
         if not explicit:
             raise ValueError('Code modification requires explicit user authorization')
         current = self.control.current(goal_id)
+        if self.db.execute('SELECT 1 FROM campaigns WHERE goal_id=?', (goal_id,)).fetchone() or self.db.execute('SELECT 1 FROM spending_limits WHERE goal_id=?', (goal_id,)).fetchone():
+            raise ValueError('Budgeted research campaigns cannot authorize code execution')
         research = self.db.execute('SELECT * FROM research_jobs WHERE id=? AND goal_id=?',
                                    (spec.research_job, goal_id)).fetchone()
-        if research is None or research['status'] != 'supported':
+        if spec.basis == 'research' and (research is None or research['status'] != 'supported'):
             raise ValueError('Implementation requires independently accepted research for this goal')
         required = set(current['goal']['requirements'])
         if not required.issubset({c.requirement for c in spec.checks}):
@@ -102,6 +115,8 @@ class Implementations:
         row = self.db.execute('SELECT * FROM implementation_authorizations WHERE id=?', (authorization,)).fetchone()
         if row is None or row['revoked']:
             raise ValueError('Authorization missing or revoked')
+        if self.db.execute('SELECT 1 FROM campaigns WHERE goal_id=?', (row['goal_id'],)).fetchone() or self.db.execute('SELECT 1 FROM spending_limits WHERE goal_id=?', (row['goal_id'],)).fetchone():
+            raise ValueError('Research campaign is read-only; existing code authorizations cannot be used')
         current = self.control.current(row['goal_id'])
         if row['goal_revision'] != current['goal']['revision'] or row['policy_revision'] != current['policy']['version']:
             raise ValueError('Authorization is stale for the current requirements or policy')
@@ -110,6 +125,8 @@ class Implementations:
             for path,digest in check.oracle_revisions.items():
                 if not Path(path).is_file() or hashlib.sha256(Path(path).read_bytes()).hexdigest()!=digest:
                     raise ValueError('Authorized acceptance oracle changed; reauthorization is required')
+        if spec.basis == 'direct':
+            return dict(row), spec
         job = self.db.execute('SELECT status FROM research_jobs WHERE id=?', (spec.research_job,)).fetchone()
         findings = self.db.execute('SELECT citations FROM knowledge WHERE job_id=? AND classification=?',
                                    (spec.research_job, 'verified')).fetchall()
@@ -169,18 +186,25 @@ class Implementations:
             self.store.execute("UPDATE implementations SET status='escalated' WHERE id=?", (implementation_id,))
             return self.get(implementation_id)
         workspace = self.prepare(row)
+        session_id = None
+        if row['attempts']:
+            references = self.db.execute("SELECT body FROM messages WHERE goal_id=? AND kind='implementation_session' ORDER BY created DESC", (row['goal_id'],))
+            session_id = next((ref['thread_id'] for message in references
+                if (ref := json.loads(message[0])).get('implementation_id') == implementation_id), None)
         try:
             while row['attempts'] < spec.max_attempts:
                 auth, spec = self.auth(row['authorization'])
                 attempt = row['attempts']+1
                 self.store.execute("UPDATE implementations SET status='running',attempts=? WHERE id=?", (attempt, implementation_id))
                 self.control.event(row['goal_id'], 'implementation_started', {'id': implementation_id, 'attempt': attempt})
-                findings = [dict(r) for r in self.db.execute('SELECT title,body FROM knowledge WHERE job_id=?', (spec.research_job,))]
+                findings = [dict(r) for r in self.db.execute('SELECT title,body FROM knowledge WHERE job_id=?', (spec.research_job,))] if not session_id else []
                 prompt = json.dumps({'objective': spec.objective, 'research': findings,
+                    'basis': spec.basis, 'contract': spec.contract, 'resumed_repair': bool(session_id),
                     'constraints': self.control.current(row['goal_id']), 'allowed_paths': spec.allowed_paths,
                     'checks': [c.model_dump() for c in spec.checks], 'feedback': row['feedback'],
                     'instructions': 'Implement only this objective in this worktree and follow the implementation role quality gates. Run tests. Do not commit, deploy, access production, or run destructive commands. Return artifacts, unresolved concerns and quality_report with evidence, explanation, visuals and the monitoring/rollback plan; mark gaps explicitly.'})
-                thread_id, turn_id = await self.runtime.start(str(workspace), prompt, write=True,schema=ensure_strict_json_schema(ImplementationHandoff.model_json_schema()),
+                turn_started = time.monotonic()
+                thread_id, turn_id = await self.runtime.start(str(workspace), prompt, session_id=session_id, write=True,schema=ensure_strict_json_schema(ImplementationHandoff.model_json_schema()),
                     on_thread=(lambda sid: self.store.execute('UPDATE task_runtime SET session_id=? WHERE task_id=?',(sid,task_id))) if task_id else None)
                 if task_id:
                     self.store.execute('UPDATE task_runtime SET session_id=?,turn_id=? WHERE task_id=?', (thread_id,turn_id,task_id))
@@ -188,6 +212,9 @@ class Implementations:
                 self.control.message(row['goal_id'], 'implementation_session', {'thread_id': thread_id, 'turn_id': turn_id,
                     'implementation_id': implementation_id}, direction='worker_to_manager', state='acknowledged')
                 turn = await self.runtime.wait(thread_id, turn_id, spec.seconds)
+                self.control.event(row['goal_id'],'implementation_turn',{'implementation':implementation_id,
+                    'attempt':attempt,'seconds':time.monotonic()-turn_started,'resumed':session_id is not None,
+                    'status':turn['status']})
                 handoff = {'summary':'Worker did not return a valid structured handoff', 'artifacts':[], 'tests_run':[],
                            'unresolved_concerns':['Worker concerns are unknown; rely on independent verification and inspect the native session'], 'questions':[]}
                 for item in turn.get('items',[]):
@@ -201,6 +228,7 @@ class Implementations:
                     direction='worker_to_manager',state='acknowledged')
                 if turn['status'] != 'completed':
                     raise RuntimeError('Implementation turn did not complete; reconcile before another attempt')
+                session_id = thread_id
                 self.auth(row['authorization'])  # fence a concurrent policy or requirement update
                 changed = git(workspace, 'status', '--porcelain', '-uall').splitlines()
                 # Use NUL-delimited path listing to avoid quoting and rename ambiguities.
@@ -276,6 +304,7 @@ class Implementations:
         return self.get(implementation_id)
 
     async def verify(self, implementation_id, candidate, auth, spec):
+        started = time.monotonic()
         row = self.get(implementation_id)
         repo = self.store.snapshot(row['goal_id'])['goal']['workspace']
         verification = self.store.path.parent / 'verification' / f'{implementation_id}-{row["attempts"]}'
@@ -313,6 +342,8 @@ class Implementations:
         # Test commands may not mutate candidate source or HEAD and still claim verification.
         if git(verification, 'rev-parse', 'HEAD') != candidate or git(verification, 'diff', '--name-only'):
             raise ValueError('Verifier modified the candidate; evidence is invalid')
+        self.control.event(row['goal_id'],'candidate_verification',{'implementation':implementation_id,
+            'candidate':candidate,'seconds':time.monotonic()-started,'passed':all(r['passed'] for r in results)})
         return results
 
     def audit(self, implementation_id):

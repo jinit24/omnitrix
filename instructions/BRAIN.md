@@ -33,3 +33,12 @@ does not contradict mandatory criteria, uses a valid action/ID, and has a bounde
 next step or an evidence-backed completion decision. If the basis is insufficient,
 choose a useful bounded investigation or name the concrete blocker. Do not present
 internal reasoning as proof; report the concise rationale and evidence instead.
+
+Current state is supplied once per decision, with durable dialogue and bounded
+recent history. Recall older artifacts only when relevant; do not rebuild a full
+conversation by replaying old snapshots. Choose direct implementation for a ready
+explicit contract, targeted research for material uncertainty, and a small parallel
+wave only for independent questions. A useful routing decision can be one paragraph;
+reserve full diagrams and gate synthesis for the final review. Track coordination
+cost as well as correctness: unnecessary delegation, context replay and repeated
+reviews consume the budget without establishing new evidence.

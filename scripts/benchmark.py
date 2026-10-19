@@ -19,6 +19,8 @@ from omnitrix.research_models import ResearchPlan
 from omnitrix.runtime import CodexRuntime
 from omnitrix.supervisor import Supervisor
 from omnitrix.models import Decision,Handoff
+from omnitrix.implementation import ImplementationHandoff
+from agents.strict_schema import ensure_strict_json_schema
 from omnitrix.research_models import DiscoveryReport,MapEntry,Opportunity,ResearchReport,Finding,Evaluation
 
 
@@ -52,13 +54,16 @@ class MockCoding:
         (Path(workspace)/'service.py').write_text(self.solution)
         if kwargs.get('on_thread'): kwargs['on_thread']('mock-thread')
         return 'mock-thread',f'mock-turn-{self.calls}'
-    async def wait(self,*args): return {'status':'completed','items':[{'type':'agentMessage','text':json.dumps({'status':'completed','summary':'Scripted fixture patch','evidence':['service.py'],'next_steps':[]})}]}
+    async def wait(self,*args): return {'status':'completed','items':[{'type':'agentMessage','text':json.dumps(self.handoff)}]}
     async def close(self): pass
 
 
 class MockBrain:
     def __init__(self,task): self.task=task
     async def decide(self,state):
+        if state['implementations'] and state['implementations'][-1]['spec'].get('basis')=='direct':
+            row=state['implementations'][-1]
+            return self.decision('complete' if row['status']=='completed' else 'implement',implementation_id=row['id'])
         research=state['research']
         if not research:
             return self.decision('discover',ResearchPlan(scope=['system.md','service.py'],question='Which improvement has strongest evidence?'))
@@ -124,21 +129,28 @@ async def score(candidate,repo,checks,output):
 
 
 async def run_arm(task,arm,directory,live,allow,steps,runtime_override=None,arm_seconds=1200):
+    if arm not in ('single','manager','adaptive'):
+        raise ValueError('Use single, manager or adaptive')
     directory.mkdir(parents=True)
     repo,checks=fixture(task,directory)
     initial_tree=git(repo,'rev-parse','HEAD^{tree}')
     started=time.monotonic()
     errors=[];candidate=None;candidate_repo=repo;claims=None
     runtime=runtime_override or (CodexRuntime() if live else MockCoding(task['solution']))
+    if isinstance(runtime,MockCoding):
+        runtime.handoff={'summary':'Scripted fixture patch','quality_report':'Harness-only patch; independent executable checks determine the outcome. No deployment; monitor by rerunning the acceptance checks.'}
+        runtime.handoff.update({'status':'completed','evidence':['service.py'],'next_steps':[]} if arm=='single' else
+                               {'artifacts':['service.py'],'tests_run':[],'unresolved_concerns':[],'questions':[]})
     store=Store(directory/'state.db')
     goal=store.create_goal(task['goal'],[c['requirement'] for c in task['criteria']],repo)
     supervisor=None
-    if arm=='manager':
+    if arm in ('manager','adaptive'):
         control=Control(store)
         control.require_implementation(goal)
         proposal=control.propose(goal,'policy',{'instructions':
-            'Use bounded discover and hypothesis-driven research for investigations; generic delegate work is not accepted research. '
-            'Once research is independently supported, this explicitly authorized benchmark harness creates an implementation ID. '
+            ('Use bounded discover and hypothesis-driven research for investigations; generic delegate work is not accepted research. '
+             'Once research is independently supported, this explicitly authorized benchmark harness creates an implementation ID. ' if arm=='manager' else
+             'The explicitly authorized direct implementation has the fixture contract and executable checks. Use it immediately; research is needed only for a concrete material uncertainty. ')+
             'Choose implementation and final audit to satisfy all mandatory executable criteria. '
             'Do not complete on recommendations or spend budget on unobservable production-scale behavior. '
             'The fixture, measured baseline observations and independent acceptance checks define the scope.'})
@@ -147,8 +159,10 @@ async def run_arm(task,arm,directory,live,allow,steps,runtime_override=None,arm_
         if arm=='single':
             prompt=json.dumps({'goal':task['goal'],'criteria':[c.model_dump() for c in checks],
                 'instructions':'Authorized to modify only service.py in this isolated fixture. Improve the system, run relevant tests, and report outcome. No deployments or destructive operations.'})
-            thread,turn=await runtime.start(str(repo),prompt,write=True,schema=Handoff.model_json_schema())
+            turn_started=time.monotonic()
+            thread,turn=await runtime.start(str(repo),prompt,write=True,schema=ensure_strict_json_schema(Handoff.model_json_schema()))
             result=await runtime.wait(thread,turn,arm_seconds)
+            Control(store).event(goal,'implementation_turn',{'seconds':time.monotonic()-turn_started,'status':result['status']})
             for item in result.get('items',[]):
                 if item.get('type')=='agentMessage':
                     try:
@@ -165,6 +179,13 @@ async def run_arm(task,arm,directory,live,allow,steps,runtime_override=None,arm_
             # The real manager chooses discovery/research. This harness does not supply a live plan.
             supervisor.autonomy=steps
             authorized=False
+            if arm=='adaptive':
+                service=Implementations(store,runtime)
+                spec=ImplementationSpec(objective=task['goal'],basis='direct',
+                    contract='The authoritative fixture contract is system.md and the supplied executable acceptance checks. '+task['goal'],
+                    allowed_paths=['service.py'],checks=checks,seconds=min(600,arm_seconds))
+                service.create(service.authorize(goal,spec,explicit=allow))
+                authorized=True
             deadline=started+arm_seconds
             while time.monotonic()<deadline:
                 accepted=store.db.execute("SELECT id FROM research_jobs WHERE goal_id=? AND status='supported' ORDER BY updated DESC LIMIT 1",(goal,)).fetchone()
@@ -201,10 +222,14 @@ async def run_arm(task,arm,directory,live,allow,steps,runtime_override=None,arm_
     runtime_usage=getattr(runtime,'usage',{})
     if usage or runtime_usage:
         tokens={'input':sum(u.get('input_tokens',0) for u in usage)+sum(u.get('inputTokens',0) for u in runtime_usage.values()),'output':sum(u.get('output_tokens',0) for u in usage)+sum(u.get('outputTokens',0) for u in runtime_usage.values())}
+    timings={kind:[json.loads(r[0]) for r in store.db.execute('SELECT detail FROM activity WHERE kind=?',(kind,))]
+             for kind in ('manager_turn','research_role','implementation_turn','candidate_verification')}
     report={'task':task['name'],'fixture_version':2,'arm':arm,'goal_id':goal,'database':str(store.path),'initial_tree':initial_tree,'arm_seconds':arm_seconds,'manager_model':os.getenv('OMNITRIX_MODEL','gpt-4.1'),'codex_model':os.getenv('OMNITRIX_CODEX_MODEL','runtime default'),'mode':'live' if live else 'mock-harness-only','candidate':candidate,
+        'source_revision':git(ROOT,'rev-parse','HEAD'),'source_dirty':bool(git(ROOT,'status','--porcelain')),
+        'stage_timings':timings,'manager_decisions':store.db.execute('SELECT count(*) FROM decisions').fetchone()[0],
         'requirements_satisfied':sum(r['passed'] for r in scored),'requirements_total':len(scored),'checks':scored,
         'wall_seconds':elapsed,'tokens':tokens,'token_measurement_complete':bool(live and not errors and getattr(runtime,'session_ids',set()) and set(runtime.usage)==runtime.session_ids),
-        'repeated_research_queries':repeated if arm=='manager' else None,'corrections':corrections if arm=='manager' else None,
+        'repeated_research_queries':repeated if arm!='single' else None,'corrections':corrections if arm!='single' else None,
         'interventions':store.db.execute("SELECT count(*) FROM messages WHERE direction='user_to_manager' AND kind='control' AND state='acknowledged'").fetchone()[0],'incorrect_completion_claim':bool(claims and not all(r['passed'] for r in scored)) if claims is not None else None,
         'recovery_after_interruption':None,'selected_improvement_quality':sum(r['passed'] for r in scored)/len(scored),
         'baseline_requirements_satisfied':repo.joinpath('system.md').read_text().count('PASS:'),
@@ -231,7 +256,8 @@ async def main(args):
     while True:
         for task in tasks:
             # Alternate order to reduce consistent warm-up bias across repeated trials.
-            for arm in (('single','manager') if trial%2==0 else ('manager','single')):
+            arms=args.arms[trial%len(args.arms):]+args.arms[:trial%len(args.arms)]
+            for arm in arms:
                 target=args.output/f'trial-{trial}'/task['name']/arm
                 if (target/'result.json').exists():
                     results.append(json.loads((target/'result.json').read_text()));continue
@@ -240,7 +266,7 @@ async def main(args):
                 results.append(await run_arm(task,arm,target,args.live,args.allow_code_modifications or not args.live,args.steps,arm_seconds=args.arm_seconds))
                 (args.output/'results.json').write_text(json.dumps(results,indent=2)+'\n')
         trial+=1
-        if args.hours==0 or time.monotonic()>=deadline: break
+        if (args.trials and trial>=args.trials) or (not args.trials and (args.hours==0 or time.monotonic()>=deadline)): break
     print(json.dumps({'mode':'live' if args.live else 'mock-harness-only','runs':len(results),
         'requirements_satisfied':sum(r['requirements_satisfied'] for r in results),
         'incorrect_completion_claims':sum(r['incorrect_completion_claim'] is True for r in results),
@@ -252,9 +278,11 @@ if __name__=='__main__':
     p.add_argument('--live',action='store_true')
     p.add_argument('--allow-code-modifications',action='store_true')
     p.add_argument('--hours',type=float,default=0)
+    p.add_argument('--trials',type=int,default=0,help='Fixed number of paired trials; overrides hours')
+    p.add_argument('--arms',nargs='+',choices=['single','manager','adaptive'],default=['single','manager','adaptive'])
     p.add_argument('--steps',type=int,default=12)
     p.add_argument('--arm-seconds',type=int,default=1200)
     p.add_argument('--output',type=Path,default=ROOT/'.omnitrix/benchmark')
     args=p.parse_args()
-    if args.hours<0 or not 1<=args.steps<=1000 or not 10<=args.arm_seconds<=3600: p.error('hours must be nonnegative; steps must be 1..1000')
+    if args.hours<0 or args.trials<0 or len(set(args.arms))!=len(args.arms) or not 1<=args.steps<=1000 or not 10<=args.arm_seconds<=3600: p.error('Use nonnegative hours/trials, unique arms, steps 1..1000 and arm-seconds 10..3600')
     asyncio.run(main(args))
