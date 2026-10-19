@@ -135,14 +135,14 @@ class Frontier:
                 'matched_components':[dict(row) for row in components[:8]],'components_truncated':len(components)>8,
                 'query_scope':'Literal pathname substring only, never file contents. directory must name a directory. Follow next_after before claiming absence; component samples may reveal paths beyond this page. To inspect contents, return a research plan with real file paths; researchers have read_source/search_source.'}
 
-    def suggestions(self, limit=12):
+    def suggestions(self, limit=12,kind=None):
         rows = self.store.db.execute('''WITH seen AS (
             SELECT DISTINCT s.locator FROM research_sources s JOIN research_access a ON a.source_id=s.id
             JOIN research_runs r ON r.id=a.run_id JOIN research_jobs j ON j.id=r.job_id
             WHERE j.goal_id=?), candidates AS (
             SELECT f.*,row_number() OVER (PARTITION BY bucket ORDER BY
                 CASE kind WHEN 'metrics' THEN 0 WHEN 'logs' THEN 0 WHEN 'code' THEN 1 ELSE 2 END,locator) AS branch_rank
-            FROM frontier_files f WHERE goal_id=? AND NOT EXISTS(SELECT 1 FROM seen WHERE seen.locator=f.locator))
+            FROM frontier_files f WHERE goal_id=? AND (? IS NULL OR f.kind=?) AND NOT EXISTS(SELECT 1 FROM seen WHERE seen.locator=f.locator))
             SELECT locator,kind,bucket,size_bytes,origin FROM candidates ORDER BY CASE origin WHEN 'export' THEN 0 ELSE 1 END,branch_rank,bucket,locator LIMIT ?''',
-            (self.goal_id, self.goal_id, min(max(limit,1),40))).fetchall()
+            (self.goal_id, self.goal_id,kind,kind,min(max(limit,1),40))).fetchall()
         return [dict(r) for r in rows]

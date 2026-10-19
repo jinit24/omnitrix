@@ -51,6 +51,8 @@ class Opportunity(Contract):
     effort: int = Field(ge=1, le=5)
     evidence_ids: list[str] = Field(max_length=10)
     rationale: str = Field(max_length=2000)
+    category: Literal['mechanism','measurement','evidence_gap','observation'] = 'observation'
+    workload: str | None = Field(default=None,max_length=1500)
 
 
 class DiscoveryReport(Contract):
@@ -63,7 +65,7 @@ class Finding(Contract):
     statement: str = Field(min_length=1, max_length=3000)
     classification: Literal['claim', 'assumption']
     evidence_ids: list[str] = Field(max_length=10)
-    category: Literal['mechanism', 'measurement', 'evidence_gap', 'observation'] = 'observation'
+    category: Literal['mechanism', 'candidate', 'measurement', 'evidence_gap', 'observation'] = 'observation'
     workload: str | None = Field(default=None, max_length=1500)
     falsification: str | None = Field(default=None, max_length=1500)
 
@@ -83,8 +85,26 @@ class ResearchReport(Contract):
     blocked: bool
 
 
+class ClaimReview(Contract):
+    finding_index:int = Field(ge=0,le=14)
+    reason:str = Field(min_length=1,max_length=1000)
+    evidence_ids:list[str] = Field(min_length=1,max_length=10)
+    category:Literal['mechanism','candidate','measurement','evidence_gap','observation']|None = None
+    resource_cost:str|None = Field(default=None,max_length=1500)
+    avoidable_work:str|None = Field(default=None,max_length=1500)
+    equivalent_alternative:str|None = Field(default=None,max_length=1500)
+    primary_code_id:str|None = None
+    code_symbol:str|None = Field(default=None,max_length=200)
+    supported:bool
+
+
 class Evaluation(Contract):
-    verdict: Literal['supported', 'insufficient', 'falsified', 'blocked']
-    evidence_ids: list[str] = Field(max_length=20)
     reason: str = Field(min_length=1, max_length=3000)
     feedback: str = Field(min_length=1, max_length=3000)
+    test_kind: Literal['direct', 'counterexample', 'measurement', 'absence', 'literal_absence', 'not_tested'] = 'not_tested'
+    test_evidence_ids: list[str] = Field(default_factory=list, max_length=20)
+    counterevidence_ids: list[str] = Field(default_factory=list, max_length=20)
+    literal_query: str | None = Field(default=None, max_length=500)
+    claim_reviews:list[ClaimReview] = Field(default_factory=list,max_length=15)
+    evidence_ids: list[str] = Field(max_length=20)
+    verdict: Literal['supported', 'insufficient', 'falsified', 'blocked']

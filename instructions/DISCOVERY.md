@@ -32,3 +32,13 @@ next_line/summary.next_row if needed, or explicitly mark the unseen remainder as
 gap. Partial totals are not whole-workload totals. Keep promising low-confidence
 branches in the backlog with the measurement needed to test them. State both the
 next exploitation test and the next useful unexplored branch.
+
+Categorize opportunities: mechanism is a specific resource-wasting code behavior
+under a stated workload; measurement is a concrete numeric uncertainty to test;
+evidence_gap is missing telemetry/benchmark coverage; observation is another fact.
+Mechanism candidates need workload, code pointers, a falsifiable hypothesis and
+cited observations. Missing data alone is an evidence_gap, never a high-confidence
+inefficiency mechanism. Avoid generating another generic data-availability audit.
+Inspect a bounded log tail using tail_source when a log is in scope; early warning
+prefixes can omit the actual end-of-run workload and cost summary. Prefer a
+targeted search/tail over spending many calls reading a long log from line one.

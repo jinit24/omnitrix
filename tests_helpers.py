@@ -12,7 +12,8 @@ class FixtureAgents:
             self.evaluated_content='\n'.join(e['excerpt'] for e in context['evidence'])
             evidence=context['report']['supporting_evidence']
             return Evaluation(verdict=self.verdict,evidence_ids=evidence,
-                reason='Read captured system registry independently',feedback='Inspect polling measurement and gather contrary evidence')
+                reason='Read captured system registry independently',feedback='Inspect polling measurement and gather contrary evidence',
+                test_kind='counterexample' if self.verdict=='falsified' else 'direct',test_evidence_ids=evidence)
         source=tools.read(context['plan']['scope'][0])
         source_id='invented-evidence' if self.misleading else source['id']
         if role=='discovery':
@@ -24,5 +25,5 @@ class FixtureAgents:
                 depends_on=['database'],evidence_ids=[source_id],assumption=False)],
                 opportunities=[opportunity('Polling latency',5,4,1,1),opportunity('Database tuning',2,1,4,5)],gaps=['Need production latency measurements'])
         return ResearchReport(findings=[Finding(statement='Queue polling interval is 30 seconds',classification='claim',evidence_ids=[source_id])],
-            supporting_evidence=[source_id],contradictory_evidence=[],uncertainties=['Production measurement unavailable'],
+            supporting_evidence=[source_id],contradictory_evidence=[source_id] if self.verdict=='falsified' else [],uncertainties=['Production measurement unavailable'],
             recommendation='Return to manager for prioritization',blocked=False)

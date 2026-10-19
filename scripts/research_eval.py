@@ -76,7 +76,8 @@ def fixture(directory, case):
     (workspace / 'telemetry/worker.log').write_text(logs)
     oracle = {'case': case, 'target': 'upstream' if negative else 'batch_loader',
               'cost_ms': {'cache': 1200, 'batch_loader': 60 if negative else 24000, 'upstream': 24000 if negative else 60},
-              'note': 'Negative control still has a suspicious per-item loop, but measured local cost is small. Upstream measurements warrant investigation, not an invented local optimization.'}
+              'note': ('Negative control still has a suspicious per-item loop, but measured local cost is small. Upstream measurements warrant investigation, not an invented local optimization.' if negative else
+                       'The per-item loader dominates this controlled additive workload. Compare batching against the captured baseline; production speedup is unmeasured.')}
     (directory / 'oracle.json').write_text(json.dumps(oracle, indent=2))
     return workspace, oracle
 
@@ -111,7 +112,7 @@ class ScriptedAgents:
     async def run(self, role, context, tools):
         if role == 'evaluation':
             ids = context['report']['supporting_evidence']
-            return Evaluation(verdict='supported', evidence_ids=ids, reason='Scripted evaluator for harness plumbing', feedback='Not a model-quality result')
+            return Evaluation(verdict='supported', evidence_ids=ids, reason='Scripted evaluator for harness plumbing', feedback='Not a model-quality result',test_kind='direct',test_evidence_ids=ids)
         evidence = [tools.read('src/batch_loader.py'), tools.read('src/upstream.py')]
         totals = {}
         row = 1
