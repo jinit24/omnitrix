@@ -1,0 +1,107 @@
+{
+  "snapshot_at": "2026-10-19T04:27:18.895953+00:00",
+  "goal": "d6ff9fc07c5b43dfa393717396605eb3",
+  "state": "running",
+  "started_at": "2026-10-19T04:07:47.792601+00:00",
+  "deadline": "2026-10-22T04:07:47.792601+00:00",
+  "elapsed_hours": 0.3253064919842614,
+  "days_elapsed_claim": false,
+  "watcher_pid": 5527,
+  "spending": {
+    "goal_id": "d6ff9fc07c5b43dfa393717396605eb3",
+    "limit_nanos": 3000000000,
+    "spent_nanos": 881547500,
+    "reserved_nanos": 0,
+    "model": "gpt-5.4",
+    "limit_usd": 3.0,
+    "spent_usd": 0.8815475,
+    "reserved_usd": 0.0,
+    "available_usd": 2.1184525,
+    "price_source": "https://developers.openai.com/api/docs/models/gpt-5.4"
+  },
+  "cadence": {
+    "goal_id": "d6ff9fc07c5b43dfa393717396605eb3",
+    "review_seconds": 60,
+    "wake_at": 1792422426.6374006,
+    "cycle": 0,
+    "strategy": 0,
+    "failure_streak": 0,
+    "last_milestone_hypotheses": 0,
+    "last_review_decision": 0,
+    "reason": "Pace the remaining dollar budget across the saved campaign horizon"
+  },
+  "decisions_spent": 3,
+  "frontier": {
+    "goal_id": "d6ff9fc07c5b43dfa393717396605eb3",
+    "head": "cae7247962de54a94023d28d84f05fc9842e9646",
+    "complete": 1,
+    "skipped": 1386,
+    "files": 5543,
+    "by_kind": {
+      "code": 2936,
+      "document": 2604,
+      "logs": 2,
+      "metrics": 1
+    },
+    "by_origin": {
+      "git": 5543
+    },
+    "observed_files": 10,
+    "basis": "Git-tracked UTF-8 files and explicitly registered local exports <=32 MiB; binaries, unavailable files and oversized files counted as skipped. Excerpts do not establish full coverage."
+  },
+  "quality": {
+    "required": {
+      "sources": 20,
+      "branches": 4,
+      "hypotheses": 6,
+      "mechanisms": 2
+    },
+    "actual": {
+      "sources": 10,
+      "branches": 9,
+      "hypotheses": 2,
+      "mechanisms": 5
+    },
+    "met": false,
+    "note": "Minimum breadth and evidence gates, not proof of exhaustive coverage or production impact."
+  },
+  "owner_crash_recovery": {
+    "at": 1792383126.4772446,
+    "owner": {
+      "pid": 6244,
+      "restart": 5
+    },
+    "checks": {
+      "different_live_owner": true,
+      "deadline_preserved": true,
+      "decisions_preserved": true,
+      "spending_preserved": true,
+      "cadence_preserved": true,
+      "role_runs_preserved": true
+    },
+    "state": "running"
+  },
+  "research_outcomes": [
+    {
+      "stage": "discovery",
+      "status": "discovered",
+      "attempts": 1
+    },
+    {
+      "stage": "research",
+      "status": "supported",
+      "attempts": 1
+    },
+    {
+      "stage": "research",
+      "status": "supported",
+      "attempts": 1
+    }
+  ],
+  "limitations": [
+    "Read-only recurring investigation; no automatic arbitrary code edits.",
+    "Watcher must stay alive on this host; no installed reboot service.",
+    "72 hours have not elapsed.",
+    "Scheduled dollar pacing permits idle periods."
+  ]
+}

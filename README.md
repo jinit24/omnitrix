@@ -28,7 +28,8 @@ existing login configuration. `OMNITRIX_CODEX_PATH` can select the installed CLI
 | `OMNITRIX_CODEX_HOME` | `.omnitrix/codex-api` |
 | Database (`--db PATH` before command) | `.omnitrix/state.db` |
 
-Dollar-capped research campaigns retain their pinned GPT-4.1 pricing contract.
+Dollar-capped research campaigns retain their saved model and pricing contract.
+New continuous campaigns default to GPT-5.4; other campaigns default to GPT-4.1.
 An explicit incompatible model override is rejected before inference.
 
 Use a source/editable install: instructions and Node bridge are repository resources.
@@ -37,6 +38,8 @@ The default coordinator is now GPT-5.4. Planning has a per-decision tool budget,
 recoverable scope errors trigger replanning, and a successful independent goal audit
 completes the goal directly. See the [Django validation and diagnostic findings](docs/long-running.html)
 for the bounded repair experiment, all failed profiles, costs and remaining limits.
+The [continuous reliability report](docs/continuous-reliability.html) adds repeated
+cross-repository repairs, interruption recovery and the ongoing multi-day experiment.
 
 ## Run and observe
 
@@ -130,7 +133,10 @@ omnitrix create 'Find system inefficiencies and compare falsifiable explanations
   --criterion 'Distinguish code mechanisms, measured impact and missing data' \
   --workspace /absolute/path/to/pinned-repository
 omnitrix --db .omnitrix/state.db campaign GOAL_ID \
-  --days 3 --decisions 1000 --research-runs 2000 --dollars 25
+  --days 3 --decisions 1000 --research-runs 2000 --dollars 25 \
+  --continuous --review-seconds 300 --prepare-only
+# Restart a crashed owner automatically, retaining all saved limits.
+python scripts/watch_campaign.py --db .omnitrix/state.db --goal GOAL_ID
 # After a process restart: reuse the same DB and goal, without new limits.
 omnitrix --db .omnitrix/state.db campaign GOAL_ID
 # Inspect or pause from another terminal.
@@ -138,10 +144,15 @@ omnitrix --db .omnitrix/state.db status GOAL_ID
 omnitrix --db .omnitrix/state.db campaign GOAL_ID --pause
 ```
 
-Each campaign is capped at $25. Standard-tier GPT-4.1 requests reserve maximum
+Each campaign is capped at $25. Requests to the saved model reserve maximum
 cost before inference; lost responses retain that reservation. Native workers,
 hosted tools, code changes and external PRs are disabled for these campaigns.
 The HTML checkpoint includes evidence, decisions, spending and remaining coverage.
+Continuous campaigns record milestones, review progress, change direction after
+stalls, and pace spending across the saved deadline. The watcher recovers an owner
+crash; use a host process supervisor for watcher failure or machine restart.
+Continuous campaigns investigate and propose improvements. Code execution still
+requires bounded implementation authorization and independent acceptance checks.
 Register local exported logs/CSV with repeatable `--evidence workspace/relative/path`;
 record workload and measurement-window context alongside them. See the
 [campaign and tracking guide](docs/campaigns.html) for pricing, recovery, explicit

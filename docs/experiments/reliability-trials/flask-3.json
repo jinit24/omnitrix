@@ -1,0 +1,381 @@
+{
+  "case": "flask",
+  "goal": "219c15a55b7e450e98c1e82d209d2db3",
+  "upstream_revision": "2c1b30d0503cfb064f1cb252e6614a06915a362a",
+  "tracked_files": 234,
+  "started": 1792383512.6508656,
+  "seeded_revision": "b41529bbb3648b5b0131e3ac957bb9ce2ad2553a",
+  "clean": [
+    {
+      "requirement": "Request size limits respect app configuration and per-request overrides",
+      "exit_code": 0,
+      "output": "...                                                                      [100%]\n3 passed in 0.01s\n"
+    },
+    {
+      "requirement": "Session cookie refresh respects permanence and SESSION_REFRESH_EACH_REQUEST",
+      "exit_code": 0,
+      "output": ".                                                                        [100%]\n1 passed in 0.03s\n"
+    },
+    {
+      "requirement": "The entire unchanged Flask test suite passes with only its baseline skips",
+      "exit_code": 0,
+      "output": "........................................................................ [ 14%]\n........................................................................ [ 29%]\n........................................................................ [ 44%]\n........................................................................ [ 58%]\n........................................................................ [ 73%]\n................................ss...................................... [ 88%]\n..........................................................               [100%]\n488 passed, 2 skipped in 0.94s\n"
+    }
+  ],
+  "baseline": [
+    {
+      "requirement": "Request size limits respect app configuration and per-request overrides",
+      "exit_code": 1,
+      "output": "FF.                                                                      [100%]\n=================================== FAILURES ===================================\n___________________________ test_max_content_length ____________________________\n\napp = <Flask 'flask_test'>, client = <FlaskClient <Flask 'flask_test'>>\n\n    def test_max_content_length(app: Flask, client: FlaskClient) -> None:\n        app.config[\"MAX_CONTENT_LENGTH\"] = 50\n    \n        @app.post(\"/\")\n        def index():\n            request.form[\"myfile\"]\n            AssertionError()\n    \n        @app.errorhandler(413)\n        def catcher(error):\n            return \"42\"\n    \n>       rv = client.post(\"/\", data={\"myfile\": \"foo\" * 50})\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n../../../flask/tests/test_request.py:21: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n../../../oss-venv/lib/python3.12/site-packages/werkzeug/test.py:1167: in post\n    return self.open(*args, **kw)\n           ^^^^^^^^^^^^^^^^^^^^^^\nsrc/flask/testing.py:235: in open\n    response = super().open(\n../../../oss-venv/lib/python3.12/site-packages/werkzeug/test.py:1116: in open\n    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n../../../oss-venv/lib/python3.12/site-packages/werkzeug/test.py:988: in run_wsgi_app\n    rv = run_wsgi_app(self.application, environ, buffered=buffered)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n../../../oss-venv/lib/python3.12/site-packages/werkzeug/test.py:1264: in run_wsgi_app\n    app_rv = app(environ, start_response)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/flask/app.py:1536: in __call__\n    return self.wsgi_app(environ, start_response)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/flask/app.py:1514: in wsgi_app\n    response = self.handle_exception(e)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/flask/app.py:1511: in wsgi_app\n    response = self.full_dispatch_request()\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/flask/app.py:920: in full_dispatch_request\n    return self.finalize_request(rv)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/flask/app.py:939: in finalize_request\n    response = self.make_response(rv)\n               ^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <Flask 'flask_test'>, rv = None\n\n    def make_response(self, rv: ft.ResponseReturnValue) -> Response:\n        \"\"\"Convert the return value from a view function to an instance of\n        :attr:`response_class`.\n    \n        :param rv: the return value from the view function. The view function\n            must return a response. Returning ``None``, or the view ending\n            without returning, is not allowed. The following types are allowed\n            for ``view_rv``:\n    \n            ``str``\n                A response object is created with the string encoded to UTF-8\n                as the body.\n    \n            ``bytes``\n                A response object is created with the bytes as the body.\n    \n            ``dict``\n                A dictionary that will be jsonify'd before being returned.\n    \n            ``list``\n                A list that will be jsonify'd before being returned.\n    \n            ``generator`` or ``iterator``\n                A generator that returns ``str`` or ``bytes`` to be\n                streamed as the response.\n    \n            ``tuple``\n                Either ``(body, status, headers)``, ``(body, status)``, or\n                ``(body, headers)``, where ``body`` is any of the other types\n                allowed here, ``status`` is a string or an integer, and\n                ``headers`` is a dictionary or a list of ``(key, value)``\n                tuples. If ``body`` is a :attr:`response_class` instance,\n                ``status`` overwrites the exiting value and ``headers`` are\n                extended.\n    \n            :attr:`response_class`\n                The object is returned unchanged.\n    \n            other :class:`~werkzeug.wrappers.Response` class\n                The object is coerced to :attr:`response_class`.\n    \n            :func:`callable`\n                The function is called as a WSGI application. The result is\n                used to create a response object.\n    \n        .. versionchanged:: 2.2\n            A generator will be converted to a streaming response.\n            A list will be converted to a JSON response.\n    \n        .. versionchanged:: 1.1\n            A dict will be converted to a JSON response.\n    \n        .. versionchanged:: 0.9\n           Previously a tuple was interpreted as the arguments for the\n           response object.\n        \"\"\"\n    \n        status: int | None = None\n        headers: HeadersValue | None = None\n    \n        # unpack tuple returns\n        if isinstance(rv, tuple):\n            len_rv = len(rv)\n    \n            # a 3-tuple is unpacked directly\n            if len_rv == 3:\n                rv, status, headers = rv  # type: ignore[misc]\n            # decide if a 2-tuple has status or headers\n            elif len_rv == 2:\n                if isinstance(rv[1], (Headers, dict, tuple, list)):\n                    rv, headers = rv  # pyright: ignore\n                else:\n                    rv, status = rv  # type: ignore[assignment,misc]\n            # other sized tuples are not allowed\n            else:\n                raise TypeError(\n                    \"The view function did not return a valid response tuple.\"\n                    \" The tuple must have the form (body, status, headers),\"\n                    \" (body, status), or (body, headers).\"\n                )\n    \n        # the body must not be None\n        if rv is None:\n>           raise TypeError(\n                f\"The view function for {request.endpoint!r} did not\"\n                \" return a valid response. The function either returned\"\n                \" None or ended without a return statement.\"\n            )\nE           TypeError: The view function for 'index' did not return a valid response. The function either returned None or ended without a return statement.\n\nsrc/flask/app.py:1212: TypeError\n______________________________ test_limit_config _______________________________\n\napp = <Flask 'flask_test'>\n\n    def test_limit_config(app: Flask):\n        app.config[\"MAX_CONTENT_LENGTH\"] = 100\n        app.config[\"MAX_FORM_MEMORY_SIZE\"] = 50\n        app.config[\"MAX_FORM_PARTS\"] = 3\n        r = Request({})\n    \n        # no app context, use Werkzeug defaults\n        assert r.max_content_length is None\n        assert r.max_form_memory_size == 500_000\n        assert r.max_form_parts == 1_000\n    \n        # in app context, use config\n        with app.app_context():\n>           assert r.max_content_length == 100\nE           AssertionError: assert None == 100\nE            +  where None = <Request 'http:///' [GET]>.max_content_length\n\n../../../flask/tests/test_request.py:38: AssertionError\n=========================== short test summary info ============================\nFAILED ../../../flask/tests/test_request.py::test_max_content_length - TypeEr...\nFAILED ../../../flask/tests/test_request.py::test_limit_config - AssertionErr...\n2 failed, 1 passed in 0.09s\n"
+    },
+    {
+      "requirement": "Session cookie refresh respects permanence and SESSION_REFRESH_EACH_REQUEST",
+      "exit_code": 1,
+      "output": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_________________________ test_session_cookie_setting __________________________\n\napp = <Flask 'flask_test'>\n\n    def test_session_cookie_setting(app):\n        is_permanent = True\n    \n        @app.route(\"/bump\")\n        def bump():\n            rv = flask.session[\"foo\"] = flask.session.get(\"foo\", 0) + 1\n            flask.session.permanent = is_permanent\n            return str(rv)\n    \n        @app.route(\"/read\")\n        def read():\n            return str(flask.session.get(\"foo\", 0))\n    \n        def run_test(expect_header):\n            with app.test_client() as c:\n                assert c.get(\"/bump\").data == b\"1\"\n                assert c.get(\"/bump\").data == b\"2\"\n                assert c.get(\"/bump\").data == b\"3\"\n    \n                rv = c.get(\"/read\")\n                set_cookie = rv.headers.get(\"set-cookie\")\n                assert (set_cookie is not None) == expect_header\n                assert rv.data == b\"3\"\n    \n        is_permanent = True\n        app.config[\"SESSION_REFRESH_EACH_REQUEST\"] = True\n        run_test(expect_header=True)\n    \n        is_permanent = True\n        app.config[\"SESSION_REFRESH_EACH_REQUEST\"] = False\n>       run_test(expect_header=False)\n\n../../../flask/tests/test_basic.py:509: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nexpect_header = False\n\n    def run_test(expect_header):\n        with app.test_client() as c:\n            assert c.get(\"/bump\").data == b\"1\"\n            assert c.get(\"/bump\").data == b\"2\"\n            assert c.get(\"/bump\").data == b\"3\"\n    \n            rv = c.get(\"/read\")\n            set_cookie = rv.headers.get(\"set-cookie\")\n>           assert (set_cookie is not None) == expect_header\nE           AssertionError: assert ('session=eyJfcGVybWFuZW50Ijp0cnVlLCJmb28iOjN9.atWaFw.RaRifAg6pf-iR4ux94_5AKo8lNI; Expires=Thu, 19 Nov 2026 04:18:31 GMT; HttpOnly; Path=/' is not None) == False\n\n../../../flask/tests/test_basic.py:500: AssertionError\n=========================== short test summary info ============================\nFAILED ../../../flask/tests/test_basic.py::test_session_cookie_setting - Asse...\n1 failed in 0.06s\n"
+    },
+    {
+      "requirement": "The entire unchanged Flask test suite passes with only its baseline skips",
+      "exit_code": 1,
+      "output": "...............................................FF....................... [ 14%]\n........................................................................ [ 29%]\n........................................................................ [ 44%]\n........................................................................ [ 58%]\n........................................................................ [ 73%]\n................................ss.....FF............................... [ 88%]\n..........................................................               [100%]\n=================================== FAILURES ===================================\n_________________________ test_session_cookie_setting __________________________\n\napp = <Flask 'flask_test'>\n\n    def test_session_cookie_setting(app):\n        is_permanent = True\n    \n        @app.route(\"/bump\")\n        def bump():\n            rv = flask.session[\"foo\"] = flask.session.get(\"foo\", 0) + 1\n            flask.session.permanent = is_permanent\n            return str(rv)\n    \n        @app.route(\"/read\")\n        def read():\n            return str(flask.session.get(\"foo\", 0))\n    \n        def run_test(expect_header):\n            with app.test_client() as c:\n                assert c.get(\"/bump\").data == b\"1\"\n                assert c.get(\"/bump\").data == b\"2\"\n                assert c.get(\"/bump\").data == b\"3\"\n    \n                rv = c.get(\"/read\")\n                set_cookie = rv.headers.get(\"set-cookie\")\n                assert (set_cookie is not None) == expect_header\n                assert rv.data == b\"3\"\n    \n        is_permanent = True\n        app.config[\"SESSION_REFRESH_EACH_REQUEST\"] = True\n        run_test(expect_header=True)\n    \n        is_permanent = True\n        app.config[\"SESSION_REFRESH_EACH_REQUEST\"] = False\n>       run_test(expect_header=False)\n\n../../../flask/tests/test_basic.py:509: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nexpect_header = False\n\n    def run_test(expect_header):\n        with app.test_client() as c:\n            assert c.get(\"/bump\").data == b\"1\"\n            assert c.get(\"/bump\").data == b\"2\"\n            assert c.get(\"/bump\").data == b\"3\"\n    \n            rv = c.get(\"/read\")\n            set_cookie = rv.headers.get(\"set-cookie\")\n>           assert (set_cookie is not None) == expect_header\nE           AssertionError: assert ('session=eyJfcGVybWFuZW50Ijp0cnVlLCJmb28iOjN9.atWaFw.RaRifAg6pf-iR4ux94_5AKo8lNI; Expires=Thu, 19 Nov 2026 04:18:31 GMT; HttpOnly; Path=/' is not None) == False\n\n../../../flask/tests/test_basic.py:500: AssertionError\n___________________________ test_session_vary_cookie ___________________________\n\napp = <Flask 'flask_test'>, client = <FlaskClient <Flask 'flask_test'>>\n\n    def test_session_vary_cookie(app, client):\n        @app.route(\"/set\")\n        def set_session():\n            flask.session[\"test\"] = \"test\"\n            return \"\"\n    \n        @app.route(\"/get\")\n        def get():\n            return flask.session.get(\"test\")\n    \n        @app.route(\"/getitem\")\n        def getitem():\n            return flask.session[\"test\"]\n    \n        @app.route(\"/setdefault\")\n        def setdefault():\n            return flask.session.setdefault(\"test\", \"default\")\n    \n        @app.route(\"/clear\")\n        def clear():\n            flask.session.clear()\n            return \"\"\n    \n        @app.route(\"/vary-cookie-header-set\")\n        def vary_cookie_header_set():\n            response = flask.Response()\n            response.vary.add(\"Cookie\")\n            flask.session[\"test\"] = \"test\"\n            return response\n    \n        @app.route(\"/vary-header-set\")\n        def vary_header_set():\n            response = flask.Response()\n            response.vary.update((\"Accept-Encoding\", \"Accept-Language\"))\n            flask.session[\"test\"] = \"test\"\n            return response\n    \n        @app.route(\"/no-vary-header\")\n        def no_vary_header():\n            return \"\"\n    \n        def expect(path, header_value=\"Cookie\"):\n            rv = client.get(path)\n    \n            if header_value:\n                # The 'Vary' key should exist in the headers only once.\n                assert len(rv.headers.get_all(\"Vary\")) == 1\n                assert rv.headers[\"Vary\"] == header_value\n            else:\n                assert \"Vary\" not in rv.headers\n    \n        expect(\"/set\")\n        expect(\"/get\")\n        expect(\"/getitem\")\n        expect(\"/setdefault\")\n        expect(\"/clear\")\n        expect(\"/vary-cookie-header-set\")\n        expect(\"/vary-header-set\", \"Accept-Encoding, Accept-Language, Cookie\")\n>       expect(\"/no-vary-header\", None)\n\n../../../flask/tests/test_basic.py:578: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\npath = '/no-vary-header', header_value = None\n\n    def expect(path, header_value=\"Cookie\"):\n        rv = client.get(path)\n    \n        if header_value:\n            # The 'Vary' key should exist in the headers only once.\n            assert len(rv.headers.get_all(\"Vary\")) == 1\n            assert rv.headers[\"Vary\"] == header_value\n        else:\n>           assert \"Vary\" not in rv.headers\nE           AssertionError: assert 'Vary' not in Headers([('Content-Type', 'text/html; charset=utf-8'), ('Content-Length', '0'), ('Set-Cookie', 'session=eyJ0ZXN0IjoidGVzdCJ9.atWaFw.GcJb7C_btEgvz9HWZMk1DZiMb6w; HttpOnly; Path=/'), ('Vary', 'Cookie')])\nE            +  where Headers([('Content-Type', 'text/html; charset=utf-8'), ('Content-Length', '0'), ('Set-Cookie', 'session=eyJ0ZXN0IjoidGVzdCJ9.atWaFw.GcJb7C_btEgvz9HWZMk1DZiMb6w; HttpOnly; Path=/'), ('Vary', 'Cookie')]) = <WrapperTestResponse streamed [200 OK]>.headers\n\n../../../flask/tests/test_basic.py:569: AssertionError\n___________________________ test_max_content_length ____________________________\n\napp = <Flask 'flask_test'>, client = <FlaskClient <Flask 'flask_test'>>\n\n    def test_max_content_length(app: Flask, client: FlaskClient) -> None:\n        app.config[\"MAX_CONTENT_LENGTH\"] = 50\n    \n        @app.post(\"/\")\n        def index():\n            request.form[\"myfile\"]\n            AssertionError()\n    \n        @app.errorhandler(413)\n        def catcher(error):\n            return \"42\"\n    \n>       rv = client.post(\"/\", data={\"myfile\": \"foo\" * 50})\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n../../../flask/tests/test_request.py:21: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n../../../oss-venv/lib/python3.12/site-packages/werkzeug/test.py:1167: in post\n    return self.open(*args, **kw)\n           ^^^^^^^^^^^^^^^^^^^^^^\nsrc/flask/testing.py:235: in open\n    response = super().open(\n../../../oss-venv/lib/python3.12/site-packages/werkzeug/test.py:1116: in open\n    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n../../../oss-venv/lib/python3.12/site-packages/werkzeug/test.py:988: in run_wsgi_app\n    rv = run_wsgi_app(self.application, environ, buffered=buffered)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n../../../oss-venv/lib/python3.12/site-packages/werkzeug/test.py:1264: in run_wsgi_app\n    app_rv = app(environ, start_response)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/flask/app.py:1536: in __call__\n    return self.wsgi_app(environ, start_response)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/flask/app.py:1514: in wsgi_app\n    response = self.handle_exception(e)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/flask/app.py:1511: in wsgi_app\n    response = self.full_dispatch_request()\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/flask/app.py:920: in full_dispatch_request\n    return self.finalize_request(rv)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/flask/app.py:939: in finalize_request\n    response = self.make_response(rv)\n               ^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <Flask 'flask_test'>, rv = None\n\n    def make_response(self, rv: ft.ResponseReturnValue) -> Response:\n        \"\"\"Convert the return value from a view function to an instance of\n        :attr:`response_class`.\n    \n        :param rv: the return value from the view function. The view function\n            must return a response. Returning ``None``, or the view ending\n            without returning, is not allowed. The following types are allowed\n            for ``view_rv``:\n    \n            ``str``\n                A response object is created with the string encoded to UTF-8\n                as the body.\n    \n            ``bytes``\n                A response object is created with the bytes as the body.\n    \n            ``dict``\n                A dictionary that will be jsonify'd before being returned.\n    \n            ``list``\n                A list that will be jsonify'd before being returned.\n    \n            ``generator`` or ``iterator``\n                A generator that returns ``str`` or ``bytes`` to be\n                streamed as the response.\n    \n            ``tuple``\n                Either ``(body, status, headers)``, ``(body, status)``, or\n                ``(body, headers)``, where ``body`` is any of the other types\n                allowed here, ``status`` is a string or an integer, and\n                ``headers`` is a dictionary or a list of ``(key, value)``\n                tuples. If ``body`` is a :attr:`response_class` instance,\n                ``status`` overwrites the exiting value and ``headers`` are\n                extended.\n    \n            :attr:`response_class`\n                The object is returned unchanged.\n    \n            other :class:`~werkzeug.wrappers.Response` class\n                The object is coerced to :attr:`response_class`.\n    \n            :func:`callable`\n                The function is called as a WSGI application. The result is\n                used to create a response object.\n    \n        .. versionchanged:: 2.2\n            A generator will be converted to a streaming response.\n            A list will be converted to a JSON response.\n    \n        .. versionchanged:: 1.1\n            A dict will be converted to a JSON response.\n    \n        .. versionchanged:: 0.9\n           Previously a tuple was interpreted as the arguments for the\n           response object.\n        \"\"\"\n    \n        status: int | None = None\n        headers: HeadersValue | None = None\n    \n        # unpack tuple returns\n        if isinstance(rv, tuple):\n            len_rv = len(rv)\n    \n            # a 3-tuple is unpacked directly\n            if len_rv == 3:\n                rv, status, headers = rv  # type: ignore[misc]\n            # decide if a 2-tuple has status or headers\n            elif len_rv == 2:\n                if isinstance(rv[1], (Headers, dict, tuple, list)):\n                    rv, headers = rv  # pyright: ignore\n                else:\n                    rv, status = rv  # type: ignore[assignment,misc]\n            # other sized tuples are not allowed\n            else:\n                raise TypeError(\n                    \"The view function did not return a valid response tuple.\"\n                    \" The tuple must have the form (body, status, headers),\"\n                    \" (body, status), or (body, headers).\"\n                )\n    \n        # the body must not be None\n        if rv is None:\n>           raise TypeError(\n                f\"The view function for {request.endpoint!r} did not\"\n                \" return a valid response. The function either returned\"\n                \" None or ended without a return statement.\"\n            )\nE           TypeError: The view function for 'index' did not return a valid response. The function either returned None or ended without a return statement.\n\nsrc/flask/app.py:1212: TypeError\n______________________________ test_limit_config _______________________________\n\napp = <Flask 'flask_test'>\n\n    def test_limit_config(app: Flask):\n        app.config[\"MAX_CONTENT_LENGTH\"] = 100\n        app.config[\"MAX_FORM_MEMORY_SIZE\"] = 50\n        app.config[\"MAX_FORM_PARTS\"] = 3\n        r = Request({})\n    \n        # no app context, use Werkzeug defaults\n        assert r.max_content_length is None\n        assert r.max_form_memory_size == 500_000\n        assert r.max_form_parts == 1_000\n    \n        # in app context, use config\n        with app.app_context():\n>           assert r.max_content_length == 100\nE           AssertionError: assert None == 100\nE            +  where None = <Request 'http:///' [GET]>.max_content_length\n\n../../../flask/tests/test_request.py:38: AssertionError\n=========================== short test summary info ============================\nFAILED ../../../flask/tests/test_basic.py::test_session_cookie_setting - Asse...\nFAILED ../../../flask/tests/test_basic.py::test_session_vary_cookie - Asserti...\nFAILED ../../../flask/tests/test_request.py::test_max_content_length - TypeEr...\nFAILED ../../../flask/tests/test_request.py::test_limit_config - AssertionErr...\n4 failed, 484 passed, 2 skipped in 1.04s\n"
+    }
+  ],
+  "checks": [
+    {
+      "requirement": "Request size limits respect app configuration and per-request overrides",
+      "argv": [
+        "<workspace>/work/oss-venv/bin/python",
+        "<workspace>/work/reliability-suite/flask-3/check.py",
+        "0"
+      ],
+      "timeout": 120,
+      "failure_kind": "local",
+      "stdout_contains": null,
+      "oracle_revisions": {}
+    },
+    {
+      "requirement": "Session cookie refresh respects permanence and SESSION_REFRESH_EACH_REQUEST",
+      "argv": [
+        "<workspace>/work/oss-venv/bin/python",
+        "<workspace>/work/reliability-suite/flask-3/check.py",
+        "1"
+      ],
+      "timeout": 120,
+      "failure_kind": "local",
+      "stdout_contains": null,
+      "oracle_revisions": {}
+    },
+    {
+      "requirement": "The entire unchanged Flask test suite passes with only its baseline skips",
+      "argv": [
+        "<workspace>/work/oss-venv/bin/python",
+        "<workspace>/work/reliability-suite/flask-3/check.py",
+        "2"
+      ],
+      "timeout": 120,
+      "failure_kind": "local",
+      "stdout_contains": null,
+      "oracle_revisions": {}
+    }
+  ],
+  "allowed_paths": [
+    "src/flask/sessions.py",
+    "src/flask/wrappers.py"
+  ],
+  "fault": null,
+  "research_checkpoint": true,
+  "saved_research_state": {
+    "accepted_job_ids": [
+      "4bbdcefdd3be4486b918a2bcb6945bcb"
+    ],
+    "latest_job": {
+      "id": "4bbdcefdd3be4486b918a2bcb6945bcb",
+      "goal_id": "219c15a55b7e450e98c1e82d209d2db3",
+      "stage": "research",
+      "signature": "50a3b685bf4bf1eb06f742887980e3c8bb01013c80b542386ad0011f1ecb5008",
+      "spec": "{\"scope\":[\"VALIDATION.md\",\"src/flask/app.py\",\"src/flask/wrappers.py\",\"tests/test_basic.py\",\"tests/test_request.py\"],\"question\":\"Does the current implementation of request size limits fail to respect app configuration and per-request overrides?\",\"hypothesis\":\"A concrete defect exists in request size limit handling such that Flask does not correctly apply configured limits and/or per-request override behavior required by tests and validation notes.\",\"falsification\":\"The hypothesis is falsified if scoped code and tests show request size limits are correctly derived from app config and per-request overrides, with no contradictory defect evidence in VALIDATION.md.\",\"opportunity_id\":null,\"budget\":{\"tool_calls\":8,\"seconds\":60,\"attempts\":2}}",
+      "status": "supported",
+      "attempts": 2,
+      "created": 1792383522.660959,
+      "updated": 1792383567.1515152,
+      "run_id": "9cc3924a4f834d1291c3369c63dbcb91",
+      "run_status": "supported",
+      "evaluation": {
+        "verdict": "supported",
+        "evidence_ids": [
+          "63711b98f0b144d6a169aefbd452dba1",
+          "72f91e0c60ab44ceac857040c3036e89",
+          "bae129b0c3404fa1af01689e936217a2",
+          "cd64f6659f4d44f6a61d573bece15252"
+        ],
+        "reason": "The scoped evidence supports the hypothesis as stated. VALIDATION.md names the required contract: request size limits must respect app configuration and per-request overrides. The test contract in tests/test_request.py requires three behaviors for Request.max_content_length: outside app context it is None, inside app context it reflects app.config[\"MAX_CONTENT_LENGTH\"], and an explicit per-request override wins regardless of context. The implementation in src/flask/wrappers.py preserves override precedence by returning self._max_content_length when set and falls back to Werkzeug defaults when there is no current_app, but in the app-context/no-override path it returns None instead of consulting current_app config. src/flask/app.py defines MAX_CONTENT_LENGTH in default config, so this is not explained by a missing config key. That directly contradicts the required in-app-context behavior and establishes a concrete current defect in request size limit handling.",
+        "feedback": "The reported defect is correctly bounded to Request.max_content_length. The evidence demonstrates the failing mechanism and the expected contract without needing broader production measurements.",
+        "blocking_gaps": [],
+        "non_blocking_uncertainties": [
+          "The scoped evidence establishes the code defect and test contract, but does not include an execution trace of test_limit_config actually failing in this seeded checkout.",
+          "The hypothesis says configured limits and/or per-request override behavior; the evidence fully establishes the app-config defect for max_content_length and shows override precedence is implemented for that property, but does not independently evaluate analogous behavior for other limit properties beyond the cited test contract."
+        ]
+      },
+      "feedback": "The reported defect is correctly bounded to Request.max_content_length. The evidence demonstrates the failing mechanism and the expected contract without needing broader production measurements.",
+      "scope_gaps": [],
+      "retryable": false,
+      "needs_scope_expansion": false
+    },
+    "remaining_role_runs": 8
+  },
+  "saved_remaining_decisions": 10,
+  "goal_status": "active",
+  "implementations": [
+    {
+      "id": "0830770c443344459b08e3aa59cfd848",
+      "goal_id": "219c15a55b7e450e98c1e82d209d2db3",
+      "authorization": "fb0bf6894a614904b6f623af3f5eac7a",
+      "base_revision": "b41529bbb3648b5b0131e3ac957bb9ce2ad2553a",
+      "candidate": null,
+      "worktree": "<workspace>/work/reliability-suite/flask-3/worktrees/0830770c443344459b08e3aa59cfd848",
+      "status": "uncertain",
+      "attempts": 1,
+      "feedback": "",
+      "created": 1792383567.237093,
+      "spec": {
+        "objective": "Restore the contracts in VALIDATION.md and pass all unchanged upstream acceptance tests",
+        "research_job": "4bbdcefdd3be4486b918a2bcb6945bcb",
+        "allowed_paths": [
+          "src/flask/sessions.py",
+          "src/flask/wrappers.py"
+        ],
+        "checks": [
+          {
+            "requirement": "Request size limits respect app configuration and per-request overrides",
+            "argv": [
+              "<workspace>/work/oss-venv/bin/python",
+              "<workspace>/work/reliability-suite/flask-3/check.py",
+              "0"
+            ],
+            "timeout": 120,
+            "failure_kind": "local",
+            "stdout_contains": null,
+            "oracle_revisions": {
+              "<workspace>/work/reliability-suite/flask-3/check.py": "c24645028f4b4ccc50d8385400ad52537864b67a514cc78bbea368554f8d04fd"
+            }
+          },
+          {
+            "requirement": "Session cookie refresh respects permanence and SESSION_REFRESH_EACH_REQUEST",
+            "argv": [
+              "<workspace>/work/oss-venv/bin/python",
+              "<workspace>/work/reliability-suite/flask-3/check.py",
+              "1"
+            ],
+            "timeout": 120,
+            "failure_kind": "local",
+            "stdout_contains": null,
+            "oracle_revisions": {
+              "<workspace>/work/reliability-suite/flask-3/check.py": "c24645028f4b4ccc50d8385400ad52537864b67a514cc78bbea368554f8d04fd"
+            }
+          },
+          {
+            "requirement": "The entire unchanged Flask test suite passes with only its baseline skips",
+            "argv": [
+              "<workspace>/work/oss-venv/bin/python",
+              "<workspace>/work/reliability-suite/flask-3/check.py",
+              "2"
+            ],
+            "timeout": 120,
+            "failure_kind": "local",
+            "stdout_contains": null,
+            "oracle_revisions": {
+              "<workspace>/work/reliability-suite/flask-3/check.py": "c24645028f4b4ccc50d8385400ad52537864b67a514cc78bbea368554f8d04fd"
+            }
+          }
+        ],
+        "max_attempts": 2,
+        "seconds": 300
+      },
+      "authorization_revoked": 0
+    }
+  ],
+  "research": [
+    {
+      "id": "4bbdcefdd3be4486b918a2bcb6945bcb",
+      "goal_id": "219c15a55b7e450e98c1e82d209d2db3",
+      "stage": "research",
+      "signature": "50a3b685bf4bf1eb06f742887980e3c8bb01013c80b542386ad0011f1ecb5008",
+      "spec": "{\"scope\":[\"VALIDATION.md\",\"src/flask/app.py\",\"src/flask/wrappers.py\",\"tests/test_basic.py\",\"tests/test_request.py\"],\"question\":\"Does the current implementation of request size limits fail to respect app configuration and per-request overrides?\",\"hypothesis\":\"A concrete defect exists in request size limit handling such that Flask does not correctly apply configured limits and/or per-request override behavior required by tests and validation notes.\",\"falsification\":\"The hypothesis is falsified if scoped code and tests show request size limits are correctly derived from app config and per-request overrides, with no contradictory defect evidence in VALIDATION.md.\",\"opportunity_id\":null,\"budget\":{\"tool_calls\":8,\"seconds\":60,\"attempts\":2}}",
+      "status": "supported",
+      "attempts": 2,
+      "created": 1792383522.660959,
+      "updated": 1792383567.1515152,
+      "run_id": "9cc3924a4f834d1291c3369c63dbcb91",
+      "run_status": "supported",
+      "report": {
+        "findings": [
+          {
+            "statement": "A concrete defect exists in Request.max_content_length: when no per-request override is set and an app context exists, the getter returns None instead of consulting the app's MAX_CONTENT_LENGTH configuration.",
+            "classification": "claim",
+            "evidence_ids": [
+              "63711b98f0b144d6a169aefbd452dba1",
+              "72f91e0c60ab44ceac857040c3036e89",
+              "bae129b0c3404fa1af01689e936217a2"
+            ],
+            "category": "mechanism",
+            "workload": "tests/test_request.py::test_limit_config with app.config[\"MAX_CONTENT_LENGTH\"] set and Request({}) accessed inside app.app_context()",
+            "falsification": "This is falsified if the getter reads current_app.config[\"MAX_CONTENT_LENGTH\"] in the app-context/no-override path, or if the scoped test does not require r.max_content_length == 100 in that context."
+          },
+          {
+            "statement": "The scoped test contract requires max_content_length to use Werkzeug defaults outside app context, use app configuration inside app context, and preserve a per-request override regardless of context.",
+            "classification": "claim",
+            "evidence_ids": [
+              "72f91e0c60ab44ceac857040c3036e89"
+            ],
+            "category": "observation",
+            "workload": "tests/test_request.py::test_limit_config",
+            "falsification": "This is falsified if the test no longer asserts None outside app context, 100 inside app context, and 90 after setting r.max_content_length."
+          },
+          {
+            "statement": "The current implementation preserves per-request override precedence for max_content_length.",
+            "classification": "claim",
+            "evidence_ids": [
+              "63711b98f0b144d6a169aefbd452dba1"
+            ],
+            "category": "observation",
+            "workload": "Request objects with request.max_content_length explicitly assigned",
+            "falsification": "This is falsified if the getter does not return self._max_content_length when it is not None or the setter does not store the assigned value."
+          },
+          {
+            "statement": "Flask defines MAX_CONTENT_LENGTH in application configuration defaults, so the defect is not a missing config key definition.",
+            "classification": "claim",
+            "evidence_ids": [
+              "bae129b0c3404fa1af01689e936217a2"
+            ],
+            "category": "observation",
+            "workload": "Application default config in src/flask/app.py",
+            "falsification": "This is falsified if app.py does not define MAX_CONTENT_LENGTH."
+          },
+          {
+            "statement": "VALIDATION.md explicitly includes request size limits respecting app configuration and per-request overrides as an existing test contract to restore.",
+            "classification": "claim",
+            "evidence_ids": [
+              "cd64f6659f4d44f6a61d573bece15252"
+            ],
+            "category": "observation",
+            "workload": "Authorized validation scope",
+            "falsification": "This is falsified if VALIDATION.md does not list that requirement."
+          }
+        ],
+        "supporting_evidence": [
+          "63711b98f0b144d6a169aefbd452dba1",
+          "72f91e0c60ab44ceac857040c3036e89",
+          "bae129b0c3404fa1af01689e936217a2",
+          "cd64f6659f4d44f6a61d573bece15252"
+        ],
+        "contradictory_evidence": [],
+        "uncertainties": [
+          "VALIDATION.md excerpt authorizes the contract but does not show a captured failing request-size test run in the excerpt provided.",
+          "This report is intentionally limited to Request.max_content_length and does not assess analogous form-limit properties beyond what the cited test states."
+        ],
+        "recommendation": "Prioritize a fix in src/flask/wrappers.py so Request.max_content_length, when no per-request override is set, returns current_app.config[\"MAX_CONTENT_LENGTH\"] inside an app context while preserving the existing override-first behavior and the no-app-context fallback to Werkzeug defaults.",
+        "blocked": false
+      },
+      "evaluation": {
+        "verdict": "supported",
+        "evidence_ids": [
+          "63711b98f0b144d6a169aefbd452dba1",
+          "72f91e0c60ab44ceac857040c3036e89",
+          "bae129b0c3404fa1af01689e936217a2",
+          "cd64f6659f4d44f6a61d573bece15252"
+        ],
+        "reason": "The scoped evidence supports the hypothesis as stated. VALIDATION.md names the required contract: request size limits must respect app configuration and per-request overrides. The test contract in tests/test_request.py requires three behaviors for Request.max_content_length: outside app context it is None, inside app context it reflects app.config[\"MAX_CONTENT_LENGTH\"], and an explicit per-request override wins regardless of context. The implementation in src/flask/wrappers.py preserves override precedence by returning self._max_content_length when set and falls back to Werkzeug defaults when there is no current_app, but in the app-context/no-override path it returns None instead of consulting current_app config. src/flask/app.py defines MAX_CONTENT_LENGTH in default config, so this is not explained by a missing config key. That directly contradicts the required in-app-context behavior and establishes a concrete current defect in request size limit handling.",
+        "feedback": "The reported defect is correctly bounded to Request.max_content_length. The evidence demonstrates the failing mechanism and the expected contract without needing broader production measurements.",
+        "blocking_gaps": [],
+        "non_blocking_uncertainties": [
+          "The scoped evidence establishes the code defect and test contract, but does not include an execution trace of test_limit_config actually failing in this seeded checkout.",
+          "The hypothesis says configured limits and/or per-request override behavior; the evidence fully establishes the app-config defect for max_content_length and shows override precedence is implemented for that property, but does not independently evaluate analogous behavior for other limit properties beyond the cited test contract."
+        ]
+      },
+      "feedback": "The reported defect is correctly bounded to Request.max_content_length. The evidence demonstrates the failing mechanism and the expected contract without needing broader production measurements."
+    }
+  ],
+  "decisions": [
+    {
+      "action": "research",
+      "rationale": "The highest-value next uncertainty is the first mandatory criterion: whether request size limit behavior currently violates documented/tested Flask contracts. I verified concrete candidate source files from the workspace inventory and selected a narrow scope spanning the likely implementation, the focused tests, and VALIDATION.md. I am deferring the independent session-refresh criterion for now because the durable repair policy says to establish one concrete current defect for one mandatory criterion first; request-size handling appears isolated enough to prove or falsify quickly with code-and-test evidence. No prior accepted research exists, and no verified knowledge was found to reuse.",
+      "instructions": "Investigate exactly one hypothesis: current Flask request size limit behavior in this workspace violates the contract that limits respect app configuration and per-request overrides. Read only the scoped files. Determine whether a concrete current defect exists, citing the relevant implementation path, test expectations, and any defect statement in VALIDATION.md. If the hypothesis is false, explain why the current code already satisfies the contract or why the scoped evidence is insufficient. Do not propose fixes; produce a concise defect-focused report with code citations and explicit falsification status.",
+      "task_id": null,
+      "priority": 1,
+      "research_plan": {
+        "scope": [
+          "VALIDATION.md",
+          "src/flask/wrappers.py",
+          "src/flask/app.py",
+          "tests/test_request.py",
+          "tests/test_basic.py"
+        ],
+        "question": "Does the current implementation of request size limits fail to respect app configuration and per-request overrides?",
+        "hypothesis": "A concrete defect exists in request size limit handling such that Flask does not correctly apply configured limits and/or per-request override behavior required by tests and validation notes.",
+        "falsification": "The hypothesis is falsified if scoped code and tests show request size limits are correctly derived from app config and per-request overrides, with no contradictory defect evidence in VALIDATION.md.",
+        "opportunity_id": null,
+        "budget": {
+          "tool_calls": 8,
+          "seconds": 60,
+          "attempts": 2
+        }
+      },
+      "research_id": null,
+      "implementation_id": null,
+      "pause_reason": null
+    },
+    {
+      "action": "retry_research",
+      "rationale": "The latest focused research is explicitly retryable and already contains accepted evaluator guidance narrowing the defect: Request.max_content_length fails to fall back to current_app.config[\"MAX_CONTENT_LENGTH\"] inside an app context when no per-request override is set, while override precedence remains intact. The previous report was marked insufficient only because it made extra factual claims not fully evidenced. Retrying this same scoped investigation with tighter claim discipline is the highest-value next step because accepted research is required before implementation authorization, and no scope expansion is needed.",
+      "instructions": "Retry the existing request-size research with the same scope and produce a minimal defect report limited strictly to claims you can directly evidence from the scoped files. Required target: establish whether Request.max_content_length in src/flask/wrappers.py fails to consult current_app.config[\"MAX_CONTENT_LENGTH\"] when an app context exists and no per-request override is set, while preserving the documented override precedence. Cite only direct evidence from VALIDATION.md, src/flask/wrappers.py, src/flask/app.py, and tests/test_request.py as needed. Do not add unrelated observations, runtime/performance commentary, or claims about analogous limit properties unless directly evidenced and necessary. If supported, state the concrete defect, the exact tested contract from tests/test_request.py, and that app.py defines the config key. If unsupported, explain the falsification from the scoped evidence.",
+      "task_id": null,
+      "priority": 1,
+      "research_plan": null,
+      "research_id": "4bbdcefdd3be4486b918a2bcb6945bcb",
+      "implementation_id": null,
+      "pause_reason": null
+    },
+    {
+      "action": "implement",
+      "rationale": "Execute the sole valid explicit authorization and independently verify its mandatory criteria",
+      "instructions": "Continue the authorized implementation workflow",
+      "task_id": null,
+      "priority": 1,
+      "research_plan": null,
+      "research_id": null,
+      "implementation_id": "0830770c443344459b08e3aa59cfd848",
+      "pause_reason": null
+    }
+  ],
+  "verifications": [],
+  "audits": [],
+  "usage": {
+    "sdk_input": 89149,
+    "sdk_output": 4027,
+    "native_input": 357535,
+    "native_output": 1545,
+    "estimated_usd_no_cache_discount": 0.93059375,
+    "max_sdk_input_per_response": 13196,
+    "native_threads": 1
+  },
+  "wall_seconds": 86.31124567985535,
+  "events": [
+    {
+      "kind": "process_restart_verified",
+      "detail": {
+        "remaining_decisions": 10
+      }
+    },
+    {
+      "kind": "execution_capabilities",
+      "detail": {
+        "async_thread_bridge": "timed_out",
+        "probe_timeout_ms": 2000
+      }
+    }
+  ],
+  "recovery": [],
+  "errors": [],
+  "stopped_for_budget": true,
+  "worker_handoffs": [],
+  "implementation_attempts": 1
+}

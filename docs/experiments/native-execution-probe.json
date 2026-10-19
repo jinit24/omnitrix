@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-19",
+  "sandbox": "Codex command/exec workspaceWrite, networkAccess=false",
+  "minimal_command": "import asyncio; asyncio.run(asyncio.to_thread(lambda: None)); print(\"async-thread-ok\")",
+  "minimal_probe": {
+    "elapsed": 2.0136209539999754,
+    "result": {
+      "exitCode": 124,
+      "stdout": "",
+      "stderr": ""
+    }
+  },
+  "django_trace_probe": {
+    "elapsed": 15.014225139000018,
+    "result": {
+      "exitCode": 124,
+      "stdout": "",
+      "stderr": "....................................................................................................................Timeout (0:00:05)!\nThread 0x00007fd1effff6c0 (most recent call first):\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/selectors.py\", line 468 in select\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py\", line 1961 in _run_once\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py\", line 645 in run_forever\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py\", line 678 in run_until_complete\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py\", line 118 in run\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py\", line 195 in run\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/concurrent/futures/thread.py\", line 59 in run\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/concurrent/futures/thread.py\", line 93 in _worker\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py\", line 1012 in run\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py\", line 1075 in _bootstrap_inner\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py\", line 1032 in _bootstrap\n\nThread 0x00007fd1f68db740 (most recent call first):\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py\", line 355 in wait\n  File \"<workspace>/.venv/lib/python3.12/site-packages/asgiref/current_thread_executor.py\", line 80 in run_until_future\n  File \"<workspace>/.venv/lib/python3.12/site-packages/asgiref/sync.py\", line 323 in __call__\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/case.py\", line 589 in _callTestMethod\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/case.py\", line 634 in run\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/case.py\", line 690 in __call__\n  File \"<workspace>/work/django/django/test/testcases.py\", line 376 in _setup_and_call\n  File \"<workspace>/work/django/django/test/testcases.py\", line 321 in __call__\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/suite.py\", line 122 in run\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/suite.py\", line 84 in __call__\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/runner.py\", line 240 in run\n  File \"<workspace>/work/django/django/test/runner.py\", line 1014 in run_suite\n  File \"<workspace>/work/django/django/test/runner.py\", line 1087 in run_tests\n  File \"<workspace>/work/django/tests/runtests.py\", line 412 in django_tests\n  File \"<workspace>/work/django/tests/runtests.py\", line 785 in <module>\n  File \"<frozen runpy>\", line 88 in _run_code\n  File \"<frozen runpy>\", line 98 in _run_module_code\n  File \"<frozen runpy>\", line 287 in run_path\n  File \"<workspace>/work/django-live-9/check.py\", line 10 in <module>\n  File \"<frozen runpy>\", line 88 in _run_code\n  File \"<frozen runpy>\", line 98 in _run_module_code\n  File \"<frozen runpy>\", line 287 in run_path\n  File \"<string>\", line 1 in <module>\n"
+    }
+  },
+  "interpretation": "An observed async/thread bridge limitation in this managed sandbox. No assertion about the exact blocked syscall or all Codex sandboxes. Host-side independent checks passed."
+}

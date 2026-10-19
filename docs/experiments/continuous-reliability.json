@@ -1,0 +1,627 @@
+{
+  "date": "2026-10-19",
+  "implementation_commits": [
+    "bc3a338",
+    "e726799"
+  ],
+  "protocol": {
+    "date": "2026-10-19",
+    "prior_testing_estimate_and_reserve_usd": 8.92636375,
+    "cumulative_budget_usd": 25,
+    "reserved_future_campaign_usd": 3,
+    "planned_runs": [
+      {
+        "case": "django",
+        "repeat": 1,
+        "fault": null
+      },
+      {
+        "case": "flask",
+        "repeat": 1,
+        "fault": null
+      },
+      {
+        "case": "jinja",
+        "repeat": 1,
+        "fault": null
+      },
+      {
+        "case": "django",
+        "repeat": 2,
+        "fault": null
+      },
+      {
+        "case": "flask",
+        "repeat": 2,
+        "fault": "lost_completion"
+      },
+      {
+        "case": "jinja",
+        "repeat": 2,
+        "fault": "lost_completion"
+      }
+    ],
+    "acceptance": {
+      "completed_runs": 6,
+      "all_mandatory_checks": true,
+      "false_completions": 0,
+      "process_restart_each_run": true,
+      "lost_completion_recovery_runs": 2,
+      "no_replayed_implementation_on_recovery": true
+    },
+    "performance_targets": {
+      "median_wall_seconds_below": 180,
+      "each_wall_seconds_below": 300
+    },
+    "per_run_observed_cost_stop_usd": 1.75,
+    "cumulative_observed_stop_including_prior_usd": 23.5,
+    "limitations": [
+      "Seeded regressions with observed failing tests and source paths, not newly discovered upstream defects.",
+      "A process restart occurs after accepted research, before coding.",
+      "Lost completion is injected after a real native worker completes, before the manager receives its result; this is controlled delivery loss, not a random network fault.",
+      "No completed multi-day uptime or single-agent-superiority claim."
+    ],
+    "confirmation_runs": [
+      {
+        "case": "django",
+        "repeat": 3,
+        "fault": null
+      },
+      {
+        "case": "flask",
+        "repeat": 3,
+        "fault": null
+      },
+      {
+        "case": "flask",
+        "repeat": 4,
+        "fault": null
+      }
+    ],
+    "confirmation_reason": "Repeat the two early successes after the final research decomposition fix, aiming for six confirmations on the final implementation. The cumulative cost stop still applies.",
+    "inflight_headroom_usd": 1.5,
+    "confirmation_budget_note": "After a $22.50 conservative stop interrupted Flask 3, verify its retained patch without inference and run one final fresh confirmation. Its observed stop is $23.50 including the full future $3 campaign cap, retaining $1.50 in-flight headroom. No further paid repair runs follow.",
+    "observed_stop_history_usd": [
+      22,
+      22.5,
+      23.5
+    ]
+  },
+  "unit_tests": {
+    "passed": 145,
+    "skipped": 1
+  },
+  "all_trials": [
+    {
+      "name": "django-1a",
+      "case": "django",
+      "status": "paused",
+      "seconds": 245.40473318099976,
+      "cost_usd": 1.59043,
+      "tracked_files": 6929,
+      "revision": "cae7247962de54a94023d28d84f05fc9842e9646",
+      "candidate": null,
+      "process_restart": true,
+      "lost_completion": false,
+      "reconciled": false,
+      "implementation_attempts": 0,
+      "native_threads": 0,
+      "all_checks_passed": false,
+      "audit_passed": false,
+      "max_sdk_input": 34276,
+      "stopped_for_budget": false,
+      "raw": "reliability-trials/django-1a.json"
+    },
+    {
+      "name": "django-1b",
+      "case": "django",
+      "status": "completed",
+      "seconds": 94.70579504966736,
+      "cost_usd": 0.72765475,
+      "tracked_files": 6929,
+      "revision": "cae7247962de54a94023d28d84f05fc9842e9646",
+      "candidate": "59e36e2c4b98921530a76e8aa9540907e05ae9bf",
+      "process_restart": true,
+      "lost_completion": false,
+      "reconciled": false,
+      "implementation_attempts": 1,
+      "native_threads": 1,
+      "all_checks_passed": true,
+      "audit_passed": true,
+      "max_sdk_input": 19629,
+      "stopped_for_budget": false,
+      "raw": "reliability-trials/django-1b.json"
+    },
+    {
+      "name": "django-2",
+      "case": "django",
+      "status": "completed",
+      "seconds": 53.011287450790405,
+      "cost_usd": 0.36947625,
+      "tracked_files": 6929,
+      "revision": "cae7247962de54a94023d28d84f05fc9842e9646",
+      "candidate": "1516e714e93e302e559bc3163795a4fbe582adc8",
+      "process_restart": true,
+      "lost_completion": false,
+      "reconciled": false,
+      "implementation_attempts": 1,
+      "native_threads": 1,
+      "all_checks_passed": true,
+      "audit_passed": true,
+      "max_sdk_input": 10000,
+      "stopped_for_budget": false,
+      "raw": "reliability-trials/django-2.json"
+    },
+    {
+      "name": "django-3",
+      "case": "django",
+      "status": "completed",
+      "seconds": 123.26422500610352,
+      "cost_usd": 0.547746,
+      "tracked_files": 6929,
+      "revision": "cae7247962de54a94023d28d84f05fc9842e9646",
+      "candidate": "f7fc789ef5028c0bed3b313b59aac5d143769d9a",
+      "process_restart": true,
+      "lost_completion": false,
+      "reconciled": false,
+      "implementation_attempts": 1,
+      "native_threads": 1,
+      "all_checks_passed": true,
+      "audit_passed": true,
+      "max_sdk_input": 9997,
+      "stopped_for_budget": false,
+      "raw": "reliability-trials/django-3.json"
+    },
+    {
+      "name": "flask-1",
+      "case": "flask",
+      "status": "completed",
+      "seconds": 102.49130892753601,
+      "cost_usd": 0.975898,
+      "tracked_files": 234,
+      "revision": "2c1b30d0503cfb064f1cb252e6614a06915a362a",
+      "candidate": "f613e262d16a2271aa973748fb4c43c6dafad404",
+      "process_restart": true,
+      "lost_completion": false,
+      "reconciled": false,
+      "implementation_attempts": 1,
+      "native_threads": 1,
+      "all_checks_passed": true,
+      "audit_passed": true,
+      "max_sdk_input": 19484,
+      "stopped_for_budget": false,
+      "raw": "reliability-trials/flask-1.json"
+    },
+    {
+      "name": "flask-2",
+      "case": "flask",
+      "status": "completed",
+      "seconds": 69.1939344406128,
+      "cost_usd": 0.69908875,
+      "tracked_files": 234,
+      "revision": "2c1b30d0503cfb064f1cb252e6614a06915a362a",
+      "candidate": "ef92eed5d94f79a905ab1aee0c8cd12352d728f3",
+      "process_restart": true,
+      "lost_completion": true,
+      "reconciled": true,
+      "implementation_attempts": 1,
+      "native_threads": 1,
+      "all_checks_passed": true,
+      "audit_passed": true,
+      "max_sdk_input": 8320,
+      "stopped_for_budget": false,
+      "raw": "reliability-trials/flask-2.json"
+    },
+    {
+      "name": "flask-3",
+      "case": "flask",
+      "status": "active",
+      "seconds": 86.31124567985535,
+      "cost_usd": 0.93059375,
+      "tracked_files": 234,
+      "revision": "2c1b30d0503cfb064f1cb252e6614a06915a362a",
+      "candidate": null,
+      "process_restart": true,
+      "lost_completion": false,
+      "reconciled": false,
+      "implementation_attempts": 1,
+      "native_threads": 1,
+      "all_checks_passed": false,
+      "audit_passed": false,
+      "max_sdk_input": 13196,
+      "stopped_for_budget": true,
+      "raw": "reliability-trials/flask-3.json"
+    },
+    {
+      "name": "flask-4",
+      "case": "flask",
+      "status": "completed",
+      "seconds": 99.81771540641785,
+      "cost_usd": 0.91644825,
+      "tracked_files": 234,
+      "revision": "2c1b30d0503cfb064f1cb252e6614a06915a362a",
+      "candidate": "d2f4f506e9ccd26b2bb10e5509d5ebd6e441c8eb",
+      "process_restart": true,
+      "lost_completion": false,
+      "reconciled": false,
+      "implementation_attempts": 1,
+      "native_threads": 1,
+      "all_checks_passed": true,
+      "audit_passed": true,
+      "max_sdk_input": 16199,
+      "stopped_for_budget": false,
+      "raw": "reliability-trials/flask-4.json"
+    },
+    {
+      "name": "jinja-1",
+      "case": "jinja",
+      "status": "paused",
+      "seconds": 48.53191924095154,
+      "cost_usd": 0.2701175,
+      "tracked_files": 117,
+      "revision": "15206881c006c79667fe5154fe80c01c65410679",
+      "candidate": null,
+      "process_restart": false,
+      "lost_completion": false,
+      "reconciled": false,
+      "implementation_attempts": 0,
+      "native_threads": 0,
+      "all_checks_passed": false,
+      "audit_passed": false,
+      "max_sdk_input": 10968,
+      "stopped_for_budget": false,
+      "raw": "reliability-trials/jinja-1.json"
+    },
+    {
+      "name": "jinja-1b",
+      "case": "jinja",
+      "status": "paused",
+      "seconds": 200.09937405586243,
+      "cost_usd": 1.26047,
+      "tracked_files": 117,
+      "revision": "15206881c006c79667fe5154fe80c01c65410679",
+      "candidate": null,
+      "process_restart": false,
+      "lost_completion": false,
+      "reconciled": false,
+      "implementation_attempts": 0,
+      "native_threads": 0,
+      "all_checks_passed": false,
+      "audit_passed": false,
+      "max_sdk_input": 32697,
+      "stopped_for_budget": false,
+      "raw": "reliability-trials/jinja-1b.json"
+    },
+    {
+      "name": "jinja-1c",
+      "case": "jinja",
+      "status": "active",
+      "seconds": 206.28864669799805,
+      "cost_usd": 1.7576175,
+      "tracked_files": 117,
+      "revision": "15206881c006c79667fe5154fe80c01c65410679",
+      "candidate": null,
+      "process_restart": false,
+      "lost_completion": false,
+      "reconciled": false,
+      "implementation_attempts": 0,
+      "native_threads": 0,
+      "all_checks_passed": false,
+      "audit_passed": false,
+      "max_sdk_input": 30187,
+      "stopped_for_budget": true,
+      "raw": "reliability-trials/jinja-1c.json"
+    },
+    {
+      "name": "jinja-1d",
+      "case": "jinja",
+      "status": "completed",
+      "seconds": 95.61153173446655,
+      "cost_usd": 0.895309,
+      "tracked_files": 117,
+      "revision": "15206881c006c79667fe5154fe80c01c65410679",
+      "candidate": "04b2e6396b065a9fbb47225a5bbe2fb27d75650a",
+      "process_restart": true,
+      "lost_completion": false,
+      "reconciled": false,
+      "implementation_attempts": 1,
+      "native_threads": 1,
+      "all_checks_passed": true,
+      "audit_passed": true,
+      "max_sdk_input": 10329,
+      "stopped_for_budget": false,
+      "raw": "reliability-trials/jinja-1d.json"
+    },
+    {
+      "name": "jinja-2",
+      "case": "jinja",
+      "status": "completed",
+      "seconds": 65.06403136253357,
+      "cost_usd": 0.56226075,
+      "tracked_files": 117,
+      "revision": "15206881c006c79667fe5154fe80c01c65410679",
+      "candidate": "88b8b51412ee2fc047e294a4597edcb16b30ce97",
+      "process_restart": true,
+      "lost_completion": true,
+      "reconciled": true,
+      "implementation_attempts": 1,
+      "native_threads": 1,
+      "all_checks_passed": true,
+      "audit_passed": true,
+      "max_sdk_input": 8565,
+      "stopped_for_budget": false,
+      "raw": "reliability-trials/jinja-2.json"
+    }
+  ],
+  "completed_trials": 8,
+  "failed_trials": 5,
+  "final_revision_confirmation_names": [
+    "jinja-1d",
+    "django-2",
+    "flask-2",
+    "jinja-2",
+    "django-3",
+    "flask-4"
+  ],
+  "final_revision_observed": [
+    {
+      "name": "django-2",
+      "case": "django",
+      "status": "completed",
+      "seconds": 53.011287450790405,
+      "cost_usd": 0.36947625,
+      "tracked_files": 6929,
+      "revision": "cae7247962de54a94023d28d84f05fc9842e9646",
+      "candidate": "1516e714e93e302e559bc3163795a4fbe582adc8",
+      "process_restart": true,
+      "lost_completion": false,
+      "reconciled": false,
+      "implementation_attempts": 1,
+      "native_threads": 1,
+      "all_checks_passed": true,
+      "audit_passed": true,
+      "max_sdk_input": 10000,
+      "stopped_for_budget": false,
+      "raw": "reliability-trials/django-2.json"
+    },
+    {
+      "name": "django-3",
+      "case": "django",
+      "status": "completed",
+      "seconds": 123.26422500610352,
+      "cost_usd": 0.547746,
+      "tracked_files": 6929,
+      "revision": "cae7247962de54a94023d28d84f05fc9842e9646",
+      "candidate": "f7fc789ef5028c0bed3b313b59aac5d143769d9a",
+      "process_restart": true,
+      "lost_completion": false,
+      "reconciled": false,
+      "implementation_attempts": 1,
+      "native_threads": 1,
+      "all_checks_passed": true,
+      "audit_passed": true,
+      "max_sdk_input": 9997,
+      "stopped_for_budget": false,
+      "raw": "reliability-trials/django-3.json"
+    },
+    {
+      "name": "flask-2",
+      "case": "flask",
+      "status": "completed",
+      "seconds": 69.1939344406128,
+      "cost_usd": 0.69908875,
+      "tracked_files": 234,
+      "revision": "2c1b30d0503cfb064f1cb252e6614a06915a362a",
+      "candidate": "ef92eed5d94f79a905ab1aee0c8cd12352d728f3",
+      "process_restart": true,
+      "lost_completion": true,
+      "reconciled": true,
+      "implementation_attempts": 1,
+      "native_threads": 1,
+      "all_checks_passed": true,
+      "audit_passed": true,
+      "max_sdk_input": 8320,
+      "stopped_for_budget": false,
+      "raw": "reliability-trials/flask-2.json"
+    },
+    {
+      "name": "flask-4",
+      "case": "flask",
+      "status": "completed",
+      "seconds": 99.81771540641785,
+      "cost_usd": 0.91644825,
+      "tracked_files": 234,
+      "revision": "2c1b30d0503cfb064f1cb252e6614a06915a362a",
+      "candidate": "d2f4f506e9ccd26b2bb10e5509d5ebd6e441c8eb",
+      "process_restart": true,
+      "lost_completion": false,
+      "reconciled": false,
+      "implementation_attempts": 1,
+      "native_threads": 1,
+      "all_checks_passed": true,
+      "audit_passed": true,
+      "max_sdk_input": 16199,
+      "stopped_for_budget": false,
+      "raw": "reliability-trials/flask-4.json"
+    },
+    {
+      "name": "jinja-1d",
+      "case": "jinja",
+      "status": "completed",
+      "seconds": 95.61153173446655,
+      "cost_usd": 0.895309,
+      "tracked_files": 117,
+      "revision": "15206881c006c79667fe5154fe80c01c65410679",
+      "candidate": "04b2e6396b065a9fbb47225a5bbe2fb27d75650a",
+      "process_restart": true,
+      "lost_completion": false,
+      "reconciled": false,
+      "implementation_attempts": 1,
+      "native_threads": 1,
+      "all_checks_passed": true,
+      "audit_passed": true,
+      "max_sdk_input": 10329,
+      "stopped_for_budget": false,
+      "raw": "reliability-trials/jinja-1d.json"
+    },
+    {
+      "name": "jinja-2",
+      "case": "jinja",
+      "status": "completed",
+      "seconds": 65.06403136253357,
+      "cost_usd": 0.56226075,
+      "tracked_files": 117,
+      "revision": "15206881c006c79667fe5154fe80c01c65410679",
+      "candidate": "88b8b51412ee2fc047e294a4597edcb16b30ce97",
+      "process_restart": true,
+      "lost_completion": true,
+      "reconciled": true,
+      "implementation_attempts": 1,
+      "native_threads": 1,
+      "all_checks_passed": true,
+      "audit_passed": true,
+      "max_sdk_input": 8565,
+      "stopped_for_budget": false,
+      "raw": "reliability-trials/jinja-2.json"
+    }
+  ],
+  "final_acceptance_met": true,
+  "final_median_seconds": 82.40273308753967,
+  "final_max_seconds": 123.26422500610352,
+  "median_success_seconds": 95.15866339206696,
+  "budget": {
+    "prior_estimate_and_unmetered_reserve_usd": 8.92636375,
+    "new_recorded_trials_estimate_usd": 11.5031105,
+    "reserved_full_continuous_campaign_cap_usd": 3,
+    "total_estimate_and_committed_caps_usd": 23.42947425,
+    "unallocated_headroom_usd": 1.5705257500000016,
+    "ceiling_usd": 25,
+    "note": "Token-rate estimates, no cache discount for repair trials; includes $2 prior unmetered reserve. The full future $3 campaign cap is counted, not just spending so far."
+  },
+  "continuous_campaign": {
+    "snapshot_at": "2026-10-19T04:27:18.895953+00:00",
+    "goal": "d6ff9fc07c5b43dfa393717396605eb3",
+    "state": "running",
+    "started_at": "2026-10-19T04:07:47.792601+00:00",
+    "deadline": "2026-10-22T04:07:47.792601+00:00",
+    "elapsed_hours": 0.3253064919842614,
+    "days_elapsed_claim": false,
+    "watcher_pid": 5527,
+    "spending": {
+      "goal_id": "d6ff9fc07c5b43dfa393717396605eb3",
+      "limit_nanos": 3000000000,
+      "spent_nanos": 881547500,
+      "reserved_nanos": 0,
+      "model": "gpt-5.4",
+      "limit_usd": 3.0,
+      "spent_usd": 0.8815475,
+      "reserved_usd": 0.0,
+      "available_usd": 2.1184525,
+      "price_source": "https://developers.openai.com/api/docs/models/gpt-5.4"
+    },
+    "cadence": {
+      "goal_id": "d6ff9fc07c5b43dfa393717396605eb3",
+      "review_seconds": 60,
+      "wake_at": 1792422426.6374006,
+      "cycle": 0,
+      "strategy": 0,
+      "failure_streak": 0,
+      "last_milestone_hypotheses": 0,
+      "last_review_decision": 0,
+      "reason": "Pace the remaining dollar budget across the saved campaign horizon"
+    },
+    "decisions_spent": 3,
+    "frontier": {
+      "goal_id": "d6ff9fc07c5b43dfa393717396605eb3",
+      "head": "cae7247962de54a94023d28d84f05fc9842e9646",
+      "complete": 1,
+      "skipped": 1386,
+      "files": 5543,
+      "by_kind": {
+        "code": 2936,
+        "document": 2604,
+        "logs": 2,
+        "metrics": 1
+      },
+      "by_origin": {
+        "git": 5543
+      },
+      "observed_files": 10,
+      "basis": "Git-tracked UTF-8 files and explicitly registered local exports <=32 MiB; binaries, unavailable files and oversized files counted as skipped. Excerpts do not establish full coverage."
+    },
+    "quality": {
+      "required": {
+        "sources": 20,
+        "branches": 4,
+        "hypotheses": 6,
+        "mechanisms": 2
+      },
+      "actual": {
+        "sources": 10,
+        "branches": 9,
+        "hypotheses": 2,
+        "mechanisms": 5
+      },
+      "met": false,
+      "note": "Minimum breadth and evidence gates, not proof of exhaustive coverage or production impact."
+    },
+    "owner_crash_recovery": {
+      "at": 1792383126.4772446,
+      "owner": {
+        "pid": 6244,
+        "restart": 5
+      },
+      "checks": {
+        "different_live_owner": true,
+        "deadline_preserved": true,
+        "decisions_preserved": true,
+        "spending_preserved": true,
+        "cadence_preserved": true,
+        "role_runs_preserved": true
+      },
+      "state": "running"
+    },
+    "research_outcomes": [
+      {
+        "stage": "discovery",
+        "status": "discovered",
+        "attempts": 1
+      },
+      {
+        "stage": "research",
+        "status": "supported",
+        "attempts": 1
+      },
+      {
+        "stage": "research",
+        "status": "supported",
+        "attempts": 1
+      }
+    ],
+    "limitations": [
+      "Read-only recurring investigation; no automatic arbitrary code edits.",
+      "Watcher must stay alive on this host; no installed reboot service.",
+      "72 hours have not elapsed.",
+      "Scheduled dollar pacing permits idle periods."
+    ]
+  },
+  "post_stop_offline_verification": {
+    "trial": "flask-3",
+    "goal_status": "completed",
+    "seconds": 2.0786688327789307,
+    "additional_model_calls": 0,
+    "excluded_from_fresh_confirmation_count": true
+  },
+  "zero_model_cost_setup_failures": [
+    "Initial fixture preparation dereferenced the virtualenv Python symlink; fixed before paid work.",
+    "Flask clean baseline required Werkzeug 3.1.3, matching the pinned Flask release; no test edits.",
+    "First watcher launch lacked python -m omnitrix entry point; fixed and covered by an actual CLI subprocess test."
+  ],
+  "limitations": [
+    "Seeded repairs with known contract/source leads; not newly discovered upstream defects.",
+    "Iterative diagnostic outcomes are not a controlled performance comparison.",
+    "Six confirmations are not a statistical production reliability guarantee.",
+    "Lost completion is injected after a real native worker finishes; it is not a random provider outage.",
+    "No multi-day uptime result yet."
+  ]
+}
