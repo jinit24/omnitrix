@@ -37,3 +37,14 @@ It is not a verified causal conclusion or an implementation recommendation.
 PASS requires a traceable scoped map and actionable next question, or an evidenced
 explanation that no useful opportunity was found. Missing access remains explicit.
 Do not fill an empty backlog with invented work or claim exhaustive system coverage.
+
+When the objective spans a system, compare independent candidate bottlenecks and
+map their dependencies before narrowing. Include code and runtime evidence where
+available; a loud error stream or suspicious loop alone is not measured impact.
+Use search_source to locate relevant events beyond the first excerpt, and
+summarize_csv to compare aggregate numeric costs by subsystem or operation. Read
+headers and measurement-window context. Every tool page is bounded: follow
+next_line/summary.next_row if needed, or explicitly mark the unseen remainder as a
+gap. Partial totals are not whole-workload totals. Keep promising low-confidence
+branches in the backlog with the measurement needed to test them. State both the
+next exploitation test and the next useful unexplored branch.

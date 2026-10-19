@@ -65,8 +65,9 @@ class Control:
 
     def session(self, goal_id):
         # SDK sessions keep manager-only conversation separate from worker transcripts.
+        campaign = self.db.execute('SELECT 1 FROM campaigns WHERE goal_id=?',(goal_id,)).fetchone()
         return SQLiteSession(f'manager:{goal_id}', str(self.store.path) + '.sessions.db',
-                             session_settings={'limit': 12})
+                             session_settings={'limit': 4 if campaign else 12})
 
     def message(self, goal_id, kind, body, task_id=None, direction='user_to_manager', message_id=None,
                 runtime_id=None, state='pending'):

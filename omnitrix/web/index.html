@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#f7f8fa" />
+    <title>Omnitrix · Mission control</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script defer src="/app.js"></script>
+  </head>
+  <body>
+    <aside class="sidebar">
+      <a class="brand" href="/" aria-label="Omnitrix home"
+        ><span class="brandmark">o<span></span></span>omnitrix<span
+          class="brand-dot"
+          >.</span
+        ></a
+      >
+      <div class="workspace">
+        <span class="workspace-icon">O</span>
+        <div>Engineering workspace<small>Local environment</small></div>
+        <span class="chevrons">⌃<br />⌄</span>
+      </div>
+      <div class="nav-label">WORKSPACE</div>
+      <nav aria-label="Main navigation">
+        <button class="nav" data-view="chat"><span>◌</span>Manager chat</button>
+        <button class="nav active" data-view="overview">
+          <span>◫</span>Overview</button
+        ><button class="nav" data-view="tasks">
+          <span>☷</span>Tasks<span class="count" id="nav-count"
+            >0</span
+          ></button
+        ><button class="nav" data-view="hierarchy">
+          <span>⌘</span>Agent hierarchy</button
+        ><button class="nav" data-view="knowledge">
+          <span>▤</span>Knowledge</button
+        ><button class="nav" data-view="activity">
+          <span>◷</span>Activity & decisions</button
+        ><a class="nav" href="/docs/"><span>▧</span>Documentation</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="readonly">
+          <span>◈</span>
+          <div>
+            <span id="mode-title">Observe mode</span
+            ><small id="mode-description">This workspace is read-only</small>
+          </div>
+        </div>
+        <div class="profile">
+          <span class="avatar">E</span>
+          <div>Engineering team<small>Local workspace</small></div>
+          <span class="profile-dot"></span>
+        </div>
+      </div>
+    </aside>
+    <div class="shell">
+      <header>
+        <div class="breadcrumb">
+          Workspace <span>/</span> <strong id="breadcrumb">Overview</strong>
+        </div>
+        <div class="header-right">
+          <button class="connect-button" id="connect-open">
+            Connect manager
+          </button>
+          <span class="connection" id="connection">Connecting</span
+          ><button
+            class="icon-button"
+            id="refresh"
+            aria-label="Refresh dashboard"
+            title="Refresh dashboard"
+          >
+            ↻</button
+          ><span class="header-avatar">E</span>
+        </div>
+      </header>
+      <main>
+        <div class="page-heading">
+          <div class="eyebrow">ENGINEERING WORKSPACE</div>
+          <div class="title-row">
+            <h1 id="page-title">Mission control</h1>
+            <span class="read-badge">◈ &nbsp; Read-only</span>
+          </div>
+          <p id="page-description">
+            A clear view of what your manager is doing, and why.
+          </p>
+          <div class="toolbar">
+            <label class="goal-picker"
+              >Goal
+              <select id="goal-select" aria-label="Select goal">
+                <option>No goals yet</option>
+              </select></label
+            ><span id="updated">Waiting for state</span>
+          </div>
+        </div>
+        <div id="notice" role="status" hidden></div>
+        <section
+          id="metrics"
+          class="metrics"
+          aria-label="Goal metrics"
+        ></section>
+        <div class="section-heading">
+          <div class="tabs" role="group" aria-label="Overview sections">
+            <button class="tab active" data-view="overview">Overview</button
+            ><button class="tab" data-view="tasks">All tasks</button
+            ><button class="tab" data-view="activity">Recent activity</button>
+          </div>
+          <span class="auto-refresh"><span></span> Refreshes every 5s</span>
+        </div>
+        <div id="content" aria-live="polite"></div>
+        <footer>
+          <span class="footer-mark">◈</span>
+          <span id="workspace-mode">Read-only workspace</span
+          ><span id="source-note">SQLite · Local state</span>
+        </footer>
+      </main>
+    </div>
+    <div class="drawer-backdrop" id="drawer-backdrop" hidden></div>
+    <aside
+      class="drawer"
+      id="drawer"
+      aria-label="Record details"
+      aria-modal="true"
+      role="dialog"
+      hidden
+    >
+      <button class="close-drawer icon-button" aria-label="Close details">
+        ×
+      </button>
+      <div class="eyebrow">INSPECT RECORD</div>
+      <h2 id="drawer-title"></h2>
+      <p class="muted">Persisted state · read-only</p>
+      <div id="drawer-body"></div>
+    </aside>
+    <dialog id="connect-dialog">
+      <form id="connect-form" class="connect-form">
+        <h2>Connect to your manager</h2>
+        <p>Use your running dashboard backend. Credentials stay in this tab.</p>
+        <label
+          >Backend URL<input
+            id="backend-url"
+            type="url"
+            placeholder="https://manager.example.com/"
+            required
+        /></label>
+        <label
+          >Dashboard token<input
+            id="backend-token"
+            type="password"
+            autocomplete="off"
+            required
+        /></label>
+        <p id="connect-error" role="status"></p>
+        <div class="connect-actions">
+          <button type="button" id="connect-close">Cancel</button
+          ><button type="button" id="disconnect">Disconnect</button
+          ><button type="submit">Connect</button>
+        </div>
+      </form>
+    </dialog>
+  </body>
+</html>

@@ -4,6 +4,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 ROLE_FILES = {
+    'campaign': ('CAMPAIGN', 'BRAIN', 'KNOWLEDGE'),
     'manager': ('MANAGER', 'BRAIN', 'KNOWLEDGE'),
     'chat': ('CHAT', 'BRAIN', 'KNOWLEDGE'),
     'discovery': ('DISCOVERY',),

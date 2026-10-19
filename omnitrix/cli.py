@@ -32,11 +32,25 @@ def main():
     run.add_argument('goal_id')
     run.add_argument('--steps',type=int,default=20)
     run.add_argument('--hours',type=float,default=1)
+    campaign = commands.add_parser('campaign', help='Start/resume a durable, dollar-capped read-only investigation')
+    campaign.add_argument('goal_id')
+    campaign.add_argument('--days', type=float)
+    campaign.add_argument('--decisions', type=int)
+    campaign.add_argument('--research-runs', type=int)
+    campaign.add_argument('--dollars', type=float)
+    campaign.add_argument('--report', type=Path)
+    campaign.add_argument('--prepare-only', action='store_true')
+    campaign.add_argument('--continue-paused', action='store_true')
+    campaign.add_argument('--pause', action='store_true')
+    campaign.add_argument('--evidence', action='append', default=[], metavar='PATH', help='Index an exported UTF-8 log/measurement inside the goal workspace; repeat for multiple files')
     search = commands.add_parser('knowledge')
     search.add_argument('goal_id')
     search.add_argument('query',nargs='?',default='')
     export = commands.add_parser('export')
     export.add_argument('goal_id')
+    report = commands.add_parser('report', help='Write a standalone HTML evidence and decision log')
+    report.add_argument('goal_id')
+    report.add_argument('--output', type=Path, required=True)
     authorize = commands.add_parser('authorize')
     authorize.add_argument('goal_id')
     authorize.add_argument('spec',type=Path)
@@ -48,7 +62,23 @@ def main():
     send.add_argument('--id',help='Stable idempotency key for this message')
     messages=commands.add_parser('messages')
     messages.add_argument('goal_id')
+    dashboard = commands.add_parser('dashboard', help='Read-only manager dashboard')
+    dashboard.add_argument('--host', default='127.0.0.1')
+    dashboard.add_argument('--port', type=int, default=8765)
+    dashboard.add_argument('--allow-control', action='store_true')
+    dashboard.add_argument('--allowed-origin', action='append', default=[])
     args = parser.parse_args()
+    if args.command == 'dashboard':
+        from .dashboard import serve
+        import os
+        token = os.getenv('OMNITRIX_DASHBOARD_TOKEN') if args.allow_control else None
+        if args.allow_control and not token:
+            parser.exit(1, 'Set OMNITRIX_DASHBOARD_TOKEN securely before enabling control\n')
+        try:
+            serve(args.db, args.host, args.port, control_token=token, allowed_origins=args.allowed_origin)
+        except ValueError as exc:
+            parser.exit(1, f'{exc}\n')
+        return
     store = Store(args.db)
     try:
         if args.command == 'create':
@@ -71,6 +101,10 @@ def main():
             print(json.dumps(Knowledge(store).search(store.snapshot(args.goal_id)['goal']['workspace'],args.query),indent=2))
         elif args.command == 'export':
             print(json.dumps(Knowledge(store).export(args.goal_id),indent=2))
+        elif args.command == 'report':
+            from .reporting import goal_report, write_report
+            write_report(goal_report(store, args.goal_id), args.output)
+            print(str(args.output.resolve()))
         elif args.command == 'authorize':
             service = Implementations(store)
             spec = ImplementationSpec.model_validate_json(args.spec.read_text())
@@ -86,6 +120,26 @@ def main():
                 finally:
                     await supervisor.close()
             print(json.dumps(asyncio.run(run_manager()),indent=2))
+        elif args.command == 'campaign':
+            from .campaign import Campaign
+            service = Campaign(store, args.goal_id)
+            if args.pause:
+                if not service.status():
+                    raise ValueError('No campaign exists for this goal')
+                service.stop('paused', 'Operator paused the campaign')
+                print(json.dumps(service.status(),indent=2))
+            else:
+                service.configure(args.days,args.decisions,args.research_runs,args.dollars,args.report)
+                if args.evidence:
+                    from .frontier import Frontier
+                    frontier=Frontier(store,args.goal_id)
+                    frontier.build()
+                    frontier.register(args.evidence)
+                if args.prepare_only:
+                    from .frontier import Frontier
+                    print(json.dumps({'campaign':service.status(),'frontier':Frontier(store,args.goal_id).build()},indent=2))
+                else:
+                    print(json.dumps(asyncio.run(service.drive(continue_paused=args.continue_paused)),indent=2))
         else:
             if not __import__('os').getenv('OPENAI_API_KEY'):
                 raise ValueError('Set OPENAI_API_KEY securely for the manager; authenticate Codex separately')

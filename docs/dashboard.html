@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Mission control · Omnitrix docs</title>
+    <link rel="stylesheet" href="docs.css" />
+    <script defer src="docs.js"></script>
+  </head>
+  <body>
+    <header>
+      <a class="logo" href="/">◈ &nbsp; omnitrix<span> / documentation</span></a
+      ><a class="back" href="/">← Mission control</a>
+    </header>
+    <div class="docs-layout">
+      <aside class="docs-nav">
+        <div class="nav-caption">THE FIELD GUIDE</div>
+        <label class="search-wrap"
+          ><span>⌕</span
+          ><input
+            id="docs-search"
+            type="search"
+            placeholder="Search all guides…"
+            aria-label="Search documentation"
+        /></label>
+        <div id="search-results" hidden role="status"></div>
+        <nav aria-label="Documentation">
+          <a class="" href="index.html"><span>01</span>Get started</a
+          ><a class="" href="architecture.html"><span>02</span>Architecture</a
+          ><a class="selected" href="dashboard.html"
+            ><span>03</span>Mission control</a
+          ><a class="" href="recovery.html"
+            ><span>04</span>Recovery &amp; operations</a
+          ><a class="" href="experiments.html"
+            ><span>05</span>Experiments &amp; results</a
+          ><a class="" href="status.html"
+            ><span>06</span>Status &amp; limitations</a
+          >
+        </nav>
+        <div class="nav-footer">
+          Local HTML. No external services.<br />HTML guides · README is
+          Markdown.
+        </div>
+      </aside>
+      <main>
+        <div class="kicker">FIELD GUIDE / 03</div>
+        <h1 class="page-title">Mission control</h1>
+        <p class="lede">
+          Observe the work without changing it. See what is running, why, and
+          what the evidence says.
+        </p>
+        <figure class="flow" aria-label="A separate observation plane">
+          <figcaption>A separate observation plane</figcaption>
+          <ol>
+            <li>
+              <span class="step-number">01</span><strong>Running manager</strong
+              ><span>Writes committed goals, decisions and progress</span>
+            </li>
+            <li>
+              <span class="step-number">02</span
+              ><strong>Read-only snapshot</strong
+              ><span>SQLite transaction; no ownership or model calls</span>
+            </li>
+            <li>
+              <span class="step-number">03</span><strong>Mission control</strong
+              ><span>Refresh, filter and inspect without mutating work</span>
+            </li>
+          </ol>
+        </figure>
+        <article>
+          <pre><code class="language-sh">omnitrix --db .omnitrix/state.db dashboard
+# Trusted remote access only:
+omnitrix --db /absolute/path/state.db dashboard --host 0.0.0.0 --port 8765
+</code></pre>
+          <p>
+            Default: loopback, port 8765, read-only. Use trusted access
+            or an authenticated proxy. Goals, paths, findings and messages may
+            be sensitive. No API key is required. The manager runs separately.
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>View</th>
+                <th>Contents</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Overview</td>
+                <td>
+                  Objective, criteria, latest decision, budgets and check totals
+                </td>
+              </tr>
+              <tr>
+                <td>Tasks</td>
+                <td>
+                  Search/filter assignments, outcomes and runtime/session
+                  metadata
+                </td>
+              </tr>
+              <tr>
+                <td>Hierarchy</td>
+                <td>
+                  Manager and linked assignments; no invented child agents
+                </td>
+              </tr>
+              <tr>
+                <td>Knowledge</td>
+                <td>
+                  Findings, recorded classifications, citations and
+                  opportunities
+                </td>
+              </tr>
+              <tr>
+                <td>Activity</td>
+                <td>
+                  Decisions, progress, questions, handoffs and delivery states
+                </td>
+              </tr>
+              <tr>
+                <td>Documentation</td>
+                <td>
+                  Searchable HTML guides, diagrams, tables and raw experiment
+                  JSON
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            Click a record for details. Status is persisted state, not a
+            process-liveness probe. Recorded knowledge classification does not
+            guarantee freshness; revalidate before reuse. A passing check is not
+            goal completion. Use CLI chat for steering and authorization.
+          </p>
+          <h2 id="authenticated-control">Authenticated control</h2>
+          <p>Set <code>OMNITRIX_DASHBOARD_TOKEN</code> securely to 32+ random characters, then start:</p>
+          <pre><code>omnitrix --db .omnitrix/state.db dashboard --allow-control \
+  --allowed-origin https://jinit24.github.io
+# Separate owner process; wait for UI commands without initial autonomous decisions:
+omnitrix --db .omnitrix/state.db run GOAL_ID --steps 0 --hours 4</code></pre>
+          <p>Choose <strong>Connect manager</strong>, enter the backend URL and token, then use
+          <strong>Manager chat</strong>. Supports messages, steering, pause/cancel, bounded decisions,
+          reconciliation and policy/requirement proposals. Review and explicitly accept permanent changes.
+          Code authorization remains in the CLI; no deployment or arbitrary database writes are exposed.</p>
+          <p>Commands enter the existing durable inbox. A queued receipt is not success: the manager replies
+          and acknowledges separately. Stable request IDs prevent duplicate sends; stale revisions and
+          cross-goal task references are rejected. If no owner is running, commands remain pending.</p>
+          <p>Enabled control protects state and commands with a bearer token. Browser tokens stay in memory;
+          disconnect or close the tab to clear them. Cross-origin requests require an explicit allowed origin.
+          GitHub Pages needs a reachable HTTPS backend (a trusted TLS proxy in front of this HTTP server).
+          No public backend is provisioned by the static site. Localhost HTTP is supported for local use.</p>
+          <h2 id="github-pages">GitHub Pages</h2>
+          <p>Pages shows recorded experiments until you connect an authenticated backend.
+          Enable <strong>Settings → Pages → GitHub Actions</strong>; the Publish experiment snapshot
+          workflow deploys on changes to main. Build locally with
+          <code>python scripts/build_pages.py</code>. The export omits sessions, local paths and message bodies. No credentials or databases are published.</p>
+          <h2 id="data-boundaries">Data boundaries</h2>
+          <ul>
+            <li>
+              Read-only/query-only SQLite transaction per request; no ownership,
+              schema creation or writes.
+            </li>
+            <li>
+              Five-second visible-page refresh; failures retain the last
+              snapshot and timestamp.
+            </li>
+            <li>
+              Missing DB stays absent. No fake/sample data or model calls.
+            </li>
+            <li>
+              Latest 200 goals and 200 records per category per goal; use CLI
+              export for full history.
+            </li>
+            <li>
+              Read-only by default; opt-in authenticated commands, allowlisted assets, escaped content and
+              local-only Content Security Policy.
+            </li>
+          </ul>
+          <h2 id="rebuild-html-docs">Rebuild HTML docs</h2>
+          <pre><code class="language-sh">pip install -e '.[docs]'
+python scripts/build_docs.py
+python scripts/build_docs.py --check
+</code></pre>
+          <p>
+            HTML ships with the app and needs no external services. Only README
+            remains Markdown. Edit the HTML guides directly; rebuild the bundled
+            site after edits. Machine-consumed role instructions remain
+            Markdown. <code>--check</code> detects generated-page drift.
+          </p>
+        </article>
+        <div class="article-footer">Source: docs/dashboard.html</div>
+      </main>
+      <aside class="outline">
+        <div class="nav-caption">ON THIS PAGE</div>
+        <a class="" href="#data-boundaries">Data boundaries</a
+        ><a class="" href="#rebuild-html-docs">Rebuild HTML docs</a>
+        <div class="outline-note">
+          Need to steer the manager?<br />Use Manager chat with an authenticated backend.
+        </div>
+      </aside>
+    </div>
+  </body>
+</html>

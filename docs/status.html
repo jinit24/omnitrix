@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Status &amp; limitations · Omnitrix docs</title>
+    <link rel="stylesheet" href="docs.css" />
+    <script defer src="docs.js"></script>
+  </head>
+  <body>
+    <header>
+      <a class="logo" href="/">◈ &nbsp; omnitrix<span> / documentation</span></a
+      ><a class="back" href="/">← Mission control</a>
+    </header>
+    <div class="docs-layout">
+      <aside class="docs-nav">
+        <div class="nav-caption">THE FIELD GUIDE</div>
+        <label class="search-wrap"
+          ><span>⌕</span
+          ><input
+            id="docs-search"
+            type="search"
+            placeholder="Search all guides…"
+            aria-label="Search documentation"
+        /></label>
+        <div id="search-results" hidden role="status"></div>
+        <nav aria-label="Documentation">
+          <a class="" href="index.html"><span>01</span>Get started</a
+          ><a class="" href="architecture.html"><span>02</span>Architecture</a
+          ><a class="" href="dashboard.html"><span>03</span>Mission control</a
+          ><a class="" href="recovery.html"
+            ><span>04</span>Recovery &amp; operations</a
+          ><a class="" href="experiments.html"
+            ><span>05</span>Experiments &amp; results</a
+          ><a class="selected" href="status.html"
+            ><span>06</span>Status &amp; limitations</a
+          >
+        </nav>
+        <div class="nav-footer">
+          Local HTML. No external services.<br />HTML guides · README is
+          Markdown.
+        </div>
+      </aside>
+      <main>
+        <div class="kicker">FIELD GUIDE / 06</div>
+        <h1 class="page-title">Status &amp; limitations</h1>
+        <p class="lede">
+          What is implemented, what has been verified, and where the system
+          still falls short.
+        </p>
+        <div class="callout">
+          <strong>Read the evidence boundary.</strong> Deterministic tests, live
+          model experiments and unmeasured production outcomes are reported
+          separately. A verified test is not a universal reliability claim.
+        </div>
+        <article>
+          <h2 id="implemented">Implemented</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Area</th>
+                <th>Behavior</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Manager</td>
+                <td>
+                  Conversational Agents SDK session, durable
+                  objective/criteria/policy and decisions
+                </td>
+              </tr>
+              <tr>
+                <td>Interaction</td>
+                <td>
+                  Nonblocking CLI, durable inbox, explicit instruction
+                  acceptance, native Codex steering/questions
+                </td>
+              </tr>
+              <tr>
+                <td>Research</td>
+                <td>
+                  Bounded discovery → hypothesis → independent evaluation;
+                  shared, revision-aware knowledge
+                </td>
+              </tr>
+              <tr>
+                <td>Implementation</td>
+                <td>
+                  Explicit authorization, isolated Codex worktrees, executable
+                  checks, repairs and final audit
+                </td>
+              </tr>
+              <tr>
+                <td>Reliability</td>
+                <td>
+                  Restart reconciliation, stale-result fences, uncertain
+                  delivery, progress deadlines, durable budgets
+                </td>
+              </tr>
+              <tr>
+                <td>UI</td>
+                <td>
+                  Status/tasks/hierarchy/knowledge/activity with optional authenticated inbox controls;
+                  searchable local HTML docs
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            No deployment, automatic merge, broker or distributed scheduler.
+          </p>
+          <h2 id="evidence">Evidence</h2>
+          <p>Authenticated-control update: <strong>89 tests passed, 1 live test skipped</strong>.
+          Browser checks cover connection, message submission, explicit proposal acceptance and disconnection.</p>
+          <p>UI update: <strong>60 tests passed, 1 live test skipped</strong>.
+          Chromium checks passed for desktop/mobile layout, navigation, task filtering,
+          details, docs search and disconnected-state retention. No browser errors.</p>
+          <p>
+            Before the UI change:
+            <strong>55 deterministic tests passed</strong>;
+            <strong>56 with opt-in live Codex</strong>. Tests use real SQLite,
+            SDK sessions, Git worktrees, test subprocesses, process kills and
+            cross-process messages with mocked model decisions. These are not
+            live recovery rates.
+          </p>
+          <ul>
+            <li>
+              <code>scripts/demo.py</code>: accepted research → authorization →
+              failed check → repair → audit.
+            </li>
+            <li>
+              <code>scripts/faults.py</code>: nine fault scenarios, including
+              stale results, misleading research, process termination, repeated
+              failures and lost acknowledgments.
+            </li>
+            <li>
+              Live: SDK start/resume, native commands, a manager reply in 2.52s
+              during a delayed worker, policy delivery/interruption,
+              conversation/message restoration and turn reconciliation.
+            </li>
+            <li>
+              Live v2: manager completed 2/3 tasks and 4/6 criteria in 176.2s;
+              single Codex completed 3/3 and 6/6 in 59.0s. No false completion
+              claims. <strong>No measured architecture advantage.</strong>
+            </li>
+          </ul>
+          <p>
+            <a href="experiments.html">Experiments</a> separates fixture/model
+            profiles and retained failures. No multi-hour run, statistical
+            superiority, production benefit or new-machine restoration is
+            claimed. Environment publication is separate.
+          </p>
+          <h2 id="known-limits">Known limits</h2>
+          <ul>
+            <li>
+              Single owner, local filesystem, POSIX locks/process groups and
+              source/editable install.
+            </li>
+            <li>
+              Unknown native outcomes can require manual reconciliation; no
+              exactly-once guarantee.
+            </li>
+            <li>
+              Local bounded research exports only; no remote collectors or
+              semantic duplicate detection.
+            </li>
+            <li>
+              Citation integrity does not prove truth; content hashes do not
+              prove metric freshness.
+            </li>
+            <li>
+              Trusted executable oracles determine coverage; verification is not
+              a hostile-code sandbox.
+            </li>
+            <li>
+              Manager over-investigation can block useful work. The retry trial
+              stopped over extra edge-case evidence; its explanation confused
+              evaluator refusal with user authorization.
+            </li>
+            <li>
+              Native APIs are version-sensitive; failed provider calls may omit
+              usage.
+            </li>
+            <li>
+              Dashboard is read-only by default, with opt-in bearer-authenticated inbox control, and bounded to recent
+              state. Status is not liveness; recorded classifications are not
+              live source revalidation.
+            </li>
+          </ul>
+          <h2 id="next-work">Next work</h2>
+          <p>
+            Reduce unnecessary research without weakening evidence gates. Then
+            run repeated multi-hour paired trials with held-out oracles and
+            equal-resolution telemetry. Add semantic retrieval, source adapters
+            or infrastructure only when measurements justify them.
+          </p>
+          <h2 id="api-versions">API versions</h2>
+          <p>
+            Inspected: <code>openai-agents==0.24.0</code>,
+            <code>@openai/codex-sdk==0.163.0</code>, Codex CLI 0.159.2 App
+            Server schemas. Both Codex paths use <code>OPENAI_API_KEY</code>; no
+            key value is persisted. Nested sandbox execution needs the approved
+            route described in <a href="recovery.html">recovery</a>.
+          </p>
+        </article>
+        <div class="article-footer">Source: docs/status.html</div>
+      </main>
+      <aside class="outline">
+        <div class="nav-caption">ON THIS PAGE</div>
+        <a class="" href="#implemented">Implemented</a
+        ><a class="" href="#evidence">Evidence</a
+        ><a class="" href="#known-limits">Known limits</a
+        ><a class="" href="#next-work">Next work</a
+        ><a class="" href="#api-versions">API versions</a>
+        <div class="outline-note">
+          Need to steer the manager?<br />Use Manager chat with an authenticated backend.
+        </div>
+      </aside>
+    </div>
+  </body>
+</html>

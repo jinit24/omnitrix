@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Recovery &amp; operations · Omnitrix docs</title>
+    <link rel="stylesheet" href="docs.css" />
+    <script defer src="docs.js"></script>
+  </head>
+  <body>
+    <header>
+      <a class="logo" href="/">◈ &nbsp; omnitrix<span> / documentation</span></a
+      ><a class="back" href="/">← Mission control</a>
+    </header>
+    <div class="docs-layout">
+      <aside class="docs-nav">
+        <div class="nav-caption">THE FIELD GUIDE</div>
+        <label class="search-wrap"
+          ><span>⌕</span
+          ><input
+            id="docs-search"
+            type="search"
+            placeholder="Search all guides…"
+            aria-label="Search documentation"
+        /></label>
+        <div id="search-results" hidden role="status"></div>
+        <nav aria-label="Documentation">
+          <a class="" href="index.html"><span>01</span>Get started</a
+          ><a class="" href="architecture.html"><span>02</span>Architecture</a
+          ><a class="" href="dashboard.html"><span>03</span>Mission control</a
+          ><a class="selected" href="recovery.html"
+            ><span>04</span>Recovery &amp; operations</a
+          ><a class="" href="experiments.html"
+            ><span>05</span>Experiments &amp; results</a
+          ><a class="" href="status.html"
+            ><span>06</span>Status &amp; limitations</a
+          >
+        </nav>
+        <div class="nav-footer">
+          Local HTML. No external services.<br />HTML guides · README is
+          Markdown.
+        </div>
+      </aside>
+      <main>
+        <div class="kicker">FIELD GUIDE / 04</div>
+        <h1 class="page-title">Recovery &amp; operations</h1>
+        <p class="lede">
+          An unknown outcome is a reconciliation problem. Inspect what happened
+          before retrying.
+        </p>
+        <figure class="flow" aria-label="Recovery: inspect first, then act">
+          <figcaption>Recovery: inspect first, then act</figcaption>
+          <ol>
+            <li>
+              <span class="step-number">01</span
+              ><strong>Interrupt or restart</strong
+              ><span
+                >Keep evidence, budgets, sessions and pending messages</span
+              >
+            </li>
+            <li>
+              <span class="step-number">02</span><strong>Mark uncertain</strong
+              ><span>Do not infer failure from a missing response</span>
+            </li>
+            <li>
+              <span class="step-number">03</span><strong>Reconcile</strong
+              ><span>Inspect native thread, exact turn and Git artifacts</span>
+            </li>
+            <li>
+              <span class="step-number">04</span><strong>Resume safely</strong
+              ><span
+                >Verify completed code or explicitly authorize a bounded
+                retry</span
+              >
+            </li>
+          </ol>
+        </figure>
+        <article>
+          <p>
+            One manager owns each SQLite DB. Other processes may inspect state
+            or queue commands.
+          </p>
+          <pre><code class="language-sh">omnitrix run GOAL_ID --steps 50 --hours 4
+omnitrix status GOAL_ID
+omnitrix messages GOAL_ID
+omnitrix send GOAL_ID 'What are you working on?' --id unique-id
+</code></pre>
+          <h2 id="preserve-state">Preserve state</h2>
+          <p>
+            Back up the WAL-consistent DB, adjacent <code>.sessions.db</code>,
+            instructions, Codex home, repositories/Git metadata, worktrees and
+            artifacts together. Use SQLite backup or stop writes before copying.
+            Copying only the main DB during WAL writes is unsafe. Preserve paths
+            or repair linked worktrees after relocation. Credentials and
+            processes must be reestablished; filesystem restoration does not
+            restore them.
+          </p>
+          <h2 id="reconcile-before-retrying">Reconcile before retrying</h2>
+          <p>
+            Normal shutdown interrupts work and retains paused/uncertain state.
+            SIGKILL cannot clean up. Restart marks running work and in-flight
+            sends uncertain; budgets and evidence survive. Ownership uses an OS
+            lock, not a stale PID.
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Situation</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Unknown worker outcome</td>
+                <td>
+                  <code>/reconcile TASK_ID</code>; inspect exact native
+                  thread/turn
+                </td>
+              </tr>
+              <tr>
+                <td>Completed code, lost response</td>
+                <td>Verify the retained candidate without coding again</td>
+              </tr>
+              <tr>
+                <td>Known interrupted/failed turn</td>
+                <td>Authorize a bounded repair after reconciliation</td>
+              </tr>
+              <tr>
+                <td>Missing native history</td>
+                <td>Inspect artifacts manually; do not blindly replace work</td>
+              </tr>
+              <tr>
+                <td>Lost delivery acknowledgment</td>
+                <td>
+                  <code>/resolve MESSAGE_ID delivered EVIDENCE</code> or
+                  <code>not_delivered EVIDENCE</code>
+                </td>
+              </tr>
+              <tr>
+                <td>Old question after reconnect</td>
+                <td>
+                  Resume with the actual answer; never reuse an old numeric RPC
+                  ID
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            A missing response does not prove an action failed.
+            <code>not_delivered</code> permits a later explicit resend; it does
+            not resend automatically. Native answers remain
+            <code>sent_no_ack</code>. Exactly-once execution is not promised.
+            SDK research restarts bounded attempts with prior knowledge; pause
+            is interrupt/resume, not an OS freeze.
+          </p>
+          <h2 id="changes-and-stalls">Changes and stalls</h2>
+          <p>
+            Explicitly accepted policy/goal changes fence affected tasks and
+            revoke code authorizations. Keep original mandatory criteria;
+            reauthorize and verify current requirements. Unaffected work and
+            historical evidence remain.
+          </p>
+          <p>
+            Distinct observations, command/file outcomes and verification
+            artifacts count as progress. Tokens, repeated identical events and
+            process activity do not reset timers. Waiting does not poll models,
+            but wall deadlines still apply. Research/repair budgets persist;
+            exhaustion escalates. Inspect activity, messages, research
+            runs/queries, external actions and audits.
+          </p>
+          <h2 id="nested-sandbox-limitation">Nested sandbox limitation</h2>
+          <p>
+            Codex requires its real owner-only
+            <code>/tmp/codex-daemon-&lt;uid&gt;</code> directory. An outer
+            sandbox may mask it with mode 000, preventing nested commands. Use
+            the environment-approved route outside that outer sandbox while
+            retaining Codex's own sandbox. Never disable sandboxing or weaken
+            the reserved directory. Recorded live runs required that route.
+          </p>
+        </article>
+        <div class="article-footer">Source: docs/recovery.html</div>
+      </main>
+      <aside class="outline">
+        <div class="nav-caption">ON THIS PAGE</div>
+        <a class="" href="#preserve-state">Preserve state</a
+        ><a class="" href="#reconcile-before-retrying"
+          >Reconcile before retrying</a
+        ><a class="" href="#changes-and-stalls">Changes and stalls</a
+        ><a class="" href="#nested-sandbox-limitation"
+          >Nested sandbox limitation</a
+        >
+        <div class="outline-note">
+          Need to steer the manager?<br />Use Manager chat with an authenticated backend.
+        </div>
+      </aside>
+    </div>
+  </body>
+</html>

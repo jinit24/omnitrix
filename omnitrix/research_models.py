@@ -65,6 +65,15 @@ class Finding(Contract):
     statement: str = Field(min_length=1, max_length=3000)
     classification: Literal['claim', 'assumption']
     evidence_ids: list[str] = Field(max_length=10)
+    category: Literal['mechanism', 'measurement', 'evidence_gap', 'observation'] = 'observation'
+    workload: str | None = Field(default=None, max_length=1500)
+    falsification: str | None = Field(default=None, max_length=1500)
+
+    @model_validator(mode='after')
+    def mechanism_contract(self):
+        if self.category == 'mechanism' and (not (self.workload or '').strip() or not (self.falsification or '').strip()):
+            raise ValueError('Mechanism findings require a workload and a falsification condition')
+        return self
 
 
 class ResearchReport(Contract):
